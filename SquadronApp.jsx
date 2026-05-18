@@ -28,6 +28,9 @@ export default function SquadronApp() {
   const [promotionApproved, setPromotionApproved] = useState({});
   const [reportType, setReportType] = useState('shooting');
   const [showD5Modal, setShowD5Modal] = useState(null);
+  // { [eventId]: { [cadetId]: 'unsent'|'sent'|'signed' } }
+  const [formStatus, setFormStatus] = useState({});
+  const [expandedEvent, setExpandedEvent] = useState(null);
 
   // === CONSTANTS ===
   const SQUADRON = {
@@ -118,13 +121,15 @@ export default function SquadronApp() {
     { id: 's5', firstName: 'Izzy',     lastName: 'Young',      rank: 'Plt Off',role: 'Cdt Liaison Officer',    dbs: '2027-02-19', ctc: '2028-09-11', quals: ['AVIP','DofE Supervisor'] },
   ];
 
+  // medical.conditions: null = none; string = description shown on TG23 (only populated when condition exists)
   const cadets = [
     { id:'c01', serviceNo:'SNI-2022-0741', firstName:'Ryan',    lastName:'Donnelly',
       dob:'2008-11-05', joinDate:'2022-11-09', rank:'FS',   classification:'SC',
       school:'Paisley Grammar', attendance:{ parades:58, present:52 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:true, dofeGold:false, btecL2:true, btecL3:false, aef:3, gliding:4 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Patricia Donnelly', phone:'07700 900781', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:'Asthma (controlled) — uses preventer inhaler daily, reliever carried at all times. No activity restrictions.' },
+      nextOfKin:{ name:'Patricia Donnelly', phone:'07700 900781', email:'p.donnelly@gmail.com', rel:'Mother' },
       status:'active', notes:'Ready for MAC assessment — needs DofE Silver verified on SMS.' },
 
     { id:'c02', serviceNo:'SNI-2022-0809', firstName:'Niamh',   lastName:'Gallagher',
@@ -132,7 +137,8 @@ export default function SquadronApp() {
       school:'St. Aidan\'s High', attendance:{ parades:61, present:57 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:true, dofeGold:true, btecL2:true, btecL3:true, aef:5, gliding:6 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Sean Gallagher', phone:'07700 900302', rel:'Father' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Sean Gallagher', phone:'07700 900302', email:'sean.gallagher77@outlook.com', rel:'Father' },
       status:'active', notes:'Cadet Warrant Officer. Applying for RAFAC scholarship.' },
 
     { id:'c03', serviceNo:'SNI-2023-1021', firstName:'Jamie',   lastName:'McAllister',
@@ -140,7 +146,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:42, present:38 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:true, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:2, gliding:1 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Anne McAllister', phone:'07700 900123', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Anne McAllister', phone:'07700 900123', email:'anne.mcallister@btinternet.com', rel:'Mother' },
       status:'active', notes:'Both WHTs complete. 24-month mark hit — SC eligible if DofE Bronze confirmed.' },
 
     { id:'c04', serviceNo:'SNI-2023-1044', firstName:'Erin',    lastName:'Stewart',
@@ -148,7 +155,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:41, present:39 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:2, gliding:2 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Moira Stewart', phone:'07700 900544', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Moira Stewart', phone:'07700 900544', email:'moira.stewart@sky.com', rel:'Mother' },
       status:'active', notes:'' },
 
     { id:'c05', serviceNo:'SNI-2023-1102', firstName:'Kyle',    lastName:'Anderson',
@@ -156,7 +164,8 @@ export default function SquadronApp() {
       school:'Paisley Grammar', attendance:{ parades:38, present:31 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'George Anderson', phone:'07700 900677', rel:'Father' },
+      medical:{ barToFlying:false, conditions:'Severe nut allergy — EpiPen prescribed and carried at all times. Staff briefed. No dietary risk for range/flying activities.' },
+      nextOfKin:{ name:'George Anderson', phone:'07700 900677', email:'george.anderson@gmail.com', rel:'Father' },
       status:'active', notes:'Has L98 WHT only — NOT eligible to shoot until .22 WHT complete.' },
 
     { id:'c06', serviceNo:'SNI-2024-1201', firstName:'Caitlin', lastName:'Fraser',
@@ -164,7 +173,8 @@ export default function SquadronApp() {
       school:'St. Aidan\'s High', attendance:{ parades:32, present:30 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'David Fraser', phone:'07700 900456', rel:'Father' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'David Fraser', phone:'07700 900456', email:'d.fraser1972@hotmail.co.uk', rel:'Father' },
       status:'active', notes:'L98 WHT complete, .22 WHT pending — cannot go on range yet.' },
 
     { id:'c07', serviceNo:'SNI-2024-1224', firstName:'Isla',    lastName:'Mackenzie',
@@ -172,7 +182,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:31, present:29 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:1 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Fiona Mackenzie', phone:'07700 900311', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Fiona Mackenzie', phone:'07700 900311', email:'fiona.mackenzie@gmail.com', rel:'Mother' },
       status:'active', notes:'' },
 
     { id:'c08', serviceNo:'SNI-2024-1251', firstName:'Sophie',  lastName:'Burns',
@@ -180,7 +191,8 @@ export default function SquadronApp() {
       school:'Linwood Academy', attendance:{ parades:28, present:26 },
       quals:{ whtL98:false, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Carol Burns', phone:'07700 900892', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:'Mild asthma — reliever inhaler (blue) carried as needed. No preventer required. Cleared for all activities by GP.' },
+      nextOfKin:{ name:'Carol Burns', phone:'07700 900892', email:'carol.burns@sky.com', rel:'Mother' },
       status:'active', notes:'Neither WHT done — priority for next range day.' },
 
     { id:'c09', serviceNo:'SNI-2024-1289', firstName:'Ross',    lastName:'Thomson',
@@ -188,7 +200,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:27, present:22 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Jim Thomson', phone:'07700 900113', rel:'Father' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Jim Thomson', phone:'07700 900113', email:'jimthomson@btinternet.com', rel:'Father' },
       status:'active', notes:'Both WHTs complete — eligible to shoot.' },
 
     { id:'c10', serviceNo:'SNI-2024-1310', firstName:'Callum',  lastName:'Robertson',
@@ -196,7 +209,8 @@ export default function SquadronApp() {
       school:'Paisley Grammar', attendance:{ parades:24, present:21 },
       quals:{ whtL98:false, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Susan Robertson', phone:'07700 900441', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Susan Robertson', phone:'07700 900441', email:'srobertson@gmail.com', rel:'Mother' },
       status:'active', notes:'' },
 
     { id:'c11', serviceNo:'SNI-2024-1341', firstName:'Declan',  lastName:"O'Brien",
@@ -204,7 +218,8 @@ export default function SquadronApp() {
       school:'St. Aidan\'s High', attendance:{ parades:23, present:18 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Patrick O\'Brien', phone:'07700 900552', rel:'Father' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:"Patrick O'Brien", phone:'07700 900552', email:'pobrien_jnst@outlook.com', rel:'Father' },
       status:'active', notes:'Attendance concern — below 80% threshold.' },
 
     { id:'c12', serviceNo:'SNI-2024-1377', firstName:'Megan',   lastName:'Hamilton',
@@ -212,7 +227,8 @@ export default function SquadronApp() {
       school:'Linwood Academy', attendance:{ parades:20, present:19 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Helen Hamilton', phone:'07700 900663', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Helen Hamilton', phone:'07700 900663', email:'helen.hamilton@gmail.com', rel:'Mother' },
       status:'active', notes:'L98 done, .22 WHT still outstanding.' },
 
     { id:'c13', serviceNo:'SNI-2025-1421', firstName:'Amy',     lastName:'Sinclair',
@@ -220,7 +236,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:16, present:15 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Karen Sinclair', phone:'07700 900774', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Karen Sinclair', phone:'07700 900774', email:'karensinclair@hotmail.com', rel:'Mother' },
       status:'active', notes:'Approaching 6-month mark — First Class eligible in Jul 2025.' },
 
     { id:'c14', serviceNo:'SNI-2025-1455', firstName:'Liam',    lastName:'Campbell',
@@ -228,7 +245,8 @@ export default function SquadronApp() {
       school:'Linwood Academy', attendance:{ parades:10, present:9 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Ian Campbell', phone:'07700 900885', rel:'Father' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Ian Campbell', phone:'07700 900885', email:'ian.campbell@sky.com', rel:'Father' },
       status:'active', notes:'' },
 
     { id:'c15', serviceNo:'SNI-2025-1489', firstName:'Connor',  lastName:'MacLeod',
@@ -236,7 +254,8 @@ export default function SquadronApp() {
       school:'Johnstone High', attendance:{ parades:10, present:10 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Claire MacLeod', phone:'07700 900996', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Claire MacLeod', phone:'07700 900996', email:'cmacleod1974@gmail.com', rel:'Mother' },
       status:'active', notes:'100% attendance — model new recruit.' },
 
     { id:'c16', serviceNo:'SNI-2026-1511', firstName:'Zara',    lastName:'Ahmed',
@@ -244,17 +263,45 @@ export default function SquadronApp() {
       school:'Paisley Grammar', attendance:{ parades:6, present:5 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false }, nextOfKin:{ name:'Fatima Ahmed', phone:'07700 901007', rel:'Mother' },
+      medical:{ barToFlying:false, conditions:null },
+      nextOfKin:{ name:'Fatima Ahmed', phone:'07700 901007', email:'fatima.ahmed@gmail.com', rel:'Mother' },
       status:'active', notes:'New recruit Feb 2026.' },
   ];
 
+  // TG23 is NOT a primary event form — it is generated per-cadet only when medical.conditions is set.
+  // Primary forms: TG21 (shooting/range), D5 (flying/gliding), RA (risk assessment for other activities).
+  const needsTG23 = (c) => !!c.medical.conditions;
+
+  // Forms needed for a cadet attending an event: primary form + TG23 if medical condition
+  const formsForCadet = (c, eventHsForm) => {
+    const forms = [eventHsForm];
+    if (needsTG23(c)) forms.push('TG23');
+    return forms;
+  };
+
+  const getFormStatus = (eventId, cadetId) =>
+    formStatus[eventId]?.[cadetId] || 'unsent';
+
+  const setOneFormStatus = (eventId, cadetId, status) =>
+    setFormStatus(prev => ({
+      ...prev,
+      [eventId]: { ...prev[eventId], [cadetId]: status },
+    }));
+
+  const sendAll = (eventId, cadetIds) => {
+    const updates = {};
+    cadetIds.forEach(id => { if (getFormStatus(eventId, id) === 'unsent') updates[id] = 'sent'; });
+    setFormStatus(prev => ({ ...prev, [eventId]: { ...prev[eventId], ...updates } }));
+    fireToast(`Forms sent to ${Object.keys(updates).length} parent${Object.keys(updates).length !== 1 ? 's' : ''} for e-signature`);
+  };
+
   const upcomingEvents = [
-    { id:'e1', name:'Shooting — L98 LFMT 6', date:'2026-05-16', type:'Shooting',    eligible: (c) => canShoot(c), hsForm:'TG21', attendees:8,  leadStaff:'FS Macfarlane', status:'approved' },
-    { id:'e2', name:'Sector 4 AFA Course',   date:'2026-05-23', type:'First Aid',   eligible: (c) => getAge(c.dob) >= 14, hsForm:'TG23', attendees:4, leadStaff:'CI Sweeney', status:'pending' },
-    { id:'e3', name:'Bronze Wings Synthetic', date:'2026-05-23', type:'Flying',      eligible: (c) => canFly(c), hsForm:'D5', attendees:6, leadStaff:'Flt Lt Pryde', status:'pending' },
-    { id:'e4', name:'WSW Road Marching',     date:'2026-05-30', type:'Sport',        eligible: (c) => getAge(c.dob) >= 13, hsForm:'TG23', attendees:10, leadStaff:'Plt Off Hooks', status:'draft' },
-    { id:'e5', name:'North Region Music Camp',date:'2026-05-22', type:'Music',       eligible: (c) => true, hsForm:'TG23', attendees:3, leadStaff:'CI Sweeney', status:'approved' },
-    { id:'e6', name:'Cyber Gold QCCD/013',   date:'2026-05-22', type:'Radio/Cyber',  eligible: (c) => c.classification !== 'none', hsForm:'TG23', attendees:2, leadStaff:'Plt Off Young', status:'approved' },
+    { id:'e1', name:'Shooting — L98 LFMT 6', date:'2026-05-16', type:'Shooting',   eligible: (c) => canShoot(c),              hsForm:'TG21', leadStaff:'FS Macfarlane', status:'approved' },
+    { id:'e2', name:'Sector 4 AFA Course',   date:'2026-05-23', type:'First Aid',   eligible: (c) => getAge(c.dob) >= 14,      hsForm:'RA',   leadStaff:'CI Sweeney',     status:'pending' },
+    { id:'e3', name:'Bronze Wings Synthetic', date:'2026-05-23', type:'Flying',     eligible: (c) => canFly(c),                hsForm:'D5',   leadStaff:'Flt Lt Pryde',   status:'pending' },
+    { id:'e4', name:'WSW Road Marching',     date:'2026-05-30', type:'Sport',       eligible: (c) => getAge(c.dob) >= 13,      hsForm:'RA',   leadStaff:'Plt Off Hooks',  status:'draft' },
+    { id:'e5', name:'North Region Music Camp',date:'2026-05-22', type:'Music',      eligible: (c) => c.status === 'active',    hsForm:'RA',   leadStaff:'CI Sweeney',     status:'approved' },
+    { id:'e6', name:'Cyber Gold QCCD/013',   date:'2026-05-22', type:'Radio/Cyber', eligible: (c) => c.classification !== 'none', hsForm:'RA', leadStaff:'Plt Off Young', status:'approved' },
   ];
 
   const ACTIVITIES = [
@@ -800,11 +847,26 @@ export default function SquadronApp() {
               ))}
             </div>
 
+            {/* Medical conditions */}
+            {needsTG23(c) && (
+              <>
+                <div className="section-head">Medical Conditions — TG23 Required</div>
+                <div style={{ background:'#fffbeb', borderRadius:10, padding:14, marginBottom:20, fontSize:13, border:'1px solid #fde68a' }}>
+                  <div style={{ fontWeight:600, color:'#92400e', marginBottom:4 }}>⚕ Condition on record</div>
+                  <div style={{ color:'#78350f', lineHeight:1.5 }}>{c.medical.conditions}</div>
+                  <div style={{ fontSize:11, color:'#a16207', marginTop:8 }}>A TG23 form will be included automatically when this cadet attends any activity.</div>
+                </div>
+              </>
+            )}
+
             {/* Next of kin */}
-            <div className="section-head">Next of Kin</div>
+            <div className="section-head">Next of Kin / Parent Contact</div>
             <div style={{ background:'#f8fafc', borderRadius:10, padding:14, marginBottom:20, fontSize:13 }}>
               <div style={{ fontWeight:600, color:'#0d1f44' }}>{c.nextOfKin.name} ({c.nextOfKin.rel})</div>
-              <div style={{ color:'#64748b', marginTop:4 }}>{c.nextOfKin.phone}</div>
+              <div style={{ color:'#64748b', marginTop:4, display:'flex', gap:16 }}>
+                <span>{c.nextOfKin.phone}</span>
+                <span style={{ color:'#003082' }}>{c.nextOfKin.email}</span>
+              </div>
             </div>
 
             {/* Actions */}
@@ -1024,16 +1086,16 @@ export default function SquadronApp() {
               <div style={{ display:'flex', gap:8 }}>
                 <span style={{ padding:'4px 12px', borderRadius:20, background:'#dcfce7', color:'#15803d', fontSize:12, fontWeight:600 }}>{shootingList.length} Eligible</span>
                 <span style={{ padding:'4px 12px', borderRadius:20, background:'#fee2e2', color:'#b91c1c', fontSize:12, fontWeight:600 }}>{activeCadets.length - shootingList.length} Not Eligible</span>
-                <button className="btn-ghost" style={{ display:'flex', alignItems:'center', gap:6 }} onClick={() => fireToast('Report downloaded — TG21 ready')}><Download size={14} />Export (TG21)</button>
+                <button className="btn-ghost" style={{ display:'flex', alignItems:'center', gap:6 }} onClick={() => fireToast('TG21 exported · TG23 generated for cadets with medical conditions')}><Download size={14} />Export (TG21 + TG23s)</button>
               </div>
             </div>
             <table className="report-table">
               <thead><tr>
-                <th>Name</th><th>Service No.</th><th>Rank</th><th>Age</th><th>L98 WHT</th><th>.22 WHT</th><th>Eligible</th>
+                <th>Name</th><th>Service No.</th><th>Rank</th><th>Age</th><th>L98 WHT</th><th>.22 WHT</th><th>Eligible</th><th>TG23</th>
               </tr></thead>
               <tbody>
                 {activeCadets.filter(c => getAge(c.dob) >= 13).map(c => (
-                  <tr key={c.id}>
+                  <tr key={c.id} style={{ background: needsTG23(c) ? '#fffbf0' : 'white' }}>
                     <td style={{ fontWeight:500 }}>{c.firstName} {c.lastName}</td>
                     <td style={{ fontFamily:'monospace', fontSize:12 }}>{c.serviceNo}</td>
                     <td><RankChip rank={c.rank} /></td>
@@ -1041,6 +1103,7 @@ export default function SquadronApp() {
                     <td style={{ color: c.quals.whtL98 ? '#15803d' : '#cf142b', fontWeight:600 }}>{c.quals.whtL98 ? '✓ Complete' : '✗ Incomplete'}</td>
                     <td style={{ color: c.quals.wht22 ? '#15803d' : '#cf142b', fontWeight:600 }}>{c.quals.wht22 ? '✓ Complete' : '✗ Incomplete'}</td>
                     <td style={{ fontWeight:700, color: canShoot(c) ? '#15803d' : '#cf142b' }}>{canShoot(c) ? 'YES' : 'NO'}</td>
+                    <td style={{ fontSize:12 }}>{needsTG23(c) ? <span style={{ color:'#92400e', fontWeight:600 }}>⚕ Required</span> : <span style={{ color:'#94a3b8' }}>—</span>}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1159,23 +1222,36 @@ export default function SquadronApp() {
           <div className="section-head">Events & H&S</div>
           <h2 style={{ fontSize:20, fontWeight:700, color:'#0d1f44', margin:0 }}>Upcoming Activities</h2>
         </div>
-        <button className="btn-primary" style={{ display:'flex', alignItems:'center', gap:6 }} onClick={() => fireToast('New event form — TG21/TG23/D5 will auto-populate')}><Plus size={14} />New Event</button>
+        <button className="btn-primary" style={{ display:'flex', alignItems:'center', gap:6 }}
+          onClick={() => fireToast('New event — forms will auto-populate once cadets are added')}>
+          <Plus size={14} />New Event
+        </button>
       </div>
 
       {upcomingEvents.map(ev => {
-        const eligible = activeCadets.filter(c => ev.eligible(c));
+        const attending = activeCadets.filter(c => ev.eligible(c));
+        const needMedical = attending.filter(c => needsTG23(c));
+        const isExpanded = expandedEvent === ev.id;
+
+        const sentCount   = attending.filter(c => getFormStatus(ev.id, c.id) === 'sent').length;
+        const signedCount = attending.filter(c => getFormStatus(ev.id, c.id) === 'signed').length;
+        const unsentCount = attending.filter(c => getFormStatus(ev.id, c.id) === 'unsent').length;
+
         return (
           <div key={ev.id} className="event-card" style={{ marginBottom:12 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
+            {/* Event header */}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
               <div>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
                   <div className={`event-card status-dot ${ev.status}`} />
                   <span style={{ fontSize:16, fontWeight:700, color:'#0d1f44' }}>{ev.name}</span>
                   <span style={{ fontSize:11, padding:'2px 8px', borderRadius:6, background:'#f1f5f9', color:'#64748b' }}>{ev.type}</span>
+                  {ev.hsForm === 'TG21' && <span style={{ fontSize:11, padding:'2px 8px', borderRadius:6, background:'#dbeafe', color:'#1d4ed8', fontWeight:600 }}>TG21</span>}
+                  {ev.hsForm === 'D5'   && <span style={{ fontSize:11, padding:'2px 8px', borderRadius:6, background:'#f3e8ff', color:'#7c3aed', fontWeight:600 }}>D5</span>}
                 </div>
                 <div style={{ fontSize:12, color:'#64748b' }}>
-                  {new Date(ev.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} ·
-                  Lead: {ev.leadStaff} · {ev.attendees} attending
+                  {new Date(ev.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · Lead: {ev.leadStaff} · {attending.length} eligible
+                  {needMedical.length > 0 && <span style={{ color:'#a16207', fontWeight:600 }}> · {needMedical.length} need TG23</span>}
                 </div>
               </div>
               <div style={{ display:'flex', gap:8, alignItems:'center' }}>
@@ -1187,32 +1263,137 @@ export default function SquadronApp() {
               </div>
             </div>
 
-            {/* H&S checklist */}
-            <div style={{ display:'flex', gap:24, fontSize:12, padding:'10px 12px', background:'#f8fafc', borderRadius:8 }}>
-              <div>
-                <span style={{ color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em', fontSize:10 }}>H&S Form</span>
-                <div style={{ fontWeight:700, color:'#003082', marginTop:2 }}>{ev.hsForm}</div>
-              </div>
-              <div>
-                <span style={{ color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em', fontSize:10 }}>Eligible Cadets</span>
-                <div style={{ fontWeight:700, color:'#0d1f44', marginTop:2 }}>{eligible.length} of {activeCadets.length}</div>
-              </div>
+            {/* H&S checklist strip */}
+            <div style={{ display:'flex', gap:20, fontSize:12, padding:'10px 12px', background:'#f8fafc', borderRadius:8, marginBottom:10, flexWrap:'wrap' }}>
               {[
                 { label:'Risk Assessment', done: ev.status !== 'draft' },
-                { label:'OC Sign-off', done: ev.status === 'approved' },
-                { label:'Travel Decl.', done: ev.status === 'approved' },
-                { label:`${ev.hsForm} Complete`, done: ev.status === 'approved' },
+                { label:'OC Sign-off',     done: ev.status === 'approved' },
+                { label:'Travel Decl.',    done: ev.status === 'approved' },
+                { label:`${ev.hsForm} filed`, done: ev.status === 'approved' },
               ].map(({ label, done }) => (
-                <div key={label} style={{ display:'flex', alignItems:'center', gap:6 }}>
-                  <span style={{ color: done ? '#15803d' : '#cf142b', fontWeight:700 }}>{done ? '✓' : '✗'}</span>
+                <div key={label} style={{ display:'flex', alignItems:'center', gap:5 }}>
+                  <span style={{ color: done ? '#15803d' : '#94a3b8', fontWeight:700 }}>{done ? '✓' : '○'}</span>
                   <span style={{ color: done ? '#374151' : '#94a3b8' }}>{label}</span>
                 </div>
               ))}
-              <button className="btn-ghost" style={{ marginLeft:'auto', fontSize:12, padding:'5px 12px' }}
+              <button className="btn-ghost" style={{ marginLeft:'auto', fontSize:11, padding:'4px 10px' }}
                 onClick={() => fireToast(`${ev.hsForm} generated for ${ev.name}`)}>
                 Generate {ev.hsForm}
               </button>
             </div>
+
+            {/* Form dispatch summary + expand toggle */}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 12px', background: signedCount === attending.length && attending.length > 0 ? '#f0fdf4' : '#fffbeb', borderRadius:8, border:`1px solid ${signedCount === attending.length && attending.length > 0 ? '#bbf7d0' : '#fde68a'}` }}>
+              <div style={{ display:'flex', gap:16, fontSize:12 }}>
+                <span style={{ color:'#64748b' }}>Parent e-signatures:</span>
+                <span style={{ fontWeight:700, color:'#15803d' }}>✓ {signedCount} signed</span>
+                {sentCount > 0   && <span style={{ fontWeight:600, color:'#a16207' }}>⏳ {sentCount} awaiting</span>}
+                {unsentCount > 0 && <span style={{ fontWeight:600, color:'#94a3b8' }}>○ {unsentCount} not sent</span>}
+                {needMedical.length > 0 && <span style={{ fontWeight:600, color:'#a16207' }}>⚕ {needMedical.length} TG23 required</span>}
+              </div>
+              <div style={{ display:'flex', gap:8 }}>
+                {unsentCount > 0 && (
+                  <button className="btn-primary btn-sm"
+                    onClick={() => sendAll(ev.id, attending.map(c => c.id))}>
+                    Send all forms
+                  </button>
+                )}
+                <button className="btn-ghost btn-sm"
+                  style={{ display:'flex', alignItems:'center', gap:4 }}
+                  onClick={() => setExpandedEvent(isExpanded ? null : ev.id)}>
+                  {isExpanded ? 'Hide' : 'Manage'} <ChevronDown size={12} style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition:'transform 0.2s' }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Expanded: per-cadet form dispatch */}
+            {isExpanded && (
+              <div style={{ marginTop:10, border:'1px solid #e2e8f0', borderRadius:10, overflow:'hidden' }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 180px 130px 120px 80px', padding:'8px 14px', background:'#f8fafc', borderBottom:'1px solid #e2e8f0', fontSize:11, fontWeight:600, color:'#64748b', textTransform:'uppercase', letterSpacing:'0.05em' }}>
+                  <span>Cadet</span><span>Parent email</span><span>Forms required</span><span>Signature status</span><span>Action</span>
+                </div>
+                {attending.map(c => {
+                  const status = getFormStatus(ev.id, c.id);
+                  const forms = formsForCadet(c, ev.hsForm);
+                  return (
+                    <div key={c.id} style={{ display:'grid', gridTemplateColumns:'1fr 180px 130px 120px 80px', padding:'10px 14px', borderBottom:'1px solid #f1f5f9', fontSize:13, alignItems:'center', background: needsTG23(c) ? '#fffbf0' : 'white' }}>
+                      <div>
+                        <div style={{ fontWeight:600, color:'#0d1f44' }}>{c.firstName} {c.lastName}</div>
+                        <div style={{ fontSize:11, color:'#94a3b8' }}>{c.rank}</div>
+                      </div>
+                      <div style={{ fontSize:12, color:'#475569', wordBreak:'break-all' }}>{c.nextOfKin.email}</div>
+                      <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+                        {forms.map(f => (
+                          <span key={f} style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:4,
+                            background: f==='TG21' ? '#dbeafe' : f==='TG23' ? '#fef3c7' : f==='D5' ? '#f3e8ff' : '#f1f5f9',
+                            color:      f==='TG21' ? '#1d4ed8' : f==='TG23' ? '#92400e' : f==='D5' ? '#7c3aed' : '#475569' }}>
+                            {f}
+                          </span>
+                        ))}
+                        {needsTG23(c) && (
+                          <span style={{ fontSize:10, color:'#a16207' }} title={c.medical.conditions}>⚕</span>
+                        )}
+                      </div>
+                      <div>
+                        {status === 'signed' && (
+                          <span style={{ fontSize:12, fontWeight:700, color:'#15803d', display:'flex', alignItems:'center', gap:4 }}>
+                            <CircleCheck size={14} />Signed
+                          </span>
+                        )}
+                        {status === 'sent' && (
+                          <span style={{ fontSize:12, fontWeight:600, color:'#a16207', display:'flex', alignItems:'center', gap:4 }}>
+                            <Clock size={14} />Awaiting
+                          </span>
+                        )}
+                        {status === 'unsent' && (
+                          <span style={{ fontSize:12, color:'#94a3b8' }}>Not sent</span>
+                        )}
+                      </div>
+                      <div style={{ display:'flex', gap:4 }}>
+                        {status === 'unsent' && (
+                          <button className="btn-primary btn-sm" style={{ fontSize:11 }}
+                            onClick={() => { setOneFormStatus(ev.id, c.id, 'sent'); fireToast(`Form sent to ${c.nextOfKin.name} (${c.nextOfKin.email})`); }}>
+                            Send
+                          </button>
+                        )}
+                        {status === 'sent' && (
+                          <>
+                            <button className="btn-ghost btn-sm" style={{ fontSize:11 }}
+                              onClick={() => { setOneFormStatus(ev.id, c.id, 'sent'); fireToast(`Resent to ${c.nextOfKin.email}`); }}>
+                              Resend
+                            </button>
+                            <button className="btn-ghost btn-sm" style={{ fontSize:11, color:'#15803d' }}
+                              onClick={() => { setOneFormStatus(ev.id, c.id, 'signed'); fireToast(`Marked as signed — ${c.firstName} ${c.lastName}`); }}>
+                              ✓ Mark signed
+                            </button>
+                          </>
+                        )}
+                        {status === 'signed' && (
+                          <button className="btn-ghost btn-sm" style={{ fontSize:11 }}
+                            onClick={() => fireToast(`Viewing signed form for ${c.firstName} ${c.lastName}`)}>
+                            View
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* TG23 medical summary for staff briefing */}
+                {needMedical.length > 0 && (
+                  <div style={{ padding:'12px 14px', background:'#fffbeb', borderTop:'2px solid #fde68a' }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#92400e', marginBottom:8 }}>⚕ TG23 — Medical conditions declared for this activity</div>
+                    {needMedical.map(c => (
+                      <div key={c.id} style={{ fontSize:12, color:'#78350f', marginBottom:6, display:'flex', gap:8 }}>
+                        <span style={{ fontWeight:600, whiteSpace:'nowrap' }}>{c.firstName} {c.lastName}:</span>
+                        <span>{c.medical.conditions}</span>
+                      </div>
+                    ))}
+                    <div style={{ fontSize:11, color:'#a16207', marginTop:8 }}>TG23 forms for these cadets have been sent to parents for signature. Print and carry on the activity.</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       })}
