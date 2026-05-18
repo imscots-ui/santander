@@ -28,6 +28,8 @@ export default function SquadronApp() {
   const [promotionApproved, setPromotionApproved] = useState({});
   const [reportType, setReportType] = useState('shooting');
   const [showD5Modal, setShowD5Modal] = useState(null);
+  const [showTG23Modal, setShowTG23Modal] = useState(null); // cadet object
+  const [showTG21Modal, setShowTG21Modal] = useState(null); // { cadet, event }
   // { [eventId]: { [cadetId]: 'unsent'|'sent'|'signed' } }
   const [formStatus, setFormStatus] = useState({});
   const [expandedEvent, setExpandedEvent] = useState(null);
@@ -123,147 +125,171 @@ export default function SquadronApp() {
 
   // medical.conditions: null = none; string = description shown on TG23 (only populated when condition exists)
   const cadets = [
-    { id:'c01', serviceNo:'SNI-2022-0741', firstName:'Ryan',    lastName:'Donnelly',
+    { id:'c01', serviceNo:'SNI-2022-0741', firstName:'Ryan',    lastName:'Donnelly', gender:'M',
       dob:'2008-11-05', joinDate:'2022-11-09', rank:'FS',   classification:'SC',
       school:'Paisley Grammar', attendance:{ parades:58, present:52 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:true, dofeGold:false, btecL2:true, btecL3:false, aef:3, gliding:4 },
-      medical:{ barToFlying:false, conditions:'Asthma (controlled) — uses preventer inhaler daily, reliever carried at all times. No activity restrictions.' },
+      medical:{
+        barToFlying:false,
+        conditions:'Asthma (controlled)',
+        medications:[{ name:'Salbutamol (Ventolin — blue reliever)', dosage:'2 puffs as required', storage:'Carried by cadet at all times in trouser pocket' }],
+        normalImpact:'No impact on normal daily activities.',
+        strenuousImpact:'May require reliever inhaler before or after sustained exercise. If symptoms persist, should rest immediately.',
+        professionalAdvice:'GP confirmed suitability for all cadet activities. Reliever must be available at all times.',
+        managementNotes:'Ryan carries his reliever at all times. Adult IC briefed. If using inhaler more than twice in one session, halt activity and contact parent.',
+      },
       nextOfKin:{ name:'Patricia Donnelly', phone:'07700 900781', email:'p.donnelly@gmail.com', rel:'Mother' },
       status:'active', notes:'Ready for MAC assessment — needs DofE Silver verified on SMS.' },
 
-    { id:'c02', serviceNo:'SNI-2022-0809', firstName:'Niamh',   lastName:'Gallagher',
+    { id:'c02', serviceNo:'SNI-2022-0809', firstName:'Niamh',   lastName:'Gallagher', gender:'F',
       dob:'2007-04-18', joinDate:'2022-09-14', rank:'WO',   classification:'MAC',
       school:'St. Aidan\'s High', attendance:{ parades:61, present:57 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:true, dofeGold:true, btecL2:true, btecL3:true, aef:5, gliding:6 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Sean Gallagher', phone:'07700 900302', email:'sean.gallagher77@outlook.com', rel:'Father' },
       status:'active', notes:'Cadet Warrant Officer. Applying for RAFAC scholarship.' },
 
-    { id:'c03', serviceNo:'SNI-2023-1021', firstName:'Jamie',   lastName:'McAllister',
+    { id:'c03', serviceNo:'SNI-2023-1021', firstName:'Jamie',   lastName:'McAllister', gender:'M',
       dob:'2009-03-14', joinDate:'2023-09-06', rank:'Sgt',  classification:'LC',
       school:'Johnstone High', attendance:{ parades:42, present:38 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:true, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:2, gliding:1 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Anne McAllister', phone:'07700 900123', email:'anne.mcallister@btinternet.com', rel:'Mother' },
       status:'active', notes:'Both WHTs complete. 24-month mark hit — SC eligible if DofE Bronze confirmed.' },
 
-    { id:'c04', serviceNo:'SNI-2023-1044', firstName:'Erin',    lastName:'Stewart',
+    { id:'c04', serviceNo:'SNI-2023-1044', firstName:'Erin',    lastName:'Stewart', gender:'F',
       dob:'2009-07-29', joinDate:'2023-09-06', rank:'Sgt',  classification:'SC',
       school:'Johnstone High', attendance:{ parades:41, present:39 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:true,
               dofeBronze:true, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:2, gliding:2 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Moira Stewart', phone:'07700 900544', email:'moira.stewart@sky.com', rel:'Mother' },
       status:'active', notes:'' },
 
-    { id:'c05', serviceNo:'SNI-2023-1102', firstName:'Kyle',    lastName:'Anderson',
+    { id:'c05', serviceNo:'SNI-2023-1102', firstName:'Kyle',    lastName:'Anderson', gender:'M',
       dob:'2009-01-11', joinDate:'2023-11-15', rank:'Sgt',  classification:'LC',
       school:'Paisley Grammar', attendance:{ parades:38, present:31 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false, conditions:'Severe nut allergy — EpiPen prescribed and carried at all times. Staff briefed. No dietary risk for range/flying activities.' },
+      medical:{
+        barToFlying:false,
+        conditions:'Severe nut allergy (anaphylaxis risk)',
+        medications:[{ name:'Adrenaline auto-injector (EpiPen 300mcg)', dosage:'One dose IM if anaphylaxis suspected — call 999 immediately', storage:'EpiPen 1: carried by Kyle at all times. EpiPen 2: held by Adult IC.' }],
+        normalImpact:'No impact provided no exposure to nuts or nut products.',
+        strenuousImpact:'No impact from exercise. Risk is allergen exposure only — not exertion.',
+        professionalAdvice:'Allergy consultant: avoid all nut products, carry EpiPen at all times, administer immediately if anaphylaxis suspected and call 999.',
+        managementNotes:'All staff briefed before every activity. No nut products permitted on any activity. Two EpiPens always present. 999 called immediately if EpiPen used.',
+      },
       nextOfKin:{ name:'George Anderson', phone:'07700 900677', email:'george.anderson@gmail.com', rel:'Father' },
       status:'active', notes:'Has L98 WHT only — NOT eligible to shoot until .22 WHT complete.' },
 
-    { id:'c06', serviceNo:'SNI-2024-1201', firstName:'Caitlin', lastName:'Fraser',
+    { id:'c06', serviceNo:'SNI-2024-1201', firstName:'Caitlin', lastName:'Fraser', gender:'F',
       dob:'2010-07-22', joinDate:'2024-01-17', rank:'Cpl',  classification:'FC',
       school:'St. Aidan\'s High', attendance:{ parades:32, present:30 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'David Fraser', phone:'07700 900456', email:'d.fraser1972@hotmail.co.uk', rel:'Father' },
       status:'active', notes:'L98 WHT complete, .22 WHT pending — cannot go on range yet.' },
 
-    { id:'c07', serviceNo:'SNI-2024-1224', firstName:'Isla',    lastName:'Mackenzie',
+    { id:'c07', serviceNo:'SNI-2024-1224', firstName:'Isla',    lastName:'Mackenzie', gender:'F',
       dob:'2010-02-03', joinDate:'2024-01-17', rank:'Cpl',  classification:'LC',
       school:'Johnstone High', attendance:{ parades:31, present:29 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:1 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Fiona Mackenzie', phone:'07700 900311', email:'fiona.mackenzie@gmail.com', rel:'Mother' },
       status:'active', notes:'' },
 
-    { id:'c08', serviceNo:'SNI-2024-1251', firstName:'Sophie',  lastName:'Burns',
+    { id:'c08', serviceNo:'SNI-2024-1251', firstName:'Sophie',  lastName:'Burns', gender:'F',
       dob:'2011-05-17', joinDate:'2024-03-06', rank:'Cpl',  classification:'FC',
       school:'Linwood Academy', attendance:{ parades:28, present:26 },
       quals:{ whtL98:false, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:'Mild asthma — reliever inhaler (blue) carried as needed. No preventer required. Cleared for all activities by GP.' },
+      medical:{
+        barToFlying:false,
+        conditions:'Mild asthma (reliever only)',
+        medications:[{ name:'Salbutamol inhaler (blue reliever)', dosage:'1–2 puffs as required, before sustained exercise', storage:'Carried by Sophie at all times in kit bag' }],
+        normalImpact:'No impact on normal daily activities. Asthma is well controlled.',
+        strenuousImpact:'May need reliever inhaler before or after sustained exercise. No other restriction.',
+        professionalAdvice:'GP has confirmed suitability for all cadet activities. Reliever must be available at all times.',
+        managementNotes:'Sophie carries her inhaler at all times. Adult IC to be briefed. If used more than twice in one session, halt activity and contact parent.',
+      },
       nextOfKin:{ name:'Carol Burns', phone:'07700 900892', email:'carol.burns@sky.com', rel:'Mother' },
       status:'active', notes:'Neither WHT done — priority for next range day.' },
 
-    { id:'c09', serviceNo:'SNI-2024-1289', firstName:'Ross',    lastName:'Thomson',
+    { id:'c09', serviceNo:'SNI-2024-1289', firstName:'Ross',    lastName:'Thomson', gender:'M',
       dob:'2010-09-30', joinDate:'2024-03-06', rank:'Cpl',  classification:'FC',
       school:'Johnstone High', attendance:{ parades:27, present:22 },
       quals:{ whtL98:true, wht22:true, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:1, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Jim Thomson', phone:'07700 900113', email:'jimthomson@btinternet.com', rel:'Father' },
       status:'active', notes:'Both WHTs complete — eligible to shoot.' },
 
-    { id:'c10', serviceNo:'SNI-2024-1310', firstName:'Callum',  lastName:'Robertson',
+    { id:'c10', serviceNo:'SNI-2024-1310', firstName:'Callum',  lastName:'Robertson', gender:'M',
       dob:'2011-12-08', joinDate:'2024-04-10', rank:'LCdt', classification:'FC',
       school:'Paisley Grammar', attendance:{ parades:24, present:21 },
       quals:{ whtL98:false, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Susan Robertson', phone:'07700 900441', email:'srobertson@gmail.com', rel:'Mother' },
       status:'active', notes:'' },
 
-    { id:'c11', serviceNo:'SNI-2024-1341', firstName:'Declan',  lastName:"O'Brien",
+    { id:'c11', serviceNo:'SNI-2024-1341', firstName:'Declan',  lastName:"O'Brien", gender:'M',
       dob:'2011-03-25', joinDate:'2024-04-10', rank:'LCdt', classification:'FC',
       school:'St. Aidan\'s High', attendance:{ parades:23, present:18 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:"Patrick O'Brien", phone:'07700 900552', email:'pobrien_jnst@outlook.com', rel:'Father' },
       status:'active', notes:'Attendance concern — below 80% threshold.' },
 
-    { id:'c12', serviceNo:'SNI-2024-1377', firstName:'Megan',   lastName:'Hamilton',
+    { id:'c12', serviceNo:'SNI-2024-1377', firstName:'Megan',   lastName:'Hamilton', gender:'F',
       dob:'2010-06-14', joinDate:'2024-06-05', rank:'LCdt', classification:'FC',
       school:'Linwood Academy', attendance:{ parades:20, present:19 },
       quals:{ whtL98:true, wht22:false, firstAid:true, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Helen Hamilton', phone:'07700 900663', email:'helen.hamilton@gmail.com', rel:'Mother' },
       status:'active', notes:'L98 done, .22 WHT still outstanding.' },
 
-    { id:'c13', serviceNo:'SNI-2025-1421', firstName:'Amy',     lastName:'Sinclair',
+    { id:'c13', serviceNo:'SNI-2025-1421', firstName:'Amy',     lastName:'Sinclair', gender:'F',
       dob:'2012-08-19', joinDate:'2025-01-22', rank:'LCdt', classification:'none',
       school:'Johnstone High', attendance:{ parades:16, present:15 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Karen Sinclair', phone:'07700 900774', email:'karensinclair@hotmail.com', rel:'Mother' },
       status:'active', notes:'Approaching 6-month mark — First Class eligible in Jul 2025.' },
 
-    { id:'c14', serviceNo:'SNI-2025-1455', firstName:'Liam',    lastName:'Campbell',
+    { id:'c14', serviceNo:'SNI-2025-1455', firstName:'Liam',    lastName:'Campbell', gender:'M',
       dob:'2012-04-07', joinDate:'2025-03-05', rank:'Cdt',  classification:'none',
       school:'Linwood Academy', attendance:{ parades:10, present:9 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Ian Campbell', phone:'07700 900885', email:'ian.campbell@sky.com', rel:'Father' },
       status:'active', notes:'' },
 
-    { id:'c15', serviceNo:'SNI-2025-1489', firstName:'Connor',  lastName:'MacLeod',
+    { id:'c15', serviceNo:'SNI-2025-1489', firstName:'Connor',  lastName:'MacLeod', gender:'M',
       dob:'2012-11-23', joinDate:'2025-03-05', rank:'Cdt',  classification:'none',
       school:'Johnstone High', attendance:{ parades:10, present:10 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Claire MacLeod', phone:'07700 900996', email:'cmacleod1974@gmail.com', rel:'Mother' },
       status:'active', notes:'100% attendance — model new recruit.' },
 
-    { id:'c16', serviceNo:'SNI-2026-1511', firstName:'Zara',    lastName:'Ahmed',
+    { id:'c16', serviceNo:'SNI-2026-1511', firstName:'Zara',    lastName:'Ahmed', gender:'F',
       dob:'2012-09-02', joinDate:'2026-02-04', rank:'Cdt',  classification:'none',
       school:'Paisley Grammar', attendance:{ parades:6, present:5 },
       quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
               dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
-      medical:{ barToFlying:false, conditions:null },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Fatima Ahmed', phone:'07700 901007', email:'fatima.ahmed@gmail.com', rel:'Mother' },
       status:'active', notes:'New recruit Feb 2026.' },
   ];
@@ -870,10 +896,18 @@ export default function SquadronApp() {
             </div>
 
             {/* Actions */}
-            <div style={{ display:'flex', gap:10 }}>
-              <button className="btn-primary" onClick={() => { setShowD5Modal(c); setSelectedCadet(null); }}>
-                Generate D5 (Flying)
-              </button>
+            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              {canFly(c) && (
+                <button className="btn-primary" onClick={() => { setShowD5Modal(c); setSelectedCadet(null); }}>
+                  Generate AvMed 1 (Flying)
+                </button>
+              )}
+              {needsTG23(c) && (
+                <button style={{ background:'#7c3aed', color:'white', border:'none', padding:'8px 18px', borderRadius:8, fontSize:13, fontWeight:500, cursor:'pointer' }}
+                  onClick={() => { setShowTG23Modal(c); setSelectedCadet(null); }}>
+                  View TG23
+                </button>
+              )}
               <button className="btn-ghost" onClick={() => { setTab('reports'); setSelectedCadet(null); }}>
                 View Reports
               </button>
@@ -1324,15 +1358,20 @@ export default function SquadronApp() {
                       <div style={{ fontSize:12, color:'#475569', wordBreak:'break-all' }}>{c.nextOfKin.email}</div>
                       <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
                         {forms.map(f => (
-                          <span key={f} style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:4,
-                            background: f==='TG21' ? '#dbeafe' : f==='TG23' ? '#fef3c7' : f==='D5' ? '#f3e8ff' : '#f1f5f9',
-                            color:      f==='TG21' ? '#1d4ed8' : f==='TG23' ? '#92400e' : f==='D5' ? '#7c3aed' : '#475569' }}>
+                          <span key={f}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (f === 'TG23') setShowTG23Modal(c);
+                              else if (f === 'TG21') setShowTG21Modal({ cadet: c, event: ev });
+                              else if (f === 'D5') setShowD5Modal(c);
+                            }}
+                            style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:4, cursor:'pointer',
+                              background: f==='TG21' ? '#dbeafe' : f==='TG23' ? '#fef3c7' : f==='D5' ? '#f3e8ff' : '#f1f5f9',
+                              color:      f==='TG21' ? '#1d4ed8' : f==='TG23' ? '#92400e' : f==='D5' ? '#7c3aed' : '#475569',
+                              textDecoration:'underline' }}>
                             {f}
                           </span>
                         ))}
-                        {needsTG23(c) && (
-                          <span style={{ fontSize:10, color:'#a16207' }} title={c.medical.conditions}>⚕</span>
-                        )}
                       </div>
                       <div>
                         {status === 'signed' && (
@@ -1400,49 +1439,471 @@ export default function SquadronApp() {
     </div>
   );
 
-  // ── D5 MODAL ───────────────────────────────────────────────
+  // ── AVMED 1 MODAL (flying medical clearance, replaces "D5") ─
   const D5Modal = () => {
     if (!showD5Modal) return null;
     const c = showD5Modal;
+    const conditions = [
+      { q:'Has the Cadet had a recent immunisation (inoculation/vaccination) or given a blood donation?', action:'DO NOT FLY within 24hrs of treatment' },
+      { q:'Does the Cadet suffer from Cerebral Palsy?', action:'DO NOT FLY (requires CFMO F6424 approval)' },
+      { q:'Does the Cadet suffer any acute or chronic illness/condition or started a new course of treatment which would be aggravated by flight (incl. unstable illnesses)?', action:'DO NOT FLY until recovered' },
+      { q:'Is the Cadet impaired by an injury limiting use of their limbs?', action:'DO NOT FLY until recovered' },
+      { q:'Is the Cadet suffering from an ear, nose, throat, or sinus condition?', action:'DO NOT FLY until recovered' },
+      { q:'Is the Cadet pregnant?', action:'DO NOT FLY' },
+      { q:'Does the cadet have a condition requiring use of oxygen therapy?', action:'DO NOT FLY' },
+      { q:'Does the Cadet have limited exercise capacity due to heart or lung illness?', action:'DO NOT FLY' },
+      { q:'Does the Cadet experience fits, faints, or blackouts?', action:'DO NOT FLY' },
+      { q:'Has the Cadet had a recent dental (local anaesthetic)?', action:'DO NOT FLY within 24hrs' },
+      { q:'Has the Cadet had recent cataract or ocular surgery?', action:'DO NOT FLY within 7 days' },
+      { q:'Does the Cadet suffer from pneumothorax (collapsed lung)?', action:'DO NOT FLY within 1 month' },
+      { q:'Does the Cadet have any stable chronic disease not covered, or any disease with a sudden or unpredictable condition?', action:'DO NOT FLY (unless holding CFMO approval)' },
+      { q:'Does the Cadet suffer from Migraine?', action:'DO NOT FLY' },
+      { q:'Does the Cadet have a neurological, behavioural, or autism condition?', action:'DO NOT FLY (unless holding CFMO approval)' },
+      { q:'Does the Cadet have any psychiatric disorder?', action:'DO NOT FLY (unless holding CFMO approval)' },
+      { q:'Does the Cadet suffer from any SEVERE allergy?', action:'DO NOT FLY without medication — not fit for solo flight' },
+      { q:'Does the Cadet have Asthma which is not stable?', action:'DO NOT FLY; if stable — FIT TO FLY, must carry medication, not fit solo flight' },
+      { q:'Has the Cadet had COVID within the last month?', action:'DO NOT FLY within one week of last symptoms' },
+    ];
+    const medicalFlag = c.medical.barToFlying;
     return (
-      <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', zIndex:60, display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ background:'white', borderRadius:16, padding:32, width:560, maxHeight:'90vh', overflowY:'auto' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-            <div>
-              <div style={{ fontSize:18, fontWeight:700, color:'#0d1f44' }}>Form D5 — Air Experience Flying</div>
-              <div style={{ fontSize:12, color:'#64748b' }}>Pre-populated from cadet record</div>
+      <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:60, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+        <div style={{ background:'white', borderRadius:16, width:700, maxHeight:'92vh', overflowY:'auto', display:'flex', flexDirection:'column' }}>
+          {/* Form header */}
+          <div style={{ background:'#0d1f44', padding:'16px 24px', borderRadius:'16px 16px 0 0', flexShrink:0 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4 }}>OFFICIAL-SENSITIVE — PERSONAL DATA</div>
+                <div style={{ fontSize:17, fontWeight:700, color:'white' }}>RAFAC Aviation Medical Form 1 (AvMed 1)</div>
+                <div style={{ fontSize:12, color:'rgba(255,255,255,0.6)', marginTop:2 }}>Conditions Requiring Medical Assessment for VGS Gliding/AEF Flying · Version 5.0</div>
+              </div>
+              <button onClick={() => setShowD5Modal(null)} style={{ background:'rgba(255,255,255,0.1)', border:'none', color:'white', borderRadius:8, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}><X size={16} /></button>
             </div>
-            <button onClick={() => setShowD5Modal(null)} style={{ background:'#f1f5f9', border:'none', borderRadius:8, padding:'6px 10px', cursor:'pointer' }}><X size={16} /></button>
           </div>
 
-          {[
-            { label:'Surname',         value: c.lastName },
-            { label:'First Name',      value: c.firstName },
-            { label:'Date of Birth',   value: new Date(c.dob).toLocaleDateString('en-GB') },
-            { label:'Age',             value: `${getAge(c.dob)} years` },
-            { label:'Service Number',  value: c.serviceNo },
-            { label:'Squadron',        value: SQUADRON.name },
-            { label:'Rank',            value: c.rank },
-            { label:'Classification',  value: CLASS_META[c.classification].label },
-            { label:'School',          value: c.school },
-            { label:'Medical Declaration', value: c.medical.barToFlying ? 'BAR TO FLYING — do not authorise' : 'No known bar to flying ✓' },
-            { label:'Previous AEF Sorties', value: `${c.quals.aef} sorties` },
-            { label:'Previous Gliding',     value: `${c.quals.gliding} sorties` },
-            { label:'Next of Kin',     value: `${c.nextOfKin.name} (${c.nextOfKin.rel}) — ${c.nextOfKin.phone}` },
-            { label:'OIC Signature',   value: `${SQUADRON.oic} — 1701 (Johnstone) Squadron` },
-            { label:'Date',            value: new Date().toLocaleDateString('en-GB') },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display:'flex', gap:16, padding:'8px 0', borderBottom:'1px solid #f1f5f9', fontSize:13 }}>
-              <div style={{ width:180, flexShrink:0, color:'#64748b', fontWeight:500 }}>{label}</div>
-              <div style={{ fontWeight:500, color: label==='Medical Declaration' && c.medical.barToFlying ? '#cf142b' : '#0d1f44' }}>{value}</div>
+          <div style={{ padding:'20px 24px' }}>
+            {/* Cadet details */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:10, marginBottom:20, padding:14, background:'#f8fafc', borderRadius:10 }}>
+              {[
+                { label:'First Name', value: c.firstName },
+                { label:'Surname',    value: c.lastName },
+                { label:'Sqn/CCF',    value: '1701 (Johnstone)' },
+                { label:'Wing',       value: 'Scotland & NI' },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:3 }}>{label}</div>
+                  <div style={{ fontSize:14, fontWeight:600, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
             </div>
-          ))}
 
-          <div style={{ marginTop:20, display:'flex', gap:10 }}>
-            <button className="btn-primary" onClick={() => { fireToast(`D5 generated for ${c.firstName} ${c.lastName}`); setShowD5Modal(null); }}>
-              Confirm & Download D5
-            </button>
-            <button className="btn-ghost" onClick={() => setShowD5Modal(null)}>Cancel</button>
+            {/* Instruction */}
+            <div style={{ padding:'10px 14px', background:'#eff6ff', borderRadius:8, fontSize:12, color:'#1d4ed8', marginBottom:16, fontWeight:500 }}>
+              Fit to fly if answered <strong>NO</strong>. Assessment decision/action applies if answered <strong>YES</strong>. To complete the form, tick YES or NO as appropriate.
+            </div>
+
+            {/* Conditions table */}
+            <div style={{ border:'1px solid #e2e8f0', borderRadius:10, overflow:'hidden', marginBottom:20 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 64px 1fr', padding:'8px 14px', background:'#0d1f44', fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.8)', textTransform:'uppercase', letterSpacing:'0.05em', gap:12 }}>
+                <span>Condition Requiring Scrutiny</span><span style={{ textAlign:'center' }}>Yes / No</span><span>Assessment Decision if YES</span>
+              </div>
+              {conditions.map((row, i) => (
+                <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 64px 1fr', gap:12, padding:'9px 14px', borderBottom:'1px solid #f1f5f9', fontSize:12, alignItems:'center', background: i%2===0 ? 'white' : '#fafafa' }}>
+                  <span style={{ color:'#374151', lineHeight:1.4 }}>{row.q}</span>
+                  <div style={{ display:'flex', gap:6, justifyContent:'center' }}>
+                    <span style={{ border:'1px solid #cbd5e1', borderRadius:4, padding:'2px 8px', fontSize:11, fontWeight:600, color:'#94a3b8' }}>YES</span>
+                    <span style={{ border:'1px solid #003082', borderRadius:4, padding:'2px 8px', fontSize:11, fontWeight:700, color:'#003082', background:'#eff6ff' }}>NO ✓</span>
+                  </div>
+                  <span style={{ fontSize:11, color:'#64748b', lineHeight:1.4 }}>{row.action}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Medical flag override */}
+            {medicalFlag && (
+              <div style={{ padding:14, background:'#fef2f2', borderRadius:10, border:'1px solid #fecaca', marginBottom:16, fontSize:13, color:'#7f1d1d', fontWeight:600 }}>
+                ⚠ CADET RECORD SHOWS BAR TO FLYING — Do not authorise this sortie.
+              </div>
+            )}
+
+            {/* Further information */}
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:12, fontWeight:600, color:'#475569', marginBottom:6 }}>Further Information (if any condition answered YES, give details here):</div>
+              <div style={{ border:'1px solid #e2e8f0', borderRadius:8, padding:10, minHeight:60, fontSize:12, color:'#94a3b8', background:'#fafafa' }}>
+                {c.medical.conditions ? c.medical.conditions : 'None'}
+                {c.medical.managementNotes ? ` — ${c.medical.managementNotes}` : ''}
+              </div>
+            </div>
+
+            {/* Declaration */}
+            <div style={{ padding:14, background:'#f8fafc', borderRadius:10, fontSize:12, color:'#374151', lineHeight:1.6, marginBottom:16 }}>
+              <strong>DECLARATION:</strong> I hereby declare that I have carefully considered the answers I have given on this RAFAC AvMed 1 form and that I have answered truthfully to the best of my knowledge, and that I have not withheld any relevant information. I also confirm that should my medical history change after signing this declaration I will ensure that the relevant ATC Sqn OC / CCF (RAF) Section Cdr is informed and a new RAFAC Av Med Form 1 is produced.
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:16 }}>
+              {[
+                { label:'Cadet Name', value: `${c.firstName} ${c.lastName}` },
+                { label:'Date', value: new Date().toLocaleDateString('en-GB') },
+                { label:`Parent/Guardian Name ${getAge(c.dob) < 18 ? '(cadet under 18)' : ''}`, value: getAge(c.dob) < 18 ? c.nextOfKin.name : 'N/A — cadet is 18+' },
+                { label:'Parent/Guardian Signature', value: '___________________________' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'1px solid #e2e8f0', paddingBottom:8 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, marginBottom:3 }}>{label}</div>
+                  <div style={{ fontSize:13, color:'#0d1f44', fontWeight:500 }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ padding:'10px 14px', background:'#f0fdf4', borderRadius:8, fontSize:12, color:'#15803d', fontWeight:500, marginBottom:20 }}>
+              ✓ This AvMed 1 is valid for <strong>12 months</strong> from the date of signing.
+            </div>
+
+            {/* ATC Sqn OC section */}
+            <div style={{ padding:12, background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:8, fontSize:12, marginBottom:20 }}>
+              <div style={{ fontWeight:600, color:'#475569', marginBottom:6 }}>ATC Sqn OC / CCF (RAF) Section:</div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
+                <div><div style={{ fontSize:11, color:'#94a3b8' }}>Name</div><div style={{ fontWeight:500 }}>FS K Macfarlane</div></div>
+                <div><div style={{ fontSize:11, color:'#94a3b8' }}>Rank</div><div style={{ fontWeight:500 }}>Flight Sergeant</div></div>
+                <div><div style={{ fontSize:11, color:'#94a3b8' }}>Signature</div><div>_______________</div></div>
+              </div>
+            </div>
+
+            <div style={{ display:'flex', gap:10 }}>
+              <button className="btn-primary" onClick={() => { fireToast(`AvMed 1 generated for ${c.firstName} ${c.lastName} — send to parent for signature`); setShowD5Modal(null); }}>
+                Generate & Send to Parent
+              </button>
+              <button className="btn-ghost" onClick={() => { fireToast(`AvMed 1 printed for ${c.firstName} ${c.lastName}`); }}>
+                Print
+              </button>
+              <button className="btn-ghost" onClick={() => setShowD5Modal(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ── TG23 MODAL ─────────────────────────────────────────────
+  const TG23Modal = () => {
+    if (!showTG23Modal) return null;
+    const c = showTG23Modal;
+    const isUnder18 = getAge(c.dob) < 18;
+    return (
+      <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:60, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+        <div style={{ background:'white', borderRadius:16, width:660, maxHeight:'92vh', overflowY:'auto', display:'flex', flexDirection:'column' }}>
+          {/* Header */}
+          <div style={{ background:'#7c3aed', padding:'16px 24px', borderRadius:'16px 16px 0 0', flexShrink:0 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.6)', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4 }}>OFFICIAL-SENSITIVE — PERSONAL DATA</div>
+                <div style={{ fontSize:17, fontWeight:700, color:'white' }}>TG Form 23 — Health Declaration Form</div>
+                <div style={{ fontSize:12, color:'rgba(255,255,255,0.6)', marginTop:2 }}>Version 8.0 · Pre-populated from cadet record</div>
+              </div>
+              <button onClick={() => setShowTG23Modal(null)} style={{ background:'rgba(255,255,255,0.15)', border:'none', color:'white', borderRadius:8, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}><X size={16} /></button>
+            </div>
+          </div>
+
+          <div style={{ padding:'20px 24px' }}>
+            {/* Instruction */}
+            <div style={{ padding:'10px 14px', background:'#fef9c3', borderRadius:8, fontSize:12, color:'#713f12', marginBottom:16, lineHeight:1.5 }}>
+              This form is required if you currently, or have ever, suffered from any of the conditions listed below:<br />
+              <span style={{ fontStyle:'italic' }}>Allergies, asthma, behavioural problems, blackouts, chest conditions, diabetes, ear or sinus problems, epilepsy, fainting, headaches, heart conditions, muscular/skeletal problems, vision problems, any previous major illness, any previous major injury, any condition not listed above.</span><br />
+              <strong>A separate TG Form 23 is to be completed for each medical condition to be declared.</strong>
+            </div>
+
+            {/* Personal details */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 120px 80px', gap:12, marginBottom:16 }}>
+              {[
+                { label:'Surname',       value: c.lastName },
+                { label:'Forename(s)',   value: c.firstName },
+                { label:'Date of Birth', value: new Date(c.dob).toLocaleDateString('en-GB') },
+                { label:'Gender',        value: c.gender || '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'2px solid #0d1f44', paddingBottom:6 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, marginBottom:3 }}>{label}</div>
+                  <div style={{ fontSize:14, fontWeight:600, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Condition declared */}
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#0d1f44', marginBottom:6 }}>Condition Declared:</div>
+              <div style={{ border:'2px solid #0d1f44', borderRadius:6, padding:10, fontSize:14, fontWeight:500, color:'#1a1f2e', minHeight:40 }}>
+                {c.medical.conditions || '—'}
+              </div>
+            </div>
+
+            {/* Medications table */}
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#0d1f44', marginBottom:6 }}>Medication(s):</div>
+              <div style={{ border:'1px solid #e2e8f0', borderRadius:8, overflow:'hidden' }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', padding:'7px 12px', background:'#0d1f44', fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.8)', gap:12 }}>
+                  <span>Name</span><span>Dosage &amp; Frequency</span><span>Storage Requirements</span>
+                </div>
+                {(c.medical.medications || []).length === 0 ? (
+                  <div style={{ padding:'10px 12px', fontSize:12, color:'#94a3b8' }}>NONE</div>
+                ) : (c.medical.medications || []).map((m, i) => (
+                  <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', padding:'10px 12px', borderTop:'1px solid #f1f5f9', fontSize:12, gap:12, alignItems:'start' }}>
+                    <span style={{ fontWeight:600, color:'#0d1f44' }}>{m.name}</span>
+                    <span style={{ color:'#374151' }}>{m.dosage}</span>
+                    <span style={{ color:'#374151' }}>{m.storage}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Impact sections */}
+            {[
+              { label:'How are you affected by the condition during normal routine activities:', value: c.medical.normalImpact },
+              { label:'How are you affected by the condition during strenuous activities:', value: c.medical.strenuousImpact },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ marginBottom:14 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:'#0d1f44', marginBottom:6 }}>{label}</div>
+                <div style={{ border:'1px solid #e2e8f0', borderRadius:8, padding:10, minHeight:44, fontSize:13, color:'#374151', background:'#fafafa' }}>{value || <span style={{ color:'#94a3b8' }}>Not provided</span>}</div>
+              </div>
+            ))}
+
+            {/* Professional advice */}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#0d1f44', marginBottom:6 }}>Have you sought advice from a healthcare professional about your condition in relation to this activity?</div>
+              <div style={{ display:'flex', gap:10, marginBottom:8 }}>
+                <span style={{ border:'2px solid #003082', borderRadius:6, padding:'4px 16px', fontSize:13, fontWeight:700, color:'#003082', background:'#eff6ff' }}>{c.medical.professionalAdvice ? 'YES ✓' : 'NO'}</span>
+              </div>
+              {c.medical.professionalAdvice && (
+                <div style={{ border:'1px solid #e2e8f0', borderRadius:8, padding:10, fontSize:13, color:'#374151', background:'#fafafa' }}>{c.medical.professionalAdvice}</div>
+              )}
+            </div>
+
+            {/* Management notes */}
+            <div style={{ marginBottom:20 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#0d1f44', marginBottom:6 }}>Additional information / comments regarding the management of your condition:</div>
+              <div style={{ border:'1px solid #e2e8f0', borderRadius:8, padding:10, minHeight:44, fontSize:13, color:'#374151', background:'#fafafa' }}>
+                {c.medical.managementNotes || <span style={{ color:'#94a3b8' }}>None</span>}
+              </div>
+            </div>
+
+            {/* Declaration */}
+            <div style={{ padding:14, background:'#f8fafc', borderRadius:10, fontSize:12, color:'#374151', lineHeight:1.7, marginBottom:16 }}>
+              <strong>Declaration</strong><br />
+              I fully understand that the activities may be strenuous and conducted in environmental conditions such as dust, fumes, extremes of temperature and altitudes that may aggravate my condition. I confirm that I have consulted a healthcare professional if there is any doubt regarding my suitability or my fitness / ability to take part in the activity.<br /><br />
+              Should there be any change in my condition after signing this declaration, I will inform the office in charge of the activity prior to travelling to the activity.<br /><br />
+              <em>If travelling overseas:</em> I understand that I must give full details of any conditions for which I have been treated in the preceding twelve months of any overseas activities.
+            </div>
+
+            {/* Signature blocks */}
+            {isUnder18 ? (
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+                <div style={{ padding:14, border:'2px solid #0d1f44', borderRadius:10 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#0d1f44', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>CFAV/Cadet below age 18 (at date of Signature)</div>
+                  <div style={{ marginBottom:8 }}>
+                    <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3 }}>Name in BLOCK Letters (parent / guardian)</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#0d1f44', textTransform:'uppercase', letterSpacing:'0.05em' }}>{c.nextOfKin.name}</div>
+                  </div>
+                  <div style={{ borderTop:'1px solid #e2e8f0', paddingTop:8 }}>
+                    <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3 }}>Signature</div>
+                    <div style={{ fontSize:12, color:'#94a3b8', fontStyle:'italic' }}>Awaiting e-signature — {c.nextOfKin.email}</div>
+                  </div>
+                </div>
+                <div style={{ padding:14, border:'1px solid #e2e8f0', borderRadius:10, background:'#fafafa' }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>CFAV/Cadet aged 18 or above</div>
+                  <div style={{ fontSize:12, color:'#94a3b8' }}>N/A — cadet is under 18</div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding:14, border:'2px solid #0d1f44', borderRadius:10, marginBottom:16 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'#0d1f44', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>CFAV/Cadet aged 18 or above (at date of Signature)</div>
+                <div style={{ marginBottom:8 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3 }}>Name in BLOCK Letters</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#0d1f44', textTransform:'uppercase' }}>{c.firstName} {c.lastName}</div>
+                </div>
+              </div>
+            )}
+
+            {/* DPA notice */}
+            <div style={{ padding:10, background:'#f1f5f9', borderRadius:8, fontSize:11, color:'#64748b', lineHeight:1.5, marginBottom:20 }}>
+              <strong>Data Protection Act 2018:</strong> This form contains personal data as defined by the DPA 2018. The RAFAC will protect the personal data provided and ensure that it is not passed to anyone who is not authorised to see it. The information provided will be processed in accordance with the regulations contained in the Act and the RAFAC privacy notice.
+            </div>
+
+            <div style={{ display:'flex', gap:10 }}>
+              <button className="btn-primary" onClick={() => { fireToast(`TG23 sent to ${c.nextOfKin.name} at ${c.nextOfKin.email} for e-signature`); setShowTG23Modal(null); }}>
+                Send to Parent for E-Signature
+              </button>
+              <button className="btn-ghost" onClick={() => fireToast(`TG23 printed for ${c.firstName} ${c.lastName}`)}>Print</button>
+              <button className="btn-ghost" onClick={() => setShowTG23Modal(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ── TG21 MODAL ─────────────────────────────────────────────
+  const TG21Modal = () => {
+    if (!showTG21Modal) return null;
+    const { cadet: c, event: ev } = showTG21Modal;
+    const isUnder18 = getAge(c.dob) < 18;
+    const tg23Count = needsTG23(c) ? (c.medical.conditions ? 1 : 0) : 0;
+    return (
+      <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:60, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+        <div style={{ background:'white', borderRadius:16, width:680, maxHeight:'92vh', overflowY:'auto', display:'flex', flexDirection:'column' }}>
+          {/* Header */}
+          <div style={{ background:'#003082', padding:'16px 24px', borderRadius:'16px 16px 0 0', flexShrink:0 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:4 }}>OFFICIAL-SENSITIVE — PERSONAL DATA</div>
+                <div style={{ fontSize:17, fontWeight:700, color:'white' }}>TG Form 21 — Cadet Activities Consent &amp; Health Form</div>
+                <div style={{ fontSize:12, color:'rgba(255,255,255,0.6)', marginTop:2 }}>CP Version 6.0 · Pre-populated from cadet record</div>
+              </div>
+              <button onClick={() => setShowTG21Modal(null)} style={{ background:'rgba(255,255,255,0.1)', border:'none', color:'white', borderRadius:8, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}><X size={16} /></button>
+            </div>
+          </div>
+
+          <div style={{ padding:'20px 24px' }}>
+            {/* Activity details */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 120px 120px', gap:12, marginBottom:16, padding:14, background:'#f8fafc', borderRadius:10 }}>
+              {[
+                { label:'Activity',   value: ev ? ev.name : '—' },
+                { label:'Location',   value: ev ? 'TBC' : '—' },
+                { label:'Date From',  value: ev ? new Date(ev.date).toLocaleDateString('en-GB') : '—' },
+                { label:'Date To',    value: ev ? new Date(ev.date).toLocaleDateString('en-GB') : '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'1px solid #e2e8f0', paddingBottom:6 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, marginBottom:3 }}>{label}</div>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Cadet details */}
+            <div style={{ fontSize:13, fontWeight:700, color:'#0d1f44', marginBottom:10 }}>Cadet Details</div>
+            <div style={{ display:'grid', gridTemplateColumns:'80px 1fr 100px 120px 80px', gap:10, marginBottom:14 }}>
+              {[
+                { label:'Rank',          value: c.rank },
+                { label:'Surname',       value: c.lastName },
+                { label:'Male/Female',   value: c.gender === 'M' ? 'Male' : c.gender === 'F' ? 'Female' : '—' },
+                { label:'Date of Birth', value: new Date(c.dob).toLocaleDateString('en-GB') },
+                { label:'Age',           value: `${getAge(c.dob)} yrs` },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'2px solid #0d1f44', paddingBottom:6 }}>
+                  <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, marginBottom:2 }}>{label}</div>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:14 }}>
+              {[
+                { label:'Forenames',    value: c.firstName },
+                { label:'ATC Wing/Sqn', value: '1701 (Johnstone) Sqn' },
+                { label:'CCF Unit',     value: 'N/A' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'1px solid #e2e8f0', paddingBottom:6 }}>
+                  <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, marginBottom:2 }}>{label}</div>
+                  <div style={{ fontSize:13, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
+              {[
+                { label:'Nationality',             value: 'British' },
+                { label:'Religion',                value: '—' },
+                { label:'Special Religious Needs', value: 'None' },
+                { label:'Dietary Conditions',      value: needsTG23(c) && c.medical.conditions?.toLowerCase().includes('allergy') ? 'See TG23 — allergy declared' : 'None' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'1px solid #e2e8f0', paddingBottom:6 }}>
+                  <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, marginBottom:2 }}>{label}</div>
+                  <div style={{ fontSize:13, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* DBS (if 18+) */}
+            {!isUnder18 && (
+              <div style={{ padding:10, background:'#fffbeb', borderRadius:8, fontSize:12, color:'#713f12', marginBottom:14 }}>
+                Cadet is 18+ — DBS/Disclosure Scotland/Access NI clearance number required if applicable.
+              </div>
+            )}
+
+            {/* Next of kin */}
+            <div style={{ fontSize:13, fontWeight:700, color:'#0d1f44', marginBottom:10 }}>Person Having Parental Responsibility / Next of Kin</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
+              {[
+                { label:'Name', value: c.nextOfKin.name },
+                { label:'Relationship', value: c.nextOfKin.rel },
+                { label:'Home Telephone', value: c.nextOfKin.phone },
+                { label:'Mobile Tel', value: c.nextOfKin.phone },
+                { label:'Email', value: c.nextOfKin.email },
+                { label:'Home Address', value: '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderBottom:'1px solid #e2e8f0', paddingBottom:6 }}>
+                  <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, marginBottom:2 }}>{label}</div>
+                  <div style={{ fontSize:13, color:'#0d1f44' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Medical section */}
+            <div style={{ fontSize:13, fontWeight:700, color:'#0d1f44', marginBottom:8 }}>Health Questions</div>
+            <div style={{ padding:'10px 14px', background: tg23Count > 0 ? '#fffbeb' : '#f0fdf4', borderRadius:8, fontSize:12, marginBottom:16, border:`1px solid ${tg23Count > 0 ? '#fde68a' : '#bbf7d0'}` }}>
+              <div style={{ fontWeight:600, color: tg23Count > 0 ? '#92400e' : '#15803d', marginBottom:4 }}>
+                {tg23Count > 0 ? `⚕ ${tg23Count} TG Form 23 completed — condition: ${c.medical.conditions}` : '✓ No medical conditions declared'}
+              </div>
+              {[
+                { label:'Medications being taken', value: (c.medical.medications||[]).length > 0 ? c.medical.medications.map(m=>m.name).join(', ') : 'NONE' },
+                { label:'Allergies', value: needsTG23(c) && c.medical.conditions?.toLowerCase().includes('allergy') ? c.medical.conditions : 'NONE' },
+                { label:'Ongoing regular care', value: c.medical.professionalAdvice || 'NONE' },
+                { label:'NHS Number', value: '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ display:'flex', gap:8, fontSize:12, marginBottom:4 }}>
+                  <span style={{ color:'#64748b', fontWeight:600, whiteSpace:'nowrap' }}>{label}:</span>
+                  <span style={{ color:'#374151' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Consent declaration */}
+            <div style={{ padding:14, background:'#f8fafc', borderRadius:10, fontSize:12, color:'#374151', lineHeight:1.7, marginBottom:16 }}>
+              {isUnder18 ? (
+                <><strong>Cadet below the Age of 18:</strong> I give full consent to the above named cadet to attend the activity detailed above. I understand that he/she will be subject to Air Cadets care and discipline and must conform to appearance standards required. Permission is given to participate in all appropriate activities. I give permission to the Course Commander or his appointed representative to act as the person in loco parentis should he/she have to undergo medical treatment including any emergency operation to which I am unable physically to give consent.</>
+              ) : (
+                <><strong>Cadet age 18 or above at time of signature:</strong> I understand that I am subject to Air Cadets care and discipline and must conform to appearance standards required. I wish to participate in all appropriate activities.</>
+              )}
+            </div>
+
+            {/* Signature block */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
+              <div style={{ padding:14, border:'2px solid #0d1f44', borderRadius:10 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'#0d1f44', marginBottom:10, textTransform:'uppercase', letterSpacing:'0.05em' }}>
+                  {isUnder18 ? 'Person with Parental Responsibility' : 'Cadet (18+)'}
+                </div>
+                <div style={{ marginBottom:8 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3 }}>Name in BLOCK Letters</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#0d1f44', textTransform:'uppercase' }}>
+                    {isUnder18 ? c.nextOfKin.name : `${c.firstName} ${c.lastName}`}
+                  </div>
+                </div>
+                <div style={{ borderTop:'1px solid #e2e8f0', paddingTop:8 }}>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3 }}>Signature</div>
+                  <div style={{ fontSize:12, color:'#94a3b8', fontStyle:'italic' }}>Awaiting e-signature — {c.nextOfKin.email}</div>
+                </div>
+              </div>
+              <div style={{ padding:14, border:'1px solid #e2e8f0', borderRadius:10, background:'#fafafa', fontSize:12, color:'#94a3b8' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', marginBottom:6, textTransform:'uppercase' }}>Date / Time</div>
+                <div style={{ fontSize:12, color:'#374151' }}>{new Date(ev?.date||Date.now()).toLocaleDateString('en-GB')}</div>
+              </div>
+            </div>
+
+            {/* DPA notice */}
+            <div style={{ padding:10, background:'#f1f5f9', borderRadius:8, fontSize:11, color:'#64748b', lineHeight:1.5, marginBottom:20 }}>
+              <strong>Data Protection Act 2018:</strong> The information contained in this document is classified as sensitive personal information and is subject to the provisions of the Data Protection Act 1998. It is necessary for such information to be retained for legal purposes. Only such data as is relevant to the cadet's attendance on the activity will be used or retained. Signing this form indicates your consent to the processing of the information contained herein.
+            </div>
+
+            <div style={{ display:'flex', gap:10 }}>
+              <button className="btn-primary" onClick={() => { fireToast(`TG21 sent to ${c.nextOfKin.name} at ${c.nextOfKin.email} for e-signature`); setShowTG21Modal(null); }}>
+                Send to Parent for E-Signature
+              </button>
+              <button className="btn-ghost" onClick={() => fireToast(`TG21 printed for ${c.firstName} ${c.lastName}`)}>Print</button>
+              <button className="btn-ghost" onClick={() => setShowTG21Modal(null)}>Close</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1533,8 +1994,10 @@ export default function SquadronApp() {
       </div>
 
       {/* Overlays */}
-      {selectedCadet && <CadetDrawer />}
-      {showD5Modal   && <D5Modal />}
+      {selectedCadet  && <CadetDrawer />}
+      {showD5Modal    && <D5Modal />}
+      {showTG23Modal  && <TG23Modal />}
+      {showTG21Modal  && <TG21Modal />}
 
       {/* Toast */}
       {toast && (
