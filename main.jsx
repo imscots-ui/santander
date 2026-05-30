@@ -11,7 +11,9 @@ import CadetApp from './CadetApp.jsx';
 import WingApp from './WingApp.jsx';
 import './index.css';
 
-const appParam = new URLSearchParams(window.location.search).get('app');
+const appParam = new URLSearchParams(window.location.search).get('app')
+  || window.__RAFAC_APP__
+  || null;
 
 let ActiveApp = App;
 if (appParam === 'squadron') ActiveApp = SquadronApp;
