@@ -3,7 +3,7 @@
  * Squadron Management Interface — Prototype
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Users, Shield, Star, Award, ChevronRight, Search, X, Check,
   AlertTriangle, Clock, Calendar, FileText, Download, UserCheck,
@@ -12,6 +12,11 @@ import {
   CircleCheck, AlertCircle, Lock, TrendingUp, Eye, Filter, Zap,
   Flag, Plus, Printer, LayoutDashboard, UserCog, Crosshair
 } from 'lucide-react';
+import {
+  getFormStatus as loadFormStatus,
+  updateFormStatus,
+  subscribeFormUpdates,
+} from './dataStore.js';
 
 export default function SquadronApp() {
 
@@ -30,9 +35,17 @@ export default function SquadronApp() {
   const [showD5Modal, setShowD5Modal] = useState(null);
   const [showTG23Modal, setShowTG23Modal] = useState(null); // cadet object
   const [showTG21Modal, setShowTG21Modal] = useState(null); // { cadet, event }
-  // { [eventId]: { [cadetId]: 'unsent'|'sent'|'signed' } }
-  const [formStatus, setFormStatus] = useState({});
+  // { [eventId]: { [cadetId]: 'unsent'|'sent'|'signed' } } — persisted to localStorage
+  const [formStatus, setFormStatus] = useState(() => loadFormStatus());
   const [expandedEvent, setExpandedEvent] = useState(null);
+
+  // Sync form-signed events from cadet portal (parent signs → squadron sees "signed" live)
+  useEffect(() => subscribeFormUpdates((detail) => {
+    setFormStatus(prev => ({
+      ...prev,
+      [detail.eventId]: { ...prev[detail.eventId], [detail.cadetId]: detail.status },
+    }));
+  }), []);
 
   // === CONSTANTS ===
   const SQUADRON = {
@@ -317,16 +330,19 @@ export default function SquadronApp() {
   const getFormStatus = (eventId, cadetId) =>
     formStatus[eventId]?.[cadetId] || 'unsent';
 
-  const setOneFormStatus = (eventId, cadetId, status) =>
+  const setOneFormStatus = (eventId, cadetId, status) => {
     setFormStatus(prev => ({
       ...prev,
       [eventId]: { ...prev[eventId], [cadetId]: status },
     }));
+    updateFormStatus(eventId, cadetId, status);
+  };
 
   const sendAll = (eventId, cadetIds) => {
     const updates = {};
     cadetIds.forEach(id => { if (getFormStatus(eventId, id) === 'unsent') updates[id] = 'sent'; });
     setFormStatus(prev => ({ ...prev, [eventId]: { ...prev[eventId], ...updates } }));
+    Object.entries(updates).forEach(([id, status]) => updateFormStatus(eventId, id, status));
     fireToast(`Forms sent to ${Object.keys(updates).length} parent${Object.keys(updates).length !== 1 ? 's' : ''} for e-signature`);
   };
 

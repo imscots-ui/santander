@@ -3,13 +3,18 @@
  * Cadet Interface — phone-first prototype
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ChevronRight, Check, X, Plane, Shield, BookOpen,
   AlertTriangle, Trophy, Crosshair, Mountain, Music,
   Radio, Bell, User, Star, Award, Target, Clock,
   ChevronDown, ChevronUp, Zap, Heart, Flag
 } from 'lucide-react';
+import {
+  EVENTS as GLOBAL_EVENTS,
+  getFormStatus as loadFormStatus,
+  subscribeFormUpdates,
+} from './dataStore.js';
 
 export default function CadetApp() {
 
@@ -17,7 +22,11 @@ export default function CadetApp() {
   const [tab, setTab]                   = useState('home');
   const [selectedId, setSelectedId]     = useState('c01');
   const [showSwitcher, setShowSwitcher] = useState(false);
-  const [expandedQual, setExpandedQual] = useState(null);
+  const [expandedQual, setExpandedQual]     = useState(null);
+  // Form status from localStorage — updates live when parent signs in cadet portal
+  const [lsFormStatus, setLsFormStatus] = useState(() => loadFormStatus());
+
+  useEffect(() => subscribeFormUpdates(() => setLsFormStatus(loadFormStatus())), []);
 
   // === CONSTANTS ===
   const today = new Date('2026-05-18');
@@ -533,29 +542,40 @@ export default function CadetApp() {
             </div>
           )}
 
-          {/* Upcoming events */}
-          {cadet.events.length > 0 && (
-            <div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
-                Upcoming Events
-              </div>
-              {cadet.events.map(ev => (
-                <div key={ev.id} className={`event-pill ${ev.status}`}>
-                  <div style={{ width:8, height:8, borderRadius:'50%', background: ev.status==='signed' ? '#10b981' : '#f59e0b', flexShrink:0 }} />
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'white' }}>{ev.name}</div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:1 }}>
-                      {new Date(ev.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
-                      {' · '}
-                      {ev.status === 'signed'
-                        ? <span style={{ color:'#10b981' }}>Forms signed ✓</span>
-                        : <span style={{ color:'#f59e0b' }}>Forms awaiting parent signature</span>}
-                    </div>
-                  </div>
+          {/* Upcoming events — live from global schedule, form status from shared store */}
+          {(() => {
+            const myEvents = GLOBAL_EVENTS
+              .filter(e => e.eligible(cadet))
+              .map(e => ({ ...e, fs: lsFormStatus[e.id]?.[cadet.id] || 'unsent' }));
+            if (myEvents.length === 0) return null;
+            return (
+              <div>
+                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
+                  Upcoming Events
                 </div>
-              ))}
-            </div>
-          )}
+                {myEvents.map(ev => {
+                  const dotColor = ev.fs === 'signed' ? '#10b981' : ev.fs === 'sent' ? '#f59e0b' : '#475569';
+                  const statusText = ev.fs === 'signed'
+                    ? <span style={{ color:'#10b981' }}>Forms signed ✓</span>
+                    : ev.fs === 'sent'
+                    ? <span style={{ color:'#f59e0b' }}>Awaiting parent signature</span>
+                    : <span style={{ color:'rgba(255,255,255,0.3)' }}>Forms not yet issued</span>;
+                  return (
+                    <div key={ev.id} className="event-pill" style={{ borderColor: ev.fs === 'signed' ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)' }}>
+                      <div style={{ width:8, height:8, borderRadius:'50%', background: dotColor, flexShrink:0 }} />
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:'white' }}>{ev.name}</div>
+                        <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:1 }}>
+                          {new Date(ev.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+                          {' · '}{statusText}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           {/* Activities quick view */}
           <div className="glass-card" style={{ padding:'14px 16px' }}>
