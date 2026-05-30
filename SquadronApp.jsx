@@ -292,6 +292,15 @@ export default function SquadronApp() {
       medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
       nextOfKin:{ name:'Fatima Ahmed', phone:'07700 901007', email:'fatima.ahmed@gmail.com', rel:'Mother' },
       status:'active', notes:'New recruit Feb 2026.' },
+
+    { id:'c17', serviceNo:'SNI-2026-1532', firstName:'Ethan',   lastName:'Murray', gender:'M',
+      dob:'2013-08-15', joinDate:'2026-01-15', rank:'Cdt',  classification:'none',
+      school:'Johnstone High', attendance:{ parades:8, present:8 },
+      quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
+              dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
+      medical:{ barToFlying:false, conditions:null, medications:[], normalImpact:'', strenuousImpact:'', professionalAdvice:'', managementNotes:'' },
+      nextOfKin:{ name:'Sharon Murray', phone:'07700 901118', email:'sharon.murray@gmail.com', rel:'Mother' },
+      status:'active', notes:'Joined at age 12 — youngest on strength. 100% attendance.' },
   ];
 
   // TG23 is NOT a primary event form — it is generated per-cadet only when medical.conditions is set.

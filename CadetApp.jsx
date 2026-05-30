@@ -135,6 +135,17 @@ export default function CadetApp() {
       nextOfKin:{ name:'Karen Sinclair', phone:'07700 900774', email:'karensinclair@hotmail.com', rel:'Mother' },
       events:[],
     },
+    {
+      id:'c17', serviceNo:'SNI-2026-1532', firstName:'Ethan', lastName:'Murray', gender:'M',
+      dob:'2013-08-15', joinDate:'2026-01-15', rank:'Cdt', classification:'none',
+      school:'Johnstone High',
+      attendance:{ parades:8, present:8 },
+      quals:{ whtL98:false, wht22:false, firstAid:false, youthFirstAid:false,
+              dofeBronze:false, dofeSilver:false, dofeGold:false, btecL2:false, btecL3:false, aef:0, gliding:0 },
+      medical:{ barToFlying:false, conditions:null, medications:[] },
+      nextOfKin:{ name:'Sharon Murray', phone:'07700 901118', email:'sharon.murray@gmail.com', rel:'Mother' },
+      events:[],
+    },
   ];
 
   const cadet = cadets.find(c => c.id === selectedId) || cadets[0];
@@ -147,19 +158,19 @@ export default function CadetApp() {
   const ACTIVITIES = [
     { id:'shooting', label:'Shooting (L98)',       icon: Crosshair,
       eligible: canShoot(cadet),
-      reason: !cadet.quals.whtL98 ? 'L98 WHT not yet complete' : !cadet.quals.wht22 ? '.22 WHT not yet complete' : age < 13 ? 'Must be 13+' : '' },
+      reason: age < 13 ? 'Minimum age 13' : !cadet.quals.whtL98 ? 'L98 WHT not yet complete' : !cadet.quals.wht22 ? '.22 WHT not yet complete' : '' },
     { id:'aef',      label:'Air Experience Flying',icon: Plane,
       eligible: canFly(cadet),
-      reason: age < 13 ? 'Must be 13+' : cadet.medical.barToFlying ? 'Medical bar to flying' : '' },
+      reason: age < 13 ? 'Minimum age 13' : cadet.medical.barToFlying ? 'Medical bar to flying' : '' },
     { id:'gliding',  label:'Gliding',              icon: Plane,
       eligible: canFly(cadet),
-      reason: age < 13 ? 'Must be 13+' : cadet.medical.barToFlying ? 'Medical bar' : '' },
+      reason: age < 13 ? 'Minimum age 13' : cadet.medical.barToFlying ? 'Medical bar' : '' },
     { id:'at',       label:'Adventure Training',   icon: Mountain,
       eligible: age >= 14,
-      reason: age < 14 ? `You'll be eligible when you turn 14` : '' },
+      reason: age < 14 ? `Opens at age 14` : '' },
     { id:'dofe',     label:'DofE Bronze',          icon: Award,
       eligible: age >= 14 && !cadet.quals.dofeBronze,
-      reason: age < 14 ? `Eligible at 14` : cadet.quals.dofeBronze ? 'Already achieved!' : '' },
+      reason: age < 14 ? `Opens at age 14` : cadet.quals.dofeBronze ? 'Already achieved!' : '' },
     { id:'music',    label:'Music Camp',           icon: Music,
       eligible: true, reason:'' },
     { id:'radio',    label:'Radio / Cyber',        icon: Radio,
@@ -714,8 +725,13 @@ export default function CadetApp() {
         })}
       </div>
 
-      <div style={{ marginTop:20, padding:'12px 14px', borderRadius:12, background:'rgba(0,48,130,0.12)', border:'1px solid rgba(0,48,130,0.2)', fontSize:12, color:'rgba(255,255,255,0.45)', lineHeight:1.6 }}>
-        <strong style={{ color:'rgba(255,255,255,0.6)' }}>Shooting note:</strong> Both the L98 WHT and .22 WHT must be complete before attending any live firing range. One alone does not qualify.
+      <div style={{ marginTop:20, display:'flex', flexDirection:'column', gap:8 }}>
+        <div style={{ padding:'12px 14px', borderRadius:12, background:'rgba(0,48,130,0.12)', border:'1px solid rgba(0,48,130,0.2)', fontSize:12, color:'rgba(255,255,255,0.45)', lineHeight:1.6 }}>
+          <strong style={{ color:'rgba(255,255,255,0.6)' }}>Shooting:</strong> Both the L98 WHT and .22 WHT must be complete before attending any live firing range. Minimum age 13.
+        </div>
+        <div style={{ padding:'12px 14px', borderRadius:12, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)', fontSize:12, color:'rgba(255,255,255,0.35)', lineHeight:1.6 }}>
+          <strong style={{ color:'rgba(255,255,255,0.5)' }}>Join age:</strong> Cadets can join from age 12. Shooting and flying activities open at 13. Some activities are open straight away — music, sports, and classroom training have no age restriction beyond joining.
+        </div>
       </div>
     </div>
   );
