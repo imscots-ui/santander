@@ -50,7 +50,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);heig
 .wc-title{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:white;letter-spacing:0.04em;margin-bottom:6px;}
 .wc-title span{color:var(--gold2);}
 .wc-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:28px;}
-.apps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.apps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
 .app-tile{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px 14px;cursor:pointer;transition:background 0.2s,border-color 0.2s,transform 0.15s;text-align:center;}
 .app-tile:hover{background:rgba(255,255,255,0.11);border-color:rgba(200,160,50,0.5);transform:translateY(-2px);}
 .at-icon{font-size:32px;margin-bottom:10px;}
@@ -102,6 +102,13 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);heig
         <span class="tab-role">Consent signing</span>
       </div>
     </button>
+    <button class="app-tab" id="tab-join" onclick="openApp('join')">
+      <span class="tab-icon">🌐</span>
+      <div class="tab-label">
+        <span class="tab-title">Join Form</span>
+        <span class="tab-role">Public website</span>
+      </div>
+    </button>
   </div>
 
   <div class="sync-pill" title="All three apps share form status via localStorage — sign a form in the portal and see it update live in the squadron and wing views">
@@ -145,6 +152,12 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);heig
           <div class="at-role">Consent signing</div>
           <div class="at-note">Signs TG21 → updates live</div>
         </div>
+        <div class="app-tile" onclick="openApp('join')">
+          <div class="at-icon">🌐</div>
+          <div class="at-name">Join Form</div>
+          <div class="at-role">Public website</div>
+          <div class="at-note">Enquiries → Applicants pipeline</div>
+        </div>
       </div>
 
       <div class="wc-note">
@@ -159,6 +172,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);heig
   <iframe id="frame-wing"     class="app-frame" src="wing.html"     title="Wing HQ"></iframe>
   <iframe id="frame-cadet"    class="app-frame" src="cadet.html"    title="Cadet App"></iframe>
   <iframe id="frame-portal"   class="app-frame" src="portal.html"   title="Parent Portal"></iframe>
+  <iframe id="frame-join"     class="app-frame" src="join.html"     title="Join Form"></iframe>
 
 </div>
 

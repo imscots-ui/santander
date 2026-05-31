@@ -4853,6 +4853,49 @@ const APPL_STATUS_META = {
 const STAGE_ORDER = ['enquiry','invitee','applicant'];
 const STAGE_NEXT  = {enquiry:'invitee', invitee:'applicant'};
 
+// ── WEBSITE ENQUIRY AUTO-POPULATE ──────────────────────────────────────
+const JOIN_LS_KEY = 'rafac_join_enquiries';
+// IDs we've already merged so we don't duplicate on re-load
+const _mergedWebIds = new Set();
+
+function mergeWebEnquiries() {
+  let webList = [];
+  try { webList = JSON.parse(localStorage.getItem(JOIN_LS_KEY) || '[]'); } catch(e) {}
+  let added = 0;
+  webList.forEach(w => {
+    if (_mergedWebIds.has(w.id)) return;          // already in list
+    if (APPL_DATA.some(a => a.id === w.id)) return; // defensive duplicate check
+    _mergedWebIds.add(w.id);
+    APPL_DATA.push({
+      id:       w.id,
+      fn:       w.fn,
+      sn:       w.sn,
+      dob:      w.dob || '',
+      age:      w.age || '?',
+      status:   'enquiry',
+      unit:     w.unit || '1701 (Johnstone)',
+      wing:     w.wing || 'West Scotland',
+      src:      '🌐 RAFAC website',
+      contact:  w.parentTel || '',
+      notes:    [w.notes, w.howHeard ? 'Heard via: '+w.howHeard : '', w.interest ? 'Interest: '+w.interest : ''].filter(Boolean).join(' | '),
+      parentName: w.parentName || '',
+      parentEmail: w.parentEmail || '',
+      rejected: false,
+      fromWebsite: true,
+    });
+    added++;
+  });
+  if (added > 0) {
+    buildApplicants();
+    showToast('🌐 '+added+' new web enquir'+(added===1?'y':'ies')+' received', 'success');
+  }
+}
+
+// Live sync: pick up join-form submissions in other tabs
+window.addEventListener('storage', e => {
+  if (e.key === JOIN_LS_KEY) mergeWebEnquiries();
+});
+
 function buildApplicants() {
   const showRej = document.getElementById('show-rejected');
   const srch    = (document.getElementById('appl-search')?.value || '').toLowerCase().trim();
@@ -4892,6 +4935,7 @@ function buildApplicants() {
   if (!tbody) return;
   tbody.innerHTML = data.map(a => {
     const st = a.rejected ? 'rejected' : a.status;
+    const webBadge = a.fromWebsite ? ' <span style="background:#EAF4FF;color:#00386B;border:1px solid #B3D4F0;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;">🌐 Web</span>' : '';
     const m  = APPL_STATUS_META[st] || APPL_STATUS_META.enquiry;
     const pill = `<span style="background:${m.bg};color:${m.color};padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;">${m.label}</span>`;
     let actions = '';
@@ -4910,7 +4954,7 @@ function buildApplicants() {
     return `<tr>
       <td>${pill}</td>
       <td>${a.fn}</td>
-      <td><strong>${a.sn}</strong></td>
+      <td><strong>${a.sn}</strong>${webBadge}</td>
       <td>${a.age}</td>
       <td>${a.unit}</td>
       <td>${a.wing}</td>
@@ -5026,7 +5070,7 @@ function saveNewEnquiry() {
 
 // INIT
 document.getElementById('app-shell').style.display='none';
-buildCadets();buildParade();buildStaff();buildVisitors();updateOnSite();buildAttendance();buildWroList('');buildActions();buildPromotions();buildConsents();buildLiveFormPanel();buildAudit();buildAtQueue();buildChecks();buildIncidents();buildKit();courseCounts();updateFocus();
+mergeWebEnquiries();buildApplicants();buildCadets();buildParade();buildStaff();buildVisitors();updateOnSite();buildAttendance();buildWroList('');buildActions();buildPromotions();buildConsents();buildLiveFormPanel();buildAudit();buildAtQueue();buildChecks();buildIncidents();buildKit();courseCounts();updateFocus();
 setTimeout(openWelcome,500);
 
 // ════ AUTO TOOLTIPS — make icon buttons self-explanatory ════
