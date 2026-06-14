@@ -5,8 +5,12 @@ import Applicants    from './pages/Applicants.jsx';
 import Consents      from './pages/Consents.jsx';
 import Parade        from './pages/Parade.jsx';
 import KitStores     from './pages/KitStores.jsx';
+import Training      from './pages/Training.jsx';
+import Promotions    from './pages/Promotions.jsx';
+import Compliance    from './pages/Compliance.jsx';
+import AuditLog      from './pages/AuditLog.jsx';
 
-const navy = '#00264D', gold = '#C8A032', muted = '#5A7090';
+const navy = '#00264D', gold = '#C8A032';
 
 const NAV = [
   { section:'ADMINISTRATION' },
@@ -17,25 +21,43 @@ const NAV = [
   { id:'kit',         icon:'🎒', label:'Kit & Stores' },
   { section:'TRAINING & FORMS' },
   { id:'consents',    icon:'📝', label:'Forms & Consents' },
-  { id:'training',    icon:'🎯', label:'Training & AT',   placeholder:true },
-  { id:'promotions',  icon:'🎖️', label:'Promotions',      placeholder:true },
-  { section:'REFERENCE' },
-  { id:'compliance',  icon:'🛡️', label:'Compliance',      placeholder:true },
-  { id:'audit',       icon:'📋', label:'Audit Log',       placeholder:true },
+  { id:'training',    icon:'🎯', label:'Training & AT' },
+  { id:'promotions',  icon:'🎖️', label:'Promotions' },
+  { section:'COMPLIANCE & RECORDS' },
+  { id:'compliance',  icon:'🛡️', label:'Compliance' },
+  { id:'audit',       icon:'📋', label:'Audit Log' },
+];
+
+const INITIAL_AUDIT = [
+  { ts:'2026-06-14T09:12:00', user:'OC Harris',     action:'Session started', category:'General' },
 ];
 
 export default function SquadronShell({ showToast }) {
   const [page, setPage] = useState('overview');
+  const [auditLog, setAuditLog] = useState(INITIAL_AUDIT);
+
+  function addAudit(action, category = 'General', user = 'OC Harris') {
+    setAuditLog(prev => [{
+      ts: new Date().toISOString(),
+      user,
+      action,
+      category,
+    }, ...prev]);
+  }
 
   function renderPage() {
     switch(page) {
-      case 'overview':   return <Overview    showToast={showToast} />;
-      case 'cadets':     return <CadetRegister showToast={showToast} />;
-      case 'applicants': return <Applicants  showToast={showToast} />;
-      case 'consents':   return <Consents    showToast={showToast} />;
-      case 'parade':     return <Parade      showToast={showToast} />;
-      case 'kit':        return <KitStores   showToast={showToast} />;
-      default:           return <PlaceholderPage page={page} />;
+      case 'overview':    return <Overview    showToast={showToast} />;
+      case 'cadets':      return <CadetRegister showToast={showToast} />;
+      case 'applicants':  return <Applicants  showToast={showToast} />;
+      case 'consents':    return <Consents    showToast={showToast} />;
+      case 'parade':      return <Parade      showToast={showToast} />;
+      case 'kit':         return <KitStores   showToast={showToast} addAudit={addAudit} />;
+      case 'training':    return <Training    showToast={showToast} addAudit={addAudit} />;
+      case 'promotions':  return <Promotions  showToast={showToast} addAudit={addAudit} />;
+      case 'compliance':  return <Compliance  showToast={showToast} addAudit={addAudit} />;
+      case 'audit':       return <AuditLog    auditLog={auditLog} />;
+      default:            return null;
     }
   }
 
@@ -62,11 +84,10 @@ export default function SquadronShell({ showToast }) {
             );
             const active = page === item.id;
             return (
-              <button key={item.id} onClick={() => setPage(item.id)} disabled={item.placeholder}
-                style={{ display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 18px', background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: item.placeholder ? 'rgba(255,255,255,0.25)' : active ? 'white' : 'rgba(255,255,255,0.6)', border:'none', cursor: item.placeholder ? 'default' : 'pointer', fontSize:13, fontWeight: active ? 700 : 500, borderLeft: active ? `3px solid ${gold}` : '3px solid transparent', fontFamily:'Barlow,sans-serif', textAlign:'left' }}>
+              <button key={item.id} onClick={() => setPage(item.id)}
+                style={{ display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 18px', background: active ? 'rgba(255,255,255,0.1)' : 'transparent', color: active ? 'white' : 'rgba(255,255,255,0.6)', border:'none', cursor:'pointer', fontSize:13, fontWeight: active ? 700 : 500, borderLeft: active ? `3px solid ${gold}` : '3px solid transparent', fontFamily:'Barlow,sans-serif', textAlign:'left' }}>
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
-                {item.placeholder && <span style={{ marginLeft:'auto', fontSize:9, background:'rgba(255,255,255,0.1)', borderRadius:4, padding:'1px 5px' }}>Soon</span>}
               </button>
             );
           })}
@@ -81,16 +102,6 @@ export default function SquadronShell({ showToast }) {
       <div style={{ flex:1, overflow:'auto', padding:24 }}>
         {renderPage()}
       </div>
-    </div>
-  );
-}
-
-function PlaceholderPage({ page }) {
-  return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'60%', color:'#5A7090', textAlign:'center', gap:12 }}>
-      <div style={{ fontSize:48 }}>🚧</div>
-      <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:'#00264D' }}>{page.charAt(0).toUpperCase()+page.slice(1)}</div>
-      <div style={{ fontSize:13 }}>This section is coming soon in the next build</div>
     </div>
   );
 }
