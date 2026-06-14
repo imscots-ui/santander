@@ -103,6 +103,8 @@ export default function WingApp() {
     { id:'squadrons', icon:'🏠', label:'Squadron Status' },
     { id:'approvals', icon:'✅', label:'Wing Approvals' },
     { id:'hs',        icon:'🛡️', label:'H&S Compliance' },
+    { id:'dofe',      icon:'🥾', label:'DofE & Awards' },
+    { id:'sg',        icon:'🧒', label:'Safeguarding' },
     { id:'audit',     icon:'📋', label:'Audit Log' },
   ];
 
@@ -277,6 +279,159 @@ export default function WingApp() {
                 </tbody>
               </table>
             </Card>
+          </>
+        )}
+
+        {page === 'dofe' && (
+          <>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy, marginBottom:4 }}>DofE & Awards</div>
+            <div style={{ fontSize:12, color:muted, marginBottom:20 }}>Duke of Edinburgh's Award — West Scotland Sector</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+              {[
+                { label:'Total enrolled', value:47, sub:'Across 6 squadrons', accent:navy },
+                { label:'Gold active',    value:6,  sub:'Across sector',       accent:'#C8A032' },
+                { label:'Silver active',  value:14, sub:'Across sector',       accent:'#5A7090' },
+                { label:'Bronze active',  value:27, sub:'Across sector',       accent:'#92400E' },
+              ].map(t=>(
+                <Card key={t.label}>
+                  <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:32, fontWeight:800, color:t.accent }}>{t.value}</div>
+                  <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+                </Card>
+              ))}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:14 }}>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Squadron DofE Summary</div>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+                  <thead><tr style={{ background:'#F4F7FB' }}>
+                    {['Squadron','Enrolled','Gold','Silver','Bronze','Completions'].map(h=>(
+                      <th key={h} style={{ padding:'8px 10px', textAlign:'left', color:muted, fontSize:10, fontWeight:700, textTransform:'uppercase' }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {[
+                      { sqn:'1701 (Johnstone)', n:4,  g:1, s:1, b:2, c:1 },
+                      { sqn:'342 (Paisley)',    n:11, g:2, s:4, b:5, c:3 },
+                      { sqn:'1944 (Renfrew)',   n:9,  g:1, s:3, b:5, c:2 },
+                      { sqn:'1138 (Greenock)', n:12, g:1, s:4, b:7, c:4 },
+                      { sqn:'2462 (Port Glasgow)', n:7, g:1, s:1, b:5, c:1 },
+                      { sqn:'414 (Gourock)',    n:4,  g:0, s:1, b:3, c:0 },
+                    ].map((r,i)=>(
+                      <tr key={r.sqn} style={{ borderTop:`1px solid ${border}`, background:i%2?'#fafcfe':'white' }}>
+                        <td style={{ padding:'10px 10px', fontWeight:700, color:navy }}>{r.sqn}</td>
+                        <td style={{ padding:'10px 10px' }}>{r.n}</td>
+                        <td style={{ padding:'10px 10px', color:'#C8A032', fontWeight:700 }}>{r.g}</td>
+                        <td style={{ padding:'10px 10px', color:'#5A7090', fontWeight:700 }}>{r.s}</td>
+                        <td style={{ padding:'10px 10px', color:'#92400E', fontWeight:700 }}>{r.b}</td>
+                        <td style={{ padding:'10px 10px' }}>
+                          <span style={{ background:'#D1FAE5', color:'#065F46', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{r.c} complete</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Recent Awards</div>
+                {[
+                  { name:'Ahmed, R — 342 Sqn',      award:'Bronze Award',    date:'May 2026' },
+                  { name:'Davidson, C — 1944 Sqn',  award:'Silver Award',    date:'Apr 2026' },
+                  { name:'Wilson, K — 2462 Sqn',    award:'Gold Award',      date:'Mar 2026' },
+                  { name:'Thomas, M — 1701 Sqn',    award:'Bronze Award',    date:'Feb 2026' },
+                ].map((a,i)=>(
+                  <div key={i} style={{ padding:'10px 0', borderBottom:`1px solid ${border}` }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#0D1B2E' }}>{a.name}</div>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginTop:3 }}>
+                      <span style={{ fontSize:11, color:'#C8A032', fontWeight:700 }}>{a.award}</span>
+                      <span style={{ fontSize:11, color:muted }}>{a.date}</span>
+                    </div>
+                  </div>
+                ))}
+              </Card>
+            </div>
+          </>
+        )}
+
+        {page === 'sg' && (
+          <>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy, marginBottom:4 }}>Safeguarding — Sector Overview</div>
+            <div style={{ fontSize:12, color:muted, marginBottom:8 }}>Aggregated view only — individual concern details held at squadron level per AP1919</div>
+            <div style={{ background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 14px', marginBottom:20, fontSize:12, color:'#92400E' }}>
+              ⚠️ This page shows headline figures only. Individual safeguarding records must be accessed through the relevant squadron's DSL in line with AP1919 and KCSIE.
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+              {[
+                { label:'Open concerns',      value:3,  sub:'Across sector', accent:'#8B1A1A' },
+                { label:'Referred cases',     value:2,  sub:'Active referrals', accent:'#7A4A00' },
+                { label:'SCR issues',         value:4,  sub:'Staff records incomplete', accent:'#7A4A00' },
+                { label:'DSLs trained',       value:6,  sub:'All Level 3', accent:'#1B6B3A' },
+              ].map(t=>(
+                <Card key={t.label}>
+                  <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:32, fontWeight:800, color:t.accent }}>{t.value}</div>
+                  <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+                </Card>
+              ))}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:14 }}>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Squadron Safeguarding Status</div>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+                  <thead><tr style={{ background:'#F4F7FB' }}>
+                    {['Squadron','DSL','DSL Training','Open','SCR'].map(h=>(
+                      <th key={h} style={{ padding:'8px 10px', textAlign:'left', color:muted, fontSize:10, fontWeight:700, textTransform:'uppercase' }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {[
+                      { sqn:'1701 (Johnstone)', dsl:'Sqn Ldr Harris', lvl:'L3', exp:'Jan 2027', open:1, scr:'OK' },
+                      { sqn:'342 (Paisley)',    dsl:'Flt Lt Singh',   lvl:'L3', exp:'Mar 2027', open:1, scr:'1 issue' },
+                      { sqn:'1944 (Renfrew)',   dsl:'CI Wallace',     lvl:'L2', exp:'Nov 2026', open:0, scr:'OK' },
+                      { sqn:'1138 (Greenock)', dsl:'Sqn Ldr Burns',  lvl:'L3', exp:'Feb 2027', open:1, scr:'2 issues' },
+                      { sqn:'2462 (Port Glasgow)',dsl:'WO Docherty',  lvl:'L3', exp:'Jun 2027', open:0, scr:'1 issue' },
+                      { sqn:'414 (Gourock)',    dsl:'Fg Off Stewart', lvl:'L2', exp:'Sep 2026', open:0, scr:'OK' },
+                    ].map((r,i)=>(
+                      <tr key={r.sqn} style={{ borderTop:`1px solid ${border}`, background:i%2?'#fafcfe':'white' }}>
+                        <td style={{ padding:'10px 10px', fontWeight:700, color:navy, fontSize:12 }}>{r.sqn}</td>
+                        <td style={{ padding:'10px 10px', color:muted, fontSize:11 }}>{r.dsl}</td>
+                        <td style={{ padding:'10px 10px' }}>
+                          <span style={{ fontSize:11, fontWeight:700, color:r.lvl==='L3'?'#065F46':'#92400E' }}>{r.lvl}</span>
+                          <span style={{ fontSize:10, color:muted, marginLeft:6 }}>exp {r.exp}</span>
+                        </td>
+                        <td style={{ padding:'10px 10px' }}>
+                          {r.open > 0
+                            ? <span style={{ background:'#FEE2E2', color:'#991B1B', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{r.open} open</span>
+                            : <span style={{ background:'#D1FAE5', color:'#065F46', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>Clear</span>}
+                        </td>
+                        <td style={{ padding:'10px 10px' }}>
+                          {r.scr === 'OK'
+                            ? <span style={{ background:'#D1FAE5', color:'#065F46', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>Complete</span>
+                            : <span style={{ background:'#FEF3C7', color:'#92400E', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{r.scr}</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Wing SCC</div>
+                <div style={{ background:'#00264D', borderRadius:10, padding:'14px 16px', marginBottom:14 }}>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>Wing Safeguarding Co-ordinator</div>
+                  <div style={{ fontSize:14, fontWeight:800, color:'white' }}>Sqn Ldr P. McAlister</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)', marginTop:2 }}>West Scotland Wing</div>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#C8A032', marginTop:8 }}>📞 07700 900555</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)', marginTop:3 }}>wg-scc@aircadets.org</div>
+                </div>
+                <div style={{ fontSize:12, color:muted, marginBottom:8, fontWeight:700 }}>Escalation path</div>
+                {['Squadron DSL → Wing SCC', 'Wing SCC → Referral agency', 'Parallel: LADO if staff concern', 'Emergency: 999 first, then DSL'].map((s,i)=>(
+                  <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start', padding:'5px 0', borderBottom:`1px solid ${border}` }}>
+                    <span style={{ fontSize:11, color:navy, fontWeight:700, minWidth:16 }}>{i+1}.</span>
+                    <span style={{ fontSize:11, color:'#0D1B2E' }}>{s}</span>
+                  </div>
+                ))}
+              </Card>
+            </div>
           </>
         )}
 

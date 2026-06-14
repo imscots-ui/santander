@@ -3,11 +3,13 @@ import { CADETS } from '../../../data/cadets.js';
 const navy = '#00264D', gold = '#C8A032', muted = '#5A7090', border = '#D0DCF0';
 
 const ACTIONS = [
-  { id:'a1', type:'Consent', text:'Mitchell, S — TG21 consent due before 21 Jun', urgency:'high',  btn:'Send Reminder' },
-  { id:'a2', type:'Consent', text:'Harper, J — profile incomplete',               urgency:'high',  btn:'View Profile' },
-  { id:'a3', type:'Admin',   text:'Khan, A — medical file missing',                urgency:'med',   btn:'Request TG23' },
-  { id:'a4', type:'Admin',   text:'Mason, D — NOK details unverified',             urgency:'med',   btn:'Contact Parent' },
-  { id:'a5', type:'Info',    text:'Silver Fieldcraft (WSW) departs in 13 days',   urgency:'info',  btn:'View Event' },
+  { id:'a1', type:'Consent',  text:'Mitchell, S — TG21 consent due before 21 Jun',     urgency:'high', btn:'Send Reminder' },
+  { id:'a2', type:'Consent',  text:'Harper, J — profile incomplete',                    urgency:'high', btn:'View Profile' },
+  { id:'a3', type:'Admin',    text:'Khan, A — medical file missing',                    urgency:'med',  btn:'Request TG23' },
+  { id:'a4', type:'Admin',    text:'Mason, D — NOK details unverified',                 urgency:'med',  btn:'Contact Parent' },
+  { id:'a5', type:'Risk',     text:'Gliding Scholarship RA — awaiting OC sign-off',    urgency:'med',  btn:'Sign Off' },
+  { id:'a6', type:'DofE',     text:'Mitchell, S — Gold expedition not yet planned',    urgency:'info', btn:'View DofE' },
+  { id:'a7', type:'Info',     text:'Silver Fieldcraft (WSW) departs in 13 days',       urgency:'info', btn:'View Event' },
 ];
 
 const urgencyStyle = {
@@ -19,26 +21,38 @@ const urgencyStyle = {
 const CAT_COLOR = {
   Cadets:'#00264D', Applicants:'#5B21B6', Parade:'#166534',
   Consents:'#075985', Kit:'#854D0E', Training:'#9F1239',
-  Promotions:'#92400E', Compliance:'#065F46', General:'#5A7090',
+  Promotions:'#92400E', Compliance:'#065F46', Safeguarding:'#991B1B',
+  Communications:'#065F46', DofE:'#166534', Band:'#C8A032',
+  Budget:'#854D0E', General:'#5A7090',
 };
+
+const QUICK_LINKS = [
+  { icon:'📨', label:'Compose message',    hint:'Send to all parents' },
+  { icon:'🏆', label:'Classification',     hint:'2 cadets ready to advance' },
+  { icon:'🥾', label:'DofE tracker',       hint:'4 cadets enrolled' },
+  { icon:'⚠️', label:'Risk assessments',  hint:'1 awaiting sign-off' },
+  { icon:'💷', label:'Budget',             hint:'£1,847 bank balance' },
+  { icon:'🥁', label:'Band',               hint:'Next practice 26 Jun' },
+];
 
 export default function Overview({ showToast, auditLog = [] }) {
   const issues   = CADETS.filter(c => c.issue).length;
   const highAtt  = CADETS.filter(c => c.att >= 90).length;
   const strength = CADETS.length;
+  const lowAtt   = CADETS.filter(c => c.att < 75).length;
 
   return (
     <div>
       <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy, marginBottom:4 }}>Squadron Overview</div>
       <div style={{ fontSize:12, color:muted, marginBottom:22 }}>1701 (Johnstone) Squadron · West Scotland Sector · {new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}</div>
 
-      {/* Stat tiles */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>
+      {/* Stat tiles — row 1 */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:14 }}>
         {[
-          { label:'Strength on roll', value:strength, sub:'Active cadets', accent:navy },
-          { label:'Actions required', value:ACTIONS.filter(a=>a.urgency==='high').length, sub:'High priority', accent:'#8B1A1A' },
-          { label:'Attendance ≥90%', value:highAtt, sub:'Cadets this term', accent:'#1B6B3A' },
-          { label:'Record issues', value:issues, sub:'Need attention', accent:'#7A4A00' },
+          { label:'Strength on roll',  value:strength, sub:'Active cadets',   accent:navy },
+          { label:'Actions required',  value:ACTIONS.filter(a=>a.urgency==='high').length, sub:'High priority', accent:'#8B1A1A' },
+          { label:'Attendance ≥90%',   value:highAtt,  sub:'Cadets this term', accent:'#1B6B3A' },
+          { label:'Welfare flags',     value:lowAtt,   sub:'Attendance <75%', accent:'#7A4A00' },
         ].map(t => (
           <div key={t.label} style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px' }}>
             <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
@@ -48,7 +62,23 @@ export default function Overview({ showToast, auditLog = [] }) {
         ))}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:16 }}>
+      {/* Stat tiles — row 2 */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>
+        {[
+          { label:'DofE enrolled',     value:4,         sub:'1 Gold · 1 Silver · 2 Bronze', accent:'#166534' },
+          { label:'Band musicians',    value:5,         sub:'Next practice 26 Jun',          accent:'#C8A032' },
+          { label:'Risk assessments',  value:2,         sub:'1 draft · 1 approved',          accent:'#7A4A00' },
+          { label:'Budget position',   value:'£+1,310', sub:'Income over expenditure',       accent:'#1B6B3A' },
+        ].map(t => (
+          <div key={t.label} style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px' }}>
+            <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:28, fontWeight:800, color:t.accent }}>{t.value}</div>
+            <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:16, marginBottom:16 }}>
         {/* Actions */}
         <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px' }}>
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Actions Required</div>
@@ -87,6 +117,21 @@ export default function Overview({ showToast, auditLog = [] }) {
             );
           })}
           {auditLog.length === 0 && <div style={{ fontSize:12, color:muted }}>No activity yet this session</div>}
+        </div>
+      </div>
+
+      {/* Quick links to new modules */}
+      <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px' }}>
+        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Quick Access</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10 }}>
+          {QUICK_LINKS.map(q => (
+            <button key={q.label} onClick={() => showToast(`Opening: ${q.label}`)}
+              style={{ background:'#F4F7FB', border:`1px solid ${border}`, borderRadius:9, padding:'14px 10px', cursor:'pointer', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
+              <span style={{ fontSize:24 }}>{q.icon}</span>
+              <div style={{ fontSize:11, fontWeight:700, color:navy }}>{q.label}</div>
+              <div style={{ fontSize:10, color:muted }}>{q.hint}</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
