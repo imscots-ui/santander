@@ -14,6 +14,7 @@ import DofE            from './pages/DofE.jsx';
 import RiskAssessment  from './pages/RiskAssessment.jsx';
 import Promotions      from './pages/Promotions.jsx';
 import Band            from './pages/Band.jsx';
+import Shooting        from './pages/Shooting.jsx';
 import Compliance      from './pages/Compliance.jsx';
 import Safeguarding    from './pages/Safeguarding.jsx';
 import AuditLog        from './pages/AuditLog.jsx';
@@ -31,13 +32,14 @@ const NAV = [
   { id:'budget',         icon:'💷', label:'Budget & Finance' },
   { section:'TRAINING & DEVELOPMENT' },
   { id:'consents',       icon:'📝', label:'Forms & Consents' },
-  { id:'training',       icon:'🎯', label:'Training & AT' },
+  { id:'training',       icon:'🏕️', label:'Training & AT' },
   { id:'programme',      icon:'📅', label:'Training Programme' },
   { id:'classification', icon:'🏆', label:'Classification' },
   { id:'dofe',           icon:'🥾', label:'Duke of Edinburgh' },
   { id:'riskassessment', icon:'⚠️', label:'Risk Assessments' },
   { id:'promotions',     icon:'🎖️', label:'Promotions' },
   { id:'band',           icon:'🥁', label:'Band & Music' },
+  { id:'shooting',       icon:'🎯', label:'Shooting Register' },
   { section:'COMPLIANCE & RECORDS' },
   { id:'compliance',     icon:'🛡️', label:'Compliance' },
   { id:'safeguarding',   icon:'🧒', label:'Safeguarding' },
@@ -78,6 +80,7 @@ export default function SquadronShell({ showToast }) {
       case 'riskassessment': return <RiskAssessment showToast={showToast} addAudit={addAudit} />;
       case 'promotions':     return <Promotions     showToast={showToast} addAudit={addAudit} />;
       case 'band':           return <Band           showToast={showToast} addAudit={addAudit} />;
+      case 'shooting':       return <Shooting       showToast={showToast} addAudit={addAudit} />;
       case 'compliance':     return <Compliance     showToast={showToast} addAudit={addAudit} />;
       case 'safeguarding':   return <Safeguarding   showToast={showToast} addAudit={addAudit} />;
       case 'audit':          return <AuditLog       auditLog={auditLog} />;

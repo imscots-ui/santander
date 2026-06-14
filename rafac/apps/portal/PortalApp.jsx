@@ -375,10 +375,43 @@ function FlyingMedForm({ event, onComplete, onBack }) {
   );
 }
 
+const PORTAL_MESSAGES = [
+  { id:'pm1', from:'Sqn Ldr Harris', date:'12 Jun 2026', subject:'Parade Night Reminder — 12 Jun 2026', body:'Reminder: Parade Night this Thursday at 1900hrs. Please ensure Sarah arrives by 1850hrs in No.2 dress. Any queries contact the OC.' },
+  { id:'pm2', from:'Sqn Ldr Harris', date:'10 Jun 2026', subject:'Action Required: TG21 Consent — Summer Camp 2026', body:'Consent for Summer Camp 2026 (19–26 Jul, RAF Woodvale) is required by 21 June. Please use the Parent Portal to complete the TG21 form.' },
+  { id:'pm3', from:'Sqn Ldr Harris', date:'5 Jun 2026',  subject:'Silver Fieldcraft — Kit List & Timings', body:'Confirmed kit list and RV timings for Silver Fieldcraft (WSW) departing 27 Jun from Johnstone Station at 0730hrs. Return approx. 1800hrs 28 Jun.' },
+];
+
+const CHILD_CLASSIFICATION = {
+  level: 'Senior',
+  subjects: [
+    { name:'Airmanship Levels 3–4',      done:true },
+    { name:'Drill — Intermediate',       done:true },
+    { name:'Fieldcraft — Intermediate',  done:true },
+    { name:'Navigation — Intermediate',  done:true },
+    { name:'Leadership Exercise 2',      done:true },
+    { name:'First Aid Level 2',          done:false },
+    { name:'Bronze AT Qualifying',       done:true },
+    { name:'Community Action 2',         done:false },
+  ],
+};
+
+const CHILD_DOFE = {
+  level:'Gold', status:'In Progress', started:'Oct 2025',
+  sections:[
+    { name:'Volunteering', status:'In Progress', note:'8 of 12 months complete' },
+    { name:'Physical',     status:'In Progress', note:'8 of 12 months complete' },
+    { name:'Skill',        status:'In Progress', note:'8 of 12 months complete' },
+    { name:'Expedition',   status:'Not Started', note:'Planning for Aug 2026' },
+    { name:'Residential',  status:'Not Started', note:'TBC' },
+  ],
+};
+
 // ── Main Portal ───────────────────────────────────────────────────
 
 export default function PortalApp({ onToast }) {
   const [view, setView] = useState('home');
+  const [portalTab, setPortalTab] = useState('forms');
+  const [expandedMsg, setExpandedMsg] = useState(null);
   const [activeEvent, setActiveEvent] = useState(null);
   const [activeForm, setActiveForm] = useState(null);
   const [detail, setDetail] = useState({});
@@ -471,7 +504,8 @@ export default function PortalApp({ onToast }) {
   // Home
   return (
     <div style={{ minHeight:'100vh', background:'#F4F7FB', fontFamily:'Barlow,sans-serif' }}>
-      <div style={{ background:navy, padding:'20px 20px 18px' }}>
+      {/* Header */}
+      <div style={{ background:navy, padding:'20px 20px 0' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
           <div style={{ width:36, height:36, borderRadius:'50%', background:`conic-gradient(${navy} 0deg 120deg,#fff 120deg 240deg,${red} 240deg 360deg)`, border:'2px solid rgba(255,255,255,0.4)' }} />
           <div>
@@ -479,71 +513,177 @@ export default function PortalApp({ onToast }) {
             <div style={{ fontSize:11, color:'rgba(255,255,255,0.55)' }}>1701 (Johnstone) Squadron · RAFAC</div>
           </div>
         </div>
-        <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:10, padding:'12px 14px' }}>
+        <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:10, padding:'12px 14px', marginBottom:14 }}>
           <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:2 }}>Cadet</div>
           <div style={{ fontSize:17, fontWeight:800, color:'white', fontFamily:'Barlow Condensed,sans-serif' }}>{CADET.name}</div>
           <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{CADET.rank} · Svc {CADET.svc} · {CADET.sqn}</div>
         </div>
+        {/* Tab bar */}
+        <div style={{ display:'flex' }}>
+          {[['forms','📋','Forms'],['child','👤','My Child'],['messages','📨','Messages']].map(([id,icon,label]) => (
+            <button key={id} onClick={() => setPortalTab(id)}
+              style={{ flex:1, padding:'10px 0 8px', background:'none', border:'none', cursor:'pointer',
+                borderBottom:`2px solid ${portalTab===id ? 'white' : 'transparent'}`,
+                fontSize:12, fontWeight:portalTab===id ? 700 : 400,
+                color:portalTab===id ? 'white' : 'rgba(255,255,255,0.5)' }}>
+              <div style={{ fontSize:16 }}>{icon}</div>
+              <div style={{ marginTop:2 }}>{label}</div>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div style={{ padding:20 }}>
-        {totalOutstanding > 0 ? (
-          <div style={{ background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:10, padding:'12px 14px', marginBottom:20, display:'flex', gap:10, alignItems:'center' }}>
-            <span style={{ fontSize:24 }}>⏰</span>
-            <div>
-              <div style={{ fontWeight:700, color:'#92400E', fontSize:14 }}>{totalOutstanding} form{totalOutstanding>1?'s':''} outstanding</div>
-              <div style={{ fontSize:12, color:'#78350F', marginTop:2 }}>Your child cannot attend without all signed forms.</div>
-            </div>
-          </div>
-        ) : (
-          <div style={{ background:'#D1FAE5', border:'1px solid #6EE7B7', borderRadius:10, padding:'12px 14px', marginBottom:20, display:'flex', gap:10, alignItems:'center' }}>
-            <span style={{ fontSize:24 }}>✅</span>
-            <div style={{ fontWeight:700, color:'#065F46', fontSize:14 }}>All forms are up to date</div>
-          </div>
-        )}
 
-        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:16, fontWeight:800, color:'#00264D', marginBottom:12 }}>Upcoming Activities</div>
-
-        {PENDING_FORMS.map(ev => {
-          const done = signedCount(ev);
-          const total = ev.forms.length;
-          const complete = done===total;
-          return (
-            <div key={ev.eventId} onClick={()=>{ setActiveEvent(ev); setView('pick-event'); }}
-              style={{ background:'white', border:`2px solid ${complete?'#BBF7D0':'#E5EAF2'}`, borderRadius:12, padding:'16px 18px', marginBottom:12, cursor:'pointer' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+        {/* ── Forms tab ── */}
+        {portalTab === 'forms' && (
+          <>
+            {totalOutstanding > 0 ? (
+              <div style={{ background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:10, padding:'12px 14px', marginBottom:20, display:'flex', gap:10, alignItems:'center' }}>
+                <span style={{ fontSize:24 }}>⏰</span>
                 <div>
-                  <div style={{ fontWeight:800, color:'#00264D', fontSize:15 }}>{ev.event}</div>
-                  <div style={{ fontSize:12, color:'#5A7090', marginTop:2 }}>{ev.date} · {ev.location}</div>
-                  <div style={{ fontSize:11, fontWeight:600, marginTop:4, color:complete?'#065F46':'#92400E' }}>
-                    {complete ? '✅ All forms complete' : `⏰ Deadline ${ev.deadline}`}
+                  <div style={{ fontWeight:700, color:'#92400E', fontSize:14 }}>{totalOutstanding} form{totalOutstanding>1?'s':''} outstanding</div>
+                  <div style={{ fontSize:12, color:'#78350F', marginTop:2 }}>Your child cannot attend without all signed forms.</div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ background:'#D1FAE5', border:'1px solid #6EE7B7', borderRadius:10, padding:'12px 14px', marginBottom:20, display:'flex', gap:10, alignItems:'center' }}>
+                <span style={{ fontSize:24 }}>✅</span>
+                <div style={{ fontWeight:700, color:'#065F46', fontSize:14 }}>All forms are up to date</div>
+              </div>
+            )}
+
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:16, fontWeight:800, color:'#00264D', marginBottom:12 }}>Upcoming Activities</div>
+
+            {PENDING_FORMS.map(ev => {
+              const done = signedCount(ev);
+              const total = ev.forms.length;
+              const complete = done===total;
+              return (
+                <div key={ev.eventId} onClick={()=>{ setActiveEvent(ev); setView('pick-event'); }}
+                  style={{ background:'white', border:`2px solid ${complete?'#BBF7D0':'#E5EAF2'}`, borderRadius:12, padding:'16px 18px', marginBottom:12, cursor:'pointer' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                    <div>
+                      <div style={{ fontWeight:800, color:'#00264D', fontSize:15 }}>{ev.event}</div>
+                      <div style={{ fontSize:12, color:'#5A7090', marginTop:2 }}>{ev.date} · {ev.location}</div>
+                      <div style={{ fontSize:11, fontWeight:600, marginTop:4, color:complete?'#065F46':'#92400E' }}>
+                        {complete ? '✅ All forms complete' : `⏰ Deadline ${ev.deadline}`}
+                      </div>
+                    </div>
+                    <div style={{ textAlign:'right', flexShrink:0, marginLeft:12 }}>
+                      <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:24, fontWeight:800, color:complete?'#065F46':'#92400E' }}>{done}/{total}</div>
+                      <div style={{ fontSize:10, color:'#5A7090' }}>forms signed</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop:12, display:'flex', gap:6, flexWrap:'wrap' }}>
+                    {ev.forms.map(f => {
+                      const signed = detail[ev.eventId]?.[f]?.signed;
+                      return (
+                        <span key={f} style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:20,
+                          background:signed?'#D1FAE5':'#F4F7FB', color:signed?'#065F46':'#5A7090',
+                          border:`1px solid ${signed?'#6EE7B7':'#D0D8E4'}` }}>
+                          {signed?'✅ ':''}{FORM_META[f].label}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
-                <div style={{ textAlign:'right', flexShrink:0, marginLeft:12 }}>
-                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:24, fontWeight:800, color:complete?'#065F46':'#92400E' }}>{done}/{total}</div>
-                  <div style={{ fontSize:10, color:'#5A7090' }}>forms signed</div>
-                </div>
-              </div>
-              <div style={{ marginTop:12, display:'flex', gap:6, flexWrap:'wrap' }}>
-                {ev.forms.map(f => {
-                  const signed = detail[ev.eventId]?.[f]?.signed;
-                  return (
-                    <span key={f} style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:20,
-                      background:signed?'#D1FAE5':'#F4F7FB', color:signed?'#065F46':'#5A7090',
-                      border:`1px solid ${signed?'#6EE7B7':'#D0D8E4'}` }}>
-                      {signed?'✅ ':''}{FORM_META[f].label}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
 
-        <div style={{ fontSize:11, color:'#8A9BB0', textAlign:'center', marginTop:24, lineHeight:1.7 }}>
-          🔒 Data held securely under GDPR DPA 2018<br />
-          Royal Air Force Air Cadets · 1701 (Johnstone) Squadron
-        </div>
+            <div style={{ fontSize:11, color:'#8A9BB0', textAlign:'center', marginTop:24, lineHeight:1.7 }}>
+              🔒 Data held securely under GDPR DPA 2018<br />
+              Royal Air Force Air Cadets · 1701 (Johnstone) Squadron
+            </div>
+          </>
+        )}
+
+        {/* ── My Child tab ── */}
+        {portalTab === 'child' && (
+          <>
+            {/* Classification card */}
+            <div style={{ background:'white', border:'1.5px solid #D0D8E4', borderRadius:12, padding:'16px 18px', marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:16, fontWeight:800, color:'#00264D' }}>Classification</div>
+                <span style={{ background:'#00264D', color:'white', fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20 }}>{CHILD_CLASSIFICATION.level}</span>
+              </div>
+              <div style={{ fontSize:12, color:'#5A7090', marginBottom:12 }}>
+                Working towards <strong>Master Cadet</strong> — {CHILD_CLASSIFICATION.subjects.filter(s=>s.done).length} of {CHILD_CLASSIFICATION.subjects.length} subjects complete
+              </div>
+              {CHILD_CLASSIFICATION.subjects.map(s => (
+                <div key={s.name} style={{ display:'flex', alignItems:'center', gap:10, padding:'7px 0', borderBottom:'1px solid #EEF2F8' }}>
+                  <div style={{ width:20, height:20, borderRadius:'50%', flexShrink:0, border:'2px solid',
+                    borderColor:s.done?'#1B6B3A':'#D0D8E4', background:s.done?'#1B6B3A':'white',
+                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:'white', fontWeight:800 }}>
+                    {s.done ? '✓' : ''}
+                  </div>
+                  <div style={{ flex:1, fontSize:13, color:s.done?'#0D1B2E':'#5A7090', fontWeight:s.done?600:400 }}>{s.name}</div>
+                  {!s.done && <span style={{ fontSize:10, color:'#92400E', background:'#FEF3C7', padding:'2px 7px', borderRadius:10 }}>Pending</span>}
+                </div>
+              ))}
+            </div>
+
+            {/* DofE card */}
+            <div style={{ background:'white', border:'1.5px solid #D0D8E4', borderRadius:12, padding:'16px 18px', marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:16, fontWeight:800, color:'#00264D' }}>Duke of Edinburgh</div>
+                <span style={{ background:'#166534', color:'white', fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20 }}>{CHILD_DOFE.level}</span>
+              </div>
+              <div style={{ fontSize:12, color:'#5A7090', marginBottom:12 }}>
+                Started {CHILD_DOFE.started} · Status: <strong style={{ color:'#92400E' }}>{CHILD_DOFE.status}</strong>
+              </div>
+              {CHILD_DOFE.sections.map(sec => {
+                const col = sec.status==='In Progress'?'#92400E':sec.status==='Complete'?'#065F46':'#5A7090';
+                const bg  = sec.status==='In Progress'?'#FEF3C7':sec.status==='Complete'?'#D1FAE5':'#F4F7FB';
+                return (
+                  <div key={sec.name} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid #EEF2F8' }}>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:600, color:'#0D1B2E' }}>{sec.name}</div>
+                      <div style={{ fontSize:11, color:'#5A7090', marginTop:1 }}>{sec.note}</div>
+                    </div>
+                    <span style={{ fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, background:bg, color:col, flexShrink:0, marginLeft:10 }}>{sec.status}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ fontSize:11, color:'#8A9BB0', textAlign:'center', lineHeight:1.7 }}>
+              🔒 Data held securely under GDPR DPA 2018
+            </div>
+          </>
+        )}
+
+        {/* ── Messages tab ── */}
+        {portalTab === 'messages' && (
+          <>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:16, fontWeight:800, color:'#00264D', marginBottom:12 }}>Messages from Squadron</div>
+            {PORTAL_MESSAGES.map(msg => (
+              <div key={msg.id} style={{ background:'white', border:'1.5px solid #D0D8E4', borderRadius:12, marginBottom:10, overflow:'hidden' }}>
+                <div onClick={() => setExpandedMsg(expandedMsg===msg.id ? null : msg.id)}
+                  style={{ padding:'14px 16px', cursor:'pointer', display:'flex', alignItems:'flex-start', gap:12 }}>
+                  <div style={{ width:36, height:36, borderRadius:'50%', background:navy, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, flexShrink:0 }}>JH</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#00264D', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{msg.subject}</div>
+                    <div style={{ fontSize:11, color:'#5A7090', marginTop:2 }}>{msg.from} · {msg.date}</div>
+                  </div>
+                  <div style={{ fontSize:12, color:'#5A7090', flexShrink:0, marginTop:2 }}>{expandedMsg===msg.id ? '▲' : '▼'}</div>
+                </div>
+                {expandedMsg===msg.id && (
+                  <div style={{ padding:'12px 16px 16px', fontSize:13, color:'#0D1B2E', lineHeight:1.7, borderTop:'1px solid #EEF2F8' }}>
+                    {msg.body}
+                  </div>
+                )}
+              </div>
+            ))}
+            {PORTAL_MESSAGES.length===0 && (
+              <div style={{ textAlign:'center', padding:'40px 20px', color:'#5A7090', fontSize:13 }}>No messages yet</div>
+            )}
+            <div style={{ fontSize:11, color:'#8A9BB0', textAlign:'center', marginTop:16, lineHeight:1.7 }}>
+              🔒 Data held securely under GDPR DPA 2018
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   );
