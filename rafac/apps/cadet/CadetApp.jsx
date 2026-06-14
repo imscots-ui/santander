@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const navy = '#00264D', gold = '#C8A032', red = '#C8102E';
 
-const CADET = { name:'Sarah Mitchell', rank:'Cadet Corporal', svc:'2408773', sqn:'1701 (Johnstone)', pts:'Leading Classification', joined:'September 2023', nextRank:'Sergeant' };
+const CADET = { name:'Sarah Mitchell', rank:'Cadet Corporal', svc:'2408773', sqn:'1701 (Johnstone)', pts:'Senior Classification', joined:'September 2023', nextRank:'Sergeant' };
 
 const PROGRESS = [
   { label:'Attendance this term', value:92, max:100, unit:'%', color:'#1B6B3A' },
@@ -22,6 +22,39 @@ const BADGES = [
   { name:'Leading Cadet',     awarded:'Mar 2024', icon:'🥇' },
   { name:'Blue Wing',         awarded:'Jun 2024', icon:'✈️' },
 ];
+
+const CLASSIFICATION_SUBJECTS = [
+  { name:'Airmanship Levels 1–2',      done:true },
+  { name:'Drill — Basic Standard',     done:true },
+  { name:'Fieldcraft — Basic',         done:true },
+  { name:'Navigation — Basic',         done:true },
+  { name:'Leadership Exercise 1',      done:true },
+  { name:'First Aid Level 1',          done:true },
+  { name:'Radio Communications',       done:true },
+  { name:'Community Action 1',         done:true },
+];
+
+const SENIOR_SUBJECTS = [
+  { name:'Airmanship Levels 3–4',      done:true },
+  { name:'Drill — Intermediate',       done:true },
+  { name:'Fieldcraft — Intermediate',  done:true },
+  { name:'Navigation — Intermediate',  done:true },
+  { name:'Leadership Exercise 2',      done:true },
+  { name:'First Aid Level 2',          done:false },
+  { name:'Bronze AT Qualifying',       done:true },
+  { name:'Community Action 2',         done:false },
+];
+
+const DOFE = {
+  level: 'Gold', overallStatus: 'In Progress',
+  sections: [
+    { name:'Volunteering', status:'In Progress', months:8, required:12 },
+    { name:'Physical',     status:'In Progress', months:8, required:12 },
+    { name:'Skill',        status:'In Progress', months:8, required:12 },
+    { name:'Expedition',   status:'Not Started', months:null, required:null },
+    { name:'Residential',  status:'Not Started', months:null, required:null },
+  ],
+};
 
 const RANK_LADDER = ['Cdt','LCdt','Cpl','Sgt','FS','WO'];
 
@@ -161,7 +194,62 @@ export default function CadetApp() {
 
         {tab === 'quals' && (
           <>
-            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:12 }}>Qualifications & Badges</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:12 }}>Qualifications & Progress</div>
+
+            {/* Classification */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:14, marginBottom:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                <div>
+                  <div style={{ fontSize:14, fontWeight:800 }}>Senior Classification</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+                    {SENIOR_SUBJECTS.filter(s=>s.done).length}/{SENIOR_SUBJECTS.length} subjects complete
+                  </div>
+                </div>
+                <div style={{ background:'rgba(200,160,50,0.15)', border:'1px solid rgba(200,160,50,0.35)', borderRadius:7, padding:'4px 10px', fontSize:11, fontWeight:700, color:gold }}>
+                  IN PROGRESS
+                </div>
+              </div>
+              <div style={{ height:4, background:'rgba(255,255,255,0.1)', borderRadius:2, marginBottom:12, overflow:'hidden' }}>
+                <div style={{ width:`${(SENIOR_SUBJECTS.filter(s=>s.done).length/SENIOR_SUBJECTS.length)*100}%`, height:'100%', background:gold, borderRadius:2 }} />
+              </div>
+              {SENIOR_SUBJECTS.map(s => (
+                <div key={s.name} style={{ display:'flex', alignItems:'center', gap:8, padding:'5px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize:13, color: s.done ? '#4ade80' : 'rgba(255,255,255,0.25)' }}>{s.done ? '✓' : '○'}</span>
+                  <span style={{ fontSize:12, color: s.done ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.35)', textDecoration: s.done ? 'none' : 'none' }}>{s.name}</span>
+                </div>
+              ))}
+              <div style={{ marginTop:10, fontSize:11, color:'rgba(255,255,255,0.35)' }}>
+                Outstanding: First Aid Level 2, Community Action 2
+              </div>
+            </div>
+
+            {/* DofE */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:14, marginBottom:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                <div>
+                  <div style={{ fontSize:14, fontWeight:800 }}>Duke of Edinburgh — Gold</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:2 }}>Started Oct 2025</div>
+                </div>
+                <div style={{ background:'rgba(200,160,50,0.15)', border:'1px solid rgba(200,160,50,0.35)', borderRadius:7, padding:'4px 10px', fontSize:11, fontWeight:700, color:gold }}>
+                  IN PROGRESS
+                </div>
+              </div>
+              {DOFE.sections.map(s => {
+                const statusColor = s.status === 'Approved' ? '#4ade80' : s.status === 'In Progress' ? gold : 'rgba(255,255,255,0.25)';
+                return (
+                  <div key={s.name} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontSize:12, color:'rgba(255,255,255,0.7)' }}>{s.name}</span>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      {s.months && <span style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{s.months}/{s.required} mo</span>}
+                      <span style={{ fontSize:11, fontWeight:700, color:statusColor }}>{s.status}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Badges */}
+            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10 }}>Badges Awarded</div>
             {BADGES.map(b => (
               <div key={b.name} style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:14, marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
                 <div style={{ fontSize:32 }}>{b.icon}</div>
@@ -171,9 +259,6 @@ export default function CadetApp() {
                 </div>
               </div>
             ))}
-            <div style={{ marginTop:8, padding:14, background:'rgba(255,255,255,0.03)', border:'1px dashed rgba(255,255,255,0.12)', borderRadius:10, textAlign:'center' }}>
-              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)' }}>5 more badges available to earn</div>
-            </div>
           </>
         )}
 

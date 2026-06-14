@@ -1,29 +1,43 @@
 import { useState } from 'react';
-import Overview      from './pages/Overview.jsx';
-import CadetRegister from './pages/CadetRegister.jsx';
-import Applicants    from './pages/Applicants.jsx';
-import Consents      from './pages/Consents.jsx';
-import Parade        from './pages/Parade.jsx';
-import KitStores     from './pages/KitStores.jsx';
-import Training      from './pages/Training.jsx';
-import Promotions    from './pages/Promotions.jsx';
-import Compliance    from './pages/Compliance.jsx';
-import AuditLog      from './pages/AuditLog.jsx';
-import Safeguarding  from './pages/Safeguarding.jsx';
+import Overview        from './pages/Overview.jsx';
+import CadetRegister   from './pages/CadetRegister.jsx';
+import Applicants      from './pages/Applicants.jsx';
+import Consents        from './pages/Consents.jsx';
+import Parade          from './pages/Parade.jsx';
+import KitStores       from './pages/KitStores.jsx';
+import Comms           from './pages/Comms.jsx';
+import Budget          from './pages/Budget.jsx';
+import Training        from './pages/Training.jsx';
+import Programme       from './pages/Programme.jsx';
+import Classification  from './pages/Classification.jsx';
+import DofE            from './pages/DofE.jsx';
+import RiskAssessment  from './pages/RiskAssessment.jsx';
+import Promotions      from './pages/Promotions.jsx';
+import Band            from './pages/Band.jsx';
+import Compliance      from './pages/Compliance.jsx';
+import Safeguarding    from './pages/Safeguarding.jsx';
+import AuditLog        from './pages/AuditLog.jsx';
 
 const navy = '#00264D', gold = '#C8A032';
 
 const NAV = [
   { section:'ADMINISTRATION' },
-  { id:'overview',    icon:'📊', label:'Overview' },
-  { id:'cadets',      icon:'👥', label:'Cadet Register' },
-  { id:'applicants',  icon:'📬', label:'Applicants' },
-  { id:'parade',      icon:'🪖', label:'Parade Night' },
-  { id:'kit',         icon:'🎒', label:'Kit & Stores' },
-  { section:'TRAINING & FORMS' },
-  { id:'consents',    icon:'📝', label:'Forms & Consents' },
-  { id:'training',    icon:'🎯', label:'Training & AT' },
-  { id:'promotions',  icon:'🎖️', label:'Promotions' },
+  { id:'overview',       icon:'📊', label:'Overview' },
+  { id:'cadets',         icon:'👥', label:'Cadet Register' },
+  { id:'applicants',     icon:'📬', label:'Applicants' },
+  { id:'parade',         icon:'🪖', label:'Parade Night' },
+  { id:'kit',            icon:'🎒', label:'Kit & Stores' },
+  { id:'comms',          icon:'📨', label:'Communications' },
+  { id:'budget',         icon:'💷', label:'Budget & Finance' },
+  { section:'TRAINING & DEVELOPMENT' },
+  { id:'consents',       icon:'📝', label:'Forms & Consents' },
+  { id:'training',       icon:'🎯', label:'Training & AT' },
+  { id:'programme',      icon:'📅', label:'Training Programme' },
+  { id:'classification', icon:'🏆', label:'Classification' },
+  { id:'dofe',           icon:'🥾', label:'Duke of Edinburgh' },
+  { id:'riskassessment', icon:'⚠️', label:'Risk Assessments' },
+  { id:'promotions',     icon:'🎖️', label:'Promotions' },
+  { id:'band',           icon:'🥁', label:'Band & Music' },
   { section:'COMPLIANCE & RECORDS' },
   { id:'compliance',     icon:'🛡️', label:'Compliance' },
   { id:'safeguarding',   icon:'🧒', label:'Safeguarding' },
@@ -31,7 +45,7 @@ const NAV = [
 ];
 
 const INITIAL_AUDIT = [
-  { ts:'2026-06-14T09:12:00', user:'OC Harris',     action:'Session started', category:'General' },
+  { ts:'2026-06-14T09:12:00', user:'OC Harris', action:'Session started', category:'General' },
 ];
 
 export default function SquadronShell({ showToast }) {
@@ -48,19 +62,26 @@ export default function SquadronShell({ showToast }) {
   }
 
   function renderPage() {
-    switch(page) {
-      case 'overview':    return <Overview    showToast={showToast} auditLog={auditLog} />;
-      case 'cadets':      return <CadetRegister showToast={showToast} />;
-      case 'applicants':  return <Applicants  showToast={showToast} />;
-      case 'consents':    return <Consents    showToast={showToast} />;
-      case 'parade':      return <Parade      showToast={showToast} />;
-      case 'kit':         return <KitStores   showToast={showToast} addAudit={addAudit} />;
-      case 'training':    return <Training    showToast={showToast} addAudit={addAudit} />;
-      case 'promotions':  return <Promotions  showToast={showToast} addAudit={addAudit} />;
-      case 'compliance':    return <Compliance    showToast={showToast} addAudit={addAudit} />;
-      case 'safeguarding':  return <Safeguarding  showToast={showToast} addAudit={addAudit} />;
-      case 'audit':         return <AuditLog      auditLog={auditLog} />;
-      default:            return null;
+    switch (page) {
+      case 'overview':       return <Overview       showToast={showToast} auditLog={auditLog} />;
+      case 'cadets':         return <CadetRegister  showToast={showToast} />;
+      case 'applicants':     return <Applicants     showToast={showToast} />;
+      case 'consents':       return <Consents       showToast={showToast} />;
+      case 'parade':         return <Parade         showToast={showToast} />;
+      case 'kit':            return <KitStores      showToast={showToast} addAudit={addAudit} />;
+      case 'comms':          return <Comms          showToast={showToast} addAudit={addAudit} />;
+      case 'budget':         return <Budget         showToast={showToast} addAudit={addAudit} />;
+      case 'training':       return <Training       showToast={showToast} addAudit={addAudit} />;
+      case 'programme':      return <Programme      showToast={showToast} addAudit={addAudit} />;
+      case 'classification': return <Classification showToast={showToast} addAudit={addAudit} />;
+      case 'dofe':           return <DofE           showToast={showToast} addAudit={addAudit} />;
+      case 'riskassessment': return <RiskAssessment showToast={showToast} addAudit={addAudit} />;
+      case 'promotions':     return <Promotions     showToast={showToast} addAudit={addAudit} />;
+      case 'band':           return <Band           showToast={showToast} addAudit={addAudit} />;
+      case 'compliance':     return <Compliance     showToast={showToast} addAudit={addAudit} />;
+      case 'safeguarding':   return <Safeguarding   showToast={showToast} addAudit={addAudit} />;
+      case 'audit':          return <AuditLog       auditLog={auditLog} />;
+      default:               return null;
     }
   }
 
