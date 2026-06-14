@@ -9,6 +9,7 @@ import Training      from './pages/Training.jsx';
 import Promotions    from './pages/Promotions.jsx';
 import Compliance    from './pages/Compliance.jsx';
 import AuditLog      from './pages/AuditLog.jsx';
+import Safeguarding  from './pages/Safeguarding.jsx';
 
 const navy = '#00264D', gold = '#C8A032';
 
@@ -24,8 +25,9 @@ const NAV = [
   { id:'training',    icon:'🎯', label:'Training & AT' },
   { id:'promotions',  icon:'🎖️', label:'Promotions' },
   { section:'COMPLIANCE & RECORDS' },
-  { id:'compliance',  icon:'🛡️', label:'Compliance' },
-  { id:'audit',       icon:'📋', label:'Audit Log' },
+  { id:'compliance',     icon:'🛡️', label:'Compliance' },
+  { id:'safeguarding',   icon:'🧒', label:'Safeguarding' },
+  { id:'audit',          icon:'📋', label:'Audit Log' },
 ];
 
 const INITIAL_AUDIT = [
@@ -55,8 +57,9 @@ export default function SquadronShell({ showToast }) {
       case 'kit':         return <KitStores   showToast={showToast} addAudit={addAudit} />;
       case 'training':    return <Training    showToast={showToast} addAudit={addAudit} />;
       case 'promotions':  return <Promotions  showToast={showToast} addAudit={addAudit} />;
-      case 'compliance':  return <Compliance  showToast={showToast} addAudit={addAudit} />;
-      case 'audit':       return <AuditLog    auditLog={auditLog} />;
+      case 'compliance':    return <Compliance    showToast={showToast} addAudit={addAudit} />;
+      case 'safeguarding':  return <Safeguarding  showToast={showToast} addAudit={addAudit} />;
+      case 'audit':         return <AuditLog      auditLog={auditLog} />;
       default:            return null;
     }
   }
