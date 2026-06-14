@@ -47,7 +47,7 @@ export default function SquadronShell({ showToast }) {
 
   function renderPage() {
     switch(page) {
-      case 'overview':    return <Overview    showToast={showToast} />;
+      case 'overview':    return <Overview    showToast={showToast} auditLog={auditLog} />;
       case 'cadets':      return <CadetRegister showToast={showToast} />;
       case 'applicants':  return <Applicants  showToast={showToast} />;
       case 'consents':    return <Consents    showToast={showToast} />;

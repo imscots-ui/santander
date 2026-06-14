@@ -34,7 +34,7 @@ export default function Parade({ showToast }) {
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
         <div>
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy }}>Parade Night</div>
-          <div style={{ fontSize:12, color:muted }}>Thursday 14 November 2026 · 1701 (Johnstone) Squadron</div>
+          <div style={{ fontSize:12, color:muted }}>Thursday 18 June 2026 · 1701 (Johnstone) Squadron</div>
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => setQrOpen(true)} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>📲 QR Check-in</button>
@@ -113,7 +113,7 @@ export default function Parade({ showToast }) {
             <div style={{ width:160, height:160, background:'#F4F7FB', border:`2px solid ${border}`, borderRadius:12, margin:'0 auto 20px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8 }}>
               <div style={{ fontSize:40 }}>📲</div>
               <div style={{ fontSize:10, color:muted, fontWeight:700 }}>QR CODE</div>
-              <div style={{ fontSize:9, color:muted }}>1701 · 14 Nov 2026</div>
+              <div style={{ fontSize:9, color:muted }}>1701 · 18 Jun 2026</div>
             </div>
             <div style={{ background:'#F4F7FB', border:`1px solid ${border}`, borderRadius:8, padding:'10px', fontSize:12, color:muted, marginBottom:20 }}>
               {present} checked in · session active

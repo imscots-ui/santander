@@ -11,7 +11,7 @@ export default function PortalApp({ onToast }) {
   const [conditions, setConditions] = useState('');
   const [showMedical, setShowMedical] = useState(false);
 
-  const EVENT = { id:'e1', name:'Shooting (L98 & .22)', date:'14–16 November 2026', location:'Bisley, Surrey' };
+  const EVENT = { id:'e1', name:'Summer Camp 2026', date:'19–26 July 2026', location:'RAF Woodvale, Merseyside' };
   const CADET = { name:'Sarah Mitchell', svc:'2408773', rank:'Cadet Corporal', id:'c01' };
 
   function submit() {
@@ -47,7 +47,7 @@ export default function PortalApp({ onToast }) {
             <div style={{ fontWeight:700, color:'#7A4A00', marginBottom:6, fontSize:14 }}>⏰ Consent required</div>
             <div style={{ fontSize:13, color:'#5A3A00' }}>
               TG21 activity consent and TG23 health declaration are required for <strong>{EVENT.name}</strong> ({EVENT.date}).
-              The deadline is <strong>12 November 2026</strong>. After this date the cadet cannot attend.
+              The deadline is <strong>5 July 2026</strong>. After this date the cadet cannot attend.
             </div>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>

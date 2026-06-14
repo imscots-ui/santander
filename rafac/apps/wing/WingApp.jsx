@@ -18,17 +18,17 @@ const SQUADRONS = [
 ];
 
 const APPROVALS = [
-  { id:'a1', type:'AT Event',      sqn:'1701 (Johnstone)', desc:'Shooting — Bisley 14–16 Nov',   ref:'AT/2026/114', date:'9 Nov 2026',  risk:'Medium' },
-  { id:'a2', type:'Staff Warrant', sqn:'342 (Paisley)',    desc:'New CI application — M. Brodie', ref:'CI/2026/089', date:'8 Nov 2026',  risk:'Low' },
-  { id:'a3', type:'H&S Review',    sqn:'1138 (Greenock)', desc:'RA update — Urban Orienteering', ref:'HS/2026/042', date:'6 Nov 2026',  risk:'High' },
+  { id:'a1', type:'AT Event',      sqn:'1701 (Johnstone)', desc:'Silver Fieldcraft — WSW 27–28 Jun',     ref:'AT/2026/189', date:'10 Jun 2026', risk:'Medium' },
+  { id:'a2', type:'Staff Warrant', sqn:'342 (Paisley)',    desc:'New CI application — M. Brodie',        ref:'CI/2026/089', date:'9 Jun 2026',  risk:'Low' },
+  { id:'a3', type:'H&S Review',    sqn:'1138 (Greenock)', desc:'RA update — Urban Orienteering (Greenock)', ref:'HS/2026/042', date:'7 Jun 2026', risk:'High' },
 ];
 
 const AUDIT = [
-  { ts:'14 Nov 09:42', user:'Wg Cdr T. Elliot',    action:'Approved AT/2026/114 — Shooting (1701)' },
-  { ts:'12 Nov 14:18', user:'Admin',                action:'CI/2026/089 submitted for review (342)' },
-  { ts:'11 Nov 11:02', user:'Wg Cdr T. Elliot',    action:'Returned HS/2026/042 — awaiting updated RA (1138)' },
-  { ts:'9 Nov 16:55',  user:'Sqn Ldr J. Harris',   action:'AT/2026/114 submitted — 1701 Shooting event' },
-  { ts:'7 Nov 10:00',  user:'Admin',                action:'Sector compliance report generated — Nov 2026' },
+  { ts:'14 Jun 09:42', user:'Wg Cdr T. Elliot',    action:'Approved AT/2026/189 — Silver Fieldcraft WSW (1701)' },
+  { ts:'12 Jun 14:18', user:'Admin',                action:'CI/2026/089 submitted for review (342 Paisley)' },
+  { ts:'11 Jun 11:02', user:'Wg Cdr T. Elliot',    action:'Returned HS/2026/042 — awaiting updated RA (1138 Greenock)' },
+  { ts:'10 Jun 16:55', user:'Sqn Ldr J. Harris',   action:'AT/2026/189 submitted — 1701 Silver Fieldcraft' },
+  { ts:'7 Jun 10:00',  user:'Admin',                action:'Sector compliance report generated — Jun 2026' },
 ];
 
 function compBand(c) {

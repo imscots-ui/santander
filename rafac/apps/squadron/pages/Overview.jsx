@@ -3,18 +3,11 @@ import { CADETS } from '../../../data/cadets.js';
 const navy = '#00264D', gold = '#C8A032', muted = '#5A7090', border = '#D0DCF0';
 
 const ACTIONS = [
-  { id:'a1', type:'Consent', text:'Mitchell, S — TG21 consent due before 14 Nov', urgency:'high',  btn:'Send Reminder' },
+  { id:'a1', type:'Consent', text:'Mitchell, S — TG21 consent due before 21 Jun', urgency:'high',  btn:'Send Reminder' },
   { id:'a2', type:'Consent', text:'Harper, J — profile incomplete',               urgency:'high',  btn:'View Profile' },
   { id:'a3', type:'Admin',   text:'Khan, A — medical file missing',                urgency:'med',   btn:'Request TG23' },
   { id:'a4', type:'Admin',   text:'Mason, D — NOK details unverified',             urgency:'med',   btn:'Contact Parent' },
-  { id:'a5', type:'Info',    text:'Shooting event (Bisley) departs in 7 days',    urgency:'info',  btn:'View Event' },
-];
-
-const AUDIT = [
-  { ts:'14 Nov 09:42', user:'Sqn Ldr Harris', action:'Approved AT/2026/114 — Shooting (Bisley)' },
-  { ts:'13 Nov 16:18', user:'Sgt Reid',        action:'Parade QR closed — 9 cadets checked in' },
-  { ts:'11 Nov 11:02', user:'Sqn Ldr Harris',  action:'Khan, A promoted to Leading Cadet' },
-  { ts:'7 Nov 10:00',  user:'Fg Off Ahmad',    action:'Monthly attendance report generated' },
+  { id:'a5', type:'Info',    text:'Silver Fieldcraft (WSW) departs in 13 days',   urgency:'info',  btn:'View Event' },
 ];
 
 const urgencyStyle = {
@@ -23,7 +16,13 @@ const urgencyStyle = {
   info: { bg:'#EAF4FF', color:'#003D80', dot:'#3B7DD8' },
 };
 
-export default function Overview({ showToast }) {
+const CAT_COLOR = {
+  Cadets:'#00264D', Applicants:'#5B21B6', Parade:'#166534',
+  Consents:'#075985', Kit:'#854D0E', Training:'#9F1239',
+  Promotions:'#92400E', Compliance:'#065F46', General:'#5A7090',
+};
+
+export default function Overview({ showToast, auditLog = [] }) {
   const issues   = CADETS.filter(c => c.issue).length;
   const highAtt  = CADETS.filter(c => c.att >= 90).length;
   const strength = CADETS.length;
@@ -74,12 +73,20 @@ export default function Overview({ showToast }) {
         {/* Audit */}
         <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px' }}>
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Recent Activity</div>
-          {AUDIT.map((e, i) => (
-            <div key={i} style={{ padding:'10px 0', borderBottom: i<AUDIT.length-1 ? `1px solid ${border}` : 'none' }}>
-              <div style={{ fontSize:12, fontWeight:600, color:'#0D1B2E' }}>{e.action}</div>
-              <div style={{ fontSize:11, color:muted, marginTop:2 }}>{e.user} · {e.ts}</div>
-            </div>
-          ))}
+          {auditLog.slice(0, 6).map((e, i) => {
+            const time = e.ts ? new Date(e.ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+            const cat = e.category || 'General';
+            return (
+              <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'9px 0', borderBottom: i<5 ? `1px solid ${border}` : 'none' }}>
+                <span style={{ fontSize:9, fontWeight:700, padding:'2px 5px', borderRadius:4, background:'#EEF2F8', color: CAT_COLOR[cat] || '#5A7090', whiteSpace:'nowrap', marginTop:2 }}>{cat.toUpperCase()}</span>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:12, color:'#0D1B2E' }}>{e.action}</div>
+                  <div style={{ fontSize:10, color:muted, marginTop:1 }}>{e.user} · {time}</div>
+                </div>
+              </div>
+            );
+          })}
+          {auditLog.length === 0 && <div style={{ fontSize:12, color:muted }}>No activity yet this session</div>}
         </div>
       </div>
     </div>

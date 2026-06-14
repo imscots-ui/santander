@@ -12,9 +12,9 @@ const PROGRESS = [
 ];
 
 const EVENTS = [
-  { id:'e1', name:'Shooting (L98 & .22)', date:'14–16 Nov', location:'Bisley', status:'consent_pending', type:'AT' },
-  { id:'e5', name:'Music Camp',           date:'21–23 Nov', location:'RAF Cranwell', status:'confirmed', type:'Activity' },
-  { id:'e6', name:'Hill Walking Bronze',  date:'5–6 Dec',   location:'Trossachs', status:'open', type:'AT' },
+  { id:'e1', name:'Silver Fieldcraft (WSW)', date:'27–28 Jun', location:'Tinto Hill, Lanarkshire', status:'confirmed', type:'AT' },
+  { id:'e5', name:'Summer Camp',             date:'19–26 Jul', location:'RAF Woodvale',             status:'consent_pending', type:'Activity' },
+  { id:'e6', name:'Gliding Scholarship',     date:'3–7 Aug',   location:'Dalton Airfield',          status:'open', type:'AT' },
 ];
 
 const BADGES = [
