@@ -10,10 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:santander": "vite --config vite.santander.config.js",
-    "build": "vite build && node scripts/patch-dist.mjs rafac",
-    "build:santander": "vite build --config vite.santander.config.js && node scripts/patch-dist.mjs santander",
-    "build:all": "npm run build && npm run build:santander",
+    "build": "vite build && node scripts/patch-dist.mjs",
     "preview": "vite preview --host"
   },
   "dependencies": {

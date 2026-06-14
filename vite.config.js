@@ -2,7 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
-// RAFAC build — outputs dist/index.html (patch script renames to rafac.html)
 export default defineConfig({
   plugins: [react(), viteSingleFile({ removeViteModuleLoader: true, useRecommendedBuildConfig: true })],
   build: {
@@ -16,5 +15,5 @@ export default defineConfig({
       output: { inlineDynamicImports: true },
     },
   },
-  server: { host: true, port: 5173 },
+  server: { host: true, port: 5174 },
 });
