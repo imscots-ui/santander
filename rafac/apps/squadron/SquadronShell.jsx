@@ -4,6 +4,7 @@ import CadetRegister from './pages/CadetRegister.jsx';
 import Applicants    from './pages/Applicants.jsx';
 import Consents      from './pages/Consents.jsx';
 import Parade        from './pages/Parade.jsx';
+import KitStores     from './pages/KitStores.jsx';
 
 const navy = '#00264D', gold = '#C8A032', muted = '#5A7090';
 
@@ -13,6 +14,7 @@ const NAV = [
   { id:'cadets',      icon:'👥', label:'Cadet Register' },
   { id:'applicants',  icon:'📬', label:'Applicants' },
   { id:'parade',      icon:'🪖', label:'Parade Night' },
+  { id:'kit',         icon:'🎒', label:'Kit & Stores' },
   { section:'TRAINING & FORMS' },
   { id:'consents',    icon:'📝', label:'Forms & Consents' },
   { id:'training',    icon:'🎯', label:'Training & AT',   placeholder:true },
@@ -32,6 +34,7 @@ export default function SquadronShell({ showToast }) {
       case 'applicants': return <Applicants  showToast={showToast} />;
       case 'consents':   return <Consents    showToast={showToast} />;
       case 'parade':     return <Parade      showToast={showToast} />;
+      case 'kit':        return <KitStores   showToast={showToast} />;
       default:           return <PlaceholderPage page={page} />;
     }
   }
