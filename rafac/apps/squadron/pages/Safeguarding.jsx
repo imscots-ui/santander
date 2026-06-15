@@ -144,6 +144,152 @@ export default function Safeguarding({ showToast, addAudit }) {
     showToast('Welfare flag resolved', 'success');
   }
 
+  function printConcernLog() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const statusBg = s => s==='Open'?'#FEF3C7':s==='Referred'?'#FEE2E2':'#D1FAE5';
+    const statusClr = s => s==='Open'?'#92400E':s==='Referred'?'#991B1B':'#065F46';
+    const rows = concerns.map((c,i) => `
+      <tr style="background:${i%2?'#FAFCFE':'white'};vertical-align:top;">
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;white-space:nowrap;font-size:10px;color:#5A7090;">${c.date}<br>${c.time}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;color:#00264D;">${c.cadet}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;">${c.type}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${statusBg(c.status)};color:${statusClr(c.status)};padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${c.status.toUpperCase()}</span></td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;line-height:1.5;">${c.detail}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;line-height:1.5;">${c.action}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${c.escalation}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${c.reportedBy}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Safeguarding Concern Log — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 10mm 12mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <div style="background:#8B1A1A;color:white;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:11px;font-weight:700;letter-spacing:0.05em;">
+      STRICTLY CONFIDENTIAL — SAFEGUARDING DOCUMENT — DSL AND OC EYES ONLY — NOT TO BE LEFT UNATTENDED
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">SAFEGUARDING CONCERN LOG — AP 1919 / ACTO 035</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">DSL: ${DSL.name} · Printed ${today}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#991B1B;font-weight:700;">Open concerns: ${openConcerns}</div>
+          <div style="font-size:10px;color:#5A7090;">Total entries: ${concerns.length}</div>
+        </td>
+      </tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#8B1A1A;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;white-space:nowrap;">DATE / TIME</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CADET</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TYPE</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">STATUS</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DETAIL (VERBATIM)</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">IMMEDIATE ACTION</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ESCALATION</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">REPORTED BY</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      ${['DSL Signature','OC Signature','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #8B1A1A;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?DSL.name:i===2?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL SENSITIVE — STRICTLY CONFIDENTIAL · Retain 25 years from date of last entry (AP 1919 / Children Act 2004) · Destroy securely — do not recycle
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Safeguarding concern log printed', 'Safeguarding', `Printed by ${DSL.name} on ${today}`);
+    showToast('🖨️ Concern log sent to printer — handle as strictly confidential');
+  }
+
+  function printSCR() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const rows = SCR_STAFF.map((s,i) => {
+      const dbsExpiry = new Date(new Date(s.dbsDate).getTime() + 365*3*86400000).toISOString().slice(0,10);
+      const days = Math.round((new Date(dbsExpiry) - new Date(TODAY)) / 86400000);
+      const dbsBg = days<0?'#FEE2E2':days<365?'#FEF3C7':'#D1FAE5';
+      const dbsClr = days<0?'#991B1B':days<365?'#92400E':'#065F46';
+      const dbsLbl = days<0?'EXPIRED':days<365?`RENEW ${days}d`:'VALID';
+      const scrOk = s.barredList && s.refs>=s.refsReq && s.idVerified;
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};">
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;color:#00264D;">${s.name}<div style="font-size:9px;font-weight:400;color:#5A7090;">${s.role}</div></td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;">${s.dbsType}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;font-family:monospace;">${s.dbsNum}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${dbsBg};color:${dbsClr};padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;">${dbsLbl}</span><div style="font-size:9px;color:#5A7090;">${s.dbsDate}</div></td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-size:10px;color:${s.barredList?'#065F46':'#991B1B'};font-weight:700;">${s.barredList?'✓ '+s.barredList:'⚠ Pending'}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-size:10px;color:${s.idVerified?'#065F46':'#991B1B'};font-weight:700;">${s.idVerified?'✓ '+s.idVerified:'⚠ Missing'}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-size:10px;font-weight:700;color:${s.refs>=s.refsReq?'#065F46':'#991B1B'};">${s.refs}/${s.refsReq}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;">L${s.sgLevel} · ${s.sgDate}<div style="font-size:9px;color:#5A7090;">Exp: ${s.sgExpiry}</div></td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${scrOk?'#D1FAE5':'#FEE2E2'};color:${scrOk?'#065F46':'#991B1B'};padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${scrOk?'COMPLETE':'INCOMPLETE'}</span></td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Single Central Record — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 10mm 12mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">SINGLE CENTRAL RECORD (SCR) — AP 1919 / CHILDREN ACT 2004</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">As at ${today} · DSL: ${DSL.name}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Total CFAVs: ${SCR_STAFF.length}</div>
+          <div style="font-size:10px;color:#991B1B;font-weight:700;">SCR issues: ${SCR_STAFF.filter(s=>!s.barredList||s.refs<s.refsReq).length}</div>
+        </td>
+      </tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NAME / ROLE</th>
+        <th style="padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS TYPE</th>
+        <th style="padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS NUMBER</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS EXPIRY</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">BARRED LIST</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ID VERIFIED</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">REFS</th>
+        <th style="padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SG TRAINING</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SCR STATUS</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      ${['DSL Signature','OC Signature','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?DSL.name:i===2?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · SCR must be available for Wing inspection at all times · Retain 6 years post-departure (Children Act 2004 / AP 1919)
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Single Central Record printed', 'Safeguarding', `Printed by ${DSL.name} on ${today}`);
+    showToast('🖨️ Single Central Record sent to printer');
+  }
+
   const TABS = [
     { id:'concerns',  label:`Concern Log${openConcerns>0?` (${openConcerns})`:''}`  },
     { id:'scr',       label:`Single Central Record${scrIssues>0?` ⚠️`:''}`          },
@@ -204,10 +350,16 @@ export default function Safeguarding({ showToast, addAudit }) {
             🔒 <strong>STRICTLY CONFIDENTIAL</strong> — Accessible to DSL and OC only. Entries cannot be deleted. All concerns must be logged even if no further action is taken. Do not discuss concern details outside of the safeguarding chain.
           </div>
 
-          <button onClick={() => setShowNewConcern(true)}
-            style={{ marginBottom:16, padding:'9px 18px', borderRadius:8, border:'none', background:red, color:'white', fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
-            + Log New Concern
-          </button>
+          <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+            <button onClick={() => setShowNewConcern(true)}
+              style={{ padding:'9px 18px', borderRadius:8, border:'none', background:red, color:'white', fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
+              + Log New Concern
+            </button>
+            <button onClick={printConcernLog}
+              style={{ padding:'9px 16px', borderRadius:8, border:`1.5px solid ${navy}`, background:'white', color:navy, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
+              🖨️ Print Log
+            </button>
+          </div>
 
           {showNewConcern && (
             <div style={{ background:'#FFF8F8', border:'1px solid #FECACA', borderRadius:12, padding:18, marginBottom:18 }}>
@@ -326,8 +478,14 @@ export default function Safeguarding({ showToast, addAudit }) {
       {/* ── SINGLE CENTRAL RECORD ── */}
       {sub === 'scr' && (
         <div>
-          <div style={{ fontSize:12, color:'#5A7090', marginBottom:14, lineHeight:1.6 }}>
-            The Single Central Record (SCR) must be maintained for all adults in regulated activity with under-18s. It must be available for inspection at all times. Required per AP1919 and the Children Act 2004.
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
+            <div style={{ fontSize:12, color:'#5A7090', lineHeight:1.6, flex:1 }}>
+              The Single Central Record (SCR) must be maintained for all adults in regulated activity with under-18s. It must be available for inspection at all times. Required per AP1919 and the Children Act 2004.
+            </div>
+            <button onClick={printSCR}
+              style={{ marginLeft:14, padding:'8px 14px', borderRadius:8, border:`1.5px solid ${navy}`, background:'white', color:navy, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', flexShrink:0 }}>
+              🖨️ Print SCR
+            </button>
           </div>
           {SCR_STAFF.filter(s=>!s.barredList||s.refs<s.refsReq).length > 0 && (
             <div style={{ background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:8, padding:'10px 14px', marginBottom:14, fontSize:12, color:'#92400E' }}>
