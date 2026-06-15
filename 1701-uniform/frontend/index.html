@@ -257,9 +257,31 @@ async function api(method, path, body=null) {
   if (token) h['Authorization'] = `Bearer ${token}`;
   const opts = {method, headers:h};
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API+path, opts);
-  if (!res.ok) { const e=await res.json().catch(()=>({detail:'Unknown error'})); throw new Error(e.detail||'Request failed'); }
-  return res.json();
+  try {
+    const res = await fetch(API+path, opts);
+    if (!res.ok) { const e=await res.json().catch(()=>({detail:'Unknown error'})); throw new Error(e.detail||'Request failed'); }
+    setConnected(true);
+    return res.json();
+  } catch(e) {
+    if (e instanceof TypeError && e.message.includes('fetch')) {
+      setConnected(false);
+      throw new Error('Cannot reach the server. Check the backend is running.');
+    }
+    throw e;
+  }
+}
+
+let _connected = true;
+function setConnected(ok) {
+  if (ok === _connected) return;
+  _connected = ok;
+  const banner = document.getElementById('conn-banner');
+  if (!banner) return;
+  if (ok) {
+    banner.style.display = 'none';
+  } else {
+    banner.style.display = 'flex';
+  }
 }
 const GET = p => api('GET',p);
 const POST = (p,b) => api('POST',p,b);
@@ -332,6 +354,9 @@ function staffSelectorHTML() {
 function homeHTML() {
   const isAdmin = S.user?.is_admin;
   return `<div class="home-screen">
+  <div id="conn-banner" style="display:none;align-items:center;justify-content:center;gap:10px;background:#c0392b;color:white;padding:9px 16px;font-size:13px;font-weight:600;font-family:var(--body)">
+    <span>⚠</span> Cannot reach the server — check the backend is running, then <button onclick="setConnected(true);this.closest('[id]').style.display='none'" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--body);margin-left:4px">Dismiss</button>
+  </div>
   <div class="topbar">
     <div class="topbar-brand"><img src="1701_crest.png" style="width:130px;height:130px;object-fit:contain;mix-blend-mode:screen;margin:-30px 0" alt="1701 Crest"><span>1701 JOHNSTONE SQN</span></div>
     <div class="topbar-right">
@@ -1369,8 +1394,10 @@ async function openManageCadets() {
 
   function renderManageCadets() {
     showModal(`${mHead('MANAGE CADETS')}<div class="modal-body">
-      <div style="margin-bottom:16px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
         <button class="btn btn-primary" id="mc-addcadet">+ Add Cadet</button>
+        <button class="btn btn-ghost" id="mc-import">📥 Import CSV</button>
+        <a id="mc-template" download="cadet-import-template.csv" href="data:text/csv;charset=utf-8,service_number%2Crank%2Cforename%2Csurname%2Cgender%2Cflight%0A2501701%2CCadet%2CJane%2CSmith%2Cfemale%2CA" class="btn btn-ghost" style="text-decoration:none">⬇ CSV Template</a>
       </div>
       <div class="search-wrap"><span class="search-icon">🔍</span><input id="mc-search" placeholder="Search by name or service number..." type="text"></div>
 
@@ -1390,6 +1417,7 @@ async function openManageCadets() {
     <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`, true);
 
     document.getElementById('mc-addcadet').onclick = openAddCadet;
+    document.getElementById('mc-import').onclick = openImportCadets;
 
     document.getElementById('mc-search').oninput = e => {
       const s = e.target.value.toLowerCase();
@@ -1458,6 +1486,86 @@ async function openManageCadets() {
   }
 
   renderManageCadets();
+}
+
+async function openImportCadets() {
+  showModal(`${mHead('IMPORT CADETS — CSV')}
+  <div class="modal-body">
+    <div class="alert alert-warning" style="margin-bottom:16px">
+      ⚠ Each row will be added as a new cadet. Duplicates (same service number) will be skipped.
+    </div>
+    <div style="background:var(--blue-pale);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:13px">
+      <strong>Required columns:</strong> service_number, rank, forename, surname, gender (male/female)<br>
+      <strong>Optional columns:</strong> flight<br>
+      <span style="color:var(--text3);font-size:12px">Download the template above for the correct format.</span>
+    </div>
+    <div class="form-group">
+      <label>Select CSV file</label>
+      <input type="file" id="import-file" accept=".csv" style="padding:8px;border:1.5px solid var(--border);border-radius:var(--r);width:100%;font-family:var(--body);font-size:13px;cursor:pointer">
+    </div>
+    <div id="import-preview" style="margin-top:12px"></div>
+    <div id="import-error"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" id="imp-back">← Back</button>
+    <button class="btn btn-primary" id="imp-run" disabled>Import</button>
+  </div>`, true);
+
+  document.getElementById('imp-back').onclick = openManageCadets;
+
+  let parsedRows = [];
+
+  document.getElementById('import-file').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const lines = ev.target.result.trim().split('\n').filter(l => l.trim());
+      if (lines.length < 2) { document.getElementById('import-error').innerHTML = '<div class="alert alert-danger">File appears empty or has no data rows.</div>'; return; }
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const required = ['service_number','rank','forename','surname','gender'];
+      const missing = required.filter(r => !headers.includes(r));
+      if (missing.length) { document.getElementById('import-error').innerHTML = `<div class="alert alert-danger">Missing columns: ${missing.join(', ')}</div>`; return; }
+      parsedRows = [];
+      const errors = [];
+      lines.slice(1).forEach((line, i) => {
+        const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+        const row = {};
+        headers.forEach((h, idx) => row[h] = vals[idx] || '');
+        if (!row.service_number || !row.forename || !row.surname) { errors.push(`Row ${i+2}: missing required fields`); return; }
+        if (!['male','female'].includes(row.gender?.toLowerCase())) { errors.push(`Row ${i+2}: gender must be 'male' or 'female'`); return; }
+        parsedRows.push({ service_number: row.service_number, rank: row.rank||'Cadet', forename: row.forename, surname: row.surname, gender: row.gender.toLowerCase(), flight: row.flight||null });
+      });
+      const previewHTML = parsedRows.length > 0
+        ? `<div class="section-label">${parsedRows.length} cadet(s) ready to import</div>
+           <div class="table-wrap" style="max-height:200px;overflow-y:auto"><table>
+             <thead><tr><th>Svc No</th><th>Rank</th><th>Name</th><th>Gender</th><th>Flight</th></tr></thead>
+             <tbody>${parsedRows.map(r => `<tr><td style="font-family:var(--mono);font-size:12px">${r.service_number}</td><td>${r.rank}</td><td>${r.forename} ${r.surname}</td><td>${r.gender}</td><td>${r.flight||'—'}</td></tr>`).join('')}</tbody>
+           </table></div>`
+        : '';
+      document.getElementById('import-preview').innerHTML = previewHTML + (errors.length ? `<div class="alert alert-warning" style="margin-top:8px">${errors.length} row(s) skipped: ${errors.slice(0,3).join('; ')}${errors.length>3?'…':''}</div>` : '');
+      document.getElementById('import-error').innerHTML = '';
+      document.getElementById('imp-run').disabled = parsedRows.length === 0;
+    };
+    reader.readAsText(file);
+  };
+
+  document.getElementById('imp-run').onclick = async () => {
+    const btn = document.getElementById('imp-run'); btn.disabled = true; btn.textContent = 'Importing...';
+    let added = 0, skipped = 0, failed = [];
+    for (const row of parsedRows) {
+      try { await POST('/cadets/', row); added++; }
+      catch(e) { if (e.message.toLowerCase().includes('already') || e.message.includes('409') || e.message.includes('duplicate')) skipped++; else failed.push(row.surname + ': ' + e.message); }
+    }
+    S.cadets = null;
+    showModal(`${mHead('IMPORT COMPLETE')}<div class="modal-body">
+      <div class="alert alert-success">✓ ${added} cadet(s) imported successfully.</div>
+      ${skipped > 0 ? `<div class="alert alert-warning" style="margin-top:8px">⚠ ${skipped} skipped (service number already exists).</div>` : ''}
+      ${failed.length > 0 ? `<div class="alert alert-danger" style="margin-top:8px">✕ ${failed.length} failed: ${failed.slice(0,3).join('; ')}</div>` : ''}
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" id="imp-manage">View Cadets</button></div>`, true);
+    document.getElementById('imp-manage').onclick = openManageCadets;
+  };
 }
 
 async function openRemoveStock() {
