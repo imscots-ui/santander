@@ -151,6 +151,85 @@ export default function Staff({ showToast, addAudit }) {
   const [logForm, setLogForm]       = useState({ staffId:'s01', type:'MACP', date:'2026-06-14', ref:'' });
   const [showLogForm, setShowLogForm] = useState(false);
 
+  // ── Print ──────────────────────────────────────────────────────────────
+  function printStaffRegister() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    function fmtD(d) {
+      if (!d) return '—';
+      const dt = new Date(d);
+      const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${String(dt.getUTCDate()).padStart(2,'0')} ${mo[dt.getUTCMonth()]} ${dt.getUTCFullYear()}`;
+    }
+    const stBg  = s => s==='current'?'#D1FAE5':s==='expiring'?'#FEF3C7':s==='expired'?'#FEE2E2':'#F3F4F6';
+    const stClr = s => s==='current'?'#065F46':s==='expiring'?'#92400E':s==='expired'?'#991B1B':'#6B7280';
+    const stLbl = s => s==='current'?'✓ OK':s==='expiring'?'⚠ Expiring':s==='expired'?'✕ Expired':'—';
+    const rows = STAFF_DATA.map((s,i) => {
+      const dbSt = s.dbs.status, safSt = s.safeguarding.status;
+      const hasIssue = dbSt!=='current' || safSt!=='current' || !s.training.macp;
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};border-left:3px solid ${dbSt==='expired'?'#DC2626':hasIssue?'#D97706':'transparent'};">
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;">${s.rank} ${s.name}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${s.role}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${stBg(dbSt)};color:${stClr(dbSt)};padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;">${stLbl(dbSt)}</span><div style="font-size:9px;color:#5A7090;">${fmtD(s.dbs.expiry)}</div></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${stBg(safSt)};color:${stClr(safSt)};padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;">${stLbl(safSt)}</span><div style="font-size:9px;color:#5A7090;">${fmtD(s.safeguarding.expiry)}</div></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${s.training.macp?'#D1FAE5':'#FEF3C7'};color:${s.training.macp?'#065F46':'#92400E'};padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;">${s.training.macp?'✓ Done':'⏳ Pending'}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#00264D;font-weight:600;">${s.classification}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${s.avip?'#D1FAE5':'#F3F4F6'};color:${s.avip?'#065F46':'#6B7280'};padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;">${s.avip?'✓ Eligible':'—'}</span></td>
+      </tr>`;
+    }).join('');
+    const issueCount = STAFF_DATA.reduce((n,s) => n+(s.dbs.status!=='current'?1:0)+(s.safeguarding.status!=='current'?1:0)+(!s.training.macp?1:0), 0);
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>CFAV Compliance Register — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 12mm 14mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">CFAV COMPLIANCE REGISTER — AP 1919 / RAFAC SAFEGUARDING POLICY</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">As at ${today}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Total CFAVs: ${STAFF_DATA.length}</div>
+          <div style="font-size:10px;color:${issueCount>0?'#991B1B':'#065F46'};font-weight:700;">${issueCount} issue${issueCount!==1?'s':''} outstanding</div>
+        </td>
+      </tr>
+    </table>
+    ${issueCount>0?`<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#991B1B;font-weight:600;">⚠ Action required — see highlighted rows. Expired DBS holders must be stood down from cadet contact immediately.</div>`:''}
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CFAV</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ROLE</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS CHECK</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SAFEGUARDING</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">MACP MODULE</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CLASSIFICATION</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">AVIP</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;">
+      ${['Commanding Officer','Wing Admin Officer','Safeguarding DSL','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?'Sqn Ldr Harris':i===3?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · DBS: 3-year renewal cycle · Safeguarding/MACP: annual · Retain 6 years (AP 1919 / DPA 2018)
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('CFAV Compliance Register printed', 'Staff', `Printed by Sqn Ldr Harris on ${today}`);
+    showToast('🖨️ CFAV compliance register sent to printer');
+  }
+
   // ── Register helpers ────────────────────────────────────────────────────
   const officers = STAFF_DATA.filter(s => s.rank === 'Sqn Ldr' || s.rank === 'Plt Off').length;
   const ncos     = STAFF_DATA.length - officers;
@@ -963,13 +1042,19 @@ export default function Staff({ showToast, addAudit }) {
   return (
     <div style={{ fontFamily:'Barlow,sans-serif' }}>
       {/* Page header */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:24, fontWeight:800, color:navy, marginBottom:3 }}>
-          Staff Management
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
+        <div>
+          <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:24, fontWeight:800, color:navy, marginBottom:3 }}>
+            Staff Management
+          </div>
+          <div style={{ fontSize:12, color:muted }}>
+            CFAV Register · Compliance · Training · Roles — 1701 (Johnstone) Squadron
+          </div>
         </div>
-        <div style={{ fontSize:12, color:muted }}>
-          CFAV Register · Compliance · Training · Roles — 1701 (Johnstone) Squadron
-        </div>
+        <button onClick={printStaffRegister}
+          style={{ padding:'8px 16px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', flexShrink:0 }}>
+          📄 Print Register
+        </button>
       </div>
 
       {/* Tab bar */}
