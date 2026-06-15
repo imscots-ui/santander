@@ -1523,7 +1523,11 @@ async function openBulkStock() {
   showModal(`${mHead('RECEIVE DELIVERY')}<div class="modal-body">
     <div class="alert alert-info" style="margin-bottom:16px">Tap items to expand and enter received quantities. Multiple items can be open at once — submit them all in one go.</div>
     <div id="stock-error"></div>
-    <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="stk-search" placeholder="Search items..." type="text" autofocus></div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label style="font-size:12px">Delivery Reference <span style="font-weight:400;color:var(--text3)">(optional — shown in audit log)</span></label>
+      <input id="stk-ref" placeholder="e.g. DEL/2025/001 or RAF Stores Stafford" style="font-size:13px">
+    </div>
+    <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="stk-search" placeholder="Search items..." type="text"></div>
     <div style="display:flex;flex-direction:column;gap:6px">${itemRows}</div>
   </div>
   <div class="modal-footer">
@@ -1549,8 +1553,10 @@ async function openBulkStock() {
   });
 
   document.getElementById('stk-submit')?.addEventListener('click', async () => {
+    const ref = document.getElementById('stk-ref')?.value?.trim() || null;
+    const reason = ref ? `Delivery: ${ref}` : 'Delivery received';
     const adj = [];
-    document.querySelectorAll('.size-qty-input').forEach(inp => { const q = parseInt(inp.value); if (q > 0) adj.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: q }); });
+    document.querySelectorAll('.size-qty-input').forEach(inp => { const q = parseInt(inp.value); if (q > 0) adj.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: q, reason }); });
     if (adj.length === 0) { showError('stock-error', 'Please enter at least one quantity'); return; }
     const btn = document.getElementById('stk-submit'); btn.disabled = true; btn.textContent = 'Adding stock...';
     try {
