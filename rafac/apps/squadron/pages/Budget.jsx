@@ -233,6 +233,23 @@ export default function Budget({ showToast, addAudit }) {
     setShowAdd(false);
   }
 
+  function exportLedgerCSV() {
+    const header = 'Date,Type,Category,Description,Reference,Amount\n';
+    const rows = allSorted.map(l => {
+      const sign = l.type === 'Income' ? '+' : '-';
+      return [fmtDate(l.date), l.type, l.category, l.description, l.ref || '', `${sign}${l.amount.toFixed(2)}`].map(v => `"${v}"`).join(',');
+    }).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `1701-budget-${FY.replace(/\s/g,'-').replace(/–/,'-to-')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit && addAudit({ category:'Budget', action:`Ledger exported to CSV — ${FY}` });
+    showToast('📊 Budget ledger CSV downloaded');
+  }
+
   // ── tab bar ───────────────────────────────────────────────────────────────────
   const TABS = ['summary', 'income', 'expenditure', 'ledger', 'audit'];
   const TAB_LABELS = { summary:'Summary', income:'Income', expenditure:'Expenditure', ledger:'Ledger', audit:'Audit Trail' };
@@ -511,6 +528,22 @@ th.r{text-align:right}
               + Add Entry
             </button>
           )}
+          <button
+            onClick={exportLedgerCSV}
+            style={{
+              padding: '7px 14px',
+              background: 'white',
+              color: navy,
+              border: `1.5px solid ${border}`,
+              borderRadius: 7,
+              fontFamily: 'Barlow Condensed, sans-serif',
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: 'pointer',
+            }}
+          >
+            📊 Export CSV
+          </button>
           <button
             onClick={printFinancialStatement}
             style={{

@@ -110,6 +110,23 @@ export default function CadetRegister({ showToast, addAudit }) {
 
   const Card = selected ? CADETS.find(c => c.id === selected) : null;
 
+  function exportCSV() {
+    const header = 'Rank,Surname,Forename,Service No.,Age,Attendance %,PTS Class,Swim Passed,DofE,Issue\n';
+    const rows = CADETS.map(c => {
+      const extra = PROFILE_EXTRA[c.id] || {};
+      return [c.rank, c.sn, c.fn, c.svc, c.age, `${c.att}%`, c.pts, c.swim ? 'Yes' : 'No', extra.dofe || '—', c.issue || ''].map(v => `"${v}"`).join(',');
+    }).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '1701-cadet-register.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit?.('Cadet register exported to CSV', 'CadetRegister', `${CADETS.length} cadets`);
+    showToast('📊 CSV downloaded: 1701-cadet-register.csv');
+  }
+
   function printProfile(c, extra) {
     const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     const attBars = extra?.attHistory ? ['J','F','M','A','M','J'].map((m,i) => {
@@ -193,6 +210,7 @@ export default function CadetRegister({ showToast, addAudit }) {
               style={{ padding:'8px 12px', border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontFamily:'inherit' }}>
               {['All','Cdt','LCdt','Cpl','Sgt','FS','WO'].map(r => <option key={r}>{r}</option>)}
             </select>
+            <button onClick={exportCSV} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer' }}>📊 Export CSV</button>
             <button onClick={printFullRegister} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer' }}>📄 Print Register</button>
           </div>
         </div>
@@ -236,7 +254,7 @@ export default function CadetRegister({ showToast, addAudit }) {
                         : <span style={{ background:'#D4EDDA', color:'#0F4020', padding:'2px 8px', borderRadius:8, fontSize:10, fontWeight:700 }}>All current</span>}
                     </td>
                     <td style={{ padding:'11px 14px' }}>
-                      <button onClick={e => { e.stopPropagation(); showToast(`📋 Opening profile: ${c.rank} ${c.sn}, ${c.fn}`); }}
+                      <button onClick={e => { e.stopPropagation(); setSelected(c.id); }}
                         style={{ padding:'4px 10px', border:`1px solid ${border}`, borderRadius:6, fontSize:11, background:'white', cursor:'pointer', fontWeight:600 }}>View</button>
                     </td>
                   </tr>
