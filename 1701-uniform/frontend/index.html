@@ -1053,6 +1053,10 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issuing To</span>
           <span style="font-weight:700;color:var(--text)">${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</span>
         </div>
+        ${selectedCadet.notes ? `<div style="padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:4px">Cadet Note</span>
+          <span style="font-size:13px;color:var(--text);background:rgba(0,0,0,0.04);border-radius:4px;padding:4px 8px;display:block">📝 ${selectedCadet.notes}</span>
+        </div>` : ''}
         <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issued By</span>
           <span style="font-weight:700;color:var(--text)">${S.user.forename} ${S.user.surname}</span>
