@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from database import get_db
 from models import User
 from utils.auth_dependencies import get_current_user, get_current_admin
@@ -16,9 +16,23 @@ class FeedbackSubmit(BaseModel):
     message: str
     category: Optional[str] = "General"
 
+    @field_validator('subject', 'message')
+    @classmethod
+    def must_not_be_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip()
+
 
 class FeedbackReply(BaseModel):
     reply: str
+
+    @field_validator('reply')
+    @classmethod
+    def reply_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip()
 
 
 @router.get("/")

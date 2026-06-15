@@ -6,7 +6,7 @@ from database import get_db
 from models import KitListItem, Item, Gender, User
 from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 router = APIRouter(prefix="/kit-list", tags=["Kit List"])
 
@@ -16,6 +16,14 @@ class KitListItemCreate(BaseModel):
     gender_restriction: Optional[Gender] = None
     display_label: Optional[str] = None
     group_key: Optional[str] = None
+
+    @field_validator('display_label', 'group_key')
+    @classmethod
+    def strip_optional_strings(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            stripped = v.strip()
+            return stripped if stripped else None
+        return v
 
 
 @router.get("/")

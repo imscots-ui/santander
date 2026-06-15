@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from database import get_db
 from models import User
 from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
@@ -18,9 +18,23 @@ class BadgeItemCreate(BaseModel):
     description: Optional[str] = ""
     routine_stock: bool = True
 
+    @field_validator('name')
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip()
+
 
 class BadgeStockAdjust(BaseModel):
     quantity: int
+
+    @field_validator('quantity')
+    @classmethod
+    def quantity_nonzero(cls, v: int) -> int:
+        if v == 0:
+            raise ValueError('quantity must be non-zero')
+        return v
 
 
 class BadgeIssueRequest(BaseModel):
