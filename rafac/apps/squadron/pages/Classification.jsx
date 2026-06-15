@@ -110,6 +110,169 @@ export default function Classification({ showToast, addAudit }) {
     });
   }
 
+  function printCertificate(cadet, level, subjects) {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const fullName = `${cadet.sn}, ${cadet.fn}`;
+    const subjectRows = subjects.map(s => `
+      <tr>
+        <td style="padding:6px 14px;border-bottom:1px solid #E8ECF5;font-size:13px;color:#1a2b4a;">✓ ${s.name}</td>
+        <td style="padding:6px 14px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090;font-weight:700;text-align:right;">${s.category}</td>
+      </tr>`).join('');
+    const levelBg = { 'First Class':'#EAF4FF','Senior':'#D4EDDA','Master Cadet':'#FFF3CC' };
+    const levelCol = { 'First Class':'#003D80','Senior':'#0F4020','Master Cadet':'#7A4A00' };
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Certificate — ${fullName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:18mm 20mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;margin:0;padding:0}
+.cert{max-width:680px;margin:0 auto}
+.header{text-align:center;padding:28px 0 18px;border-bottom:3px solid #C8A032;margin-bottom:22px}
+.roundel{font-size:56px;margin-bottom:6px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.04em}
+.sub{font-size:11px;color:#5A7090;font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+.cert-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:#C8A032;letter-spacing:.14em;text-transform:uppercase;text-align:center;margin:20px 0 6px}
+.cert-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;text-align:center;margin-bottom:18px}
+.awarded{text-align:center;font-size:12px;color:#5A7090;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cadet-name{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;text-align:center;margin-bottom:4px}
+.cadet-rank{text-align:center;font-size:13px;color:#5A7090;margin-bottom:18px}
+.level-wrap{text-align:center;margin-bottom:20px}
+.level-badge{display:inline-block;background:${levelBg[level]||'#F4F7FB'};border:2px solid #C8A032;border-radius:10px;padding:11px 30px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:${levelCol[level]||'#00264D'};letter-spacing:.04em}
+.subj-head{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;border-bottom:2px solid #D0DCF0;padding-bottom:6px;margin-bottom:0;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;margin-bottom:28px}
+.date-line{font-size:12px;color:#5A7090;text-align:center;margin-bottom:10px}
+.statement{font-size:12px;color:#5A7090;text-align:center;margin-bottom:22px;line-height:1.6}
+.sigs{display:flex;gap:32px;padding-top:18px;border-top:2px solid #C8A032}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #00264D;height:38px;margin-bottom:4px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.sig-name{font-size:12px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:18px;padding-top:10px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="cert">
+  <div class="header">
+    <div class="roundel">✈️</div>
+    <div class="sqn">1701 (Johnstone) Squadron</div>
+    <div class="sub">Air Training Corps · Royal Air Force Air Cadets</div>
+  </div>
+  <div class="cert-label">Certificate of Achievement</div>
+  <div class="cert-title">PTS Classification Award</div>
+  <div class="awarded">This is to certify that</div>
+  <div class="cadet-name">${fullName}</div>
+  <div class="cadet-rank">${cadet.rank} · 1701 (Johnstone) Squadron ATC</div>
+  <div class="level-wrap"><div class="level-badge">${level}</div></div>
+  <div class="date-line">Date of award: <strong>${dateStr}</strong></div>
+  <div class="statement">Has successfully completed all required subjects for the <strong>${level}</strong> classification<br>under the RAFAC Proficiency Training Scheme (PTS)</div>
+  <div class="subj-head">Subjects Completed (${subjects.length})</div>
+  <table><tbody>${subjectRows}</tbody></table>
+  <div class="sigs">
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Officer Commanding</div>
+      <div class="sig-name">Flt Lt A. McDonald</div>
+      <div class="sig-label">1701 (Johnstone) Squadron ATC</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Wing Commander (Cadets)</div>
+      <div class="sig-name">Wg Cdr ________</div>
+      <div class="sig-label">West of Scotland Wing</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Date</div>
+      <div class="sig-name">${dateStr}</div>
+    </div>
+  </div>
+  <div class="footer">RAFAC 1701-CLF-${level.replace(/\s/g,'').toUpperCase()} · OFFICIAL · Proficiency Training Scheme · ${dateStr}</div>
+</div></body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.(`Certificate printed: ${fullName} — ${level}`, 'Classification');
+    showToast(`🏆 Certificate printing for ${cadet.sn}…`);
+  }
+
+  function printClassificationReport() {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const levelCol = { 'Recruit':'#5A7090','First Class':'#003D80','Senior':'#0F4020','Master Cadet':'#7A4A00' };
+    const levelBg  = { 'Recruit':'#F4F7FB','First Class':'#EAF4FF','Senior':'#D4EDDA','Master Cadet':'#FFF3CC' };
+    const rows = CADETS.map(c => {
+      const cc = normaliseLevel(c.pts);
+      const cp = progress[c.id] || {};
+      const tgt = targetLevel(cc);
+      const tgtSubs = tgt ? subjectsFor(tgt) : [];
+      const done = countDone(cp, tgtSubs);
+      const ready = tgt && tgtSubs.length > 0 && done === tgtSubs.length;
+      const pct = tgtSubs.length > 0 ? Math.round((done / tgtSubs.length) * 100) : 100;
+      const bar = `<div style="height:5px;background:#E8EEF5;border-radius:3px;overflow:hidden;margin-top:3px;width:80px"><div style="height:100%;width:${pct}%;background:${ready?'#1B6B3A':levelCol[cc]||'#5A7090'};border-radius:3px"></div></div>`;
+      const statusBadge = ready
+        ? `<span style="background:#D4EDDA;color:#0F4020;padding:2px 9px;border-radius:6px;font-size:10px;font-weight:700">✅ Ready</span>`
+        : cc === 'Master Cadet'
+        ? `<span style="background:#FFF3CC;color:#7A4A00;padding:2px 9px;border-radius:6px;font-size:10px;font-weight:700">Top level</span>`
+        : `<span style="color:#9BA8BC;font-size:11px">In progress</span>`;
+      return `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;font-weight:600;color:#00264D">${c.rank} ${c.sn}, ${c.fn}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center"><span style="background:${levelBg[cc]||'#F4F7FB'};color:${levelCol[cc]||'#5A7090'};padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700">${cc}</span></td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-size:12px;color:#5A7090">${tgt||'—'}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-size:12px">${tgt?`${done}/${tgtSubs.length}`:'—'}${tgt?bar:''}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center">${statusBadge}</td>
+      </tr>`;
+    }).join('');
+    const summary = LEVEL_ORDER.map(lv => {
+      const n = CADETS.filter(c => normaliseLevel(c.pts) === lv).length;
+      return `<div style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid #D0DCF0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${levelCol[lv]||'#00264D'}">${n}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">${lv}</div></div>`;
+    }).join('');
+    const readyCount = CADETS.filter(c => {
+      const cc = normaliseLevel(c.pts); const tgt = targetLevel(cc); const ts = tgt?subjectsFor(tgt):[];
+      return tgt && ts.length>0 && countDone(progress[c.id]||{},ts)===ts.length;
+    }).length;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Classification Report — 1701 Sqn</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 landscape;margin:14mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:12px}
+.hdr{display:flex;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:18px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;margin-left:auto}
+.summary{display:flex;border:1.5px solid #D0DCF0;border-radius:8px;overflow:hidden;margin-bottom:18px}
+.ready-badge{background:#D4EDDA;color:#0F4020;border-radius:8px;padding:12px 20px;text-align:center;margin-left:auto;display:flex;flex-direction:column;justify-content:center}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#F4F7FB;border-bottom:2px solid #D0DCF0}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5A7090;white-space:nowrap}
+tbody tr:hover{background:#F8FAFD}
+.footer{margin-top:14px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:36px">✈️</span>
+  <div><div class="sqn">1701 (Johnstone) Squadron ATC</div><div class="sub">PTS Classification Register · ${dateStr}</div></div>
+  <div class="title">Classification Report</div>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:18px">
+  <div class="summary" style="flex:1">${summary}<div class="ready-badge"><div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#0F4020">${readyCount}</div><div style="font-size:10px;font-weight:700;color:#0F4020;text-transform:uppercase">Ready to advance</div></div></div>
+</div>
+<table>
+  <thead><tr><th>Cadet</th><th>Current Level</th><th>Working Towards</th><th>Subject Progress</th><th>Status</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+<div class="footer">1701 (Johnstone) Squadron ATC · RAFAC PTS Classification Register · OFFICIAL · ${dateStr} · ${CADETS.length} cadets on roll</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Classification report exported', 'Training');
+  }
+
   const selectedCadet = selected ? CADETS.find(c => c.id === selected) : null;
 
   // DETAIL VIEW
@@ -179,10 +342,16 @@ export default function Classification({ showToast, addAudit }) {
                 </button>
               )}
               {allDone && (
-                <button onClick={() => showToast(`🎖️ ${selectedCadet.sn} ready for ${target} classification`)}
-                  style={{ padding:'7px 14px', background:gold, color:navy, border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>
-                  + Award Classification
-                </button>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={() => printCertificate(selectedCadet, target, currentSubjects)}
+                    style={{ padding:'7px 14px', background:'#1B6B3A', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+                    🏆 Print Certificate
+                  </button>
+                  <button onClick={() => showToast(`🎖️ ${selectedCadet.sn} ready for ${target} classification`)}
+                    style={{ padding:'7px 14px', background:gold, color:navy, border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>
+                    + Award Classification
+                  </button>
+                </div>
               )}
             </div>
 
@@ -256,9 +425,9 @@ export default function Classification({ showToast, addAudit }) {
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy }}>PTS Classification</div>
           <div style={{ fontSize:12, color:muted }}>Recruit → First Class → Senior → Master Cadet · {CADETS.length} cadets</div>
         </div>
-        <button onClick={() => showToast('📥 Exporting classification report…')}
+        <button onClick={printClassificationReport}
           style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
-          📥 Export
+          📄 Print Report
         </button>
       </div>
 
