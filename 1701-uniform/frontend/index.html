@@ -839,19 +839,10 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
         c.onclick = () => { selectedCategory = c.dataset.cat; renderStep(); };
       });
 
-      // Auto-advance: direct items (single-item categories) go straight to sizes
-      document.querySelectorAll('.item-card:not(.cat-btn)').forEach(c => {
-        c.onclick = () => {
-          selectedItem = items.find(i => i.id === parseInt(c.dataset.id));
-          selectedSize = null;
-          step = 2; renderStep();
-        };
-      });
-
       // Back to categories
       document.getElementById('cat-back')?.addEventListener('click', () => { selectedCategory = null; selectedItem = null; renderStep(); });
 
-      // Item cards in category view - auto advance to sizes
+      // Item cards — auto advance to sizes
       document.querySelectorAll('.item-card:not(.cat-btn)').forEach(c => {
         c.onclick = () => {
           selectedItem = items.find(i => i.id === parseInt(c.dataset.id));
@@ -1431,6 +1422,7 @@ async function openSearchUniform() {
   const [items] = await Promise.all([loadItems(), loadStock()]);
   let selectedItem = null;
   let srchCat = null;
+  let srchText = '';
   const categories = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
 
   function applyStockFilter() {
@@ -1452,7 +1444,7 @@ async function openSearchUniform() {
     const stockMap={}; (S.stock||[]).forEach(s=>{stockMap[`${s.item_id}-${s.size_id}`]=s.quantity;});
 
     showModal(`${mHead('SEARCH UNIFORM STOCK')}<div class="modal-body">
-      <div class="search-wrap" style="margin-bottom:${!selectedItem&&categories.length>1?'8':'16'}px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
+      <div class="search-wrap" style="margin-bottom:${!selectedItem&&categories.length>1?'8':'16'}px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" value="${esc(srchText)}" autofocus></div>
       ${!selectedItem&&categories.length>1?`<div id="srch-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
         ${categories.map(c=>`<button class="btn btn-ghost srch-cat-chip" data-cat="${esc(c)}" style="padding:4px 12px;font-size:12px">${esc(c)}</button>`).join('')}
       </div>`:''}
@@ -1471,12 +1463,12 @@ async function openSearchUniform() {
       <button class="btn btn-ghost" data-action="close">Close</button>
     </div>`, true);
 
-    document.getElementById('stock-search')?.addEventListener('input', applyStockFilter);
+    document.getElementById('stock-search')?.addEventListener('input', e => { srchText = e.target.value; applyStockFilter(); });
     document.querySelectorAll('.srch-cat-chip').forEach(chip => {
       chip.onclick = () => { srchCat = srchCat===chip.dataset.cat ? null : chip.dataset.cat; applyStockFilter(); };
     });
-    // Restore chip highlight state after re-render
-    if (srchCat) applyStockFilter();
+    // Restore filter state after re-render
+    if (srchCat || srchText) applyStockFilter();
 
     document.getElementById('srch-back')?.addEventListener('click', () => { selectedItem=null; renderSearch(); });
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderSearch(); }; });
@@ -2967,24 +2959,30 @@ async function openBadgeTracker(startView=null, startCat=null) {
       } catch(e) { btn.disabled = false; btn.textContent = 'Issue Badge to Cadet'; showError('badge-issue-error', e.message); }
     });
 
-    // Cadet view
+    // Cadet view — badge history load + return handling
+    async function loadCadetBadgeHistory() {
+      const histEl = document.getElementById('cadet-badge-history');
+      if (!histEl) return;
+      const issued = await GET('/badges/issued/cadet/' + selectedCadet.id);
+      if (!issued.length) { histEl.innerHTML = '<div class="empty">No badges issued to this cadet yet.</div>'; return; }
+      const rows = issued.map(i => '<tr><td><strong>' + esc(i.name) + '</strong></td><td style="font-size:12px">' + esc(i.category) + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(i.issued_at) + '</td><td style="font-size:12px">' + esc(i.issued_by) + '</td><td><span class="badge ' + (i.returned ? 'badge-grey' : 'badge-green') + '">' + (i.returned ? 'Returned' : 'Active') + '</span></td><td>' + (!i.returned ? '<button class="btn btn-ghost btn-sm badge-return-btn" data-id="' + i.issued_id + '">Return</button>' : '') + '</td></tr>').join('');
+      histEl.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      document.querySelectorAll('.badge-return-btn').forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm('Return this badge to stock?')) return;
+          btn.disabled = true; btn.textContent = 'Returning...';
+          try {
+            await PATCH('/badges/return/' + btn.dataset.id, {});
+            await loadCadetBadgeHistory();
+          } catch(e) { btn.disabled = false; btn.textContent = 'Return'; alert('Error: ' + e.message); }
+        };
+      });
+    }
     document.querySelectorAll('[data-cadet-id2]').forEach(el => {
       el.onclick = async () => {
         selectedCadet = activeCadets.find(c => c.id === parseInt(el.dataset.cadetId2));
         render();
-        const issued = await GET('/badges/issued/cadet/' + selectedCadet.id);
-        const el2 = document.getElementById('cadet-badge-history');
-        if (!el2) return;
-        if (!issued.length) { el2.innerHTML = '<div class="empty">No badges issued to this cadet yet.</div>'; return; }
-        let rows = issued.map(i => '<tr><td><strong>' + esc(i.name) + '</strong></td><td style="font-size:12px">' + esc(i.category) + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(i.issued_at) + '</td><td style="font-size:12px">' + esc(i.issued_by) + '</td><td><span class="badge ' + (i.returned ? 'badge-grey' : 'badge-green') + '">' + (i.returned ? 'Returned' : 'Active') + '</span></td><td>' + (!i.returned ? '<button class="btn btn-ghost btn-sm badge-return-btn" data-id="' + i.issued_id + '">Return</button>' : '') + '</td></tr>').join('');
-        el2.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
-        document.querySelectorAll('.badge-return-btn').forEach(btn => {
-          btn.onclick = async () => {
-            if (!confirm('Return this badge to stock?')) return;
-            await PATCH('/badges/return/' + btn.dataset.id, {});
-            el.click();
-          };
-        });
+        await loadCadetBadgeHistory();
       };
     });
 
