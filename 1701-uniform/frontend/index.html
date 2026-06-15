@@ -890,13 +890,24 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
         try {
           await POST('/transactions/issue',{cadet_id:selectedCadet.id,item_id:selectedItem.id,size_id:selectedSize.id,quantity:1,duplicate_reason:dupReason,notes});
           S.stock=null;
+          let remainingKit=[];
+          try { remainingKit=await GET(`/cadets/${selectedCadet.id}/missing-kit`); } catch {}
+          const remainingSection = remainingKit.length > 0
+            ? `<div style="margin-top:14px"><div class="section-label" style="margin-bottom:8px">Still Missing from Kit List <span style="background:var(--amber-light);color:var(--amber);font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 7px;border-radius:8px;margin-left:4px">${remainingKit.length}</span></div>
+               <div style="display:flex;flex-direction:column;gap:4px">${remainingKit.slice(0,4).map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--amber-light);border:1px solid #d97706;border-radius:6px;padding:7px 12px"><span style="font-size:13px;font-weight:600;color:var(--amber)">${m.label}</span><button class="btn btn-primary btn-sm post-issue-btn" data-item-id="${m.item_id||''}" style="font-size:11px">Issue →</button></div>`).join('')}${remainingKit.length>4?`<div style="font-size:12px;color:var(--text3);padding:4px 8px">+${remainingKit.length-4} more items still missing</div>`:''}</div></div>`
+            : `<div class="alert alert-success" style="margin-top:12px;background:var(--green-light);border-color:var(--green)">&#10003; Kit list complete — all required items now issued.</div>`;
           showModal(`${mHead('ISSUE UNIFORM')}<div class="modal-body">
             <div class="alert alert-success">&#10003; <strong>${selectedItem.short_name}</strong> (${selectedSize.size_label}) issued to ${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</div>
             <div style="background:var(--blue-pale);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text2)">
               <strong>Issued by:</strong> ${S.user.forename} ${S.user.surname}<br><strong>Time:</strong> ${fmt(new Date().toISOString())}
             </div>
+            ${remainingSection}
           </div>
           <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-ghost" id="issue-print">🖨 Print Receipt</button><button class="btn btn-primary" id="issue-another">Issue Another Item</button></div>`);
+          document.querySelectorAll('.post-issue-btn').forEach(btn2 => {
+            const itemId=btn2.dataset.itemId?parseInt(btn2.dataset.itemId):null;
+            btn2.addEventListener('click', () => openIssueFlow(selectedCadet.id, itemId));
+          });
           document.getElementById('issue-another').onclick = () => openIssueFlow(preselectedCadetId);
           document.getElementById('issue-print').onclick = () => printIssueReceipt(selectedCadet, selectedItem.short_name, selectedSize.size_label, S.user);
         } catch(e) { btn.disabled=false; btn.textContent='Confirm Issue'; showError('issue-error',e.message); }
@@ -1718,8 +1729,18 @@ function openEditStaff(userId, users) {
 
 async function openManageCadets() {
   const cadets = await loadCadets();
-  const active = cadets.filter(c => c.active);
-  const inactive = cadets.filter(c => !c.active);
+  const sortFn = (a,b) => a.surname.localeCompare(b.surname) || a.forename.localeCompare(b.forename);
+  const active = cadets.filter(c => c.active).sort(sortFn);
+  const inactive = cadets.filter(c => !c.active).sort(sortFn);
+  const flights = [...new Set(active.map(c=>c.flight).filter(Boolean))].sort();
+  let mcFlight = null;
+
+  function getFilteredActive(searchStr) {
+    let list = active;
+    if (mcFlight) list = list.filter(c => c.flight === mcFlight);
+    if (searchStr) list = list.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(searchStr));
+    return list;
+  }
 
   function renderManageCadets() {
     showModal(`${mHead('MANAGE CADETS')}<div class="modal-body">
@@ -1728,9 +1749,12 @@ async function openManageCadets() {
         <button class="btn btn-ghost" id="mc-import">📥 Import CSV</button>
         <a id="mc-template" download="cadet-import-template.csv" href="data:text/csv;charset=utf-8,service_number%2Crank%2Cforename%2Csurname%2Cgender%2Cflight%0A2501701%2CCadet%2CJane%2CSmith%2Cfemale%2CA" class="btn btn-ghost" style="text-decoration:none">⬇ CSV Template</a>
       </div>
+      ${flights.length>1?`<div id="mc-flight-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        ${flights.map(f=>`<button class="btn btn-ghost mc-flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}</button>`).join('')}
+      </div>`:''}
       <div class="search-wrap"><span class="search-icon">🔍</span><input id="mc-search" placeholder="Search by name or service number..." type="text"></div>
 
-      <div class="section-label" style="margin-top:16px">Active Cadets <span style="font-weight:400;color:var(--text3)">(${active.length})</span></div>
+      <div class="section-label" style="margin-top:16px">Active Cadets <span id="mc-active-count" style="font-weight:400;color:var(--text3)">(${active.length})</span></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Service No</th><th>Name</th><th>Flight</th><th>Actions</th></tr></thead>
         <tbody id="mc-active-tbody">${activeTableHTML(active)}</tbody>
@@ -1759,14 +1783,27 @@ async function openManageCadets() {
       URL.revokeObjectURL(url);
     };
 
-    document.getElementById('mc-search').oninput = e => {
-      const s = e.target.value.toLowerCase();
-      const fa = active.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
-      const fi = inactive.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
+    function refreshMcTable() {
+      const s = document.getElementById('mc-search')?.value?.toLowerCase()||'';
+      const fa = getFilteredActive(s);
+      const fi = inactive.filter(c => !s || (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
       document.getElementById('mc-active-tbody').innerHTML = activeTableHTML(fa);
+      const countEl = document.getElementById('mc-active-count');
+      if (countEl) countEl.textContent = `(${fa.length}${fa.length<active.length?' of '+active.length:''})`;
       if (document.getElementById('mc-inactive-tbody')) document.getElementById('mc-inactive-tbody').innerHTML = inactiveTableHTML(fi);
+      document.querySelectorAll('.mc-flight-chip').forEach(chip => {
+        const on = chip.dataset.flight === mcFlight;
+        chip.style.background = on ? 'var(--blue)' : '';
+        chip.style.color = on ? 'white' : '';
+        chip.style.borderColor = on ? 'var(--blue)' : '';
+      });
       bindCadetTableActions();
-    };
+    }
+
+    document.getElementById('mc-search').oninput = refreshMcTable;
+    document.querySelectorAll('.mc-flight-chip').forEach(chip => {
+      chip.onclick = () => { mcFlight = mcFlight===chip.dataset.flight ? null : chip.dataset.flight; refreshMcTable(); };
+    });
 
     bindCadetTableActions();
   }
