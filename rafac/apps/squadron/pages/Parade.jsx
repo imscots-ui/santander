@@ -55,6 +55,116 @@ export default function Parade({ showToast, addAudit }) {
     setSaved(true);
   }
 
+  function printAttendance() {
+    const dateStr = 'Thursday 18 June 2026';
+    const totalP = CADETS.filter(c => attendance[c.id] === 'present').length;
+    const totalA = CADETS.filter(c => attendance[c.id] === 'absent').length;
+    const totalE = CADETS.filter(c => attendance[c.id] === 'apology').length;
+    const pct = Math.round((totalP / CADETS.length) * 100);
+    const rows = CADETS.map(c => {
+      const st = attendance[c.id] || 'present';
+      const label = st === 'present' ? 'P' : st === 'absent' ? 'A' : 'E';
+      const rowBg = st === 'absent' ? 'background:#fee2e2' : st === 'apology' ? 'background:#fef3c7' : '';
+      return `<tr style="${rowBg}">
+        <td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #E8ECF5;font-family:'Barlow Condensed',sans-serif;font-weight:700">${c.rank}</td>
+        <td style="padding:7px 10px;font-size:12px;border-bottom:1px solid #E8ECF5">${c.sn}, ${c.fn}</td>
+        <td style="padding:7px 10px;text-align:center;font-weight:700;font-size:13px;border-bottom:1px solid #E8ECF5;font-family:'Barlow Condensed',sans-serif">${label}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;min-width:120px">&nbsp;</td>
+      </tr>`;
+    }).join('');
+    const tonight = TONIGHT.map(t => `<tr>
+      <td style="padding:6px 10px;font-weight:700;font-size:12px;border-bottom:1px solid #E8ECF5;font-family:'Barlow Condensed',sans-serif;color:#00264D">${t.time}</td>
+      <td style="padding:6px 10px;font-size:12px;border-bottom:1px solid #E8ECF5">${t.activity}</td>
+      <td style="padding:6px 10px;font-size:11px;border-bottom:1px solid #E8ECF5;color:#5A7090">${t.lead}</td>
+    </tr>`).join('');
+    const statBox = (label, value, bg, color) =>
+      `<div style="background:${bg};border-radius:8px;padding:10px 18px;text-align:center;min-width:80px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:${color};line-height:1">${value}</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${color};margin-top:3px;opacity:0.8">${label}</div>
+      </div>`;
+    const html = `<!DOCTYPE html><html><head>
+<title>1701 Sqn Attendance — ${dateStr}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 14mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; color: #0D1B2E; margin: 0; padding: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  .header-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; color: #00264D; margin: 0; }
+  .header-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: #5A7090; margin: 3px 0 0; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #00264D; text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; }
+  th { background: #F4F7FB; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A7090; padding: 8px 10px; text-align: left; border-bottom: 2px solid #D0DCF0; }
+  .footer { font-size: 9px; color: #8A9AB8; margin-top: 16px; padding-top: 8px; border-top: 1px solid #E8ECF5; }
+  .sig-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A7090; margin-bottom: 3px; }
+  .sig-line { border-bottom: 1px solid #5A7090; height: 30px; }
+  .sig-name { font-size: 10px; color: #5A7090; margin-top: 4px; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head><body>
+<div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:14px">
+  <div style="font-size:36px;line-height:1">✈️</div>
+  <div>
+    <div class="header-title">1701 (Johnstone) Squadron ATC</div>
+    <div class="header-sub">Parade Night Attendance &middot; ${dateStr}</div>
+  </div>
+</div>
+
+<div style="display:flex;gap:10px;margin-bottom:16px">
+  ${statBox('Present',  totalP, '#D4EDDA', '#0F4020')}
+  ${statBox('Absent',   totalA, '#F8D7DA', '#8B1A1A')}
+  ${statBox('Excused',  totalE, '#FFF3CC', '#7A4A00')}
+  ${statBox('Strength', CADETS.length, '#EAF4FF', '#00264D')}
+  ${statBox('Attendance', pct + '%', '#00264D', '#C8A032')}
+</div>
+
+<div class="section-label">Roll Call</div>
+<table>
+  <thead><tr>
+    <th style="width:90px">Rank</th>
+    <th>Name</th>
+    <th style="width:54px;text-align:center">Status</th>
+    <th style="width:160px">Signature</th>
+  </tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+
+<div class="section-label" style="margin-top:20px">Tonight's Programme</div>
+<table>
+  <thead><tr>
+    <th style="width:60px">Time</th>
+    <th>Activity</th>
+    <th style="width:140px">Lead</th>
+  </tr></thead>
+  <tbody>${tonight}</tbody>
+</table>
+
+${notes ? `<div class="section-label" style="margin-top:18px">Parade Notes</div><div style="font-size:12px;color:#0D1B2E;padding:10px 12px;background:#F4F7FB;border-radius:6px;border:1px solid #D0DCF0">${notes}</div>` : ''}
+
+<div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+  <div>
+    <div class="sig-label">Officer Commanding</div>
+    <div class="sig-line"></div>
+    <div class="sig-name">Flt Lt A. McDonald</div>
+  </div>
+  <div>
+    <div class="sig-label">Date</div>
+    <div class="sig-line"></div>
+    <div class="sig-name">&nbsp;</div>
+  </div>
+  <div></div>
+</div>
+
+<div class="footer">OFFICIAL &nbsp;&middot;&nbsp; GDPR DPA 2018 applies &nbsp;&middot;&nbsp; Printed: ${new Date().toLocaleString('en-GB')}</div>
+</body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    setTimeout(() => win.print(), 600);
+    addAudit && addAudit(`Parade attendance sheet printed — ${dateStr}`, 'Parade');
+    showToast && showToast('🖨️ Print dialogue opening…');
+  }
+
   const lowAtt = CADETS.filter(c => c.att < 75);
 
   return (
@@ -66,6 +176,7 @@ export default function Parade({ showToast, addAudit }) {
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => setQrOpen(true)} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>📲 QR Check-in</button>
+          <button onClick={printAttendance} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>🖨️ Print sheet</button>
           <button onClick={() => showToast('📥 Exporting attendance sheet…')} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📥 Export</button>
         </div>
       </div>

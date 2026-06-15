@@ -174,6 +174,130 @@ export default function DofE({ showToast, addAudit }) {
     showToast(`${rec.cadet} — ${rec.level} Award marked complete`);
   }
 
+  // ── print DofE register ───────────────────────────────────────────────────
+  function printDofEReport() {
+    const dateStr = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const levelColor = { Bronze: '#92400E', Silver: '#5A7090', Gold: '#C8A032' };
+    const levelBg    = { Bronze: '#FEF3C7', Silver: '#F4F7FB', Gold: '#FFF8E7' };
+    const statusColor = {
+      'Not Started': { bg:'#F4F7FB', color:'#5A7090' },
+      'In Progress':  { bg:'#FEF3C7', color:'#92400E' },
+      'Submitted':    { bg:'#EEF2F8', color:'#1E40AF' },
+      'Approved':     { bg:'#D1FAE5', color:'#065F46' },
+    };
+    const pill = (text, bg, color, size = 9) =>
+      `<span style="background:${bg};color:${color};padding:2px 8px;border-radius:10px;font-size:${size}px;font-weight:700;display:inline-block;font-family:'Barlow Condensed',sans-serif">${text}</span>`;
+    const statBox = (label, value, accent) =>
+      `<div style="background:white;border:1.5px solid #D0DCF0;border-radius:8px;padding:10px 18px;text-align:center;min-width:80px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:${accent};line-height:1">${value}</div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#5A7090;margin-top:3px">${label}</div>
+      </div>`;
+
+    const tableRows = records.map(rec => {
+      const { approved, total } = sectionProgress(rec);
+      const sections = LEVEL_SECTIONS[rec.level];
+      const statusBadge = {
+        'In Progress': { bg:'#FEF3C7', color:'#92400E' },
+        'Complete':    { bg:'#D1FAE5', color:'#065F46' },
+        'Not Started': { bg:'#F4F7FB', color:'#5A7090' },
+      };
+      const sb = statusBadge[rec.overallStatus] || statusBadge['Not Started'];
+      const mainRow = `<tr style="background:white">
+        <td style="padding:10px 12px;font-size:13px;font-weight:700;border-bottom:1px solid #E8ECF5">${rec.cadet}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E8ECF5">${pill(rec.level, levelBg[rec.level], levelColor[rec.level], 10)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E8ECF5;font-size:12px">${approved}/${total} Approved</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E8ECF5">${pill(rec.overallStatus, sb.bg, sb.color, 10)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${rec.startDate ? rec.startDate.split('-').reverse().join('/') : '—'}</td>
+      </tr>`;
+      const sectionRows = sections.map(s => {
+        const sec = rec.sections[s] || {};
+        const st  = sec.status || 'Not Started';
+        const sc  = statusColor[st];
+        return `<tr style="background:#F4F7FB">
+          <td style="padding:5px 12px 5px 28px;font-size:11px;color:#5A7090;border-bottom:1px solid #EEF2F8" colspan="2">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#00264D;margin-right:8px">${s}</span>
+            <span style="font-size:11px;color:#5A7090">${sec.activity || '—'}</span>
+          </td>
+          <td style="padding:5px 12px;border-bottom:1px solid #EEF2F8" colspan="3">${pill(st, sc.bg, sc.color, 9)}</td>
+        </tr>`;
+      }).join('');
+      return mainRow + sectionRows;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head>
+<title>1701 Sqn DofE Register — ${dateStr}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 landscape; margin: 14mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; color: #0D1B2E; margin: 0; padding: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #F4F7FB; font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A7090; padding: 8px 12px; text-align: left; border-bottom: 2px solid #D0DCF0; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #00264D; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 8px; }
+  .sig-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A7090; margin-bottom: 3px; }
+  .sig-line { border-bottom: 1px solid #5A7090; height: 30px; }
+  .sig-name { font-size: 10px; color: #5A7090; margin-top: 4px; }
+  .footer { font-size: 9px; color: #8A9AB8; margin-top: 16px; padding-top: 8px; border-top: 1px solid #E8ECF5; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head><body>
+<div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:14px">
+  <div style="font-size:36px;line-height:1">✈️</div>
+  <div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#00264D;margin:0">1701 (Johnstone) Squadron ATC</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#5A7090;margin:3px 0 0">Duke of Edinburgh's Award Register &middot; ${dateStr}</div>
+  </div>
+</div>
+
+<div style="display:flex;gap:10px;margin-bottom:16px">
+  ${statBox('Total Enrolled', counts.total,    '#00264D')}
+  ${statBox('Bronze',         counts.Bronze,   '#92400E')}
+  ${statBox('Silver',         counts.Silver,   '#5A7090')}
+  ${statBox('Gold',           counts.Gold,     '#C8A032')}
+  ${statBox('Complete',       counts.complete, '#065F46')}
+</div>
+
+<table>
+  <thead><tr>
+    <th style="width:160px">Cadet</th>
+    <th style="width:80px">Level</th>
+    <th style="width:130px">Section Progress</th>
+    <th style="width:110px">Overall Status</th>
+    <th>Start Date</th>
+  </tr></thead>
+  <tbody>${tableRows}</tbody>
+</table>
+
+<div class="section-label" style="margin-top:24px">Signatures</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+  <div>
+    <div class="sig-label">Officer Commanding</div>
+    <div class="sig-line"></div>
+    <div class="sig-name">Flt Lt A. McDonald</div>
+  </div>
+  <div>
+    <div class="sig-label">DofE Co-ordinator</div>
+    <div class="sig-line"></div>
+    <div class="sig-name">&nbsp;</div>
+  </div>
+  <div>
+    <div class="sig-label">Date</div>
+    <div class="sig-line"></div>
+    <div class="sig-name">&nbsp;</div>
+  </div>
+</div>
+
+<div class="footer">OFFICIAL &nbsp;&middot;&nbsp; GDPR DPA 2018 applies &nbsp;&middot;&nbsp; Printed: ${new Date().toLocaleString('en-GB')}</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit(`DofE register printed — ${records.length} cadets`, 'DofE');
+    showToast && showToast('🖨️ Print dialogue opening…');
+  }
+
   // ── overall status pill ───────────────────────────────────────────────────
   function overallPill(status) {
     const map = {
