@@ -2315,6 +2315,7 @@ async function openImportCadets() {
       try { await POST('/cadets/', row); added++; }
       catch(e) { if (e.message.toLowerCase().includes('already') || e.message.includes('409') || e.message.includes('duplicate')) skipped++; else failed.push(row.surname + ': ' + e.message); }
     }
+    parsedRows = [];
     S.cadets = null;
     showModal(`${mHead('IMPORT COMPLETE')}<div class="modal-body">
       <div class="alert alert-success">✓ ${added} cadet(s) imported successfully.</div>

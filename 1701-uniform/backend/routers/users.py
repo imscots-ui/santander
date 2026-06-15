@@ -178,17 +178,16 @@ def edit_user(user_id: int, payload: UserEditRequest, db: Session = Depends(get_
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if payload.is_admin is False and user.id == admin.id:
+        raise HTTPException(status_code=400, detail="Cannot remove your own admin status")
+    # Always apply provided fields; empty string clears optional fields
     if payload.forename is not None:
         user.forename = payload.forename
     if payload.surname is not None:
         user.surname = payload.surname
-    if payload.rank is not None:
-        user.staff_rank = payload.rank or None
-    if payload.role is not None:
-        user.role = payload.role or None
+    user.staff_rank = payload.rank or None
+    user.role = payload.role or None
     if payload.is_admin is not None:
-        if user.id == admin.id and not payload.is_admin:
-            raise HTTPException(status_code=400, detail="Cannot remove your own admin status")
         user.is_admin = payload.is_admin
     log_action(db, user_id=audit_user_id, action="USER_EDIT", details=f"Edited user {user.username}")
     db.commit()
