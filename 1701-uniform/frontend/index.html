@@ -1852,6 +1852,13 @@ async function openRemoveStock() {
           <div style="font-family:var(--head);font-size:22px;color:var(--blue)">${selectedItem.short_name}</div>
           <button class="btn btn-ghost btn-sm" id="adj-change">Change Item</button>
         </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Reason for Removal <span style="color:var(--red)">*</span></label>
+          <select id="adj-reason" style="font-size:13px">
+            <option value="">— Select reason —</option>
+            ${['Damaged in use','Lost / stolen','Written off','Audit correction','Returned to stores','Other'].map(r=>`<option>${r}</option>`).join('')}
+          </select>
+        </div>
         <div class="section-label">Select Size and Quantity to Remove</div>
         <div id="adj-error"></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
@@ -1883,6 +1890,8 @@ async function openRemoveStock() {
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderAdjust(); }; });
 
     document.getElementById('adj-submit')?.addEventListener('click', async () => {
+      const reason = document.getElementById('adj-reason')?.value?.trim() || '';
+      if (!reason) { showError('adj-error', 'Please select a reason for the removal'); return; }
       const adjustments = [];
       let hasError = false;
       document.querySelectorAll('.adj-qty').forEach(inp => {
@@ -1890,7 +1899,7 @@ async function openRemoveStock() {
         const max = parseInt(inp.dataset.max);
         if (!qty || qty <= 0) return;
         if (qty > max) { showError('adj-error', `Cannot remove more than ${max} from a size`); hasError=true; return; }
-        adjustments.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: -qty });
+        adjustments.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: -qty, reason });
       });
       if (hasError) return;
       if (adjustments.length === 0) { showError('adj-error', 'Please enter a quantity to remove for at least one size'); return; }

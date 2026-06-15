@@ -127,6 +127,7 @@ class StockAdjust(BaseModel):
     item_id: int
     size_id: int
     quantity: int   # positive = add, negative = remove
+    reason: Optional[str] = None
 
 
 class StockCheck(BaseModel):

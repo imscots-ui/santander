@@ -108,9 +108,10 @@ def adjust_stock(
     stock.quantity = new_qty
 
     action = "STOCK_ADD" if adjustment.quantity > 0 else "STOCK_REMOVE"
+    reason_suffix = f" — {adjustment.reason}" if adjustment.reason else ""
     log_action(
         db, user_id=audit_user_id, action=action,
-        details=f"{action}: {item.short_name} size {size.size_label} by {adjustment.quantity} (new total: {new_qty})",
+        details=f"{action}: {item.short_name} size {size.size_label} by {adjustment.quantity} (new total: {new_qty}){reason_suffix}",
         item_id=adjustment.item_id,
     )
     db.commit()
@@ -153,8 +154,10 @@ def bulk_adjust_stock(
         new_qty = max(0, stock.quantity + adj.quantity)
         stock.quantity = new_qty
 
-        log_action(db, user_id=audit_user_id, action="STOCK_BULK_ADD",
-                   details=f"Bulk: {item.short_name} {size.size_label} +{adj.quantity} = {new_qty}",
+        action = "STOCK_BULK_ADD" if adj.quantity > 0 else "STOCK_REMOVE"
+        reason_suffix = f" — {adj.reason}" if adj.reason else ""
+        log_action(db, user_id=audit_user_id, action=action,
+                   details=f"{'Bulk' if adj.quantity > 0 else 'Remove'}: {item.short_name} {size.size_label} {adj.quantity:+d} = {new_qty}{reason_suffix}",
                    item_id=adj.item_id)
 
         results.append({
