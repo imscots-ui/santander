@@ -1,12 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from typing import Optional
+from pydantic import BaseModel
 from database import get_db
 from models import User
 from utils.auth_dependencies import get_current_user, get_current_admin
 from utils.audit import log_action
 
 router = APIRouter(prefix="/feedback", tags=["Feedback"])
+
+
+class FeedbackSubmit(BaseModel):
+    subject: str
+    message: str
+    category: Optional[str] = "General"
+
+
+class FeedbackReply(BaseModel):
+    reply: str
 
 
 @router.get("/")
@@ -55,31 +67,31 @@ def unread_count(db: Session = Depends(get_db), current_user: User = Depends(get
 
 
 @router.post("/")
-def submit_feedback(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def submit_feedback(payload: FeedbackSubmit, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db.execute(text("""
         INSERT INTO feedback (submitted_by_id, subject, message, category)
         VALUES (:uid, :subject, :message, :category)
     """), {
         "uid": current_user.id,
-        "subject": payload["subject"],
-        "message": payload["message"],
-        "category": payload.get("category", "General")
+        "subject": payload.subject,
+        "message": payload.message,
+        "category": payload.category or "General",
     })
     log_action(db, user_id=current_user.id, action="FEEDBACK_SUBMIT",
-               details=f"Submitted feedback: {payload['subject']}")
+               details=f"Submitted feedback: {payload.subject}")
     db.commit()
     return {"message": "Feedback submitted"}
 
 
 @router.patch("/{feedback_id}/reply")
-def reply_to_feedback(feedback_id: int, payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+def reply_to_feedback(feedback_id: int, payload: FeedbackReply, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
     item = db.execute(text("SELECT id FROM feedback WHERE id = :id"), {"id": feedback_id}).fetchone()
     if not item:
         raise HTTPException(status_code=404, detail="Feedback not found")
     db.execute(text("""
         UPDATE feedback SET admin_reply = :reply, replied_by_id = :uid,
         replied_at = NOW(), status = 'replied' WHERE id = :id
-    """), {"reply": payload["reply"], "uid": current_user.id, "id": feedback_id})
+    """), {"reply": payload.reply, "uid": current_user.id, "id": feedback_id})
     log_action(db, user_id=current_user.id, action="FEEDBACK_REPLY",
                details=f"Replied to feedback #{feedback_id}")
     db.commit()

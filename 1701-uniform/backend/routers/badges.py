@@ -1,12 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from typing import Optional
+from pydantic import BaseModel
 from database import get_db
 from models import User
 from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
 
 router = APIRouter(prefix="/badges", tags=["Badges"])
+
+
+class BadgeItemCreate(BaseModel):
+    name: str
+    category: Optional[str] = "Misc"
+    subcategory: Optional[str] = None
+    description: Optional[str] = ""
+    routine_stock: bool = True
+
+
+class BadgeStockAdjust(BaseModel):
+    quantity: int
+
+
+class BadgeIssueRequest(BaseModel):
+    badge_item_id: int
+    cadet_id: int
+    notes: Optional[str] = None
 
 
 @router.get("/items")
@@ -24,46 +44,53 @@ def list_badge_items(db: Session = Depends(get_db), current_user: User = Depends
 
 
 @router.post("/items")
-def create_badge_item(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin),
+def create_badge_item(payload: BadgeItemCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin),
                       audit_user_id: int = Depends(get_audit_user_id)):
     result = db.execute(text("""
         INSERT INTO badge_items (name, category, subcategory, description, routine_stock)
         VALUES (:name, :category, :subcategory, :description, :routine)
     """), {
-        "name": payload["name"],
-        "category": payload.get("category", "Misc"),
-        "subcategory": payload.get("subcategory"),
-        "description": payload.get("description", ""),
-        "routine": payload.get("routine_stock", True)
+        "name": payload.name,
+        "category": payload.category or "Misc",
+        "subcategory": payload.subcategory,
+        "description": payload.description or "",
+        "routine": payload.routine_stock,
     })
     badge_id = result.lastrowid
-    if payload.get("routine_stock", True):
+    if payload.routine_stock:
         db.execute(text("INSERT INTO badge_stock (badge_item_id, quantity) VALUES (:id, 0)"), {"id": badge_id})
-    log_action(db, user_id=audit_user_id, action="BADGE_CREATE", details=f"Created badge: {payload['name']}")
+    log_action(db, user_id=audit_user_id, action="BADGE_CREATE", details=f"Created badge: {payload.name}")
     db.commit()
     return {"id": badge_id, "message": "Badge created"}
 
 
 @router.patch("/stock/{badge_id}")
-def adjust_badge_stock(badge_id: int, payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin),
+def adjust_badge_stock(badge_id: int, payload: BadgeStockAdjust, db: Session = Depends(get_db),
+                       current_user: User = Depends(get_current_admin),
                        audit_user_id: int = Depends(get_audit_user_id)):
-    qty = payload.get("quantity", 0)
-    existing = db.execute(text("SELECT id FROM badge_stock WHERE badge_item_id = :id"), {"id": badge_id}).fetchone()
-    if existing:
-        db.execute(text("UPDATE badge_stock SET quantity = quantity + :qty WHERE badge_item_id = :id"), {"qty": qty, "id": badge_id})
-    else:
-        db.execute(text("INSERT INTO badge_stock (badge_item_id, quantity) VALUES (:id, :qty)"), {"id": badge_id, "qty": qty})
     badge = db.execute(text("SELECT name FROM badge_items WHERE id = :id"), {"id": badge_id}).fetchone()
-    log_action(db, user_id=audit_user_id, action="BADGE_STOCK_ADJUST", details=f"Adjusted {badge.name} stock by {qty:+d}")
+    if not badge:
+        raise HTTPException(status_code=404, detail="Badge not found")
+    existing = db.execute(text("SELECT id, quantity FROM badge_stock WHERE badge_item_id = :id"), {"id": badge_id}).fetchone()
+    if existing:
+        new_qty = existing.quantity + payload.quantity
+        if new_qty < 0:
+            raise HTTPException(status_code=400, detail=f"Cannot reduce below zero (current: {existing.quantity})")
+        db.execute(text("UPDATE badge_stock SET quantity = :qty WHERE badge_item_id = :id"), {"qty": new_qty, "id": badge_id})
+    else:
+        if payload.quantity < 0:
+            raise HTTPException(status_code=400, detail="No stock record exists to remove from")
+        db.execute(text("INSERT INTO badge_stock (badge_item_id, quantity) VALUES (:id, :qty)"), {"id": badge_id, "qty": payload.quantity})
+    log_action(db, user_id=audit_user_id, action="BADGE_STOCK_ADJUST", details=f"Adjusted {badge.name} stock by {payload.quantity:+d}")
     db.commit()
     return {"message": "Stock updated"}
 
 
 @router.post("/issue")
-def issue_badge(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
+def issue_badge(payload: BadgeIssueRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
                 audit_user_id: int = Depends(get_audit_user_id)):
-    badge_id = payload["badge_item_id"]
-    cadet_id = payload["cadet_id"]
+    badge_id = payload.badge_item_id
+    cadet_id = payload.cadet_id
     stock = db.execute(text("SELECT quantity FROM badge_stock WHERE badge_item_id = :id"), {"id": badge_id}).fetchone()
     if not stock or stock.quantity < 1:
         raise HTTPException(status_code=400, detail="No stock available for this badge")
@@ -71,7 +98,7 @@ def issue_badge(payload: dict, db: Session = Depends(get_db), current_user: User
     db.execute(text("""
         INSERT INTO badge_issued (badge_item_id, cadet_id, issued_by_id, notes)
         VALUES (:bid, :cid, :uid, :notes)
-    """), {"bid": badge_id, "cid": cadet_id, "uid": audit_user_id, "notes": payload.get("notes")})
+    """), {"bid": badge_id, "cid": cadet_id, "uid": audit_user_id, "notes": payload.notes})
     badge = db.execute(text("SELECT name FROM badge_items WHERE id = :id"), {"id": badge_id}).fetchone()
     cadet = db.execute(text("SELECT service_number, surname FROM cadets WHERE id = :id"), {"id": cadet_id}).fetchone()
     log_action(db, user_id=audit_user_id, action="BADGE_ISSUE",
