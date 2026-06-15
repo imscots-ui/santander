@@ -94,6 +94,126 @@ export default function Compliance({ showToast, addAudit }) {
   const filteredChecks = catFilter === 'All' ? checks : checks.filter(c => c.category === catFilter);
   const filteredInc = incFilter === 'All' ? incidents : incidents.filter(i => i.status === incFilter);
 
+  function printComplianceReport() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const checkRows = checks.map((c,i) => {
+      const days = daysUntil(c.nextDue);
+      const stBg  = days<0?'#FEE2E2':days<=7?'#FEF3C7':'#D1FAE5';
+      const stClr = days<0?'#991B1B':days<=7?'#92400E':'#065F46';
+      const stLbl = days<0?`OVERDUE ${Math.abs(days)}d`:days<=7?`DUE SOON ${days}d`:`OK ${days}d`;
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};${days<0?'border-left:3px solid #DC2626;':days<=7?'border-left:3px solid #D97706;':''}">
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;"><span style="background:#EEF2F8;color:#5A7090;padding:1px 6px;border-radius:4px;font-size:9px;">${c.category}</span></td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;color:#00264D;">${c.task}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${c.freq}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${c.lastDone}<div style="font-size:9px;">${c.doneBy}</div></td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${c.nextDue}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${stBg};color:${stClr};padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${stLbl}</span></td>
+      </tr>`;
+    }).join('');
+    const dbsRows = STAFF.map((s,i) => {
+      const days = daysUntil(s.dbsExp);
+      const dbsBg  = days<0?'#FEE2E2':days<90?'#FEF3C7':'#D1FAE5';
+      const dbsClr = days<0?'#991B1B':days<90?'#92400E':'#065F46';
+      const dbsLbl = days<0?'EXPIRED':days<90?`EXPIRING ${days}d`:'VALID';
+      const hasIssue = days<90 || s.rvo==='Pending' || s.ref!=='Complete';
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};${hasIssue?'border-left:3px solid #D97706;':''}">
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;">${s.name}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${s.role}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;">${s.dbs}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${s.dbsExp}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${dbsBg};color:${dbsClr};padding:2px 7px;border-radius:8px;font-size:9px;font-weight:700;">${dbsLbl}</span></td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;font-weight:700;color:${s.rvo==='Cleared'?'#065F46':s.rvo==='N/A'?'#5A7090':'#D97706'};">${s.rvo}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${s.safeguard}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;font-weight:700;color:${s.ref==='Complete'?'#065F46':'#D97706'};">${s.ref}</td>
+      </tr>`;
+    }).join('');
+    const incRows = incidents.map((inc,i) => `<tr style="background:${i%2?'#FAFCFE':'white'};">
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${inc.date}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;"><span style="background:${inc.type==='Safeguarding concern'?'#FEE2E2':inc.type==='Near miss'?'#FEF3C7':'#EEF2F8'};color:${inc.type==='Safeguarding concern'?'#991B1B':inc.type==='Near miss'?'#92400E':'#00264D'};padding:2px 7px;border-radius:6px;font-size:9px;font-weight:700;">${inc.type}</span></td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#00264D;">${inc.desc}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${inc.action}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${inc.status==='Open'?'#FEE2E2':'#D1FAE5'};color:${inc.status==='Open'?'#991B1B':'#065F46'};padding:2px 7px;border-radius:8px;font-size:9px;font-weight:700;">${inc.status}</span></td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${inc.reportedBy}</td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Compliance Report — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 11mm 13mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+      h3 { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:800; color:#00264D; text-transform:uppercase; letter-spacing:0.05em; margin:14px 0 6px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">COMPLIANCE REPORT — H&amp;S · VETTING · INCIDENTS</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">As at ${today}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:${overdue>0?'#991B1B':'#5A7090'};font-weight:${overdue>0?700:400};">Overdue checks: ${overdue}</div>
+          <div style="font-size:10px;color:#5A7090;">Open incidents: ${incidents.filter(i=>i.status==='Open').length}</div>
+        </td>
+      </tr>
+    </table>
+    <h3>Health &amp; Safety Checks</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:7px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CATEGORY</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TASK</th>
+        <th style="padding:7px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">FREQ</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">LAST DONE</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NEXT DUE</th>
+        <th style="padding:7px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">STATUS</th>
+      </tr></thead>
+      <tbody>${checkRows}</tbody>
+    </table>
+    <h3>Staff Vetting &amp; DBS</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NAME</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ROLE</th>
+        <th style="padding:7px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS TYPE</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">EXPIRES</th>
+        <th style="padding:7px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DBS STATUS</th>
+        <th style="padding:7px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">RVO</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SG TRAINING</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">REFS</th>
+      </tr></thead>
+      <tbody>${dbsRows}</tbody>
+    </table>
+    <h3>Incident Log</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DATE</th>
+        <th style="padding:7px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TYPE</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DESCRIPTION</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ACTION TAKEN</th>
+        <th style="padding:7px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">STATUS</th>
+        <th style="padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">REPORTED BY</th>
+      </tr></thead>
+      <tbody>${incRows}</tbody>
+    </table>
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      ${['Commanding Officer','Health & Safety Officer','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?'Sqn Ldr Harris':i===2?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · AP 1919 · JSP 375 · Retain 3 years minimum (Health & Safety at Work Act 1974)
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Compliance Report printed', 'Compliance', `Printed by Sqn Ldr Harris on ${today}`);
+    showToast('🖨️ Compliance report sent to printer');
+  }
+
   const overdue = checks.filter(c => daysUntil(c.nextDue) < 0).length;
   const dueSoon = checks.filter(c => { const d = daysUntil(c.nextDue); return d >= 0 && d <= 7; }).length;
   const dbsIssues = STAFF.filter(s => daysUntil(s.dbsExp) < 90 || s.rvo === 'Pending' || s.ref !== 'Complete').length;
@@ -108,9 +228,15 @@ export default function Compliance({ showToast, addAudit }) {
   return (
     <div style={{ maxWidth:900 }}>
       {/* Header */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:26, fontWeight:800, color:navy }}>Compliance</div>
-        <div style={{ fontSize:12, color:'#5A7090', marginTop:2 }}>H&amp;S checks · Staff vetting &amp; DBS · Incident log</div>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
+        <div>
+          <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:26, fontWeight:800, color:navy }}>Compliance</div>
+          <div style={{ fontSize:12, color:'#5A7090', marginTop:2 }}>H&amp;S checks · Staff vetting &amp; DBS · Incident log</div>
+        </div>
+        <button onClick={printComplianceReport}
+          style={{ padding:'8px 16px', background:'white', color:navy, border:`1px solid #E5EAF2`, borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', flexShrink:0 }}>
+          📄 Print Report
+        </button>
       </div>
 
       {/* Summary cards */}
