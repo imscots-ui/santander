@@ -1967,9 +1967,26 @@ function openEditStaff(userId, users) {
     '<div class="form-group"><label>Rank</label><select id="es-rank"><option value="">— Select Rank —</option>' + rankOpts + '</select></div>' +
     '<div class="form-group"><label>Role</label><select id="es-role"><option value="">— Select Role —</option>' + roleOpts + '</select></div>' +
     '<div class="form-group"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="es-admin"' + (u.is_admin?' checked':'') + '> Admin privileges</label></div>' +
+    '<div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px">' +
+      '<div class="section-label" style="margin-bottom:8px">PIN Management</div>' +
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Username: <span style="font-family:var(--mono)">' + u.username + '</span></div>' +
+      '<button class="btn btn-ghost btn-sm" id="es-resetpin">Reset PIN to Default (1701)</button>' +
+      '<span id="es-pin-msg" style="font-size:12px;margin-left:10px;color:var(--green)"></span>' +
+    '</div>' +
     '</div><div class="modal-footer"><button class="btn btn-ghost" id="es-back">← Back</button><button class="btn btn-primary" id="es-save">Save Changes</button></div>', true);
 
   document.getElementById('es-back').onclick = () => openManageStaff();
+  document.getElementById('es-resetpin').onclick = async () => {
+    if (!confirm('Reset PIN for ' + u.forename + ' ' + u.surname + ' to the default 1701?')) return;
+    const btn = document.getElementById('es-resetpin');
+    btn.disabled = true; btn.textContent = 'Resetting...';
+    try {
+      await PATCH('/users/' + userId + '/reset-password');
+      const msg = document.getElementById('es-pin-msg');
+      if (msg) msg.textContent = '✓ PIN reset to 1701';
+      btn.textContent = 'Reset PIN to Default (1701)';
+    } catch(e) { btn.disabled = false; btn.textContent = 'Reset PIN to Default (1701)'; showError('es-error', e.message); }
+  };
   document.getElementById('es-save').onclick = async () => {
     const btn = document.getElementById('es-save');
     btn.disabled = true; btn.textContent = 'Saving...';
@@ -2296,16 +2313,19 @@ async function openRemoveStock() {
 
 async function openInactiveCadets() {
   await loadCadets();
-  const inactive = (S.cadets||[]).filter(c => !c.active);
+  const inactive = (S.cadets||[]).filter(c => !c.active)
+    .sort((a,b) => a.surname.localeCompare(b.surname) || a.forename.localeCompare(b.forename));
 
   showModal(`${mHead('INACTIVE CADETS')}<div class="modal-body">
     <div class="alert alert-info">These cadets have been deactivated. Their kit history and audit records are fully preserved.</div>
     ${inactive.length === 0
       ? '<div class="empty">No inactive cadets on record.</div>'
-      : `<div class="table-wrap"><table>
+      : `<div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="ic-search" placeholder="Search by name or service number..." type="text"></div>
+      <div class="section-label">Inactive Cadets <span id="ic-count" style="font-weight:400;color:var(--text3)">(${inactive.length})</span></div>
+      <div class="table-wrap"><table>
         <thead><tr><th>Service No</th><th>Name</th><th>Gender</th><th>Flight</th><th>Actions</th></tr></thead>
-        <tbody>
-          ${inactive.map(c => `<tr>
+        <tbody id="ic-tbody">
+          ${inactive.map(c => `<tr data-ic-name="${(c.surname+' '+c.forename+' '+(c.service_number||'')).toLowerCase()}">
             <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
             <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
             <td style="font-size:13px">${c.gender}</td>
@@ -2322,6 +2342,18 @@ async function openInactiveCadets() {
   <div class="modal-footer">
     <button class="btn btn-ghost" data-action="admin">← Back</button>
   </div>`, true);
+
+  document.getElementById('ic-search')?.addEventListener('input', e => {
+    const s = e.target.value.toLowerCase();
+    let vis = 0;
+    document.querySelectorAll('#ic-tbody tr').forEach(row => {
+      const show = !s || (row.dataset.icName||'').includes(s);
+      row.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    const cnt = document.getElementById('ic-count');
+    if (cnt) cnt.textContent = `(${vis}${vis < inactive.length ? ' of ' + inactive.length : ''})`;
+  });
 
   document.querySelectorAll('[data-view]').forEach(btn => {
     btn.onclick = () => openCadetRecord(parseInt(btn.dataset.view));
