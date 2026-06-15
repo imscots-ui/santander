@@ -996,8 +996,8 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
       return `<div class="section-label">Select Item</div>
       <div class="item-grid">
         ${categoryGroups.map(({cat, items: ci}) => `
-          <div class="item-card cat-btn" data-cat="${cat}" style="padding:16px">
-            <div class="item-card-name">${cat}</div>
+          <div class="item-card cat-btn" data-cat="${esc(cat)}" style="padding:16px">
+            <div class="item-card-name">${esc(cat)}</div>
             <div class="item-card-cat">${ci.length} options</div>
           </div>
         `).join('')}
@@ -1013,7 +1013,7 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
       return `
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <button class="btn btn-ghost btn-sm" id="cat-back">← Back</button>
-          <span style="font-size:14px;font-weight:600;color:var(--blue)">${selectedCategory}</span>
+          <span style="font-size:14px;font-weight:600;color:var(--blue)">${esc(selectedCategory)}</span>
         </div>
         <div class="item-grid">
           ${catItems.map(i => `
@@ -1448,7 +1448,7 @@ async function openSearchUniform() {
     showModal(`${mHead('SEARCH UNIFORM STOCK')}<div class="modal-body">
       <div class="search-wrap" style="margin-bottom:${!selectedItem&&categories.length>1?'8':'16'}px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
       ${!selectedItem&&categories.length>1?`<div id="srch-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-        ${categories.map(c=>`<button class="btn btn-ghost srch-cat-chip" data-cat="${c}" style="padding:4px 12px;font-size:12px">${c}</button>`).join('')}
+        ${categories.map(c=>`<button class="btn btn-ghost srch-cat-chip" data-cat="${esc(c)}" style="padding:4px 12px;font-size:12px">${esc(c)}</button>`).join('')}
       </div>`:''}
       ${!selectedItem?`<div id="stock-item-grid" class="item-grid">${items.map(i=>{
         const totalStock = i.sizes ? i.sizes.reduce((sum,s)=>{return sum+(stockMap[i.id+'-'+s.id]||0);},0) : 0;
@@ -1657,7 +1657,7 @@ async function openManageItems() {
 
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
         <div class="search-wrap" style="flex:1;min-width:180px;margin:0"><span class="search-icon">🔍</span><input id="mi-search" placeholder="Search items..." type="text" style="padding-left:32px"></div>
-        ${CATEGORIES.map(c=>`<button class="btn btn-ghost btn-sm mi-cat-chip" data-cat="${c}" style="padding:4px 10px;font-size:12px${miCatFilter===c?';background:var(--blue);color:white;border-color:var(--blue)':''}">${c}</button>`).join('')}
+        ${CATEGORIES.map(c=>`<button class="btn btn-ghost btn-sm mi-cat-chip" data-cat="${esc(c)}" style="padding:4px 10px;font-size:12px${miCatFilter===c?';background:var(--blue);color:white;border-color:var(--blue)':''}">${esc(c)}</button>`).join('')}
       </div>
 
       <div class="section-label">Current Items <span id="mi-count" style="font-weight:400;color:var(--text3)">(${displayItems.length}${displayItems.length<items.length?' of '+items.length:''})</span></div>
