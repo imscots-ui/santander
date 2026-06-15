@@ -1921,10 +1921,10 @@ async function loadHomeDashboard() {
   try {
     const d = await GET('/dashboard/');
     const lowStockCount = (d.low_stock || []).length;
-    const kitGapCount = (d.cadets_missing_kit || d.missing_kit_detail || []).length;
+    const kitGapCount = typeof d.cadets_missing_kit === 'number' ? d.cadets_missing_kit : (d.missing_kit_detail || []).length;
     const stats = [
       { label:'Active Cadets', value: d.total_active_cadets, color:'var(--blue)' },
-      { label:'Items Issued', value: d.total_items_issued, color:'var(--green)' },
+      { label:'Items Outstanding', value: d.total_items_outstanding ?? d.total_items_issued ?? 0, color:'var(--green)' },
       { label:'Cadets w/ Kit Gap', value: kitGapCount, color: kitGapCount > 0 ? 'var(--red)' : 'var(--green)' },
       { label:'Low Stock Lines', value: lowStockCount, color: lowStockCount > 0 ? '#d97706' : 'var(--green)', warn: lowStockCount > 0 },
     ];
