@@ -67,6 +67,12 @@ def create_item(
     audit_user_id: int = Depends(get_audit_user_id),
 ):
     """Admin only. Add a new uniform item."""
+    payload.short_name = payload.short_name.strip()
+    payload.name = payload.name.strip()
+    if not payload.short_name:
+        raise HTTPException(status_code=400, detail="Short name cannot be blank")
+    if not payload.name:
+        raise HTTPException(status_code=400, detail="Name cannot be blank")
     if db.query(Item).filter(Item.short_name == payload.short_name).first():
         raise HTTPException(status_code=400, detail="An item with this short name already exists")
 
@@ -106,6 +112,9 @@ def update_item(
         raise HTTPException(status_code=404, detail="Item not found")
 
     if payload.short_name is not None:
+        payload.short_name = payload.short_name.strip()
+        if not payload.short_name:
+            raise HTTPException(status_code=400, detail="Short name cannot be blank")
         conflict = db.query(Item).filter(
             Item.short_name == payload.short_name, Item.id != item_id
         ).first()
@@ -114,6 +123,9 @@ def update_item(
         item.short_name = payload.short_name
 
     if payload.name is not None:
+        payload.name = payload.name.strip()
+        if not payload.name:
+            raise HTTPException(status_code=400, detail="Name cannot be blank")
         item.name = payload.name
     if payload.category is not None:
         item.category = payload.category or None

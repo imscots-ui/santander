@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from database import get_db
 from models import User
@@ -22,6 +22,13 @@ class UserCreateFull(BaseModel):
     rank: Optional[str] = None
     role: Optional[str] = None
     is_admin: bool = False
+
+    @field_validator('forename', 'surname')
+    @classmethod
+    def must_not_be_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip()
 
 
 class PinVerify(BaseModel):
@@ -137,6 +144,13 @@ class UserEditRequest(BaseModel):
     rank: Optional[str] = None
     role: Optional[str] = None
     is_admin: Optional[bool] = None
+
+    @field_validator('forename', 'surname')
+    @classmethod
+    def name_not_blank(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip() if v else v
 
 
 class ChangePinRequest(BaseModel):

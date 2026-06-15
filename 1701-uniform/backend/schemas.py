@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from models import Gender, UniformCondition
 
 
@@ -64,6 +64,18 @@ class CadetCreate(BaseModel):
     gender: Gender
     flight: Optional[str] = None
 
+    @field_validator('service_number', 'forename', 'surname')
+    @classmethod
+    def must_not_be_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip()
+
+    @field_validator('rank')
+    @classmethod
+    def rank_not_blank(cls, v: str) -> str:
+        return v.strip() if v else v
+
 
 class CadetUpdate(BaseModel):
     rank: Optional[str] = None
@@ -72,6 +84,13 @@ class CadetUpdate(BaseModel):
     gender: Optional[Gender] = None
     flight: Optional[str] = None
     notes: Optional[str] = None
+
+    @field_validator('forename', 'surname')
+    @classmethod
+    def name_not_blank(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not v.strip():
+            raise ValueError('must not be blank')
+        return v.strip() if v else v
 
 
 class CadetOut(BaseModel):
@@ -133,6 +152,13 @@ class StockAdjust(BaseModel):
     quantity: int   # positive = add, negative = remove
     reason: Optional[str] = None
 
+    @field_validator('quantity')
+    @classmethod
+    def quantity_nonzero(cls, v: int) -> int:
+        if v == 0:
+            raise ValueError('quantity must be non-zero')
+        return v
+
 
 class StockCheck(BaseModel):
     item_id: int
@@ -158,6 +184,21 @@ class IssueRequest(BaseModel):
     quantity: int = 1
     duplicate_reason: Optional[str] = None   # Required if cadet already has this item
     notes: Optional[str] = None
+
+    @field_validator('quantity')
+    @classmethod
+    def quantity_positive(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError('quantity must be at least 1')
+        return v
+
+    @field_validator('duplicate_reason')
+    @classmethod
+    def strip_reason(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            stripped = v.strip()
+            return stripped if stripped else None
+        return v
 
 
 class IssueOut(BaseModel):

@@ -200,6 +200,12 @@ def delete_stock_line(
             detail=f"Cannot remove — {outstanding} item(s) of this size are currently issued to cadets."
         )
 
+    # Check no historical records reference this size — deleting the Size row
+    # would break cadet history queries for returned items.
+    historical = db.query(IssuedItem).filter(
+        IssuedItem.size_id == size_id,
+    ).count()
+
     stock = db.query(Stock).filter(
         Stock.item_id == item_id,
         Stock.size_id == size_id
@@ -212,7 +218,10 @@ def delete_stock_line(
     size = db.query(Size).filter(Size.id == size_id).first()
 
     db.delete(stock)
-    db.delete(size)
+    # Only delete the Size row if it has no historical issue records;
+    # otherwise keep it so past cadet histories remain readable.
+    if historical == 0:
+        db.delete(size)
 
     log_action(db, user_id=audit_user_id, action="STOCK_DELETE",
                details=f"Deleted stock line: {item.short_name if item else item_id} size {size.size_label if size else size_id}",

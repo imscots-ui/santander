@@ -1903,7 +1903,7 @@ function openAddStaff() {
       S.users=null;
       showModal(`${mHead('ADD STAFF USER')}<div class="modal-body">
         <div class="alert alert-success">✓ User created successfully.</div>
-        <div style="background:var(--blue-pale);padding:16px;border-radius:var(--r);font-size:14px"><strong>Username:</strong> ${sur.toLowerCase()}.${fore.toLowerCase()}<br><strong>Default PIN:</strong> 1701</div>
+        <div style="background:var(--blue-pale);padding:16px;border-radius:var(--r);font-size:14px"><strong>Username:</strong> ${esc(sur.toLowerCase())}.${esc(fore.toLowerCase())}<br><strong>Default PIN:</strong> 1701</div>
       </div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addstaff">Add Another</button></div>`);
     } catch(e) { btn.disabled=false; btn.textContent='Create User'; showError('staff-error',e.message); }
   };
@@ -1925,6 +1925,9 @@ function openAddCadet() {
     '<div class="modal-footer"><button class="btn btn-ghost" id="cadet-back">← Back</button><button class="btn btn-primary" id="cadet-submit">Add Cadet</button></div>');
   document.getElementById('cadet-back').onclick = openManageCadets;
   document.getElementById('cadet-submit').onclick = async () => {
+    const fore = document.getElementById('c-fore').value.trim();
+    const sur = document.getElementById('c-sur').value.trim();
+    if (!fore || !sur) { showError('cadet-error', 'Forename and surname are required'); return; }
     const btn=document.getElementById('cadet-submit'); btn.disabled=true; btn.textContent='Adding...';
     try {
       // Use manual service number if provided, otherwise auto-generate
@@ -1941,8 +1944,8 @@ function openAddCadet() {
       await POST('/cadets/', {
         service_number: svcNum,
         rank: document.getElementById('c-rank').value,
-        forename: document.getElementById('c-fore').value.trim(),
-        surname: document.getElementById('c-sur').value.trim(),
+        forename: fore,
+        surname: sur,
         gender: document.getElementById('c-gender').value,
         flight: document.getElementById('c-flight').value.trim()||null
       });
@@ -2134,12 +2137,15 @@ function openEditStaff(userId, users) {
     } catch(e) { btn.disabled = false; btn.textContent = 'Reset PIN to Default (1701)'; showError('es-error', e.message); }
   };
   document.getElementById('es-save').onclick = async () => {
+    const fore = document.getElementById('es-forename').value.trim();
+    const sur = document.getElementById('es-surname').value.trim();
+    if (!fore || !sur) { showError('es-error', 'Forename and surname are required'); return; }
     const btn = document.getElementById('es-save');
     btn.disabled = true; btn.textContent = 'Saving...';
     try {
       await PATCH('/users/' + userId + '/edit', {
-        forename: document.getElementById('es-forename').value.trim(),
-        surname: document.getElementById('es-surname').value.trim(),
+        forename: fore,
+        surname: sur,
         rank: document.getElementById('es-rank').value || null,
         role: document.getElementById('es-role').value || null,
         is_admin: document.getElementById('es-admin').checked
@@ -3402,6 +3408,7 @@ async function openChangePin() {
       if (mode === 'new') {
         if (textVal) newPin = textVal;
         if (!newPin) { showError('cp-error', 'Please enter a PIN'); return; }
+        if (newPin.length < 4) { showError('cp-error', 'PIN must be at least 4 characters'); return; }
         mode = 'confirm';
         document.getElementById('cp-text').value = '';
         renderChangePin();

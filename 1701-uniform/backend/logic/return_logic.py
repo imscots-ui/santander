@@ -2,6 +2,9 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from models import IssuedItem, ReturnedItem, Stock, UniformCondition
 from utils.audit import log_action
+import logging
+
+logger = logging.getLogger(__name__)
 
 UNSERVICEABLE_WARNING = (
     "⚠️ This item has been returned as UNSERVICEABLE. "
@@ -46,7 +49,13 @@ def return_item(
         ).first()
 
         if not stock:
-            raise HTTPException(status_code=500, detail="Stock record missing for this item/size")
+            # Stock line was deleted after issue — recreate it so the return doesn't fail
+            logger.warning(
+                "Stock record missing for item_id=%s size_id=%s during return; recreating.",
+                issued.item_id, issued.size_id,
+            )
+            stock = Stock(item_id=issued.item_id, size_id=issued.size_id, quantity=0)
+            db.add(stock)
 
         stock.quantity += issued.quantity
     else:
