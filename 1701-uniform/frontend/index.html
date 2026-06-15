@@ -2611,18 +2611,24 @@ async function openFeedback() {
     btn.onclick = async () => {
       const reply = document.getElementById('reply-' + btn.dataset.id)?.value.trim();
       if (!reply) return;
-      await PATCH('/feedback/' + btn.dataset.id + '/reply', { reply });
-      refreshFeedbackBadge();
-      openFeedback();
+      btn.disabled = true; btn.textContent = 'Sending...';
+      try {
+        await PATCH('/feedback/' + btn.dataset.id + '/reply', { reply });
+        refreshFeedbackBadge();
+        openFeedback();
+      } catch(e) { btn.disabled = false; btn.textContent = 'Reply'; alert('Error: ' + e.message); }
     };
   });
 
   // Close
   document.querySelectorAll('.feedback-close-btn').forEach(btn => {
     btn.onclick = async () => {
-      await PATCH('/feedback/' + btn.dataset.id + '/close', {});
-      refreshFeedbackBadge();
-      openFeedback();
+      btn.disabled = true;
+      try {
+        await PATCH('/feedback/' + btn.dataset.id + '/close', {});
+        refreshFeedbackBadge();
+        openFeedback();
+      } catch(e) { btn.disabled = false; alert('Error: ' + e.message); }
     };
   });
 
