@@ -452,6 +452,7 @@ async function openCadetRecord(cadetId) {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
+        <button class="btn btn-ghost btn-sm" id="print-cadet-record">🖨 Print</button>
         <button class="btn btn-ghost btn-sm" data-action="cadets">← Back</button>
         ${cadet.active
           ? `<button class="btn btn-danger btn-sm" id="discharge-cadet" data-id="${cadet.id}" data-name="${cadet.rank} ${cadet.surname}">Discharge</button>`
@@ -498,6 +499,78 @@ async function openCadetRecord(cadetId) {
     btn.onclick = () => openReturnFlow(parseInt(btn.dataset.returnId), btn.dataset.returnName, cadetId, cadet);
   });
   document.getElementById('issue-from-record').onclick = () => openIssueFlow(cadetId);
+
+  document.getElementById('print-cadet-record').onclick = () => {
+    const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    const outRows = outstanding.length === 0
+      ? '<tr><td colspan="4" style="padding:12px;text-align:center;color:#166534">No items currently outstanding</td></tr>'
+      : outstanding.map(i => `<tr style="border-bottom:1px solid #dde3f0">
+          <td style="padding:7px 10px;font-weight:700">${i.short_name}</td>
+          <td style="padding:7px 10px;font-family:monospace;font-size:11px">${i.size_label}</td>
+          <td style="padding:7px 10px;font-size:11px">${i.issued_by}</td>
+          <td style="padding:7px 10px;font-family:monospace;font-size:11px">${fmt(i.issued_at)}</td>
+        </tr>`).join('');
+    const histRows = history.map(i => `<tr style="border-bottom:1px solid #dde3f0">
+      <td style="padding:6px 10px;font-weight:600;font-size:11px">${i.short_name}</td>
+      <td style="padding:6px 10px;font-family:monospace;font-size:10px">${i.size_label}</td>
+      <td style="padding:6px 10px;font-family:monospace;font-size:10px">${fmt(i.issued_at)}</td>
+      <td style="padding:6px 10px;font-size:10px">${i.issued_by}</td>
+      <td style="padding:6px 10px"><span style="background:${i.returned?'#dcfce7':'#e8eef8'};color:${i.returned?'#166534':'#002868'};padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">${i.returned?'Returned':'Outstanding'}</span></td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cadet Record — ${cadet.surname}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+      <style>*{box-sizing:border-box}body{margin:0;font-family:'Figtree',sans-serif;color:#0d1b3e}
+      @page{size:A4 portrait;margin:12mm 14mm}
+      @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+    </head><body style="padding:20px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg);flex-shrink:0"></div>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;color:#002868">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:#9099b5;letter-spacing:0.08em">SVC NO. ${cadet.service_number} · ${cadet.gender?.toUpperCase()||''}${cadet.flight?' · FLIGHT '+cadet.flight:''}</div>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:10px;color:#9099b5;font-family:'DM Mono',monospace;line-height:1.7">
+          Printed: ${dateStr}<br>
+          <span style="background:${cadet.active?'#dcfce7':'#fee2e2'};color:${cadet.active?'#166534':'#c0392b'};padding:1px 7px;border-radius:4px;font-weight:700;font-size:9px">${cadet.active?'ACTIVE':'INACTIVE'}</span>
+        </div>
+      </div>
+      <div style="border-top:3px solid #002868;padding-top:12px;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          ${[['Total Issued',summary.total_issued,'#002868'],['Outstanding',summary.outstanding_count,'#92400e'],['Returned',summary.returned_count,'#166534']].map(([l,v,c])=>`
+          <div style="background:#e8eef8;border-radius:8px;padding:12px;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};line-height:1">${v}</div>
+            <div style="font-size:9px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px">${l}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.05em;color:#002868;margin-bottom:8px">CURRENTLY OUTSTANDING (${outstanding.length})</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:18px">
+        <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+          ${['Item','Size','Issued By','Date Issued'].map(h=>`<th style="padding:6px 10px;text-align:left;font-size:9px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>${outRows}</tbody>
+      </table>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.05em;color:#002868;margin-bottom:8px">FULL HISTORY (${history.length})</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px">
+        <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+          ${['Item','Size','Issued','By','Status'].map(h=>`<th style="padding:5px 10px;text-align:left;font-size:9px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>${histRows||'<tr><td colspan="5" style="padding:10px;text-align:center;color:#9099b5">No history</td></tr>'}</tbody>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px">
+        <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;margin-bottom:24px">Stores Staff Signature</div>
+          <div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">Name / Date</div></div>
+        <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;margin-bottom:24px">Cadet Signature</div>
+          <div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">I confirm this record is accurate</div></div>
+      </div>
+      <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#002868;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
+      <div style="margin-top:10px;font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · 1701 (Johnstone) Squadron · AP 1919 stores policy · DPA 2018 applies</div>
+    </body></html>`;
+    const w = window.open('', '_blank', 'width=820,height:950');
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+  };
 
   document.getElementById('deactivate-cadet')?.addEventListener('click', async () => {
     const btn = document.getElementById('deactivate-cadet');
