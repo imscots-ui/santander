@@ -812,7 +812,25 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
     }
 
     if (step===3 && !cadetPreselected) {
-      document.getElementById('cadet-search')?.addEventListener('input', e => { const s=e.target.value.toLowerCase(); document.querySelectorAll('.cadet-item').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(s)?'':'none';}); });
+      let s3FlightFilter = null;
+      function applyS3Filter() {
+        const sv = document.getElementById('cadet-search')?.value?.toLowerCase()||'';
+        document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
+          const matchFlight = !s3FlightFilter || el.dataset.flight === s3FlightFilter;
+          const matchSearch = !sv || el.textContent.toLowerCase().includes(sv);
+          el.style.display = (matchFlight && matchSearch) ? '' : 'none';
+        });
+        document.querySelectorAll('.s3-flight-chip').forEach(chip => {
+          const on = chip.dataset.flight === s3FlightFilter;
+          chip.style.background = on ? 'var(--blue)' : '';
+          chip.style.color = on ? 'white' : '';
+          chip.style.borderColor = on ? 'var(--blue)' : '';
+        });
+      }
+      document.getElementById('cadet-search')?.addEventListener('input', applyS3Filter);
+      document.querySelectorAll('.s3-flight-chip').forEach(chip => {
+        chip.addEventListener('click', () => { s3FlightFilter = s3FlightFilter===chip.dataset.flight ? null : chip.dataset.flight; applyS3Filter(); });
+      });
       document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
         el.onclick = () => {
           selectedCadet = cadets.find(c => c.id === parseInt(el.dataset.id));
@@ -949,10 +967,15 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
   }
 
   function s3() {
+    const activeCadets = cadets.filter(c=>c.active).sort((a,b)=>a.surname.localeCompare(b.surname)||a.forename.localeCompare(b.forename));
+    const s3Flights = [...new Set(activeCadets.map(c=>c.flight).filter(Boolean))].sort();
     return `<div style="margin-bottom:16px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Issuing: <strong>${selectedItem.short_name}</strong> &middot; Size: <strong>${selectedSize.size_label}</strong></div>
+    ${s3Flights.length>1?`<div id="s3-flight-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      ${s3Flights.map(f=>`<button class="btn btn-ghost s3-flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}</button>`).join('')}
+    </div>`:''}
     <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">&#128269;</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
     <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
-      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item${selectedCadet?.id===c.id?' selected':''}" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
+      ${activeCadets.map(c=>`<div class="cadet-item${selectedCadet?.id===c.id?' selected':''}" data-id="${c.id}" data-flight="${c.flight||''}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
     </div>`;
   }
 
@@ -1145,7 +1168,25 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
     document.getElementById('r-back')?.addEventListener('click', async () => { step--; await renderStep(); });
 
     if (step===1) {
-      document.getElementById('cadet-search')?.addEventListener('input', e => { const s=e.target.value.toLowerCase(); document.querySelectorAll('.cadet-item').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(s)?'':'none';}); });
+      let r1FlightFilter = null;
+      function applyR1Filter() {
+        const sv = document.getElementById('cadet-search')?.value?.toLowerCase()||'';
+        document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
+          const matchFlight = !r1FlightFilter || el.dataset.flight === r1FlightFilter;
+          const matchSearch = !sv || el.textContent.toLowerCase().includes(sv);
+          el.style.display = (matchFlight && matchSearch) ? '' : 'none';
+        });
+        document.querySelectorAll('.r1-flight-chip').forEach(chip => {
+          const on = chip.dataset.flight === r1FlightFilter;
+          chip.style.background = on ? 'var(--blue)' : '';
+          chip.style.color = on ? 'white' : '';
+          chip.style.borderColor = on ? 'var(--blue)' : '';
+        });
+      }
+      document.getElementById('cadet-search')?.addEventListener('input', applyR1Filter);
+      document.querySelectorAll('.r1-flight-chip').forEach(chip => {
+        chip.addEventListener('click', () => { r1FlightFilter = r1FlightFilter===chip.dataset.flight ? null : chip.dataset.flight; applyR1Filter(); });
+      });
       document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
         el.onclick = async () => { selectedCadet=cadets.find(c=>c.id===parseInt(el.dataset.id)); document.querySelectorAll('.cadet-item').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
       });
@@ -1241,9 +1282,14 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
   }
 
   function r1() {
-    return `<div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
+    const activeCadets = cadets.filter(c=>c.active).sort((a,b)=>a.surname.localeCompare(b.surname)||a.forename.localeCompare(b.forename));
+    const r1Flights = [...new Set(activeCadets.map(c=>c.flight).filter(Boolean))].sort();
+    return `${r1Flights.length>1?`<div id="r1-flight-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      ${r1Flights.map(f=>`<button class="btn btn-ghost r1-flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}</button>`).join('')}
+    </div>`:''}
+    <div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
     <div style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
-      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
+      ${activeCadets.map(c=>`<div class="cadet-item" data-id="${c.id}" data-flight="${c.flight||''}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
     </div>`;
   }
   function r2() {
