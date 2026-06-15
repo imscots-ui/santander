@@ -1705,8 +1705,9 @@ async function openRemoveStock() {
     showModal(`${mHead('ADJUST STOCK')}<div class="modal-body">
       <div class="alert alert-info">Select an item and size, then enter the quantity to <strong>remove</strong> from inventory. Use this for damaged, lost or written-off stock.</div>
       ${!selectedItem ? `
+        <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="adj-search" placeholder="Search items..." type="text" autofocus></div>
         <div class="section-label">Select Item</div>
-        <div class="item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>
+        <div class="item-grid" id="adj-item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>
       ` : `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <div style="font-family:var(--head);font-size:22px;color:var(--blue)">${selectedItem.short_name}</div>
@@ -1721,7 +1722,7 @@ async function openRemoveStock() {
               <div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:4px">${s.size_label}</div>
               <div style="font-size:13px;color:${qty===0?'var(--red)':'var(--green)'};font-weight:700;margin-bottom:8px">${qty} in stock</div>
               ${qty > 0 ? `
-                <input type="number" class="adj-qty" data-item="${selectedItem.id}" data-size="${s.size_id||s.id}" data-max="${qty}" placeholder="Remove qty" min="1" max="${qty}" style="font-size:13px;padding:6px 10px">
+                <input type="number" class="adj-qty" data-item="${selectedItem.id}" data-size="${s.id}" data-max="${qty}" placeholder="Remove qty" min="1" max="${qty}" style="font-size:13px;padding:6px 10px">
               ` : `<div style="font-size:12px;color:var(--text3)">None in stock</div>`}
             </div>`;
           }).join('')}
@@ -1734,6 +1735,12 @@ async function openRemoveStock() {
     </div>`, true);
 
     document.getElementById('adj-change')?.addEventListener('click', () => { selectedItem=null; renderAdjust(); });
+    document.getElementById('adj-search')?.addEventListener('input', e => {
+      const s = e.target.value.toLowerCase();
+      document.querySelectorAll('#adj-item-grid .item-card[data-name]').forEach(card => {
+        card.style.display = card.dataset.name.includes(s) ? '' : 'none';
+      });
+    });
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderAdjust(); }; });
 
     document.getElementById('adj-submit')?.addEventListener('click', async () => {
