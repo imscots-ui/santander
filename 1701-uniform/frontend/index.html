@@ -3437,12 +3437,17 @@ async function openChangePin() {
 async function openAuditLog() {
   const [cadets, items] = await Promise.all([loadCadets(), loadItems()]);
   let logs = [];
+  let loadedAction = null; // tracks which action filter the current `logs` cache was fetched for
   let filters = { staff: '', cadet: '', item: '', action: '', dateFrom: '', dateTo: '' };
 
   async function loadLogs() {
-    let path = '/audit/?limit=500';
-    if (filters.action) path += `&action=${filters.action}`;
-    logs = await GET(path);
+    // Only hit the network when the action filter changes; other filters are client-side
+    if (logs.length === 0 || filters.action !== loadedAction) {
+      let path = '/audit/?limit=500';
+      if (filters.action) path += `&action=${encodeURIComponent(filters.action)}`;
+      logs = await GET(path);
+      loadedAction = filters.action;
+    }
   }
 
   async function renderAudit() {
