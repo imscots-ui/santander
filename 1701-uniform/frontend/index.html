@@ -1312,7 +1312,7 @@ function openAdmin() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <button class="home-btn" id="a-manage" style="padding:24px"><div class="home-btn-icon">👥</div><div class="home-btn-label">Manage Staff</div><div class="home-btn-sub">Add, reset passwords, deactivate</div></button>
       <button class="home-btn" id="a-managecadets" style="padding:24px"><div class="home-btn-icon">👤</div><div class="home-btn-label">Manage Cadets</div><div class="home-btn-sub">Add or deactivate cadets</div></button>
-      <button class="home-btn gold" id="a-stock" style="padding:24px"><div class="home-btn-icon">📦</div><div class="home-btn-label">Bulk Add Stock</div><div class="home-btn-sub">Add stock after a delivery</div></button>
+      <button class="home-btn gold" id="a-stock" style="padding:24px"><div class="home-btn-icon">📦</div><div class="home-btn-label">Receive Delivery</div><div class="home-btn-sub">Add new stock from a delivery</div></button>
       <button class="home-btn red" id="a-removestock" style="padding:24px"><div class="home-btn-icon">📉</div><div class="home-btn-label">Adjust Stock</div><div class="home-btn-sub">Remove quantities from inventory</div></button>
       <button class="home-btn" id="a-auditlog" style="padding:24px"><div class="home-btn-icon">📋</div><div class="home-btn-label">Audit Log</div><div class="home-btn-sub">Search all system activity</div></button>
       <button class="home-btn red" id="a-unserviceable" style="padding:24px"><div class="home-btn-icon">⚠️</div><div class="home-btn-label">Unserviceable Kit</div><div class="home-btn-sub">Items to return to stores</div></button>
@@ -1419,38 +1419,93 @@ function openAddCadet() {
 
 async function openBulkStock() {
   const items = await loadItems();
-  let selectedItem = null;
-  function renderBulk() {
-    showModal(`${mHead('BULK ADD STOCK')}<div class="modal-body">
-      <div class="alert alert-info">Select an item, enter quantities received. Leave blank to skip a size.</div>
-      <div id="stock-error"></div>
-      ${!selectedItem?`<div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="stk-search" placeholder="Search items..." type="text" autofocus></div><div class="section-label">Select Item</div><div class="item-grid" id="stk-item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>`
-      :`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-family:var(--head);font-size:24px;color:var(--blue)">${selectedItem.short_name}</div><button class="btn btn-ghost btn-sm" id="stk-change">Change Item</button></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
-        ${selectedItem.sizes.map(s=>`<div style="border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:6px">${s.size_label}</div><input type="number" class="size-qty" data-size-id="${s.id}" placeholder="0" min="0" style="text-align:center;font-size:16px;font-weight:700"></div>`).join('')}
-      </div>`}
-    </div>
-    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button>${selectedItem?`<button class="btn btn-primary" id="stk-submit">Add Stock</button>`:''}</div>`, true);
+  await loadStock();
+  const stockMap = {};
+  (S.stock || []).forEach(s => { stockMap[`${s.item_id}-${s.size_id}`] = s.quantity; });
 
-    document.getElementById('stk-change')?.addEventListener('click', ()=>{selectedItem=null;renderBulk();});
-    document.getElementById('stk-search')?.addEventListener('input', e => {
-      const s = e.target.value.toLowerCase();
-      document.querySelectorAll('#stk-item-grid .item-card[data-name]').forEach(card => {
-        card.style.display = card.dataset.name.includes(s) ? '' : 'none';
-      });
-    });
-    document.querySelectorAll('.item-card').forEach(c=>{c.onclick=()=>{selectedItem=items.find(i=>i.id===parseInt(c.dataset.id));renderBulk();};});
-    document.getElementById('stk-submit')?.addEventListener('click', async ()=>{
-      const adj=[]; document.querySelectorAll('.size-qty').forEach(inp=>{const q=parseInt(inp.value);if(q>0)adj.push({item_id:selectedItem.id,size_id:parseInt(inp.dataset.sizeId),quantity:q});});
-      if(adj.length===0){showError('stock-error','Please enter at least one quantity');return;}
-      const btn=document.getElementById('stk-submit'); btn.disabled=true; btn.textContent='Adding...';
-      try {
-        await POST('/stock/bulk-adjust',adj); S.stock=null;
-        showModal(`${mHead('BULK ADD STOCK')}<div class="modal-body"><div class="alert alert-success">✓ Stock updated. ${adj.length} size${adj.length!==1?'s':''} updated.</div></div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="bulkstock">Add More</button></div>`);
-      } catch(e){btn.disabled=false;btn.textContent='Add Stock';showError('stock-error',e.message);}
-    });
+  function countQueued() {
+    return [...document.querySelectorAll('.size-qty-input')].filter(i => parseInt(i.value) > 0).length;
   }
-  renderBulk();
+  function updateSubmitBtn() {
+    const count = countQueued();
+    const btn = document.getElementById('stk-submit');
+    if (!btn) return;
+    btn.disabled = count === 0;
+    btn.textContent = count > 0 ? `Add to Stock (${count} sizes)` : 'Add to Stock';
+  }
+  function updateItemBadge(itemId) {
+    const total = [...document.querySelectorAll(`.size-qty-input[data-item="${itemId}"]`)].reduce((s, i) => s + (parseInt(i.value) || 0), 0);
+    const badge = document.getElementById(`bulk-badge-${itemId}`);
+    const header = document.querySelector(`.bulk-item-header[data-id="${itemId}"]`);
+    if (badge) { badge.style.display = total > 0 ? 'inline-block' : 'none'; badge.textContent = `+${total}`; }
+    if (header) header.style.background = total > 0 ? 'var(--green-light)' : 'var(--bg2)';
+  }
+
+  const itemRows = items.map(item => {
+    const sizeInputs = item.sizes.map(s => {
+      const cur = stockMap[`${item.id}-${s.id}`] ?? 0;
+      return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:2px">${s.size_label}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${cur} in stock</div>
+        <input type="number" class="size-qty-input" data-item="${item.id}" data-size="${s.id}" placeholder="0" min="0" style="text-align:center;font-size:14px;font-weight:700;padding:6px">
+      </div>`;
+    }).join('');
+    return `<div class="bulk-item-row" data-name="${item.short_name.toLowerCase()}" style="border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden">
+      <div class="bulk-item-header" data-id="${item.id}" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--bg2)">
+        <div><div style="font-weight:700;font-size:14px">${item.short_name}</div><div style="font-size:11px;color:var(--text3)">${item.category||''} · ${item.sizes.length} sizes</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span id="bulk-badge-${item.id}" class="badge badge-green" style="display:none"></span><span style="color:var(--text3);font-size:18px">›</span></div>
+      </div>
+      <div id="bulk-sizes-${item.id}" style="display:none;padding:14px;background:var(--bg);border-top:1px solid var(--border)">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${sizeInputs}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  showModal(`${mHead('RECEIVE DELIVERY')}<div class="modal-body">
+    <div class="alert alert-info" style="margin-bottom:16px">Tap items to expand and enter received quantities. Multiple items can be open at once — submit them all in one go.</div>
+    <div id="stock-error"></div>
+    <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="stk-search" placeholder="Search items..." type="text" autofocus></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${itemRows}</div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" data-action="admin">← Back</button>
+    <button class="btn btn-primary" id="stk-submit" disabled>Add to Stock</button>
+  </div>`, true);
+
+  document.getElementById('stk-search')?.addEventListener('input', e => {
+    const s = e.target.value.toLowerCase();
+    document.querySelectorAll('.bulk-item-row').forEach(row => { row.style.display = row.dataset.name.includes(s) ? '' : 'none'; });
+  });
+
+  document.querySelectorAll('.bulk-item-header').forEach(h => {
+    h.onclick = () => {
+      const sizes = document.getElementById('bulk-sizes-' + h.dataset.id);
+      if (!sizes) return;
+      sizes.style.display = sizes.style.display === 'none' ? 'block' : 'none';
+    };
+  });
+
+  document.querySelectorAll('.size-qty-input').forEach(inp => {
+    inp.addEventListener('input', () => { updateItemBadge(inp.dataset.item); updateSubmitBtn(); });
+  });
+
+  document.getElementById('stk-submit')?.addEventListener('click', async () => {
+    const adj = [];
+    document.querySelectorAll('.size-qty-input').forEach(inp => { const q = parseInt(inp.value); if (q > 0) adj.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: q }); });
+    if (adj.length === 0) { showError('stock-error', 'Please enter at least one quantity'); return; }
+    const btn = document.getElementById('stk-submit'); btn.disabled = true; btn.textContent = 'Adding stock...';
+    try {
+      await POST('/stock/bulk-adjust', adj); S.stock = null;
+      const itemCount = new Set(adj.map(a => a.item_id)).size;
+      showModal(`${mHead('DELIVERY RECEIVED')}<div class="modal-body">
+        <div class="alert alert-success">✓ ${adj.length} size${adj.length!==1?'s':''} across ${itemCount} item${itemCount!==1?'s':''} added to inventory.</div>
+      </div><div class="modal-footer">
+        <button class="btn btn-ghost" data-action="close">Done</button>
+        <button class="btn btn-primary" id="stk-another">Receive Another Delivery</button>
+      </div>`);
+      document.getElementById('stk-another').onclick = openBulkStock;
+    } catch(e) { btn.disabled = false; btn.textContent = 'Add to Stock'; showError('stock-error', e.message); }
+  });
 }
 
 async function openManageStaff() {
