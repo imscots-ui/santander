@@ -1332,7 +1332,7 @@ function openAdmin() {
 
 function openAddStaff() {
   showModal(`${mHead('ADD STAFF USER')}<div class="modal-body">
-    <div class="alert alert-info">Username: <strong>surname.forename</strong> · Default password: <strong>Password1!</strong></div>
+    <div class="alert alert-info">Username: <strong>surname.forename</strong> · Default PIN: <strong>1701</strong></div>
     <div id="staff-error"></div>
     <div class="grid-2"><div class="form-group"><label>Forename</label><input id="s-fore"></div><div class="form-group"><label>Surname</label><input id="s-sur"></div></div>
     <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:14px;font-weight:600;color:var(--text)"><input type="checkbox" id="s-admin" style="width:auto;accent-color:var(--blue)"> Grant Admin Access</label></div>
@@ -1368,7 +1368,7 @@ function openAddStaff() {
       S.users=null;
       showModal(`${mHead('ADD STAFF USER')}<div class="modal-body">
         <div class="alert alert-success">✓ User created successfully.</div>
-        <div style="background:var(--blue-pale);padding:16px;border-radius:var(--r);font-size:14px"><strong>Username:</strong> ${sur.toLowerCase()}.${fore.toLowerCase()}<br><strong>Password:</strong> Password1!</div>
+        <div style="background:var(--blue-pale);padding:16px;border-radius:var(--r);font-size:14px"><strong>Username:</strong> ${sur.toLowerCase()}.${fore.toLowerCase()}<br><strong>Default PIN:</strong> 1701</div>
       </div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addstaff">Add Another</button></div>`);
     } catch(e) { btn.disabled=false; btn.textContent='Create User'; showError('staff-error',e.message); }
   };
