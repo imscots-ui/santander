@@ -2,6 +2,21 @@ import { CADETS } from '../../../data/cadets.js';
 
 const navy = '#00264D', gold = '#C8A032', muted = '#5A7090', border = '#D0DCF0';
 
+const UPCOMING_EVENTS = [
+  { date:'2026-06-27', label:'Silver Fieldcraft (WSW)',  type:'AT',       page:'dofe',     cadets:3 },
+  { date:'2026-07-03', label:'AEF Day — RAF Turnhouse',  type:'AEF',      page:'aef',      cadets:4 },
+  { date:'2026-07-10', label:'Wing Shooting (Bisley)',   type:'Shooting',  page:'shooting', cadets:2 },
+  { date:'2026-07-19', label:'Summer Camp — RAF Woodvale',type:'Camp',    page:'programme',cadets:4 },
+  { date:'2026-08-03', label:'Gliding Scholarship',       type:'AT',      page:'aef',      cadets:3 },
+];
+
+const EVENT_TYPE_STYLE = {
+  AT:       { bg:'#D4EDDA', color:'#0F4020' },
+  AEF:      { bg:'#EAF4FF', color:'#003D80' },
+  Shooting: { bg:'#FEF3C7', color:'#92400E' },
+  Camp:     { bg:'#EDE9FE', color:'#5B21B6' },
+};
+
 const ACTIONS = [
   { id:'a1', type:'Consent',  text:'Mitchell, S — TG21 consent due before 21 Jun',     urgency:'high', btn:'Send Reminder' },
   { id:'a2', type:'Consent',  text:'Harper, J — profile incomplete',                    urgency:'high', btn:'View Profile' },
@@ -287,6 +302,30 @@ ${auditLog.length > 0 ? `
                 </div>
                 <div style={{ fontSize:11, fontWeight:700, padding:'2px 0', color: r.n > 0 ? color : '#C8D0DC' }}>{r.rank}</div>
                 <div style={{ fontSize:10, color:muted }}>{pct}%</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Upcoming Events */}
+      <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 20px', marginBottom:16 }}>
+        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, fontSize:14, marginBottom:12 }}>Upcoming Events</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10 }}>
+          {UPCOMING_EVENTS.map(ev => {
+            const daysLeft = Math.round((new Date(ev.date) - new Date('2026-06-15')) / 86400000);
+            const style = EVENT_TYPE_STYLE[ev.type] || { bg:'#F4F7FB', color:muted };
+            const urgent = daysLeft <= 14;
+            return (
+              <div key={ev.label} onClick={() => navigate && navigate(ev.page)} style={{ border:`1.5px solid ${urgent ? '#FDE68A' : border}`, borderRadius:8, padding:'12px 13px', cursor:'pointer', background: urgent ? '#FFFBEB' : 'white', transition:'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow='0 2px 8px rgba(0,38,77,0.1)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; }}>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:28, fontWeight:800, color: urgent ? '#92400E' : navy, lineHeight:1 }}>{daysLeft}d</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'#0D1B2E', marginTop:4, lineHeight:1.3 }}>{ev.label}</div>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:6 }}>
+                  <span style={{ background:style.bg, color:style.color, fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:5 }}>{ev.type}</span>
+                  <span style={{ fontSize:10, color:muted }}>{ev.cadets} cdt{ev.cadets!==1?'s':''}</span>
+                </div>
               </div>
             );
           })}
