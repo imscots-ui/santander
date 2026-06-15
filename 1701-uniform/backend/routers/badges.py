@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
 from models import User
-from utils.auth_dependencies import get_current_user, get_current_admin
+from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
 
 router = APIRouter(prefix="/badges", tags=["Badges"])
@@ -24,7 +24,8 @@ def list_badge_items(db: Session = Depends(get_db), current_user: User = Depends
 
 
 @router.post("/items")
-def create_badge_item(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+def create_badge_item(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin),
+                      audit_user_id: int = Depends(get_audit_user_id)):
     result = db.execute(text("""
         INSERT INTO badge_items (name, category, subcategory, description, routine_stock)
         VALUES (:name, :category, :subcategory, :description, :routine)
@@ -38,13 +39,14 @@ def create_badge_item(payload: dict, db: Session = Depends(get_db), current_user
     badge_id = result.lastrowid
     if payload.get("routine_stock", True):
         db.execute(text("INSERT INTO badge_stock (badge_item_id, quantity) VALUES (:id, 0)"), {"id": badge_id})
-    log_action(db, user_id=current_user.id, action="BADGE_CREATE", details=f"Created badge: {payload['name']}")
+    log_action(db, user_id=audit_user_id, action="BADGE_CREATE", details=f"Created badge: {payload['name']}")
     db.commit()
     return {"id": badge_id, "message": "Badge created"}
 
 
 @router.patch("/stock/{badge_id}")
-def adjust_badge_stock(badge_id: int, payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+def adjust_badge_stock(badge_id: int, payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin),
+                       audit_user_id: int = Depends(get_audit_user_id)):
     qty = payload.get("quantity", 0)
     existing = db.execute(text("SELECT id FROM badge_stock WHERE badge_item_id = :id"), {"id": badge_id}).fetchone()
     if existing:
@@ -52,13 +54,14 @@ def adjust_badge_stock(badge_id: int, payload: dict, db: Session = Depends(get_d
     else:
         db.execute(text("INSERT INTO badge_stock (badge_item_id, quantity) VALUES (:id, :qty)"), {"id": badge_id, "qty": qty})
     badge = db.execute(text("SELECT name FROM badge_items WHERE id = :id"), {"id": badge_id}).fetchone()
-    log_action(db, user_id=current_user.id, action="BADGE_STOCK_ADJUST", details=f"Adjusted {badge.name} stock by {qty:+d}")
+    log_action(db, user_id=audit_user_id, action="BADGE_STOCK_ADJUST", details=f"Adjusted {badge.name} stock by {qty:+d}")
     db.commit()
     return {"message": "Stock updated"}
 
 
 @router.post("/issue")
-def issue_badge(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def issue_badge(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
+                audit_user_id: int = Depends(get_audit_user_id)):
     badge_id = payload["badge_item_id"]
     cadet_id = payload["cadet_id"]
     stock = db.execute(text("SELECT quantity FROM badge_stock WHERE badge_item_id = :id"), {"id": badge_id}).fetchone()
@@ -68,10 +71,10 @@ def issue_badge(payload: dict, db: Session = Depends(get_db), current_user: User
     db.execute(text("""
         INSERT INTO badge_issued (badge_item_id, cadet_id, issued_by_id, notes)
         VALUES (:bid, :cid, :uid, :notes)
-    """), {"bid": badge_id, "cid": cadet_id, "uid": current_user.id, "notes": payload.get("notes")})
+    """), {"bid": badge_id, "cid": cadet_id, "uid": audit_user_id, "notes": payload.get("notes")})
     badge = db.execute(text("SELECT name FROM badge_items WHERE id = :id"), {"id": badge_id}).fetchone()
     cadet = db.execute(text("SELECT service_number, surname FROM cadets WHERE id = :id"), {"id": cadet_id}).fetchone()
-    log_action(db, user_id=current_user.id, action="BADGE_ISSUE",
+    log_action(db, user_id=audit_user_id, action="BADGE_ISSUE",
                details=f"Issued {badge.name} to {cadet.service_number} {cadet.surname}", cadet_id=cadet_id)
     db.commit()
     return {"message": "Badge issued"}
@@ -93,7 +96,8 @@ def get_cadet_badges(cadet_id: int, db: Session = Depends(get_db), current_user:
 
 
 @router.patch("/return/{issued_id}")
-def return_badge(issued_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def return_badge(issued_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
+                 audit_user_id: int = Depends(get_audit_user_id)):
     issued = db.execute(text("SELECT badge_item_id, returned FROM badge_issued WHERE id = :id"), {"id": issued_id}).fetchone()
     if not issued:
         raise HTTPException(status_code=404, detail="Badge issue record not found")
@@ -105,6 +109,6 @@ def return_badge(issued_id: int, db: Session = Depends(get_db), current_user: Us
     if existing:
         db.execute(text("UPDATE badge_stock SET quantity = quantity + 1 WHERE badge_item_id = :id"), {"id": issued.badge_item_id})
     badge = db.execute(text("SELECT name FROM badge_items WHERE id = :id"), {"id": issued.badge_item_id}).fetchone()
-    log_action(db, user_id=current_user.id, action="BADGE_RETURN", details=f"Returned badge: {badge.name}")
+    log_action(db, user_id=audit_user_id, action="BADGE_RETURN", details=f"Returned badge: {badge.name}")
     db.commit()
     return {"message": "Badge returned"}

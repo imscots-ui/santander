@@ -7,7 +7,7 @@ from database import get_db
 from models import User
 from schemas import UserCreate, UserOut
 from utils.hashing import hash_password, verify_password
-from utils.auth_dependencies import get_current_admin, get_current_user
+from utils.auth_dependencies import get_current_admin, get_current_user, get_audit_user_id
 from utils.audit import log_action
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -68,6 +68,7 @@ def create_user(
     user_in: UserCreateFull,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     username = f"{user_in.surname.lower()}.{user_in.forename.lower()}"
     if db.query(User).filter(User.username == username).first():
@@ -83,7 +84,7 @@ def create_user(
         is_admin=user_in.is_admin,
     )
     db.add(user)
-    log_action(db, user_id=admin.id, action="USER_CREATE",
+    log_action(db, user_id=audit_user_id, action="USER_CREATE",
                details=f"Created user {username} rank={user_in.rank} role={user_in.role}")
     db.commit()
     db.refresh(user)
@@ -97,25 +98,27 @@ def list_users(db: Session = Depends(get_db), admin: User = Depends(get_current_
 
 
 @router.patch("/{user_id}/deactivate")
-def deactivate_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def deactivate_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+                    audit_user_id: int = Depends(get_audit_user_id)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user.id == admin.id:
         raise HTTPException(status_code=400, detail="Cannot deactivate yourself")
     user.active = False
-    log_action(db, user_id=admin.id, action="USER_DEACTIVATE", details=f"Deactivated user {user.username}")
+    log_action(db, user_id=audit_user_id, action="USER_DEACTIVATE", details=f"Deactivated user {user.username}")
     db.commit()
     return {"message": f"User {user.username} deactivated"}
 
 
 @router.patch("/{user_id}/reset-password")
-def reset_password(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def reset_password(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+                   audit_user_id: int = Depends(get_audit_user_id)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.password_hash = hash_password("1701")
-    log_action(db, user_id=admin.id, action="USER_PASSWORD_RESET", details=f"Reset PIN for {user.username}")
+    log_action(db, user_id=audit_user_id, action="USER_PASSWORD_RESET", details=f"Reset PIN for {user.username}")
     db.commit()
     return {"message": f"PIN reset for {user.username}. Default PIN: 1701"}
 
@@ -141,18 +144,20 @@ def change_pin(
 
 
 @router.patch("/{user_id}/reactivate")
-def reactivate_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def reactivate_user(user_id: int, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+                    audit_user_id: int = Depends(get_audit_user_id)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.active = True
-    log_action(db, user_id=admin.id, action="USER_REACTIVATE", details=f"Reactivated user {user.username}")
+    log_action(db, user_id=audit_user_id, action="USER_REACTIVATE", details=f"Reactivated user {user.username}")
     db.commit()
     return {"message": f"{user.username} reactivated"}
 
 
 @router.patch("/{user_id}/edit")
-def edit_user(user_id: int, payload: dict, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def edit_user(user_id: int, payload: dict, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+              audit_user_id: int = Depends(get_audit_user_id)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -161,6 +166,6 @@ def edit_user(user_id: int, payload: dict, db: Session = Depends(get_db), admin:
     user.staff_rank = payload.get("rank", user.staff_rank)
     user.role = payload.get("role", user.role)
     user.is_admin = payload.get("is_admin", user.is_admin)
-    log_action(db, user_id=admin.id, action="USER_EDIT", details=f"Edited user {user.username}")
+    log_action(db, user_id=audit_user_id, action="USER_EDIT", details=f"Edited user {user.username}")
     db.commit()
     return {"message": "User updated"}

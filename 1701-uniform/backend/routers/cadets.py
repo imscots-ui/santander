@@ -68,6 +68,7 @@ def update_cadet(
     update: CadetUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
     if not cadet:
@@ -76,7 +77,7 @@ def update_cadet(
     for field, value in update.model_dump(exclude_none=True).items():
         setattr(cadet, field, value)
 
-    log_action(db, user_id=current_user.id, action="CADET_UPDATE",
+    log_action(db, user_id=audit_user_id, action="CADET_UPDATE",
                details=f"Updated cadet {cadet.service_number}", cadet_id=cadet_id)
     db.commit()
     db.refresh(cadet)
@@ -224,13 +225,14 @@ def update_cadet_rank(
     payload: dict,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
     if not cadet:
         raise HTTPException(status_code=404, detail="Cadet not found")
     old_rank = cadet.rank
     cadet.rank = payload.get("rank", cadet.rank)
-    log_action(db, user_id=current_user.id, action="CADET_RANK_UPDATE",
+    log_action(db, user_id=audit_user_id, action="CADET_RANK_UPDATE",
                details=f"Rank updated {old_rank} -> {cadet.rank} for {cadet.service_number} {cadet.surname}",
                cadet_id=cadet_id)
     db.commit()
