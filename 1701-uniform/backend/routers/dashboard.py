@@ -37,6 +37,7 @@ def get_dashboard(
                 "rank": cadet.rank,
                 "forename": cadet.forename,
                 "surname": cadet.surname,
+                "flight": cadet.flight,
                 "missing_items": missing,
             })
 

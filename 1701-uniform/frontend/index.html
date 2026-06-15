@@ -2471,14 +2471,20 @@ async function openReports() {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div class="section-label" style="margin-bottom:0">Kit Deficiencies — Active Cadets Missing Kit Items</div>${deficiencies.length>0?`<span style="font-size:11px;color:var(--text3)">Click a row to view cadet record</span>`:''}</div>
       ${deficiencies.length === 0
         ? '<div class="alert alert-success" style="margin-bottom:16px">✓ All active cadets have their required kit issued.</div>'
-        : `<div class="table-wrap"><table>
-          <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th></tr></thead>
-          <tbody>${deficiencies.map(d => `<tr class="def-row" data-cadet-id="${d.cadet_id}" style="cursor:pointer" title="Open cadet record">
-            <td><strong>${d.rank} ${d.surname}</strong>, ${d.forename}</td>
-            <td style="font-family:var(--mono);font-size:12px">${d.service_number}</td>
-            <td>${d.missing_items.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
-          </tr>`).join('')}</tbody>
-        </table></div>`}
+        : (() => {
+            const defFlights = [...new Set(deficiencies.map(d=>d.flight).filter(Boolean))].sort();
+            return (defFlights.length>1?`<div id="def-flight-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+              ${defFlights.map(f=>`<button class="btn btn-ghost def-flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}</button>`).join('')}
+            </div>`:'') +
+            `<div class="table-wrap"><table>
+              <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th></tr></thead>
+              <tbody>${deficiencies.map(d => `<tr class="def-row" data-cadet-id="${d.cadet_id}" data-flight="${d.flight||''}" style="cursor:pointer" title="Open cadet record">
+                <td><strong>${d.rank} ${d.surname}</strong>, ${d.forename}${d.flight?` <span style="font-size:11px;color:var(--text3)">(${d.flight})</span>`:''}</td>
+                <td style="font-family:var(--mono);font-size:12px">${d.service_number}</td>
+                <td>${d.missing_items.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
+              </tr>`).join('')}</tbody>
+            </table></div>`;
+          })()}
 
       <div class="section-label" style="margin-top:24px">Current Stock Summary</div>
       <div class="table-wrap"><table>
@@ -2518,6 +2524,21 @@ async function openReports() {
 
     document.querySelectorAll('.def-row[data-cadet-id]').forEach(row => {
       row.addEventListener('click', () => openCadetRecord(parseInt(row.dataset.cadetId)));
+    });
+    let defFlightFilter = null;
+    document.querySelectorAll('.def-flight-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        defFlightFilter = defFlightFilter === chip.dataset.flight ? null : chip.dataset.flight;
+        document.querySelectorAll('.def-row').forEach(row => {
+          row.style.display = (!defFlightFilter || row.dataset.flight === defFlightFilter) ? '' : 'none';
+        });
+        document.querySelectorAll('.def-flight-chip').forEach(c => {
+          const on = c.dataset.flight === defFlightFilter;
+          c.style.background = on ? 'var(--blue)' : '';
+          c.style.color = on ? 'white' : '';
+          c.style.borderColor = on ? 'var(--blue)' : '';
+        });
+      });
     });
 
     document.getElementById('rpt-csv').onclick = () => {
