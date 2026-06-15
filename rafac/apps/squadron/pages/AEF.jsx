@@ -741,6 +741,10 @@ export default function AEF({ showToast, addAudit }) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <StatusPill status={nom.status} />
                         <span style={{ fontSize: 12, color: muted }}>Submitted {fmtDate(nom.submitted)}</span>
+                        <button onClick={e => { e.stopPropagation(); const f = flyers.find(fl => fl.id === nom.cadetId); printNominationLetter(nom, f); }}
+                          style={{ padding:'3px 10px', background:navy, color:'white', border:'none', borderRadius:5, fontSize:10, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+                          🖨️ Print Letter
+                        </button>
                       </div>
                     </div>
                     <div style={{ fontSize: 13, color: '#3B5270', lineHeight: 1.55 }}>{nom.justification}</div>
@@ -861,6 +865,171 @@ export default function AEF({ showToast, addAudit }) {
     );
   }
 
+  // ── Print helpers ─────────────────────────────────────────────────────────
+
+  function printFlyingRegister() {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const cadetRows = flyers.map((f, i) => {
+      const ss = f.scholarship ? `<span style="background:${f.scholarship==='Blue Wings'?'#1E40AF':f.scholarship==='GS'?'#166534':'#C8A032'};color:${f.scholarship==='FS'?'#00264D':'white'};padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">${f.scholarship}</span>` : '—';
+      return `<tr style="background:${i%2?'#fafcfe':'white'}">
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;font-weight:700;color:#00264D;font-size:12px">${f.rank} ${f.name}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:14px;color:#00264D">${f.aef}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:14px;color:#1B6B3A">${f.gif}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;text-align:center">${ss}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090;text-align:center">${fmtDate(f.lastFlight)}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${f.notes||'—'}</td>
+      </tr>`;
+    }).join('');
+
+    const quotaItems = [
+      { label:'AEF Slots', key:'aef', color:'#00264D' },
+      { label:'GIF Slots', key:'gif', color:'#1B6B3A' },
+      { label:'GS Nominations', key:'gs', color:'#7A4A00' },
+      { label:'FS Nominations', key:'fs', color:'#4A007A' },
+    ];
+    const quotaBoxes = quotaItems.map(item => {
+      const q = quota[item.key];
+      const rem = q.allocated - q.used;
+      const bc = rem===0?'#DC2626':rem===1?'#D97706':'#166534';
+      return `<div style="flex:1;border-right:1px solid #D0DCF0;padding:12px 16px;text-align:center">
+        <div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${item.label}</div>
+        <div style="font-family:monospace;font-size:20px;font-weight:800;color:${item.color}">${q.used}/${q.allocated}</div>
+        <div style="font-size:11px;font-weight:700;color:${bc};margin-top:2px">${rem} remaining</div>
+      </div>`;
+    }).join('');
+
+    const sessionLog = flightLog.length > 0 ? `
+      <div style="margin-top:16px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0">Session Flights Logged</div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#F4F7FB"><th style="padding:7px 10px;text-align:left;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Cadet</th><th style="padding:7px 10px;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Type</th><th style="padding:7px 10px;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Date</th><th style="padding:7px 10px;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Aircraft</th><th style="padding:7px 10px;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Location</th><th style="padding:7px 10px;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;border-bottom:2px solid #D0DCF0">Notes</th></tr></thead>
+          <tbody>${flightLog.map(fl=>`<tr><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-weight:600;font-size:12px">${fl.cadetName}</td><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:12px">${fl.type}</td><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${fmtDate(fl.date)}</td><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${fl.aircraft}</td><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${fl.location}</td><td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090">${fl.notes||'—'}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>` : '';
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>AEF Flying Register — 1701 Sqn</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 landscape;margin:14mm 16mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:12px;margin:0}
+.hdr{display:flex;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:14px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.doc-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;margin-left:auto;text-align:right}
+.quota-strip{display:flex;border:1.5px solid #D0DCF0;border-radius:8px;overflow:hidden;margin-bottom:14px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat-box{background:#F5F8FF;border:1.5px solid #D0DCF0;border-radius:8px;padding:10px 14px;text-align:center}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#F4F7FB}
+th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#5A7090;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #D0DCF0}
+th.c{text-align:center}
+.footer{margin-top:14px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:40px">✈️</span>
+  <div><div class="sqn">1701 (Johnstone) Squadron ATC</div><div class="sub">Air Experience &amp; Flying Register · ${dateStr}</div></div>
+  <div class="doc-title">AEF / GIF Flying Register</div>
+</div>
+<div class="stat-row">
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#00264D">${totalAEF}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">AEF Flights (Year)</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#1B6B3A">${totalGIF}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">GIF Flights (Year)</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#7A4A00">${scholHolders}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Scholarship Holders</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#8B1A1A">${noFlights}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">No Flights Yet</div></div>
+</div>
+<div style="margin-bottom:12px"><div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#5A7090;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Wing Quota Status</div>
+<div class="quota-strip">${quotaBoxes}</div></div>
+<div class="section-title">Cadet Flying Records (${flyers.length} cadets)</div>
+<table>
+  <thead><tr><th>Cadet</th><th class="c">AEF</th><th class="c">GIF</th><th class="c">Scholarship</th><th class="c">Last Flight</th><th>Notes</th></tr></thead>
+  <tbody>${cadetRows}</tbody>
+</table>
+${sessionLog}
+<div class="footer">1701 (Johnstone) Squadron ATC · AEF/GIF Flying Register · OFFICIAL · ${dateStr} · West of Scotland Wing</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit(`AEF flying register printed`, 'Training');
+    showToast && showToast('📄 Flying register printing…');
+  }
+
+  function printNominationLetter(nom, flyer) {
+    if (!flyer) return;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const typeLabel = nom.type === 'GS' ? 'Gliding Scholarship' : 'Flying Scholarship';
+    const evidence = [
+      `AEF flights completed: ${flyer.aef}`,
+      `GIF flights completed: ${flyer.gif}`,
+      flyer.scholarship ? `Current scholarship / award: ${flyer.scholarship}` : null,
+      flyer.lastFlight ? `Most recent flight: ${fmtDate(flyer.lastFlight)}` : null,
+      flyer.gsNominee ? 'Previously identified as a GS Nominee by OC' : null,
+    ].filter(Boolean).map(e => `<li style="margin-bottom:4px">${e}</li>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Nomination Letter — ${flyer.rank} ${flyer.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;400i;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:22mm 24mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#1a1a2e;background:white;font-size:13px;line-height:1.7;margin:0}
+.letterhead{display:flex;align-items:flex-start;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:24px}
+.sqn-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#00264D}
+.sqn-sub{font-size:11px;color:#5A7090;margin-top:2px}
+.from-block{margin-bottom:18px;font-size:13px}
+.from-block strong{display:block;margin-bottom:2px}
+.re-line{background:#F4F7FB;border-left:4px solid #C8A032;padding:10px 16px;font-weight:700;color:#00264D;margin-bottom:20px;font-family:'Barlow Condensed',sans-serif;font-size:15px}
+p{margin:0 0 14px 0}
+ul{margin:6px 0 14px 0;padding-left:20px}
+.sig-section{margin-top:32px}
+.sig-line{border-bottom:1px solid #1a1a2e;height:40px;width:260px;margin-bottom:4px}
+.sig-label{font-size:11px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sig-name{font-size:13px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:24px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="letterhead">
+  <span style="font-size:44px">✈️</span>
+  <div>
+    <div class="sqn-name">1701 (Johnstone) Squadron ATC</div>
+    <div class="sqn-sub">Royal Air Force Air Cadets · Air Training Corps · West of Scotland Wing</div>
+    <div class="sqn-sub" style="margin-top:4px">OC: Flt Lt A. McDonald · Johnstone Town Hall, Renfrewshire</div>
+  </div>
+  <div style="margin-left:auto;text-align:right;font-size:12px;color:#5A7090">${dateStr}</div>
+</div>
+<div class="from-block">
+  <strong>From:</strong> Flt Lt A. McDonald, OC 1701 (Johnstone) Squadron ATC<br>
+  <strong>To:</strong> Wing Commander (Cadets), West of Scotland Wing ATC
+</div>
+<div class="re-line">Re: ${typeLabel} Nomination — ${flyer.rank} ${flyer.name}, 1701 (Johnstone) Squadron</div>
+<p>I write to nominate <strong>${flyer.rank} ${flyer.name}</strong> of 1701 (Johnstone) Squadron ATC for consideration for a ${typeLabel} (${nom.type}) place in the forthcoming allocation cycle.</p>
+<p><strong>Justification:</strong><br>${nom.justification}</p>
+<p><strong>Supporting evidence:</strong></p>
+<ul>${evidence}</ul>
+<p>I am satisfied that ${flyer.name.split(',')[0]} meets the criteria for a ${nom.type} nomination and I commend them highly to the Wing selection board. Please do not hesitate to contact me if you require further information or supporting documentation.</p>
+<p>Yours sincerely,</p>
+<div class="sig-section">
+  <div class="sig-line"></div>
+  <div class="sig-name">Flt Lt A. McDonald</div>
+  <div class="sig-label">Officer Commanding</div>
+  <div class="sig-label">1701 (Johnstone) Squadron ATC</div>
+</div>
+<div class="footer">1701-NOM-${nom.type}-${new Date().getFullYear()} · OFFICIAL · ${dateStr} · West of Scotland Wing ATC</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit(`${nom.type} nomination letter printed: ${flyer.rank} ${flyer.name}`, 'Training');
+    showToast && showToast(`🖨️ Nomination letter printing for ${flyer.name}…`);
+  }
+
   // ── Tab bar ──────────────────────────────────────────────────────────────
 
   const TABS = [
@@ -875,13 +1044,19 @@ export default function AEF({ showToast, addAudit }) {
   return (
     <div style={{ fontFamily: 'Barlow, sans-serif', padding: 24, maxWidth: 1120, margin: '0 auto' }}>
       {/* Page header */}
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 26, fontWeight: 900, color: navy, letterSpacing: '0.01em', lineHeight: 1.1 }}>
-          Air Experience &amp; Flying
+      <div style={{ marginBottom: 22, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+        <div>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 26, fontWeight: 900, color: navy, letterSpacing: '0.01em', lineHeight: 1.1 }}>
+            Air Experience &amp; Flying
+          </div>
+          <div style={{ fontSize: 13, color: muted, marginTop: 3 }}>
+            AEF · GIF · Gliding Scholarship · Flying Scholarship — 1701 (Johnstone) Squadron
+          </div>
         </div>
-        <div style={{ fontSize: 13, color: muted, marginTop: 3 }}>
-          AEF · GIF · Gliding Scholarship · Flying Scholarship — 1701 (Johnstone) Squadron
-        </div>
+        <button onClick={printFlyingRegister}
+          style={{ padding:'8px 16px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif', flexShrink:0, marginTop:2 }}>
+          📄 Print Register
+        </button>
       </div>
 
       {/* Tab bar */}
