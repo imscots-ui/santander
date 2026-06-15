@@ -529,6 +529,7 @@ async function openCadetRecord(cadetId) {
       <div style="flex:1">
         <div style="font-family:var(--head);font-size:24px;letter-spacing:0.04em;color:var(--blue)">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
         <div style="font-family:var(--mono);font-size:12px;color:var(--text3)">${cadet.service_number} · ${cadet.gender}${cadet.flight?` · ${cadet.flight}`:''}${cadet.joined_at?` · Joined ${new Date(cadet.joined_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`:''}</div>
+        ${cadet.notes ? `<div style="margin-top:6px;font-size:12px;color:var(--text2);background:rgba(0,0,0,0.04);border-radius:4px;padding:4px 8px;max-width:500px">📝 ${cadet.notes}</div>` : ''}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
@@ -616,6 +617,9 @@ async function openCadetRecord(cadetId) {
           <input id="ec-flight" value="${cadet.flight||''}" placeholder="e.g. Alpha, Bravo...">
         </div>
       </div>
+      <div class="form-group" style="margin-top:8px"><label>Notes (optional)</label>
+        <textarea id="ec-notes" rows="3" style="width:100%;resize:vertical" placeholder="Any relevant notes about this cadet...">${cadet.notes||''}</textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="ec-cancel">Cancel</button>
@@ -628,11 +632,12 @@ async function openCadetRecord(cadetId) {
       const rank = document.getElementById('ec-rank').value;
       const gender = document.getElementById('ec-gender').value;
       const flight = document.getElementById('ec-flight').value.trim() || null;
+      const notes = document.getElementById('ec-notes').value.trim() || null;
       if (!forename || !surname) { showError('edit-cadet-error', 'Forename and surname are required'); return; }
       const saveBtn = document.getElementById('ec-save');
       saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
       try {
-        await PATCH(`/cadets/${cadetId}`, { forename, surname, rank, gender, flight });
+        await PATCH(`/cadets/${cadetId}`, { forename, surname, rank, gender, flight, notes });
         S.cadets = null;
         openCadetRecord(cadetId);
       } catch(e) {

@@ -71,6 +71,7 @@ class CadetUpdate(BaseModel):
     surname: Optional[str] = None
     gender: Optional[Gender] = None
     flight: Optional[str] = None
+    notes: Optional[str] = None
     active: Optional[bool] = None
 
 
@@ -82,6 +83,7 @@ class CadetOut(BaseModel):
     surname: str
     gender: Gender
     flight: Optional[str] = None
+    notes: Optional[str] = None
     active: bool
     joined_at: datetime
     issued_count: int = 0

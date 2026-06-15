@@ -92,6 +92,7 @@ class Cadet(Base):
     flight = Column(String(50), nullable=True)
     active = Column(Boolean, default=True, nullable=False)
     joined_at = Column(DateTime, default=datetime.utcnow)
+    notes = Column(Text, nullable=True)
 
     issued_items = relationship("IssuedItem", back_populates="cadet")
 
