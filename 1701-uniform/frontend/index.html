@@ -2407,12 +2407,12 @@ async function openReports() {
     Object.values(demandMap).forEach(arr => arr.sort((a,b) => b.count - a.count));
 
     showModal(`${mHead('REPORTS')}<div class="modal-body">
-      <div class="section-label">Kit Deficiencies — Active Cadets Missing Kit Items</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div class="section-label" style="margin-bottom:0">Kit Deficiencies — Active Cadets Missing Kit Items</div>${deficiencies.length>0?`<span style="font-size:11px;color:var(--text3)">Click a row to view cadet record</span>`:''}</div>
       ${deficiencies.length === 0
         ? '<div class="alert alert-success" style="margin-bottom:16px">✓ All active cadets have their required kit issued.</div>'
         : `<div class="table-wrap"><table>
           <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th></tr></thead>
-          <tbody>${deficiencies.map(d => `<tr>
+          <tbody>${deficiencies.map(d => `<tr class="def-row" data-cadet-id="${d.cadet_id}" style="cursor:pointer" title="Open cadet record">
             <td><strong>${d.rank} ${d.surname}</strong>, ${d.forename}</td>
             <td style="font-family:var(--mono);font-size:12px">${d.service_number}</td>
             <td>${d.missing_items.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
@@ -2454,6 +2454,10 @@ async function openReports() {
       <button class="btn btn-ghost" id="rpt-csv">📥 Export CSV</button>
       <button class="btn btn-ghost" id="rpt-print">🖨 Print Report</button>
     </div>`, true);
+
+    document.querySelectorAll('.def-row[data-cadet-id]').forEach(row => {
+      row.addEventListener('click', () => openCadetRecord(parseInt(row.dataset.cadetId)));
+    });
 
     document.getElementById('rpt-csv').onclick = () => {
       const header = 'Cadet,Service No,Missing Items\n';
