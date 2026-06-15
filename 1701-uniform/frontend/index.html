@@ -698,12 +698,15 @@ async function openCadetRecord(cadetId) {
 }
 
 // ── ISSUE FLOW ──
-async function openIssueFlow(preselectedCadetId=null) {
+async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, preselectedSizeId=null) {
   const [items, cadets] = await Promise.all([loadItems(), loadCadets()]);
   await loadStock();
   const cadetPreselected = !!preselectedCadetId;
-  let step=1, selectedItem=null, selectedSize=null;
   let selectedCadet = preselectedCadetId ? cadets.find(c=>c.id===preselectedCadetId) : null;
+  let selectedItem = preselectedItemId ? items.find(i=>i.id===preselectedItemId) : null;
+  let selectedSize = (preselectedSizeId && selectedItem) ? (selectedItem.sizes?.find(s=>s.id===preselectedSizeId)||null) : null;
+  // Start at the earliest unresolved step
+  let step = (selectedItem && selectedSize) ? 3 : selectedItem ? 2 : 1;
 
   function renderStep() {
     const steps = cadetPreselected
@@ -1284,6 +1287,12 @@ async function openSearchUniform() {
 
     document.getElementById('srch-back')?.addEventListener('click', () => { selectedItem=null; renderSearch(); });
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderSearch(); }; });
+    document.querySelectorAll('.srch-issue-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openIssueFlow(null, selectedItem.id, parseInt(btn.dataset.issueSize));
+      });
+    });
   }
 
   function renderSizes() {
@@ -1297,8 +1306,8 @@ async function openSearchUniform() {
       <div><div style="font-family:var(--head);font-size:28px;letter-spacing:0.04em;color:var(--blue)">${selectedItem.short_name}</div><div style="font-size:12px;color:var(--text3)">${selectedItem.name}</div></div>
       <div style="text-align:right"><div style="font-size:24px;font-weight:800;color:${inStockCount>0?'var(--green)':'var(--red)'}">${inStockCount}</div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">SIZES IN STOCK</div></div>
     </div>
-    ${good.length>0?`<div class="section-label">In Stock</div><div class="size-grid">${good.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--green);border-radius:6px;background:var(--green-light);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green)">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:var(--green)">${s.qty}</div><div style="font-size:10px;color:var(--green);opacity:0.7">in stock</div></div>`).join('')}</div>`:''}
-    ${low.length>0?`<div class="section-label" style="margin-top:${good.length?'14px':'0'};color:#d97706">⚠ Low Stock</div><div class="size-grid">${low.map(s=>`<div style="padding:10px 14px;border:1.5px solid #d97706;border-radius:6px;background:var(--amber-light,#fef3c7);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:#92400e">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:#d97706">${s.qty}</div><div style="font-size:10px;color:#d97706;opacity:0.8">low stock</div></div>`).join('')}</div>`:''}
+    ${good.length>0?`<div class="section-label">In Stock</div><div class="size-grid">${good.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--green);border-radius:6px;background:var(--green-light);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green)">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:var(--green)">${s.qty}</div><div style="font-size:10px;color:var(--green);opacity:0.7">in stock</div><button class="btn btn-primary srch-issue-btn" data-issue-size="${s.id}" style="margin-top:8px;font-size:11px;padding:4px 10px;width:100%">Issue</button></div>`).join('')}</div>`:''}
+    ${low.length>0?`<div class="section-label" style="margin-top:${good.length?'14px':'0'};color:#d97706">⚠ Low Stock</div><div class="size-grid">${low.map(s=>`<div style="padding:10px 14px;border:1.5px solid #d97706;border-radius:6px;background:var(--amber-light,#fef3c7);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:#92400e">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:#d97706">${s.qty}</div><div style="font-size:10px;color:#d97706;opacity:0.8">low stock</div><button class="btn btn-primary srch-issue-btn" data-issue-size="${s.id}" style="margin-top:8px;font-size:11px;padding:4px 10px;width:100%">Issue</button></div>`).join('')}</div>`:''}
     ${outOfStock.length>0?`<div class="section-label" style="margin-top:${(good.length||low.length)?'14px':'0'}">Out of Stock</div><div class="size-grid">${outOfStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg2);text-align:center;opacity:0.6"><div style="font-family:var(--mono);font-size:13px;color:var(--text3)">${s.size_label}</div><div style="font-size:13px;color:var(--red);font-weight:700">Out</div></div>`).join('')}</div>`:''}
     ${inStockCount===0?`<div class="alert alert-warning" style="margin-top:12px">⚠ No sizes of this item are currently in stock.</div>`:''}`;
   }
