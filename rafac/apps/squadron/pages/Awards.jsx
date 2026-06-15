@@ -138,6 +138,136 @@ export default function Awards({ showToast, addAudit }) {
     setShowNomForm(false);
   }
 
+  // ── Print helpers ─────────────────────────────────────────────────────────
+  function printAwardCertificate(award) {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const isWingLevel = award.type.toLowerCase().includes('wing') || award.type.toLowerCase().includes("lord-lieutenant");
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Certificate — ${award.recipient}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:20mm 22mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;margin:0;text-align:center}
+.outer{border:3px double #C8A032;padding:36px 40px;min-height:calc(100vh - 40px)}
+.header{border-bottom:3px solid #C8A032;padding-bottom:16px;margin-bottom:24px}
+.roundel{font-size:54px;margin-bottom:6px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:.04em;color:#00264D}
+.org{font-size:11px;color:#5A7090;margin-top:3px;text-transform:uppercase;letter-spacing:.10em}
+.cert-of{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C8A032;margin:28px 0 8px}
+.award-title{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;color:#00264D;margin:0 0 24px;line-height:1.1}
+.awarded-to{font-size:13px;color:#5A7090;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.recipient{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:800;color:#00264D;margin-bottom:6px}
+.org-sub{font-size:14px;color:#5A7090;margin-bottom:28px}
+.divider{border:none;border-top:1.5px solid #D0DCF0;margin:0 60px 24px}
+.reason{font-size:14px;color:#1a2b4a;line-height:1.7;margin-bottom:10px;font-style:italic}
+.presenter{font-size:13px;color:#5A7090;margin-bottom:32px}
+.sigs{display:flex;justify-content:center;gap:60px;margin-top:32px;padding-top:20px;border-top:2px solid #C8A032}
+.sig-block{width:180px;text-align:center}
+.sig-line{border-bottom:1px solid #00264D;height:44px;margin-bottom:5px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.sig-name{font-size:12px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:20px;font-size:9.5px;color:#9BA8BC;border-top:1px solid #D0DCF0;padding-top:8px}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="outer">
+  <div class="header">
+    <div class="roundel">✈️</div>
+    <div class="sqn">1701 (Johnstone) Squadron</div>
+    <div class="org">Air Training Corps · Royal Air Force Air Cadets · West of Scotland Wing</div>
+  </div>
+  <div class="cert-of">Certificate of Achievement</div>
+  <div class="award-title">${award.type}</div>
+  <div class="awarded-to">Awarded to</div>
+  <div class="recipient">${award.recipient}</div>
+  <div class="org-sub">1701 (Johnstone) Squadron ATC</div>
+  <hr class="divider">
+  ${award.notes ? `<div class="reason">"${award.notes}"</div>` : ''}
+  <div class="presenter">Presented by: <strong>${award.presentedBy}</strong></div>
+  <div style="font-size:13px;color:#5A7090">Date of award: <strong style="color:#00264D">${award.date}</strong></div>
+  <div class="sigs">
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Officer Commanding</div>
+      <div class="sig-name">Flt Lt A. McDonald</div>
+      <div class="sig-label">1701 (Johnstone) Squadron ATC</div>
+    </div>
+    ${isWingLevel ? `<div class="sig-block"><div class="sig-line"></div><div class="sig-label">Wing Commander</div><div class="sig-name">Wg Cdr ____________</div><div class="sig-label">West of Scotland Wing ATC</div></div>` : ''}
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Date</div>
+      <div class="sig-name">${dateStr}</div>
+    </div>
+  </div>
+  <div class="footer">RAFAC 1701-AWD-${award.id.toUpperCase()} · OFFICIAL · ${dateStr} · West of Scotland Wing</div>
+</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit(`Award certificate printed: ${award.recipient} — ${award.type}`);
+    showToast && showToast(`🏆 Certificate printing for ${award.recipient}…`);
+  }
+
+  function printNomLetter(nom) {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Nomination — ${nom.nominee}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;400i;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:22mm 24mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#1a1a2e;background:white;font-size:13px;line-height:1.7;margin:0}
+.letterhead{display:flex;align-items:flex-start;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:24px}
+.sqn-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#00264D}
+.sqn-sub{font-size:11px;color:#5A7090;margin-top:2px}
+.from-block{margin-bottom:18px;font-size:13px}
+.re-line{background:#F4F7FB;border-left:4px solid #C8A032;padding:10px 16px;font-weight:700;color:#00264D;margin-bottom:20px;font-family:'Barlow Condensed',sans-serif;font-size:15px}
+p{margin:0 0 14px 0}
+.sig-section{margin-top:32px}
+.sig-line{border-bottom:1px solid #1a1a2e;height:40px;width:260px;margin-bottom:4px}
+.sig-label{font-size:11px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sig-name{font-size:13px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:24px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="letterhead">
+  <span style="font-size:44px">✈️</span>
+  <div>
+    <div class="sqn-name">1701 (Johnstone) Squadron ATC</div>
+    <div class="sqn-sub">Royal Air Force Air Cadets · Air Training Corps · West of Scotland Wing</div>
+    <div class="sqn-sub" style="margin-top:4px">OC: Flt Lt A. McDonald · Johnstone Town Hall, Renfrewshire</div>
+  </div>
+  <div style="margin-left:auto;text-align:right;font-size:12px;color:#5A7090">${dateStr}</div>
+</div>
+<div class="from-block">
+  <strong>From:</strong> ${nom.recommender}, 1701 (Johnstone) Squadron ATC<br>
+  <strong>To:</strong> Wing Commander (Cadets), West of Scotland Wing ATC
+</div>
+<div class="re-line">Re: ${nom.award} — Nomination for ${nom.nominee}</div>
+<p>I write to formally nominate <strong>${nom.nominee}</strong> of 1701 (Johnstone) Squadron ATC for consideration for the <strong>${nom.award}</strong>.</p>
+<p><strong>Justification:</strong><br>${nom.justification}</p>
+<p>I am confident that ${nom.nominee.split(',')[0]} is a worthy candidate for this award and I commend them strongly to the Wing selection board. Please do not hesitate to contact me if further information or supporting evidence is required.</p>
+${nom.deadline && nom.deadline !== 'TBC' ? `<p><em>Submission deadline: ${nom.deadline}</em></p>` : ''}
+<p>Yours sincerely,</p>
+<div class="sig-section">
+  <div class="sig-line"></div>
+  <div class="sig-name">${nom.recommender}</div>
+  <div class="sig-label">1701 (Johnstone) Squadron ATC</div>
+</div>
+<div class="footer">1701-NOM-AWD-${new Date().getFullYear()} · OFFICIAL · ${nom.award} nomination · ${dateStr}</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit(`Award nomination letter printed: ${nom.nominee} — ${nom.award}`);
+    showToast && showToast(`📄 Nomination letter printing for ${nom.nominee}…`);
+  }
+
   // ── Shared styles ─────────────────────────────────────────────────────
   const card = {
     background: 'white',
@@ -277,7 +407,13 @@ export default function Awards({ showToast, addAudit }) {
                   <span style={badge(a.category)}>{a.category === 'cfav' ? 'CFAV' : 'Cadet'}</span>
                   <span style={{ marginLeft: 8, fontFamily: 'Barlow Condensed, sans-serif', fontSize: 17, fontWeight: 700, color: navy }}>{a.type}</span>
                 </div>
-                <span style={{ fontSize: 13, color: muted, whiteSpace: 'nowrap', marginLeft: 12 }}>{a.date}</span>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize: 13, color: muted, whiteSpace: 'nowrap' }}>{a.date}</span>
+                  <button onClick={() => printAwardCertificate(a)}
+                    style={{ padding:'3px 10px', background:navy, color:'white', border:'none', borderRadius:5, fontSize:10, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif', whiteSpace:'nowrap' }}>
+                    🏆 Print
+                  </button>
+                </div>
               </div>
               <div style={{ fontSize: 14, color: navy, fontWeight: 600 }}>{a.recipient}</div>
               <div style={{ fontSize: 13, color: muted }}>Presented by: {a.presentedBy}</div>
@@ -300,7 +436,13 @@ export default function Awards({ showToast, addAudit }) {
                   <span style={badge(a.category)}>{a.category === 'cfav' ? 'CFAV' : 'Cadet'}</span>
                   <span style={{ marginLeft: 8, fontFamily: 'Barlow Condensed, sans-serif', fontSize: 17, fontWeight: 700, color: navy }}>{a.type}</span>
                 </div>
-                <span style={{ fontSize: 13, color: muted, whiteSpace: 'nowrap', marginLeft: 12 }}>{a.date}</span>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize: 13, color: muted, whiteSpace: 'nowrap' }}>{a.date}</span>
+                  <button onClick={() => printAwardCertificate(a)}
+                    style={{ padding:'3px 10px', background:navy, color:'white', border:'none', borderRadius:5, fontSize:10, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif', whiteSpace:'nowrap' }}>
+                    🏆 Print
+                  </button>
+                </div>
               </div>
               <div style={{ fontSize: 14, color: navy, fontWeight: 600 }}>{a.recipient}</div>
               <div style={{ fontSize: 13, color: muted }}>Presented by: {a.presentedBy}</div>
@@ -443,41 +585,26 @@ export default function Awards({ showToast, addAudit }) {
                 <span style={{ fontWeight: 600, color: muted, fontFamily: 'Barlow Condensed, sans-serif', textTransform: 'uppercase', fontSize: 11, letterSpacing: 0.4 }}>Justification: </span>
                 {n.justification}
               </div>
-              {n.status === 'draft' && (
-                <button
-                  onClick={() => handleSubmitToWing(n.id)}
-                  style={{
-                    background: navy,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 7,
-                    padding: '8px 18px',
-                    fontFamily: 'Barlow Condensed, sans-serif',
-                    fontWeight: 700,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    letterSpacing: 0.3,
-                  }}
-                >
-                  Submit to Wing →
+              <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
+                {n.status === 'draft' && (
+                  <button
+                    onClick={() => handleSubmitToWing(n.id)}
+                    style={{ background:navy, color:'white', border:'none', borderRadius:7, padding:'8px 18px', fontFamily:'Barlow Condensed, sans-serif', fontWeight:700, fontSize:14, cursor:'pointer', letterSpacing:0.3 }}
+                  >
+                    Submit to Wing →
+                  </button>
+                )}
+                {n.status === 'submitted' && (
+                  <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'#1E40AF', fontWeight:600 }}>
+                    <span style={{ display:'inline-block', width:18, height:18, borderRadius:'50%', background:'#EEF2F8', border:'2px solid #1E40AF', textAlign:'center', lineHeight:'14px', fontSize:11 }}>✓</span>
+                    Awaiting Wing decision
+                  </div>
+                )}
+                <button onClick={() => printNomLetter(n)}
+                  style={{ padding:'6px 14px', background:'#1B6B3A', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+                  📄 Print Letter
                 </button>
-              )}
-              {n.status === 'submitted' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#1E40AF', fontWeight: 600 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    background: '#EEF2F8',
-                    border: `2px solid #1E40AF`,
-                    textAlign: 'center',
-                    lineHeight: '14px',
-                    fontSize: 11,
-                  }}>✓</span>
-                  Awaiting Wing decision
-                </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
