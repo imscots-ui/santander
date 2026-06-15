@@ -372,7 +372,9 @@ function homeHTML() {
   </div>
   <div class="home-content" style="position:relative">
   <img src="1701_crest.png" style="position:absolute;width:1400px;height:1400px;object-fit:contain;opacity:0.12;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;mix-blend-mode:multiply" alt="">
-    <div class="home-greeting"><h2>UNIFORM INVENTORY</h2><p>1701 Johnstone Squadron · What would you like to do?</p></div>
+    <div class="home-greeting"><h2>UNIFORM INVENTORY</h2><p>1701 Johnstone Squadron · What would you like to do?</p>
+      <div id="home-stats" style="display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap"></div>
+    </div>
     <div class="home-grid">
       <button class="home-btn" id="btn-cadets"><div class="home-btn-icon">👤</div><div class="home-btn-label">View Cadets</div><div class="home-btn-sub">Records and kit history</div></button>
       <button class="home-btn green" id="btn-issue"><div class="home-btn-icon">📤</div><div class="home-btn-label">Issue Uniform</div><div class="home-btn-sub">Issue items to a cadet</div></button>
@@ -1776,7 +1778,26 @@ async function openFeedback() {
   });
 
   refreshFeedbackBadge();
+  loadHomeDashboard();
 }
+
+async function loadHomeDashboard() {
+  const el = document.getElementById('home-stats');
+  if (!el) return;
+  try {
+    const d = await GET('/dashboard/');
+    const stats = [
+      { label:'Active Cadets', value: d.total_active_cadets, color:'var(--blue)' },
+      { label:'Items Issued', value: d.total_items_issued, color:'var(--green)' },
+      { label:'Cadets w/ Kit Gap', value: (d.cadets_missing_kit || []).length, color: (d.cadets_missing_kit||[]).length > 0 ? 'var(--red)' : 'var(--green)' },
+    ];
+    el.innerHTML = stats.map(s => `<div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(4px);border:1px solid var(--border);border-radius:10px;padding:12px 20px;min-width:110px;text-align:center">
+      <div style="font-family:var(--head);font-size:28px;color:${s.color};line-height:1">${s.value}</div>
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px">${s.label}</div>
+    </div>`).join('');
+  } catch { /* silently skip if backend unreachable */ }
+}
+
 
 async function openBadgeTracker(startView=null, startCat=null) {
   const [cadets, allBadges] = await Promise.all([loadCadets(), GET('/badges/items')]);
@@ -2105,7 +2126,81 @@ async function openReports() {
         }).join('')}</tbody>
       </table></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`, true);
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="admin">← Back</button>
+      <button class="btn btn-ghost" id="rpt-csv">📥 Export CSV</button>
+      <button class="btn btn-ghost" id="rpt-print">🖨 Print Report</button>
+    </div>`, true);
+
+    document.getElementById('rpt-csv').onclick = () => {
+      const header = 'Cadet,Service No,Missing Items,Total Issued\n';
+      const rows = deficiencies.map(d =>
+        [`${d.cadet.rank} ${d.cadet.surname} ${d.cadet.forename}`, d.cadet.service_number, d.missing.join('; '), d.total]
+          .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob([header + rows], { type:'text/csv' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a');
+      a.href = url; a.download = '1701-kit-deficiency-report.csv'; a.click(); URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('rpt-print').onclick = () => {
+      const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+      const defRows = deficiencies.length === 0
+        ? '<tr><td colspan="4" style="padding:16px;text-align:center;color:#166534">✓ All active cadets have core uniform items issued</td></tr>'
+        : deficiencies.map(d => `<tr style="border-bottom:1px solid #dde3f0">
+            <td style="padding:7px 10px;font-weight:700">${d.cadet.rank} ${d.cadet.surname}, ${d.cadet.forename}</td>
+            <td style="padding:7px 10px;font-family:monospace;font-size:11px">${d.cadet.service_number}</td>
+            <td style="padding:7px 10px">${d.missing.map(m=>`<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px">${m}</span>`).join('')}</td>
+            <td style="padding:7px 10px;text-align:center;font-family:monospace">${d.total}</td>
+          </tr>`).join('');
+      const stockRows = Object.entries(stockMap).map(([name, sizes]) => {
+        const total = sizes.reduce((sum,s) => sum+s.qty, 0);
+        const inStock = sizes.filter(s => s.qty > 0);
+        return `<tr style="border-bottom:1px solid #dde3f0">
+          <td style="padding:7px 10px;font-weight:700">${name}</td>
+          <td style="padding:7px 10px;font-size:11px;color:#5a5a5a">${inStock.length ? inStock.map(s=>s.size+': '+s.qty).join(', ') : '—'}</td>
+          <td style="padding:7px 10px;font-weight:700;color:${total>0?'#166534':'#c0392b'};font-family:monospace">${total}</td>
+        </tr>`;
+      }).join('');
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kit Report — 1701 Sqn</title>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>*{box-sizing:border-box}body{margin:0;font-family:'Figtree',sans-serif;color:#0d1b3e}
+        @page{size:A4 portrait;margin:12mm 14mm}
+        @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+      </head><body style="padding:20px 24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg)"></div>
+            <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 JOHNSTONE SQUADRON — KIT REPORT</div>
+            <div style="font-size:10px;color:#9099b5">Printed: ${dateStr} · ${activeCadets.length} active cadets</div></div>
+          </div>
+        </div>
+        <div style="border-top:2px solid #002868;margin-bottom:14px"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.05em;color:#002868;margin-bottom:8px">KIT DEFICIENCIES</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px">
+          <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Cadet</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Svc No</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Missing</th>
+            <th style="padding:6px 10px;text-align:center;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Issued</th>
+          </tr></thead>
+          <tbody>${defRows}</tbody>
+        </table>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.05em;color:#002868;margin-bottom:8px">STOCK SUMMARY</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Item</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">In Stock by Size</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Total</th>
+          </tr></thead>
+          <tbody>${stockRows}</tbody>
+        </table>
+        <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#002868;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
+        <div style="margin-top:12px;font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · AP 1919 stores policy. DPA 2018 applies.</div>
+      </body></html>`;
+      const w = window.open('', '_blank', 'width=820,height=900');
+      w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+    };
 
   } catch(e) {
     showModal(`${mHead('REPORTS')}<div class="modal-body"><div class="alert alert-danger">Error: ${e.message}</div></div>
@@ -2137,7 +2232,52 @@ async function openUnserviceable() {
   </div>
   <div class="modal-footer">
     <button class="btn btn-ghost" data-action="admin">← Back</button>
+    ${data && data.length > 0 ? `<button class="btn btn-ghost" id="unsvc-print">🖨 Print List</button>` : ''}
   </div>`, true);
+
+  document.getElementById('unsvc-print')?.onclick = () => {
+    const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    const rows = data.map(r => `<tr style="border-bottom:1px solid #dde3f0">
+      <td style="padding:7px 10px;font-family:monospace;font-size:11px">${fmt(r.returned_at)}</td>
+      <td style="padding:7px 10px;font-weight:700">${r.item_name}</td>
+      <td style="padding:7px 10px;font-family:monospace">${r.size_label}</td>
+      <td style="padding:7px 10px;font-size:12px">${r.returned_by}</td>
+      <td style="padding:7px 10px;font-size:12px">${r.cadet_name}</td>
+      <td style="padding:7px 10px;font-size:11px;color:#5a5a5a">${r.notes||'—'}</td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Unserviceable Kit — 1701 Sqn</title>
+      <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>*{box-sizing:border-box}body{margin:0;font-family:'Figtree',sans-serif;color:#0d1b3e}
+      @page{size:A4 landscape;margin:12mm 14mm}
+      @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+    </head><body style="padding:20px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg)"></div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 JOHNSTONE SQUADRON — UNSERVICEABLE KIT</div>
+          <div style="font-size:10px;color:#9099b5">DO NOT RE-ISSUE · Return to RAF parent stores for disposal · Printed: ${dateStr}</div></div>
+        </div>
+      </div>
+      <div style="border-top:3px solid #c0392b;margin-bottom:12px"></div>
+      <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7f1d1d;font-weight:600">
+        ⚠ These items have been assessed as unserviceable and must not be re-issued. Set aside pending collection by RAF parent stores.
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+          ${['Date Returned','Item','Size','Returned By','Cadet','Notes'].map(h=>`<th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px">
+        ${[['Admin Officer',''],['OC 1701 Squadron',''],['Date actioned','']].map(([role,name])=>`
+          <div><div style="font-size:10px;color:#9099b5;margin-bottom:28px">${role}</div>
+          <div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">${name}Signature</div></div>`).join('')}
+      </div>
+      <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#c0392b;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
+    </body></html>`;
+    const w = window.open('', '_blank', 'width=1100,height=700');
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+  };
 }
 
 async function openChangePin() {
@@ -2296,7 +2436,59 @@ async function openAuditLog() {
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-action="admin">← Back</button>
+      <button class="btn btn-ghost" id="audit-csv">📥 Export CSV</button>
+      <button class="btn btn-ghost" id="audit-print">🖨 Print</button>
     </div>`, true);
+
+    document.getElementById('audit-csv').onclick = () => {
+      const header = 'Timestamp,Action,Staff,Details\n';
+      const rows = filtered.map(l =>
+        [fmt(l.timestamp), l.action, l.user_name, l.details||''].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob([header + rows], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = '1701-audit-log.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('audit-print').onclick = () => {
+      const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+      const rowsHTML = filtered.map(l => `<tr>
+        <td style="font-family:monospace;font-size:10px;white-space:nowrap">${fmt(l.timestamp)}</td>
+        <td><span style="background:${l.action.includes('ISSUE')?'#e8eef8':l.action.includes('RETURN')?'#dcfce7':'#fef3c7'};color:${l.action.includes('ISSUE')?'#002868':l.action.includes('RETURN')?'#166534':'#92400e'};padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">${l.action}</span></td>
+        <td style="font-size:11px">${l.user_name}</td>
+        <td style="font-size:11px;color:#5a5a5a">${l.details||'—'}</td>
+      </tr>`).join('');
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Audit Log — 1701 Sqn</title>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>*{box-sizing:border-box}body{margin:0;font-family:'Figtree',sans-serif;color:#0d1b3e}
+        @page{size:A4 landscape;margin:12mm 14mm}
+        @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+      </head><body style="padding:20px 24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg)"></div>
+            <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 JOHNSTONE SQUADRON — AUDIT LOG</div>
+            <div style="font-size:10px;color:#9099b5;letter-spacing:0.06em">ROYAL AIR FORCE AIR CADETS</div></div>
+          </div>
+          <div style="text-align:right;font-size:10px;color:#9099b5">${dateStr}<br>${filtered.length} records</div>
+        </div>
+        <div style="border-top:2px solid #002868;margin-bottom:12px"></div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Timestamp</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Action</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Staff</th>
+            <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Details</th>
+          </tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+        <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#002868;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
+        <div style="margin-top:12px;font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · Audit records retained per AP 1919. DPA 2018 applies.</div>
+      </body></html>`;
+      const w = window.open('', '_blank', 'width=1100,height=700');
+      w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+    };
 
     document.getElementById('af-apply').onclick = async () => {
       filters.staff = document.getElementById('af-staff').value;
