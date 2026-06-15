@@ -750,6 +750,11 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
   let selectedSize = (preselectedSizeId && selectedItem) ? (selectedItem.sizes?.find(s=>s.id===preselectedSizeId)||null) : null;
   // Start at the earliest unresolved step
   let step = (selectedItem && selectedSize) ? 3 : selectedItem ? 2 : 1;
+  // Load cadet history for hint (only needed when cadet is known upfront)
+  let cadetHistory = [];
+  if (cadetPreselected) {
+    try { const h = await GET(`/cadets/${preselectedCadetId}/history`); cadetHistory = h.history || []; } catch {}
+  }
 
   function renderStep() {
     const steps = cadetPreselected
@@ -962,8 +967,11 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
 
     function s2() {
     const stockMap={}; (S.stock||[]).forEach(s=>{if(s.item_id===selectedItem.id)stockMap[s.size_id]=s.quantity;});
-    return `<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Selecting size for: <strong>${selectedItem.short_name}</strong></div>
-    <div class="size-grid">${selectedItem.sizes.map(s=>{const qty=stockMap[s.id]??0;const cls=qty===0?'out-of-stock':qty<=3?'low-stock':'';const sel=selectedSize?.id===s.id?' selected':'';return `<button class="size-btn${sel} ${cls}" data-id="${s.id}">${s.size_label}<span style="display:block;font-size:10px;opacity:0.6">${qty} in stock</span></button>`;}).join('')}</div>`;
+    // Find the most recently returned size for this item (gives re-issue hint)
+    const lastSize = cadetHistory.filter(h=>h.item_id===selectedItem.id&&h.returned).sort((a,b)=>new Date(b.issued_at)-new Date(a.issued_at))[0]?.size_label || null;
+    return `<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Selecting size for: <strong>${selectedItem.short_name}</strong>${lastSize?` &nbsp;<span style="font-size:11px;color:var(--text3)">(previously issued: <strong>${lastSize}</strong>)</span>`:''}</div>
+    <div class="size-grid">${selectedItem.sizes.map(s=>{const qty=stockMap[s.id]??0;const cls=qty===0?'out-of-stock':qty<=3?'low-stock':'';const sel=selectedSize?.id===s.id?' selected':'';const isLast=lastSize===s.size_label;return `<button class="size-btn${sel} ${cls}" data-id="${s.id}">${s.size_label}${isLast?`<span style="display:block;font-size:9px;color:#d97706;font-weight:700">↩ last issued</span>`:''}
+<span style="display:block;font-size:10px;opacity:0.6">${qty} in stock</span></button>`;}).join('')}</div>`;
   }
 
   function s3() {
