@@ -151,7 +151,13 @@ def bulk_adjust_stock(
             stock = Stock(item_id=adj.item_id, size_id=adj.size_id, quantity=0)
             db.add(stock)
 
-        new_qty = max(0, stock.quantity + adj.quantity)
+        new_qty = stock.quantity + adj.quantity
+        if new_qty < 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot reduce {item.short_name} {size.size_label} below zero "
+                       f"(current: {stock.quantity}, adjustment: {adj.quantity})"
+            )
         stock.quantity = new_qty
 
         action = "STOCK_BULK_ADD" if adj.quantity > 0 else "STOCK_REMOVE"

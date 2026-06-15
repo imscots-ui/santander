@@ -2291,7 +2291,7 @@ async function openImportCadets() {
         const row = {};
         headers.forEach((h, idx) => row[h] = vals[idx] || '');
         if (!row.service_number || !row.forename || !row.surname) { errors.push(`Row ${i+2}: missing required fields`); return; }
-        if (!['male','female'].includes(row.gender?.toLowerCase())) { errors.push(`Row ${i+2}: gender must be 'male' or 'female'`); return; }
+        if (!['male','female','other'].includes(row.gender?.toLowerCase())) { errors.push(`Row ${i+2}: gender must be 'male', 'female', or 'other'`); return; }
         parsedRows.push({ service_number: row.service_number, rank: row.rank||'Cadet', forename: row.forename, surname: row.surname, gender: row.gender.toLowerCase(), flight: row.flight||null });
       });
       const previewHTML = parsedRows.length > 0

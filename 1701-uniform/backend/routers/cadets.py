@@ -245,21 +245,3 @@ def get_missing_kit(
     return _get_missing_kit(db, cadet, kit_list)
 
 
-@router.patch("/{cadet_id}/rank")
-def update_cadet_rank(
-    cadet_id: int,
-    payload: dict,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-    audit_user_id: int = Depends(get_audit_user_id),
-):
-    cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
-    if not cadet:
-        raise HTTPException(status_code=404, detail="Cadet not found")
-    old_rank = cadet.rank
-    cadet.rank = payload.get("rank", cadet.rank)
-    log_action(db, user_id=audit_user_id, action="CADET_RANK_UPDATE",
-               details=f"Rank updated {old_rank} -> {cadet.rank} for {cadet.service_number} {cadet.surname}",
-               cadet_id=cadet_id)
-    db.commit()
-    return {"message": f"Rank updated to {cadet.rank}"}
