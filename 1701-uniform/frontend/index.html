@@ -1583,6 +1583,7 @@ async function openManageItems() {
   S.items = null; // force fresh load
   const items = await loadItems();
   const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
+  let addSizeItemId = null;
 
   function render() {
     showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body">
@@ -1595,7 +1596,9 @@ async function openManageItems() {
           <td><strong>${i.short_name}</strong><br><span style="font-size:11px;color:var(--text3)">${i.name}</span></td>
           <td style="font-size:12px;color:var(--text3)">${i.category||'—'}</td>
           <td style="font-size:12px">${i.sizes.map(s=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;margin-right:3px">${s.size_label}</span>`).join('')}
-            <button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>
+            ${addSizeItemId === i.id
+              ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button>`
+              : `<button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>`}
           </td>
           <td></td>
         </tr>`).join('')}
@@ -1621,20 +1624,27 @@ async function openManageItems() {
     </div>`, true);
 
     document.querySelectorAll('.add-size-btn').forEach(btn => {
-      btn.onclick = () => {
-        const label = prompt(`Add size to ${btn.dataset.itemName}:\nEnter the size label (e.g. 185/96)`);
-        if (!label?.trim()) return;
-        btn.disabled = true;
-        POST(`/items/${btn.dataset.itemId}/sizes`, { size_label: label.trim() })
-          .then(size => {
-            const item = items.find(i => i.id === parseInt(btn.dataset.itemId));
-            if (item) item.sizes.push(size);
-            S.items = null;
-            render();
-          })
-          .catch(e => { btn.disabled=false; alert('Error: ' + e.message); });
-      };
+      btn.onclick = () => { addSizeItemId = parseInt(btn.dataset.itemId); render(); };
     });
+    document.getElementById('new-size-cancel')?.addEventListener('click', () => { addSizeItemId = null; render(); });
+    const newSizeSubmit = document.getElementById('new-size-submit');
+    if (newSizeSubmit) {
+      document.getElementById('new-size-input')?.focus();
+      document.getElementById('new-size-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') newSizeSubmit.click(); });
+      newSizeSubmit.onclick = async () => {
+        const label = document.getElementById('new-size-input')?.value.trim();
+        if (!label) return;
+        newSizeSubmit.disabled = true; newSizeSubmit.textContent = 'Adding...';
+        try {
+          const size = await POST(`/items/${newSizeSubmit.dataset.itemId}/sizes`, { size_label: label });
+          const item = items.find(i => i.id === parseInt(newSizeSubmit.dataset.itemId));
+          if (item) item.sizes.push(size);
+          S.items = null;
+          addSizeItemId = null;
+          render();
+        } catch(e) { newSizeSubmit.disabled=false; newSizeSubmit.textContent='Add'; showError('ni-error', e.message); }
+      };
+    }
 
     document.getElementById('ni-submit').onclick = async () => {
       const shortName = document.getElementById('ni-short').value.trim();
@@ -2442,6 +2452,15 @@ async function openBadgeTracker(startView=null, startCat=null) {
   let view = startView || 'home'; // 'home', 'stock', 'issue', 'cadet'
   let selectedCadet = null;
   let selectedBadge = null;
+  let addStockBadgeId = null;
+  let badgeCadetFlight = null;
+
+  function addStockCell(b) {
+    if (addStockBadgeId === b.id) {
+      return '<td><input id="stock-qty-input" type="number" min="1" placeholder="Qty" style="width:60px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px"><button class="btn btn-primary btn-sm" id="stock-qty-submit" data-id="' + b.id + '" data-name="' + b.name + '" style="margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="stock-qty-cancel" style="margin-left:4px">✕</button></td>';
+    }
+    return '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td>';
+  }
 
   function getCatBadges(cat) {
     let list = badges.filter(b => b.category === cat);
@@ -2484,7 +2503,7 @@ async function openBadgeTracker(startView=null, startCat=null) {
           const levelColor = level === 'Blue' ? '#1d4ed8' : level === 'Bronze' ? '#92400e' : level === 'Silver' ? '#374151' : '#854d0e';
           rows += '<tr><td style="padding-left:24px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + levelColor + ';margin-right:8px;vertical-align:middle"></span>' + level + '</td>';
           rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
-          rows += '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>';
+          rows += addStockCell(b) + '</tr>';
         });
       });
       return '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
@@ -2498,12 +2517,12 @@ async function openBadgeTracker(startView=null, startCat=null) {
         subBadges.forEach(b => {
           rows += '<tr><td style="padding-left:24px"><strong>' + b.name.replace(' – Staff Cadet', '') + '</strong></td>';
           rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
-          rows += '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>';
+          rows += addStockCell(b) + '</tr>';
         });
       });
       return '<div class="table-wrap"><table><thead><tr><th>Rank Slide (Pairs)</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     }
-    const rows = list.map(b => '<tr><td><strong>' + b.name + '</strong></td><td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td><td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>').join('');
+    const rows = list.map(b => '<tr><td><strong>' + b.name + '</strong></td><td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>' + addStockCell(b) + '</tr>').join('');
     return '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
@@ -2540,21 +2559,35 @@ async function openBadgeTracker(startView=null, startCat=null) {
         badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + b.name + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
       });
     }
-    const cadetList = activeCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
+    const issueFlights = [...new Set(activeCadets.map(c=>c.flight).filter(Boolean))].sort();
+    const issueFlightChips = issueFlights.length > 1
+      ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">' +
+        '<button class="chip' + (!badgeCadetFlight ? ' active' : '') + '" data-bif="all">All</button>' +
+        issueFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bif="' + f + '">' + f + '</button>').join('') +
+        '</div>' : '';
+    const issueCadets = badgeCadetFlight ? activeCadets.filter(c => c.flight === badgeCadetFlight) : activeCadets;
+    const cadetList = issueCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
     const selectedInfo = selectedBadge ? '<div style="background:var(--blue-pale);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:8px">Selected: <strong>' + selectedBadge.name + '</strong></div>' : '';
     const issueDisabled = (!selectedBadge || !selectedCadet) ? 'disabled' : '';
     return '<div id="badge-issue-error"></div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' + catChips + '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
         '<div><div class="section-label">Select Badge</div><div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">' + badgeList + '</div></div>' +
-        '<div><div class="section-label">Select Cadet</div><input id="badge-cadet-search" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">' + cadetList + '</div></div>' +
+        '<div><div class="section-label">Select Cadet</div>' + issueFlightChips + '<input id="badge-cadet-search" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">' + cadetList + '</div></div>' +
       '</div>' +
       '<div style="margin-top:12px">' + selectedInfo + '<button class="btn btn-primary" id="badge-issue-confirm" ' + issueDisabled + '>Issue Badge to Cadet</button></div>';
   }
 
   function cadetViewHTML() {
-    const cadetList = activeCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id2="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
-    return '<div class="section-label">Select Cadet</div><input id="badge-cadet-search2" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:16px">' + cadetList + '</div><div id="cadet-badge-history">' + (selectedCadet ? '<div class="loading-text">Select a cadet above</div>' : '<div class="empty">Select a cadet to view their badges</div>') + '</div>';
+    const cvFlights = [...new Set(activeCadets.map(c=>c.flight).filter(Boolean))].sort();
+    const cvFlightChips = cvFlights.length > 1
+      ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">' +
+        '<button class="chip' + (!badgeCadetFlight ? ' active' : '') + '" data-bcf="all">All</button>' +
+        cvFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bcf="' + f + '">' + f + '</button>').join('') +
+        '</div>' : '';
+    const cvCadets = badgeCadetFlight ? activeCadets.filter(c => c.flight === badgeCadetFlight) : activeCadets;
+    const cadetList = cvCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id2="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
+    return '<div class="section-label">Select Cadet</div>' + cvFlightChips + '<input id="badge-cadet-search2" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:16px">' + cadetList + '</div><div id="cadet-badge-history">' + (selectedCadet ? '<div class="loading-text">Select a cadet above</div>' : '<div class="empty">Select a cadet to view their badges</div>') + '</div>';
   }
 
   function render() {
@@ -2585,16 +2618,16 @@ async function openBadgeTracker(startView=null, startCat=null) {
 
     // Home tile clicks
     document.querySelectorAll('[data-cat-tile]').forEach(btn => {
-      btn.onclick = () => { selectedCat = btn.dataset.catTile; view = 'stock'; render(); };
+      btn.onclick = () => { selectedCat = btn.dataset.catTile; addStockBadgeId = null; view = 'stock'; render(); };
     });
     document.getElementById('bt-cadet-view')?.addEventListener('click', () => { view = 'cadet'; render(); });
     document.getElementById('bt-back')?.addEventListener('click', () => {
-      if (view === 'issue') { view = 'stock'; render(); }
-      else { view = 'home'; selectedCat = null; render(); }
+      if (view === 'issue') { view = 'stock'; addStockBadgeId = null; render(); }
+      else { view = 'home'; selectedCat = null; addStockBadgeId = null; render(); }
     });
 
     // Stock view tabs
-    document.getElementById('bv-stock')?.addEventListener('click', () => { view = 'stock'; render(); });
+    document.getElementById('bv-stock')?.addEventListener('click', () => { addStockBadgeId = null; view = 'stock'; render(); });
     document.getElementById('bv-issue')?.addEventListener('click', () => { view = 'issue'; render(); });
 
     // Category chips in issue view
@@ -2602,19 +2635,37 @@ async function openBadgeTracker(startView=null, startCat=null) {
       chip.onclick = () => { selectedCat = chip.dataset.cat; selectedBadge = null; render(); };
     });
 
-    // Add stock
-    document.querySelectorAll('.badge-add-stock').forEach(btn => {
-      btn.onclick = async () => {
-        const qty = parseInt(prompt("Add stock for " + btn.dataset.name + " - how many to add?"));
-        if (!qty || qty < 1) return;
-        await PATCH('/badges/stock/' + btn.dataset.id, { quantity: qty });
-        // Reload from server to get accurate quantities
-        const fresh = await GET('/badges/items');
-        allBadges.length = 0; fresh.forEach(b => allBadges.push(b));
-        badges.length = 0; fresh.filter(b => b.routine_stock || b.quantity > 0).forEach(b => badges.push(b));
-        render();
-      };
+    // Flight chips in issue/cadet view
+    document.querySelectorAll('[data-bif]').forEach(chip => {
+      chip.onclick = () => { badgeCadetFlight = chip.dataset.bif === 'all' ? null : chip.dataset.bif; render(); };
     });
+    document.querySelectorAll('[data-bcf]').forEach(chip => {
+      chip.onclick = () => { badgeCadetFlight = chip.dataset.bcf === 'all' ? null : chip.dataset.bcf; render(); };
+    });
+
+    // Add stock — inline form
+    document.querySelectorAll('.badge-add-stock').forEach(btn => {
+      btn.onclick = () => { addStockBadgeId = parseInt(btn.dataset.id); render(); };
+    });
+    document.getElementById('stock-qty-cancel')?.addEventListener('click', () => { addStockBadgeId = null; render(); });
+    const stockQtySubmit = document.getElementById('stock-qty-submit');
+    if (stockQtySubmit) {
+      document.getElementById('stock-qty-input')?.focus();
+      document.getElementById('stock-qty-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') stockQtySubmit.click(); });
+      stockQtySubmit.onclick = async () => {
+        const qty = parseInt(document.getElementById('stock-qty-input')?.value);
+        if (!qty || qty < 1) return;
+        stockQtySubmit.disabled = true; stockQtySubmit.textContent = 'Adding...';
+        try {
+          await PATCH('/badges/stock/' + stockQtySubmit.dataset.id, { quantity: qty });
+          const fresh = await GET('/badges/items');
+          allBadges.length = 0; fresh.forEach(b => allBadges.push(b));
+          badges.length = 0; fresh.filter(b => b.routine_stock || b.quantity > 0).forEach(b => badges.push(b));
+          addStockBadgeId = null;
+          render();
+        } catch(e) { stockQtySubmit.disabled = false; stockQtySubmit.textContent = 'Add'; alert('Error: ' + e.message); }
+      };
+    }
 
     // Badge select in issue view
     document.querySelectorAll('[data-badge-id]').forEach(el => {
