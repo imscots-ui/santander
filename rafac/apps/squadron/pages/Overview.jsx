@@ -27,15 +27,20 @@ const CAT_COLOR = {
 };
 
 const QUICK_LINKS = [
-  { icon:'📨', label:'Compose message',    hint:'Send to all parents' },
-  { icon:'🏆', label:'Classification',     hint:'2 cadets ready to advance' },
-  { icon:'🥾', label:'DofE tracker',       hint:'4 cadets enrolled' },
-  { icon:'⚠️', label:'Risk assessments',  hint:'1 awaiting sign-off' },
-  { icon:'💷', label:'Budget',             hint:'£1,847 bank balance' },
-  { icon:'🥁', label:'Band',               hint:'Next practice 26 Jun' },
+  { icon:'📨', label:'Compose message',    hint:'Send to all parents',        page:'comms' },
+  { icon:'🏆', label:'Classification',     hint:'2 cadets ready to advance',  page:'classification' },
+  { icon:'🥾', label:'DofE tracker',       hint:'4 cadets enrolled',          page:'dofe' },
+  { icon:'⚠️', label:'Risk assessments',  hint:'1 awaiting sign-off',        page:'riskassessment' },
+  { icon:'💷', label:'Budget',             hint:'£1,847 bank balance',        page:'budget' },
+  { icon:'🥁', label:'Band',               hint:'Next practice 26 Jun',       page:'band' },
 ];
 
-export default function Overview({ showToast, auditLog = [] }) {
+const ACTION_NAV = {
+  'Send Reminder':'comms', 'View Profile':'cadets', 'Request TG23':'consents',
+  'Contact Parent':'comms', 'Sign Off':'riskassessment', 'View DofE':'dofe', 'View Event':'programme',
+};
+
+export default function Overview({ showToast, auditLog = [], navigate }) {
   const issues   = CADETS.filter(c => c.issue).length;
   const highAtt  = CADETS.filter(c => c.att >= 90).length;
   const strength = CADETS.length;
@@ -91,7 +96,7 @@ export default function Overview({ showToast, auditLog = [] }) {
                   <span style={{ background:s.bg, color:s.color, fontSize:9, fontWeight:700, padding:'1px 6px', borderRadius:6, marginRight:6 }}>{a.type}</span>
                   <span style={{ fontSize:13, color:'#0D1B2E' }}>{a.text}</span>
                 </div>
-                <button onClick={() => showToast(`▶ ${a.btn}: ${a.text.split('—')[0].trim()}`)}
+                <button onClick={() => { const pg = ACTION_NAV[a.btn]; if (pg && navigate) navigate(pg); else showToast(`▶ ${a.btn}: ${a.text.split('—')[0].trim()}`); }}
                   style={{ padding:'5px 12px', background:navy, color:'white', border:'none', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
                   {a.btn}
                 </button>
@@ -125,7 +130,7 @@ export default function Overview({ showToast, auditLog = [] }) {
         <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Quick Access</div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10 }}>
           {QUICK_LINKS.map(q => (
-            <button key={q.label} onClick={() => showToast(`Opening: ${q.label}`)}
+            <button key={q.label} onClick={() => navigate ? navigate(q.page) : showToast(`Opening: ${q.label}`)}
               style={{ background:'#F4F7FB', border:`1px solid ${border}`, borderRadius:9, padding:'14px 10px', cursor:'pointer', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
               <span style={{ fontSize:24 }}>{q.icon}</span>
               <div style={{ fontSize:11, fontWeight:700, color:navy }}>{q.label}</div>

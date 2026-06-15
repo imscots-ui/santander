@@ -105,6 +105,8 @@ export default function WingApp() {
     { id:'hs',        icon:'🛡️', label:'H&S Compliance' },
     { id:'dofe',      icon:'🥾', label:'DofE & Awards' },
     { id:'sg',        icon:'🧒', label:'Safeguarding' },
+    { id:'flying',    icon:'✈️', label:'Flying' },
+    { id:'shooting',  icon:'🎯', label:'Shooting' },
     { id:'audit',     icon:'📋', label:'Audit Log' },
   ];
 
@@ -431,6 +433,178 @@ export default function WingApp() {
                   </div>
                 ))}
               </Card>
+            </div>
+          </>
+        )}
+
+        {page === 'flying' && (
+          <>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy, marginBottom:4 }}>Flying — West Scotland Sector</div>
+            <div style={{ fontSize:12, color:muted, marginBottom:20 }}>AEF quotas, GIF allocations, and scholarship nominations · Training Year 2025–2026</div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+              {[
+                { label:'AEF flights (sector)', value:47, sub:'Vs 52 allocated', accent:navy },
+                { label:'GIF flights (sector)',  value:31, sub:'Vs 36 allocated', accent:'#1E40AF' },
+                { label:'Scholarship holders',   value:11, sub:'GS: 8 · FS: 3',  accent:'#1B6B3A' },
+                { label:'GS nominations open',   value:3,  sub:'Deadline 30 Jun', accent:'#92400E' },
+              ].map(t=>(
+                <Card key={t.label}>
+                  <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:32, fontWeight:800, color:t.accent }}>{t.value}</div>
+                  <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+                </Card>
+              ))}
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:14, marginBottom:14 }}>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Squadron Flying Summary</div>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+                  <thead><tr style={{ background:'#F4F7FB' }}>
+                    {['Squadron','AEF','GIF','GS Holders','FS Holders','Quota Used'].map(h=>(
+                      <th key={h} style={{ padding:'8px 10px', textAlign:'left', color:muted, fontSize:10, fontWeight:700, textTransform:'uppercase' }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {[
+                      { sqn:'1701 (Johnstone)', aef:7, gif:5, gs:1, fs:0, quota:85 },
+                      { sqn:'342 (Paisley)',    aef:12, gif:8, gs:3, fs:1, quota:91 },
+                      { sqn:'1944 (Renfrew)',   aef:8,  gif:5, gs:2, fs:0, quota:77 },
+                      { sqn:'1138 (Greenock)',  aef:10, gif:7, gs:1, fs:1, quota:83 },
+                      { sqn:'2462 (Port Glasgow)', aef:6, gif:4, gs:1, fs:1, quota:71 },
+                      { sqn:'414 (Gourock)',    aef:4,  gif:2, gs:0, fs:0, quota:50 },
+                    ].map((r,i)=>(
+                      <tr key={r.sqn} style={{ borderTop:`1px solid ${border}`, background:i%2?'#fafcfe':'white' }}>
+                        <td style={{ padding:'10px 10px', fontWeight:700, color:navy }}>{r.sqn}</td>
+                        <td style={{ padding:'10px 10px' }}>{r.aef}</td>
+                        <td style={{ padding:'10px 10px' }}>{r.gif}</td>
+                        <td style={{ padding:'10px 10px', color:'#1B6B3A', fontWeight:700 }}>{r.gs}</td>
+                        <td style={{ padding:'10px 10px', color:'#C8A032', fontWeight:700 }}>{r.fs}</td>
+                        <td style={{ padding:'10px 10px' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                            <div style={{ width:60, height:6, background:'#EEF2F8', borderRadius:3, overflow:'hidden' }}>
+                              <div style={{ width:`${r.quota}%`, height:'100%', background:r.quota>=85?'#1B6B3A':r.quota>=70?'#C8A032':'#C8102E', borderRadius:3 }} />
+                            </div>
+                            <span style={{ fontSize:11, fontWeight:700 }}>{r.quota}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Scholarship Nominees 2026</div>
+                {[
+                  { name:'Mitchell, S — 1701', type:'GS', status:'Submitted', statusBg:'#D1FAE5', statusColor:'#065F46' },
+                  { name:'Davidson, K — 342',   type:'GS', status:'Submitted', statusBg:'#D1FAE5', statusColor:'#065F46' },
+                  { name:'Ahmed, R — 342',      type:'GS', status:'Under review', statusBg:'#FEF3C7', statusColor:'#92400E' },
+                  { name:'Wilson, T — 2462',    type:'FS', status:'Submitted', statusBg:'#D1FAE5', statusColor:'#065F46' },
+                ].map((n,i)=>(
+                  <div key={i} style={{ padding:'9px 0', borderBottom:`1px solid ${border}` }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                      <div>
+                        <div style={{ fontSize:12, fontWeight:700, color:'#0D1B2E' }}>{n.name}</div>
+                        <div style={{ fontSize:10, color:muted, marginTop:2 }}>
+                          <span style={{ background: n.type==='GS'?'#166534':'#C8A032', color: n.type==='GS'?'white':'#00264D', padding:'1px 6px', borderRadius:8, fontWeight:700, fontSize:9, marginRight:4 }}>{n.type}</span>
+                          Scholarship
+                        </div>
+                      </div>
+                      <span style={{ background:n.statusBg, color:n.statusColor, fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{n.status}</span>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ marginTop:12, background:'#EAF4FF', border:'1px solid #B3D4F0', borderRadius:8, padding:'10px 12px', fontSize:11, color:'#00386B' }}>
+                  ℹ️ GS/FS nominations close <strong>30 Jun 2026</strong>. 3 slots remaining across sector.
+                </div>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {page === 'shooting' && (
+          <>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy, marginBottom:4 }}>Shooting — West Scotland Sector</div>
+            <div style={{ fontSize:12, color:muted, marginBottom:20 }}>WTSA competitions, Bisley qualifications, Wing classification standings</div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+              {[
+                { label:'Classified shooters', value:38, sub:'Across sector', accent:navy },
+                { label:'Marksmanship holders', value:4, sub:'Sector Marksmanship', accent:'#1B6B3A' },
+                { label:'Bisley qualifiers',    value:8, sub:'Selected for Aug 2026', accent:'#C8A032' },
+                { label:'Competitions this yr', value:3, sub:'1 remaining', accent:'#5A7090' },
+              ].map(t=>(
+                <Card key={t.label}>
+                  <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:32, fontWeight:800, color:t.accent }}>{t.value}</div>
+                  <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+                </Card>
+              ))}
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr', gap:14 }}>
+              <Card>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Squadron Shooting Summary</div>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+                  <thead><tr style={{ background:'#F4F7FB' }}>
+                    {['Squadron','Marksmanship','1st Class','2nd Class','3rd Class','Bisley Team'].map(h=>(
+                      <th key={h} style={{ padding:'8px 10px', textAlign:'left', color:muted, fontSize:10, fontWeight:700, textTransform:'uppercase' }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {[
+                      { sqn:'1701 (Johnstone)', m:1, c1:1, c2:1, c3:1, bisley:2 },
+                      { sqn:'342 (Paisley)',    m:1, c1:3, c2:4, c3:3, bisley:2 },
+                      { sqn:'1944 (Renfrew)',   m:0, c1:2, c2:3, c3:2, bisley:1 },
+                      { sqn:'1138 (Greenock)',  m:1, c1:2, c2:2, c3:3, bisley:2 },
+                      { sqn:'2462 (Port Glasgow)', m:1, c1:2, c2:3, c3:2, bisley:1 },
+                      { sqn:'414 (Gourock)',    m:0, c1:0, c2:2, c3:2, bisley:0 },
+                    ].map((r,i)=>(
+                      <tr key={r.sqn} style={{ borderTop:`1px solid ${border}`, background:i%2?'#fafcfe':'white' }}>
+                        <td style={{ padding:'10px 10px', fontWeight:700, color:navy }}>{r.sqn}</td>
+                        <td style={{ padding:'10px 10px', color:'#1B6B3A', fontWeight:700 }}>{r.m}</td>
+                        <td style={{ padding:'10px 10px' }}>{r.c1}</td>
+                        <td style={{ padding:'10px 10px' }}>{r.c2}</td>
+                        <td style={{ padding:'10px 10px', color:muted }}>{r.c3}</td>
+                        <td style={{ padding:'10px 10px' }}>
+                          <span style={{ background:'#EAF4FF', color:'#00386B', fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{r.bisley} selected</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+
+              <div>
+                <Card style={{ marginBottom:14 }}>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:12 }}>Competition Calendar</div>
+                  {[
+                    { name:'WTSA Regional Heat 1', date:'8 Mar 2026', result:'Complete', resultColor:'#1B6B3A', winner:'342 (Paisley)' },
+                    { name:'WTSA Regional Heat 2', date:'12 Apr 2026', result:'Complete', resultColor:'#1B6B3A', winner:'1138 (Greenock)' },
+                    { name:'West Scotland Final',   date:'14 Sep 2026', result:'Upcoming', resultColor:'#92400E', winner:null },
+                    { name:'Bisley — National',     date:'1–6 Aug 2026', result:'Upcoming', resultColor:'#92400E', winner:null },
+                  ].map((c,i)=>(
+                    <div key={i} style={{ padding:'9px 0', borderBottom:i<3?`1px solid ${border}`:'none' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                        <div>
+                          <div style={{ fontSize:12, fontWeight:700, color:'#0D1B2E' }}>{c.name}</div>
+                          <div style={{ fontSize:11, color:muted, marginTop:2 }}>{c.date}{c.winner ? ` · Won: ${c.winner}` : ''}</div>
+                        </div>
+                        <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:10, background:c.result==='Complete'?'#D1FAE5':'#FEF3C7', color:c.resultColor, flexShrink:0, marginLeft:8 }}>{c.result}</span>
+                      </div>
+                    </div>
+                  ))}
+                </Card>
+                <Card>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:10 }}>Wing Range Safety Officer</div>
+                  <div style={{ background:navy, borderRadius:8, padding:'12px 14px' }}>
+                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:3 }}>Wing RSO</div>
+                    <div style={{ fontSize:14, fontWeight:800, color:'white' }}>WO M. Davies</div>
+                    <div style={{ fontSize:12, fontWeight:700, color:gold, marginTop:6 }}>📞 07700 900777</div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </>
         )}

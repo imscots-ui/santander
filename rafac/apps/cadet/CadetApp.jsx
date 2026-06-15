@@ -58,6 +58,11 @@ const DOFE = {
 
 const RANK_LADDER = ['Cdt','LCdt','Cpl','Sgt','FS','WO'];
 
+const ATTENDANCE_HISTORY = [
+  { month:'Jan', pct:100 }, { month:'Feb', pct:75 }, { month:'Mar', pct:100 },
+  { month:'Apr', pct:90 },  { month:'May', pct:85 }, { month:'Jun', pct:100 },
+];
+
 function ProgressBar({ value, max, color }) {
   return (
     <div style={{ height:8, background:'rgba(255,255,255,0.1)', borderRadius:4, overflow:'hidden' }}>
@@ -264,12 +269,71 @@ export default function CadetApp() {
 
         {tab === 'me' && (
           <div>
-            {[['Name', CADET.name],['Service No.', CADET.svc],['Rank', CADET.rank],['Squadron', CADET.sqn],['Classification', CADET.pts],['Joined', CADET.joined]].map(([l,v])=>(
-              <div key={l} style={{ padding:'14px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-                <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>{l}</div>
-                <div style={{ fontSize:14, fontWeight:600 }}>{v}</div>
+            {/* Profile card */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:16, marginBottom:14 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
+                <div style={{ width:52, height:52, borderRadius:'50%', background:`conic-gradient(#003087 0deg 120deg,#fff 120deg 240deg,${red} 240deg 360deg)`, border:`2px solid ${gold}`, flexShrink:0 }} />
+                <div>
+                  <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:20, fontWeight:800 }}>{CADET.name}</div>
+                  <div style={{ fontSize:13, color:gold }}>{CADET.rank} · {CADET.sqn}</div>
+                </div>
               </div>
-            ))}
+              {[['Service No.', CADET.svc],['Classification', CADET.pts],['Joined', CADET.joined],['Next rank', CADET.nextRank]].map(([l,v])=>(
+                <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.06em' }}>{l}</div>
+                  <div style={{ fontSize:13, fontWeight:600 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Attendance chart */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:16, marginBottom:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Attendance</div>
+                <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80' }}>92%</div>
+              </div>
+              <div style={{ display:'flex', gap:6, alignItems:'flex-end', height:44 }}>
+                {ATTENDANCE_HISTORY.map(a => (
+                  <div key={a.month} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
+                    <div style={{ width:'100%', height:`${(a.pct/100)*32}px`, borderRadius:3, minHeight:4,
+                      background:a.pct>=90?'#4ade80':a.pct>=75?gold:'#f87171', transition:'height 0.4s' }} />
+                    <div style={{ fontSize:8, color:'rgba(255,255,255,0.3)' }}>{a.month}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginTop:8 }}>This term: 11/12 parade nights · Above 90% threshold ✓</div>
+            </div>
+
+            {/* Flying record */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:16, marginBottom:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:12 }}>Flying Record</div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:12 }}>
+                {[['AEF Flights','2'],['GIF Flights','3'],['Flying hrs','4.5h']].map(([l,v])=>(
+                  <div key={l} style={{ background:'rgba(255,255,255,0.06)', borderRadius:8, padding:'10px 6px', textAlign:'center' }}>
+                    <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:'#93C5FD' }}>{v}</div>
+                    <div style={{ fontSize:9, color:'rgba(255,255,255,0.4)', marginTop:2 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                <span style={{ background:'#1E40AF', color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20 }}>✈️ Blue Wings</span>
+                <span style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>Last flight 14 Mar 2026 · GS Nominee</span>
+              </div>
+            </div>
+
+            {/* Shooting */}
+            <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:10, padding:16, marginBottom:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Shooting</div>
+                <span style={{ background:'#1B6B3A', color:'white', fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20 }}>1st Class</span>
+              </div>
+              {[['Best score','191 / 200'],['Last practice','10 Jun 2026'],['Competitions','2 this year']].map(([l,v])=>(
+                <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{l}</div>
+                  <div style={{ fontSize:12, fontWeight:600 }}>{v}</div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

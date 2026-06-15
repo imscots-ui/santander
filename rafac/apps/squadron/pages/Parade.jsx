@@ -4,13 +4,24 @@ import { PARADE_NIGHTS } from '../../../data/events.js';
 
 const navy = '#00264D', gold = '#C8A032', muted = '#5A7090', border = '#D0DCF0';
 
-export default function Parade({ showToast }) {
+const TONIGHT = [
+  { time:'1900', activity:'Inspection & Roll Call', lead:'OC' },
+  { time:'1910', activity:'Drill — About Turn & Saluting', lead:'Sgt Thomas' },
+  { time:'1940', activity:'Airmanship: Aircraft Identification', lead:'Plt Off Smith' },
+  { time:'2010', activity:'First Aid refresher — CPR', lead:'Sqn Ldr Harris' },
+  { time:'2040', activity:'DofE briefing (Gold nominees)', lead:'OC' },
+  { time:'2055', activity:'Dismiss', lead:'OC' },
+];
+
+export default function Parade({ showToast, addAudit }) {
   const [attendance, setAttendance] = useState(() => {
     const init = {};
     CADETS.forEach(c => { init[c.id] = 'present'; });
     return init;
   });
   const [qrOpen, setQrOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [notes, setNotes] = useState('');
 
   const present  = CADETS.filter(c => attendance[c.id] === 'present').length;
   const absent   = CADETS.filter(c => attendance[c.id] === 'absent').length;
@@ -29,6 +40,23 @@ export default function Parade({ showToast }) {
     apology: { bg:'#FFF3CC', color:'#7A4A00', label:'E' },
   };
 
+  function markAll(status) {
+    const next = {};
+    CADETS.forEach(c => { next[c.id] = status; });
+    setAttendance(next);
+  }
+
+  function saveAttendance() {
+    const p = CADETS.filter(c => attendance[c.id]==='present').length;
+    const a = CADETS.filter(c => attendance[c.id]==='absent').length;
+    const e = CADETS.filter(c => attendance[c.id]==='apology').length;
+    addAudit?.(`Parade saved: ${p}P / ${a}A / ${e}E — ${Math.round((p/CADETS.length)*100)}% attendance`, 'Parade');
+    showToast(`✅ Attendance saved — ${p} present, ${a} absent, ${e} excused`);
+    setSaved(true);
+  }
+
+  const lowAtt = CADETS.filter(c => c.att < 75);
+
   return (
     <div>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
@@ -41,6 +69,23 @@ export default function Parade({ showToast }) {
           <button onClick={() => showToast('📥 Exporting attendance sheet…')} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📥 Export</button>
         </div>
       </div>
+
+      {/* Welfare alert */}
+      {lowAtt.length > 0 && (
+        <div style={{ background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:10, padding:'12px 16px', marginBottom:16, display:'flex', gap:10, alignItems:'flex-start' }}>
+          <span style={{ fontSize:18 }}>⚠️</span>
+          <div>
+            <div style={{ fontWeight:700, color:'#92400E', fontSize:13, marginBottom:4 }}>Low attendance — welfare check recommended</div>
+            <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+              {lowAtt.map(c => (
+                <span key={c.id} style={{ background:'#FDE68A', color:'#78350F', fontSize:11, fontWeight:700, padding:'2px 9px', borderRadius:20 }}>
+                  {c.rank} {c.sn} ({c.att}%)
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:12, marginBottom:20 }}>
@@ -59,7 +104,13 @@ export default function Parade({ showToast }) {
 
       {/* Attendance grid */}
       <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px', marginBottom:20 }}>
-        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:4 }}>Roll Call</div>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+          <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy }}>Roll Call</div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={() => markAll('present')} style={{ padding:'5px 12px', background:'#D4EDDA', color:'#0F4020', border:'1px solid #A7D5B4', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer' }}>All Present</button>
+            <button onClick={() => markAll('absent')} style={{ padding:'5px 12px', background:'#F8D7DA', color:'#8B1A1A', border:'1px solid #F0B0B5', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer' }}>All Absent</button>
+          </div>
+        </div>
         <div style={{ fontSize:11, color:muted, marginBottom:14 }}>Click a cadet to cycle: Present → Absent → Excused</div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(160px, 1fr))', gap:10 }}>
           {CADETS.map(c => {
@@ -76,6 +127,29 @@ export default function Parade({ showToast }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Tonight's programme */}
+      <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px', marginBottom:20 }}>
+        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Tonight's Programme</div>
+        {TONIGHT.map((t, i) => (
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:14, padding:'8px 0', borderBottom: i < TONIGHT.length-1 ? `1px solid ${border}` : 'none' }}>
+            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:13, fontWeight:800, color:navy, minWidth:36 }}>{t.time}</div>
+            <div style={{ flex:1, fontSize:13, color:'#0D1B2E' }}>{t.activity}</div>
+            <div style={{ fontSize:11, color:muted }}>{t.lead}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Notes + save */}
+      <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px', marginBottom:20 }}>
+        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:10 }}>Parade Notes</div>
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Record what was covered tonight, any issues, reminders for next week…"
+          style={{ width:'100%', padding:'10px 12px', border:`1.5px solid ${border}`, borderRadius:8, fontSize:13, minHeight:80, resize:'vertical', fontFamily:'Barlow,sans-serif', boxSizing:'border-box', marginBottom:12 }} />
+        <button onClick={saveAttendance}
+          style={{ padding:'10px 24px', background: saved ? '#1B6B3A' : navy, color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+          {saved ? '✅ Attendance saved' : '💾 Save tonight\'s attendance'}
+        </button>
       </div>
 
       {/* Historical */}

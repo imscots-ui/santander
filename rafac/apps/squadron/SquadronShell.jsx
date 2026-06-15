@@ -15,6 +15,8 @@ import RiskAssessment  from './pages/RiskAssessment.jsx';
 import Promotions      from './pages/Promotions.jsx';
 import Band            from './pages/Band.jsx';
 import Shooting        from './pages/Shooting.jsx';
+import AEF             from './pages/AEF.jsx';
+import Staff           from './pages/Staff.jsx';
 import Compliance      from './pages/Compliance.jsx';
 import Safeguarding    from './pages/Safeguarding.jsx';
 import AuditLog        from './pages/AuditLog.jsx';
@@ -40,7 +42,9 @@ const NAV = [
   { id:'promotions',     icon:'🎖️', label:'Promotions' },
   { id:'band',           icon:'🥁', label:'Band & Music' },
   { id:'shooting',       icon:'🎯', label:'Shooting Register' },
+  { id:'aef',            icon:'✈️', label:'AEF & Flying' },
   { section:'COMPLIANCE & RECORDS' },
+  { id:'staff',          icon:'👮', label:'Staff Register' },
   { id:'compliance',     icon:'🛡️', label:'Compliance' },
   { id:'safeguarding',   icon:'🧒', label:'Safeguarding' },
   { id:'audit',          icon:'📋', label:'Audit Log' },
@@ -65,11 +69,11 @@ export default function SquadronShell({ showToast }) {
 
   function renderPage() {
     switch (page) {
-      case 'overview':       return <Overview       showToast={showToast} auditLog={auditLog} />;
+      case 'overview':       return <Overview       showToast={showToast} auditLog={auditLog} navigate={setPage} />;
       case 'cadets':         return <CadetRegister  showToast={showToast} />;
       case 'applicants':     return <Applicants     showToast={showToast} />;
       case 'consents':       return <Consents       showToast={showToast} />;
-      case 'parade':         return <Parade         showToast={showToast} />;
+      case 'parade':         return <Parade         showToast={showToast} addAudit={addAudit} />;
       case 'kit':            return <KitStores      showToast={showToast} addAudit={addAudit} />;
       case 'comms':          return <Comms          showToast={showToast} addAudit={addAudit} />;
       case 'budget':         return <Budget         showToast={showToast} addAudit={addAudit} />;
@@ -81,6 +85,8 @@ export default function SquadronShell({ showToast }) {
       case 'promotions':     return <Promotions     showToast={showToast} addAudit={addAudit} />;
       case 'band':           return <Band           showToast={showToast} addAudit={addAudit} />;
       case 'shooting':       return <Shooting       showToast={showToast} addAudit={addAudit} />;
+      case 'aef':            return <AEF            showToast={showToast} addAudit={addAudit} />;
+      case 'staff':          return <Staff          showToast={showToast} addAudit={addAudit} />;
       case 'compliance':     return <Compliance     showToast={showToast} addAudit={addAudit} />;
       case 'safeguarding':   return <Safeguarding   showToast={showToast} addAudit={addAudit} />;
       case 'audit':          return <AuditLog       auditLog={auditLog} />;
