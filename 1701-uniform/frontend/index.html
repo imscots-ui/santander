@@ -1382,17 +1382,36 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
 async function openSearchUniform() {
   const [items] = await Promise.all([loadItems(), loadStock()]);
   let selectedItem = null;
+  let srchCat = null;
+  const categories = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
+
+  function applyStockFilter() {
+    const s = document.getElementById('stock-search')?.value?.toLowerCase()||'';
+    document.querySelectorAll('.item-card[data-name]').forEach(card => {
+      const matchSearch = !s || card.dataset.name.includes(s);
+      const matchCat = !srchCat || card.dataset.cat === srchCat;
+      card.style.display = (matchSearch && matchCat) ? '' : 'none';
+    });
+    document.querySelectorAll('.srch-cat-chip').forEach(chip => {
+      const on = chip.dataset.cat === srchCat;
+      chip.style.background = on ? 'var(--blue)' : '';
+      chip.style.color = on ? 'white' : '';
+      chip.style.borderColor = on ? 'var(--blue)' : '';
+    });
+  }
 
   function renderSearch() {
     const stockMap={}; (S.stock||[]).forEach(s=>{stockMap[`${s.item_id}-${s.size_id}`]=s.quantity;});
 
     showModal(`${mHead('SEARCH UNIFORM STOCK')}<div class="modal-body">
-      <div class="search-wrap" style="margin-bottom:16px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
+      <div class="search-wrap" style="margin-bottom:${!selectedItem&&categories.length>1?'8':'16'}px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
+      ${!selectedItem&&categories.length>1?`<div id="srch-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+        ${categories.map(c=>`<button class="btn btn-ghost srch-cat-chip" data-cat="${c}" style="padding:4px 12px;font-size:12px">${c}</button>`).join('')}
+      </div>`:''}
       ${!selectedItem?`<div id="stock-item-grid" class="item-grid">${items.map(i=>{
         const totalStock = i.sizes ? i.sizes.reduce((sum,s)=>{return sum+(stockMap[i.id+'-'+s.id]||0);},0) : 0;
         const lowSizes = i.sizes ? i.sizes.filter(s=>{const q=stockMap[i.id+'-'+s.id]??0;return q>0&&q<=3;}).length : 0;
-        const isLow = totalStock>0 && lowSizes>0 && totalStock<=3*Math.max(1,i.sizes?.length||1);
-        return `<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}" style="${totalStock===0?'opacity:0.5':''}${lowSizes>0&&totalStock<=lowSizes*3?';border-color:#d97706':''}" title="${lowSizes>0?lowSizes+' size(s) running low':''}">
+        return `<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}" data-cat="${i.category||''}" style="${totalStock===0?'opacity:0.5':''}${lowSizes>0&&totalStock<=lowSizes*3?';border-color:#d97706':''}" title="${lowSizes>0?lowSizes+' size(s) running low':''}">
           <div class="item-card-name">${i.short_name}</div>
           <div class="item-card-cat" style="color:${totalStock===0?'var(--red)':lowSizes>0?'#d97706':'var(--green)'}">${totalStock===0?'Out of stock':lowSizes>0?totalStock+' ('+lowSizes+' low)':totalStock+' in stock'}</div>
         </div>`;
@@ -1404,13 +1423,12 @@ async function openSearchUniform() {
       <button class="btn btn-ghost" data-action="close">Close</button>
     </div>`, true);
 
-    // Live search filter
-    document.getElementById('stock-search')?.addEventListener('input', e => {
-      const s = e.target.value.toLowerCase();
-      document.querySelectorAll('.item-card[data-name]').forEach(card => {
-        card.style.display = card.dataset.name.includes(s) ? '' : 'none';
-      });
+    document.getElementById('stock-search')?.addEventListener('input', applyStockFilter);
+    document.querySelectorAll('.srch-cat-chip').forEach(chip => {
+      chip.onclick = () => { srchCat = srchCat===chip.dataset.cat ? null : chip.dataset.cat; applyStockFilter(); };
     });
+    // Restore chip highlight state after re-render
+    if (srchCat) applyStockFilter();
 
     document.getElementById('srch-back')?.addEventListener('click', () => { selectedItem=null; renderSearch(); });
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderSearch(); }; });
