@@ -135,6 +135,24 @@ export default function Programme({ showToast, addAudit }) {
     addAudit?.('Programme', 'Notes', `Opened notes editor for ${term}`);
   }
 
+  function exportProgrammeCSV() {
+    const header = 'Date,Session,Type,Subjects,Lead Instructor,Notes\n';
+    const rows = termSessions.map(s => {
+      const type = getSessionType(s);
+      const subNames = s.subjects.map(sid => SUBJECT_MAP[sid]?.name || sid).join('; ');
+      return [s.date, s.label, type, subNames, s.lead, s.notes || ''].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
+    }).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `1701-programme-${term.replace(/\s/g,'-')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit?.(`${term} programme exported to CSV`, 'Programme', `${termSessions.length} sessions`);
+    showToast(`📊 Programme CSV downloaded: ${term}`);
+  }
+
   function printTonightsProgramme() {
     const tonight = termSessions.find(s => !isPast(s.date) && !isToday(s.date)) || termSessions[0];
     if (!tonight) { showToast('No upcoming sessions found'); return; }
@@ -337,6 +355,10 @@ export default function Programme({ showToast, addAudit }) {
               </button>
             ))}
           </div>
+          <button onClick={exportProgrammeCSV}
+            style={{ padding:'7px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+            📊 Export CSV
+          </button>
           <button onClick={printTermProgramme}
             style={{ padding:'7px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
             📄 Print Term

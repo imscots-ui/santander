@@ -77,6 +77,24 @@ export default function Applicants({ showToast, addAudit }) {
     setNewForm({ fn:'', sn:'', dob:'', src:'Walk-in / parade night', contact:'', notes:'' });
   }
 
+  function exportApplicantCSV() {
+    const stageLabels = { enquiry:'Enquiry', invitee:'Invitee', applicant:'Applicant' };
+    const header = 'Stage,Surname,Forename,Age,Unit,Wing,Source,Contact,Notes\n';
+    const rows = applicants.filter(a => !a.rejected).map(a =>
+      [stageLabels[a.status]||a.status, a.sn, a.fn, a.age, a.unit, a.wing, a.src, a.contact, a.notes||'']
+        .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+    ).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '1701-applicants.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit?.('Applicants exported to CSV', 'Applicants', `${applicants.filter(a=>!a.rejected).length} active`);
+    showToast('📊 Applicants CSV downloaded');
+  }
+
   function printApplicantReport() {
     const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     const active = applicants.filter(a => !a.rejected);
@@ -179,6 +197,7 @@ export default function Applicants({ showToast, addAudit }) {
               </button>
             ))}
           </div>
+          <button onClick={exportApplicantCSV} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📊 Export CSV</button>
           <button onClick={printApplicantReport} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📄 Print Report</button>
           <button onClick={() => setShowNew(true)} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>+ New Enquiry</button>
         </div>
