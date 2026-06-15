@@ -1,0 +1,2454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src *; script-src 'self' 'unsafe-inline';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1701 Squadron v3 — Uniform Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #002868;
+  --blue-mid: #0a3d8f;
+  --blue-light: #1557c0;
+  --blue-pale: #e8eef8;
+  --gold: #c9a84c;
+  --red: #c0392b;
+  --red-light: #fee2e2;
+  --green: #166534;
+  --green-light: #dcfce7;
+  --amber: #92400e;
+  --amber-light: #fef3c7;
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --border: #dde3f0;
+  --text: #0d1b3e;
+  --text2: #4a5578;
+  --text3: #9099b5;
+  --mono: 'DM Mono', monospace;
+  --head: 'Bebas Neue', sans-serif;
+  --body: 'Figtree', sans-serif;
+  --r: 10px;
+  --r-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+.login-screen { min-height: 100vh; display: flex; background: var(--blue); position: relative; overflow: hidden; }
+.login-left { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; position: relative; z-index: 2; }
+.login-right { width: 420px; background: white; display: flex; flex-direction: column; justify-content: center; padding: 56px 48px; }
+.login-roundel { width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(#1a5fad 0deg 120deg, #ffffff 120deg 240deg, #c8202d 240deg 360deg); margin-bottom: 24px; box-shadow: 0 0 0 6px rgba(255,255,255,0.1); }
+.login-left h1 { font-family: var(--head); font-size: 64px; color: white; letter-spacing: 0.04em; line-height: 0.9; text-align: center; }
+.login-left p { color: rgba(255,255,255,0.5); font-family: var(--mono); font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 16px; text-align: center; }
+.login-right h2 { font-family: var(--head); font-size: 36px; letter-spacing: 0.05em; color: var(--blue); margin-bottom: 8px; }
+.login-right > p { color: var(--text3); font-size: 13px; margin-bottom: 32px; }
+.login-bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
+
+.home-screen { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { background: var(--blue); padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.topbar-brand { display: flex; align-items: center; gap: 14px; }
+.topbar-roundel { width: 32px; height: 32px; border-radius: 50%; background: conic-gradient(#4a90d9 0deg 120deg, #ffffff 120deg 240deg, #c8202d 240deg 360deg); flex-shrink: 0; }
+.topbar-brand span { font-family: var(--head); font-size: 22px; letter-spacing: 0.08em; color: white; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-user-name { font-size: 13px; font-weight: 600; color: white; line-height: 1.2; text-align: right; }
+.topbar-user-role { font-size: 10px; color: rgba(255,255,255,0.45); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+.btn-signout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); padding: 7px 14px; border-radius: 6px; font-family: var(--body); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.btn-signout:hover { background: rgba(255,255,255,0.18); color: white; }
+
+.home-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; }
+.home-greeting { text-align: center; margin-bottom: 56px; }
+.home-greeting h2 { font-family: var(--head); font-size: 48px; letter-spacing: 0.04em; color: var(--blue); line-height: 1; }
+.home-greeting p { color: var(--text3); font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+.home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 800px; }
+.home-btn { background: white; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 32px 24px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; box-shadow: 0 2px 12px rgba(0,40,104,0.06); position: relative; overflow: hidden; }
+.home-btn::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--blue); transform: scaleX(0); transition: transform 0.2s; pointer-events: none; }
+.home-btn:hover { border-color: var(--blue-light); box-shadow: 0 8px 32px rgba(0,40,104,0.14); transform: translateY(-2px); }
+.home-btn:hover::before { transform: scaleX(1); }
+.home-btn.admin::before { background: var(--gold); }
+.home-btn-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; background: var(--blue-pale); pointer-events: none; }
+.home-btn.green .home-btn-icon { background: var(--green-light); }
+.home-btn.red .home-btn-icon { background: var(--red-light); }
+.home-btn.amber .home-btn-icon { background: var(--amber-light); }
+.home-btn.gold .home-btn-icon { background: #fef9e7; }
+.home-btn-label { font-family: var(--head); font-size: 22px; letter-spacing: 0.05em; color: var(--blue); line-height: 1; pointer-events: none; }
+.home-btn-sub { font-size: 12px; color: var(--text3); line-height: 1.4; pointer-events: none; }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,24,80,0.55); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(4px); animation: fadeIn 0.15s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { background: white; border-radius: var(--r-lg); width: 100%; max-width: 640px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.3); animation: slideUp 0.2s ease; overflow: hidden; }
+.modal-wide { max-width: 860px; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--blue); }
+.modal-title { font-family: var(--head); font-size: 24px; letter-spacing: 0.06em; color: white; }
+.modal-close { background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.7); width: 32px; height: 32px; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.modal-close:hover { background: rgba(255,255,255,0.2); color: white; }
+.modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; background: #fafbfe; }
+
+.form-group { margin-bottom: 18px; }
+label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text2); margin-bottom: 6px; font-family: var(--mono); }
+input, select, textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--body); font-size: 14px; color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; outline: none; appearance: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(21,87,192,0.1); }
+
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 8px; font-family: var(--body); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; white-space: nowrap; }
+.btn-primary { background: var(--blue); color: white; }
+.btn-primary:hover { background: var(--blue-mid); }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { background: #144a2d; }
+.btn-danger { background: var(--red); color: white; }
+.btn-danger:hover { background: #a93226; }
+.btn-ghost { background: white; color: var(--text2); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; border-left: 4px solid; line-height: 1.5; }
+.alert-danger { background: var(--red-light); border-color: var(--red); color: #7f1d1d; }
+.alert-success { background: var(--green-light); border-color: var(--green); color: #14532d; }
+.alert-warning { background: var(--amber-light); border-color: #d97706; color: var(--amber); }
+.alert-info { background: var(--blue-pale); border-color: var(--blue-light); color: var(--blue); }
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 11px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-blue { background: var(--blue-pale); color: var(--blue); }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-red { background: var(--red-light); color: var(--red); }
+.badge-gold { background: #fef9c3; color: #854d0e; }
+.badge-grey { background: #f1f3f9; color: var(--text3); border: 1px solid var(--border); }
+
+.table-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th { background: #f8f9fd; padding: 10px 14px; text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: #f8f9fd; }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 11px 14px; vertical-align: middle; }
+
+.item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.item-card { background: white; border: 1.5px solid var(--border); border-radius: var(--r); padding: 16px; cursor: pointer; transition: all 0.15s; text-align: center; }
+.item-card:hover { border-color: var(--blue-light); background: var(--blue-pale); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,40,104,0.1); }
+.item-card.selected { border-color: var(--blue); background: var(--blue-pale); box-shadow: 0 0 0 2px var(--blue); }
+.item-card-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.item-card-cat { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 4px; }
+
+.size-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.size-btn { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 6px; background: white; font-family: var(--mono); font-size: 13px; cursor: pointer; transition: all 0.12s; color: var(--text); }
+.size-btn:hover { border-color: var(--blue-light); background: var(--blue-pale); }
+.size-btn.selected { border-color: var(--blue); background: var(--blue); color: white; }
+.size-btn.out-of-stock { opacity: 0.4; cursor: not-allowed; }
+.size-btn.low-stock { border-color: #d97706; color: #92400e; }
+
+.cadet-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--r); cursor: pointer; transition: all 0.12s; border: 1.5px solid transparent; }
+.cadet-item:hover { background: var(--blue-pale); border-color: var(--border); }
+.cadet-item.selected { background: var(--blue-pale); border-color: var(--blue); }
+.cadet-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+.cadet-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.cadet-meta { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+
+.search-wrap { position: relative; margin-bottom: 16px; }
+.search-wrap input { padding-left: 38px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; pointer-events: none; }
+
+.section-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text3); margin-bottom: 10px; margin-top: 20px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.section-label:first-child { margin-top: 0; }
+
+.steps { display: flex; gap: 0; margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.step { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); background: #f8f9fd; border-right: 1px solid var(--border); transition: all 0.15s; }
+.step:last-child { border-right: none; }
+.step.active { background: var(--blue); color: white; }
+.step.done { background: var(--green-light); color: var(--green); }
+
+.condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.condition-btn { padding: 20px; border: 2px solid var(--border); border-radius: var(--r); background: white; cursor: pointer; transition: all 0.15s; text-align: center; }
+.condition-btn:hover { border-color: var(--blue-light); }
+.condition-btn.selected-good { border-color: var(--green); background: var(--green-light); }
+.condition-btn.selected-bad { border-color: var(--red); background: var(--red-light); }
+.condition-icon { font-size: 28px; margin-bottom: 8px; }
+.condition-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.condition-sub { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+.empty { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.loading-text { text-align: center; padding: 40px; color: var(--text3); font-family: var(--mono); font-size: 13px; letter-spacing: 0.05em; }
+.chip-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; }
+.chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.12s; color: var(--text2); }
+.chip:hover { border-color: var(--blue-light); color: var(--blue); }
+.chip.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+@media (max-width: 680px) {
+  .login-left { display: none; }
+  .login-right { width: 100%; }
+  .home-grid { grid-template-columns: 1fr 1fr; }
+  .modal { max-width: 100%; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+  [data-theme="dark"] {
+    --blue: #4a90d9;
+    --blue-light: #6aaae8;
+    --blue-pale: #1a2a3e;
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --text: #e8eaf0;
+    --text2: #a0a8b8;
+    --text3: #606880;
+    --border: #2a2d3e;
+    --green: #4caf82;
+    --green-light: #0d2318;
+    --red: #e05555;
+    --gold: #c9a84c;
+  }
+  [data-theme="dark"] .topbar { background: #0d1525; border-bottom: 1px solid #1a2a3e; }
+  [data-theme="dark"] .home-btn { background: #1a1d27; border-color: #2a2d3e; }
+  [data-theme="dark"] .home-btn:hover { background: #222538; }
+  [data-theme="dark"] .modal { background: #1a1d27; }
+  [data-theme="dark"] .modal-header { background: #0d1525; }
+  [data-theme="dark"] .login-screen { background: #0a0e1a; }
+  [data-theme="dark"] .login-right { background: #1a1d27; }
+  [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #0f1117; border-color: #2a2d3e; color: #e8eaf0; }
+  [data-theme="dark"] table thead th { background: #0f1117; color: #a0a8b8; }
+  [data-theme="dark"] table tbody tr:hover { background: #1e2235; }
+  [data-theme="dark"] .item-card { background: #1a1d27; border-color: #2a2d3e; }
+  [data-theme="dark"] .item-card:hover { background: #222538; border-color: var(--blue); }
+  [data-theme="dark"] .cadet-item { background: #1a1d27; }
+  [data-theme="dark"] .cadet-item:hover { background: #222538; }
+  [data-theme="dark"] .staff-select-btn { background: #1a1d27 !important; border-color: #2a2d3e !important; }
+  [data-theme="dark"] .staff-select-btn:hover { background: #222538 !important; border-color: var(--blue) !important; }
+
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const API = 'http://localhost:8000';
+let S = {
+  // No login — staff selected from dropdown
+  user: JSON.parse(sessionStorage.getItem('user')||'null'),
+  error: null,
+  items: null, cadets: null, stock: null, users: null,
+  // Admin auth
+  adminVerified: false,
+};
+
+// Get a token for the current user on demand
+let _tokenCache = null;
+let _tokenExpiry = 0;
+
+async function getToken() {
+  // Use admin account token for all API calls - backend auth still works
+  // We just skip the login screen and select staff from dropdown
+  if (_tokenCache && Date.now() < _tokenExpiry) return _tokenCache;
+  const form = new URLSearchParams({username: 'admin', password: 'Password1!'});
+  const res = await fetch(API + '/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: form.toString()
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  _tokenCache = data.access_token;
+  _tokenExpiry = Date.now() + 55 * 60 * 1000; // 55 min
+  return _tokenCache;
+}
+
+async function api(method, path, body=null) {
+  const h = {'Content-Type':'application/json'};
+  const token = await getToken();
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  const opts = {method, headers:h};
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API+path, opts);
+  if (!res.ok) { const e=await res.json().catch(()=>({detail:'Unknown error'})); throw new Error(e.detail||'Request failed'); }
+  return res.json();
+}
+const GET = p => api('GET',p);
+const POST = (p,b) => api('POST',p,b);
+const PATCH = (p,b) => api('PATCH',p,b);
+const DELETE = p => api('DELETE',p);
+
+async function loadItems() { if (!S.items) S.items = await GET('/items/'); return S.items; }
+async function loadCadets() { S.cadets = await GET('/cadets/?active_only=false'); return S.cadets; }
+async function loadStock() { S.stock = await GET('/stock/'); return S.stock; }
+async function loadUsers() { S.users = await GET('/users/'); return S.users; }
+
+async function loadStaffList() {
+  const res = await fetch(API + '/users/public');
+  if (!res.ok) throw new Error('Could not load staff list');
+  return res.json();
+}
+
+function selectUser(user) {
+  S.user = user;
+  S.adminVerified = false;
+  sessionStorage.setItem('user', JSON.stringify(user));
+  render();
+}
+
+function doLogout() {
+  S.user = null;
+  S.adminVerified = false;
+  S.items = null; S.cadets = null; S.stock = null; S.users = null;
+  sessionStorage.removeItem('user');
+  render();
+}
+
+async function verifyAdminPin(userId, pin) {
+  const res = await fetch(API + '/users/verify-pin', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user_id: userId, pin})
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    throw new Error(e.detail || 'Incorrect PIN');
+  }
+  return res.json();
+}
+
+function render() {
+  document.getElementById('app').innerHTML = !S.user ? staffSelectorHTML() : homeHTML();
+  bind();
+}
+
+function staffSelectorHTML() {
+  return `<div class="login-screen">
+    <div class="login-bg-grid" style="pointer-events:none"></div>
+    <div class="login-left">
+      <img src="1701_crest.png" style="width:200px;height:200px;object-fit:contain;mix-blend-mode:screen;margin-bottom:16px" alt="1701 Crest">
+      <h1>JOHNSTONE<br>SQUADRON</h1>
+      <p>1701 Air Training Corps · Uniform Inventory</p>
+    </div>
+    <div class="login-right">
+      <h2>WHO ARE YOU?</h2>
+      <p style="margin-bottom:20px">Select your name to continue</p>
+      <div id="staff-list" style="display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto">
+        <div style="text-align:center;color:var(--text3);padding:20px;font-family:var(--mono)">Loading staff...</div>
+      </div>
+      <p style="margin-top:16px;font-size:12px;color:var(--text3);text-align:center;font-family:var(--mono)">ROYAL AIR FORCE AIR CADETS</p>
+    </div>
+  </div>`;
+}
+
+function homeHTML() {
+  const isAdmin = S.user?.is_admin;
+  return `<div class="home-screen">
+  <div class="topbar">
+    <div class="topbar-brand"><img src="1701_crest.png" style="width:130px;height:130px;object-fit:contain;mix-blend-mode:screen;margin:-30px 0" alt="1701 Crest"><span>1701 JOHNSTONE SQN</span></div>
+    <div class="topbar-right">
+      <div>
+        <div class="topbar-user-name">${S.user.rank ? S.user.rank+' ' : ''}${S.user.forename} ${S.user.surname}</div>
+        <div class="topbar-user-role">${S.user.role || (isAdmin?'★ Admin':'Staff')}</div>
+      </div>
+      <button class="btn-signout" id="feedback-btn" style="margin-right:-8px;position:relative" title="Notes & Feedback">💬 Notes<span id="feedback-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:white;border-radius:50%;width:16px;height:16px;font-size:10px;line-height:16px;text-align:center"></span></button>
+      <button class="btn-signout" id="dark-mode-btn" style="margin-right:-8px" title="Toggle dark mode">🌙</button>
+      <!-- Change PIN hidden while PINs disabled -->
+      <button class="btn-signout" id="signout-btn">Change User</button>
+    </div>
+  </div>
+  <div class="home-content" style="position:relative">
+  <img src="1701_crest.png" style="position:absolute;width:1400px;height:1400px;object-fit:contain;opacity:0.12;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;mix-blend-mode:multiply" alt="">
+    <div class="home-greeting"><h2>UNIFORM INVENTORY</h2><p>1701 Johnstone Squadron · What would you like to do?</p></div>
+    <div class="home-grid">
+      <button class="home-btn" id="btn-cadets"><div class="home-btn-icon">👤</div><div class="home-btn-label">View Cadets</div><div class="home-btn-sub">Records and kit history</div></button>
+      <button class="home-btn green" id="btn-issue"><div class="home-btn-icon">📤</div><div class="home-btn-label">Issue Uniform</div><div class="home-btn-sub">Issue items to a cadet</div></button>
+      <button class="home-btn red" id="btn-return"><div class="home-btn-icon">📥</div><div class="home-btn-label">Return Uniform</div><div class="home-btn-sub">Process a return to stores</div></button>
+      <button class="home-btn amber" id="btn-search"><div class="home-btn-icon">🔍</div><div class="home-btn-label">Search Stock</div><div class="home-btn-sub">Check sizes in stock</div></button>
+      <button class="home-btn gold" id="btn-badges"><div class="home-btn-icon">🎖️</div><div class="home-btn-label">Badge Tracker</div><div class="home-btn-sub">Issue &amp; track badges</div></button>
+      ${isAdmin?`<button class="home-btn gold admin" id="btn-admin"><div class="home-btn-icon">⚙️</div><div class="home-btn-label">Admin</div><div class="home-btn-sub">Staff, cadets and stock</div></button>`:''}
+    </div>
+  </div>
+  <div id="modal-root"></div></div>`;
+}
+
+function showModal(html, wide=false) {
+  document.getElementById('modal-root').innerHTML = `<div class="overlay" id="overlay"><div class="modal${wide?' modal-wide':''}">${html}</div></div>`;
+  document.getElementById('overlay').addEventListener('click', e => { if(e.target.id==='overlay') closeModal(); });
+  document.querySelectorAll('.modal-close').forEach(b => b.onclick = closeModal);
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = btn.dataset.action;
+      if (a === 'close') closeModal();
+      else if (a === 'cadets') openCadets();
+      else if (a === 'admin') openAdmin();
+      else if (a === 'addstaff') openAddStaff();
+      else if (a === 'addcadet') openAddCadet();
+      else if (a === 'bulkstock') openBulkStock();
+    });
+  });
+}
+function closeModal() { const r=document.getElementById('modal-root'); if(r) r.innerHTML=''; }
+function mHead(title) { return `<div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close">✕</button></div>`; }
+function showError(id, msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="alert alert-danger">${msg}</div>`; }
+function fmt(dt) { if(!dt) return '—'; return new Date(dt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+// ── VIEW CADETS ──
+async function openCadets() {
+  showModal(`${mHead('VIEW CADETS')}<div class="modal-body"><div class="loading-text">Loading cadets...</div></div>`, true);
+  await loadCadets();
+  const cadets = (S.cadets||[]).filter(c => c.active);
+  showModal(`${mHead('VIEW CADETS')}<div class="modal-body">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search by name or service number..." type="text"></div>
+    <div id="cadet-list">${cadetListHTML(cadets)}</div>
+  </div>`, true);
+  document.getElementById('cadet-search').oninput = e => {
+    const s=e.target.value.toLowerCase();
+    const activeCadets = (S.cadets||[]).filter(c => c.active);
+    document.getElementById('cadet-list').innerHTML = cadetListHTML(activeCadets.filter(c=>(c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s)));
+    bindCadetItems();
+  };
+  bindCadetItems();
+}
+
+function cadetListHTML(cadets) {
+  if (!cadets.length) return '<div class="empty">No cadets found</div>';
+  return cadets.map(c=>`<div class="cadet-item" data-id="${c.id}">
+    <div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div>
+    <div style="flex:1"><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''} · ${c.gender}</div></div>
+    <span class="badge ${c.active?'badge-green':'badge-grey'}">${c.active?'Active':'Inactive'}</span>
+    <span style="color:var(--text3);font-size:18px;margin-left:8px">›</span>
+  </div>`).join('');
+}
+function bindCadetItems() { document.querySelectorAll('.cadet-item[data-id]').forEach(el => { el.onclick = () => openCadetRecord(parseInt(el.dataset.id)); }); }
+
+// ── CADET RECORD ──
+async function openCadetRecord(cadetId) {
+  showModal(`${mHead('CADET RECORD')}<div class="modal-body"><div class="loading-text">Loading record...</div></div>`, true);
+  const data = await GET(`/cadets/${cadetId}/history`);
+  if (!data) return;
+  const {cadet, summary, outstanding, history} = data;
+  showModal(`${mHead('CADET RECORD')}<div class="modal-body">
+    <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--blue-pale);border-radius:var(--r);margin-bottom:20px">
+      <div class="cadet-avatar" style="width:52px;height:52px;font-size:18px">${cadet.forename[0]}${cadet.surname[0]}</div>
+      <div style="flex:1">
+        <div style="font-family:var(--head);font-size:24px;letter-spacing:0.04em;color:var(--blue)">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text3)">${cadet.gender}${cadet.flight?` · ${cadet.flight}`:''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
+        <button class="btn btn-ghost btn-sm" data-action="cadets">← Back</button>
+        ${cadet.active
+          ? `<button class="btn btn-danger btn-sm" id="discharge-cadet" data-id="${cadet.id}" data-name="${cadet.rank} ${cadet.surname}">Discharge</button>`
+          : `<button class="btn btn-ghost btn-sm" id="reactivate-cadet" data-id="${cadet.id}">Reactivate Cadet</button>`}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      ${[['Total Issued',summary.total_issued,'var(--blue)'],['Outstanding',summary.outstanding_count,'#92400e'],['Returned',summary.returned_count,'var(--green)']].map(([l,v,c])=>`
+        <div style="background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+          <div style="font-family:var(--head);font-size:32px;color:${c}">${v}</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">${l}</div>
+        </div>`).join('')}
+    </div>
+    <div class="section-label">Currently Issued (${outstanding.length})</div>
+    ${outstanding.length===0?'<div class="empty" style="padding:20px">No items currently issued</div>':`
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Size</th><th>Issued By</th><th>Date Issued</th><th>Note</th><th></th></tr></thead>
+      <tbody>${outstanding.map(i=>`<tr>
+        <td><strong>${i.short_name}</strong></td>
+        <td style="font-family:var(--mono)">${i.size_label}</td>
+        <td>${i.issued_by}</td>
+        <td style="font-family:var(--mono);font-size:12px">${fmt(i.issued_at)}</td>
+        <td style="font-size:12px;color:var(--text3)">${i.duplicate_reason?`⚠ ${i.duplicate_reason}`:(i.notes||'—')}</td>
+        <td><button class="btn btn-ghost btn-sm" data-return-id="${i.issued_id}" data-return-name="${i.short_name}">Return</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`}
+    <div class="section-label" style="margin-top:24px">Full History</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Size</th><th>Issued</th><th>By</th><th>Status</th><th>Return Info</th></tr></thead>
+      <tbody>${history.length===0?'<tr><td colspan="6"><div class="empty">No history</div></td></tr>':history.map(i=>`<tr>
+        <td><strong>${i.short_name}</strong></td>
+        <td style="font-family:var(--mono)">${i.size_label}</td>
+        <td style="font-family:var(--mono);font-size:12px">${fmt(i.issued_at)}</td>
+        <td>${i.issued_by}</td>
+        <td><span class="badge ${i.returned?'badge-green':'badge-blue'}">${i.returned?'Returned':'Outstanding'}</span></td>
+        <td style="font-size:12px;color:var(--text3)">${i.return_record?`${i.return_record.returned_by} · ${fmt(i.return_record.returned_at)}`:'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div class="section-label" style="margin-top:24px">Badge History <span id="badge-hist-toggle" style="font-size:12px;font-weight:400;color:var(--blue);cursor:pointer;margin-left:8px">▼ Show</span></div>
+    <div id="badge-hist-section" style="display:none"><div class="loading-text">Loading badges...</div></div>
+  </div>`, true);
+
+  document.querySelectorAll('[data-return-id]').forEach(btn => {
+    btn.onclick = () => openReturnFlow(parseInt(btn.dataset.returnId), btn.dataset.returnName, cadetId, cadet);
+  });
+  document.getElementById('issue-from-record').onclick = () => openIssueFlow(cadetId);
+
+  document.getElementById('deactivate-cadet')?.addEventListener('click', async () => {
+    const btn = document.getElementById('deactivate-cadet');
+    const name = btn.dataset.name;
+    if (!confirm(`Deactivate ${name}?\n\nThis will mark them as inactive. Their kit history will be kept. They must have no outstanding kit.`)) return;
+    try {
+      await PATCH(`/cadets/${cadetId}/deactivate`);
+      S.cadets = null;
+      alert(`${name} has been deactivated.`);
+      openCadets();
+    } catch(e) { alert('Error: ' + e.message); }
+  });
+
+  document.getElementById('reactivate-cadet')?.addEventListener('click', async () => {
+    if (!confirm('Reactivate this cadet?')) return;
+    try {
+      await PATCH(`/cadets/${cadetId}/reactivate`);
+      S.cadets = null;
+      openCadetRecord(cadetId);
+    } catch(e) { alert('Error: ' + e.message); }
+  });
+
+  // Badge history toggle
+  document.getElementById('badge-hist-toggle')?.addEventListener('click', async () => {
+    const sec = document.getElementById('badge-hist-section');
+    const tog = document.getElementById('badge-hist-toggle');
+    if (sec.style.display === 'none') {
+      sec.style.display = 'block';
+      tog.textContent = '▲ Hide';
+      const badges = await GET('/badges/issued/cadet/' + cadetId);
+      if (!badges.length) {
+        sec.innerHTML = '<div class="empty" style="padding:16px">No badges issued to this cadet.</div>';
+      } else {
+        sec.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th></tr></thead><tbody>' +
+          badges.map(b => '<tr><td><strong>' + b.name + '</strong></td><td style="font-size:12px">' + b.category + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(b.issued_at) + '</td><td style="font-size:12px">' + b.issued_by + '</td><td><span class="badge ' + (b.returned?'badge-grey':'badge-green') + '">' + (b.returned?'Returned':'Active') + '</span></td></tr>').join('') +
+          '</tbody></table></div>';
+      }
+    } else {
+      sec.style.display = 'none';
+      tog.textContent = '▼ Show';
+    }
+  });
+
+  document.getElementById('discharge-cadet')?.addEventListener('click', async () => {
+    if (outstanding.length > 0) {
+      alert(`Cannot discharge ${cadet.rank} ${cadet.surname} — they have ${outstanding.length} item(s) still outstanding.\n\nAll kit must be returned before discharge.`);
+      return;
+    }
+    if (!confirm(`Discharge ${cadet.rank} ${cadet.surname} from the Corps?\n\nThis will permanently deactivate their record. Their full kit history will be preserved.\n\nProceed?`)) return;
+    try {
+      await PATCH(`/cadets/${cadetId}/deactivate`);
+      S.cadets = null;
+      showModal(`${mHead('CADET DISCHARGED')}<div class="modal-body">
+        <div class="alert alert-success">✓ ${cadet.rank} ${cadet.surname} has been discharged from the Corps.</div>
+        <div style="background:var(--bg);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text2)">
+          <strong>Cadet:</strong> ${cadet.rank} ${cadet.surname}, ${cadet.forename}<br>
+          <strong>Service No:</strong> ${cadet.service_number}<br>
+          <strong>Discharged by:</strong> ${S.user.forename} ${S.user.surname}<br>
+          <strong>Total items issued:</strong> ${summary.total_issued}<br>
+          <strong>All kit returned:</strong> ✓
+        </div>
+      </div><div class="modal-footer"><button class="btn btn-primary" data-action="cadets">Done</button></div>`);
+    } catch(e) { alert('Error: ' + e.message); }
+  });
+}
+
+// ── ISSUE FLOW ──
+async function openIssueFlow(preselectedCadetId=null) {
+  const [items, cadets] = await Promise.all([loadItems(), loadCadets()]);
+  await loadStock();
+  const cadetPreselected = !!preselectedCadetId;
+  let step=1, selectedItem=null, selectedSize=null;
+  let selectedCadet = preselectedCadetId ? cadets.find(c=>c.id===preselectedCadetId) : null;
+
+  function renderStep() {
+    const steps = cadetPreselected
+      ? [{l:'1 · Select Item',s:1},{l:'2 · Select Size',s:2},{l:'3 · Confirm',s:3}]
+      : [{l:'1 · Select Item',s:1},{l:'2 · Select Size',s:2},{l:'3 · Select Cadet',s:3},{l:'4 · Confirm',s:4}];
+    const maxStep = cadetPreselected ? 3 : 4;
+    const isLast = step === maxStep;
+
+    showModal(`${mHead('ISSUE UNIFORM')}<div class="modal-body">
+      ${cadetPreselected ? `<div style="margin-bottom:16px;padding:10px 14px;background:var(--blue-pale);border-radius:var(--r);font-size:13px;color:var(--blue)">Issuing to: <strong>${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</strong></div>` : ''}
+      <div class="steps">${steps.map(s=>`<div class="step ${step===s.s?'active':step>s.s?'done':''}">${s.l}</div>`).join('')}</div>
+      <div id="issue-error"></div>
+      ${step===1?s1():step===2?s2():(cadetPreselected&&step===3)?sConfirm():step===3?s3():sConfirm()}
+    </div>
+    <div class="modal-footer">
+      ${step>1?`<button class="btn btn-ghost" id="i-back">← Back</button>`:''}
+      <button class="btn btn-ghost" data-action="close">Cancel</button>
+      ${!isLast?`<button class="btn btn-primary" id="i-next">Next →</button>`:`<button class="btn btn-success" id="i-confirm">Confirm Issue</button>`}
+    </div>`, true);
+
+    document.getElementById('i-back')?.addEventListener('click', () => { step--; if(step===1) selectedCategory=null; renderStep(); });
+
+    if (step===1) {
+      // Category buttons
+      document.querySelectorAll('.cat-btn').forEach(c => {
+        c.onclick = () => { selectedCategory = c.dataset.cat; renderStep(); };
+      });
+
+      // Auto-advance: direct items (single-item categories) go straight to sizes
+      document.querySelectorAll('.item-card:not(.cat-btn)').forEach(c => {
+        c.onclick = () => {
+          selectedItem = items.find(i => i.id === parseInt(c.dataset.id));
+          selectedSize = null;
+          step = 2; renderStep();
+        };
+      });
+
+      // Back to categories
+      document.getElementById('cat-back')?.addEventListener('click', () => { selectedCategory = null; selectedItem = null; renderStep(); });
+
+      // Item cards in category view - auto advance to sizes
+      document.querySelectorAll('.item-card:not(.cat-btn)').forEach(c => {
+        c.onclick = () => {
+          selectedItem = items.find(i => i.id === parseInt(c.dataset.id));
+          selectedSize = null;
+          step = 2; renderStep();
+        };
+      });
+    }
+
+    if (step===2) {
+      document.querySelectorAll('.size-btn').forEach(b => {
+        b.onclick = () => {
+          if(b.classList.contains('out-of-stock')) return;
+          selectedSize = selectedItem.sizes.find(s => s.id === parseInt(b.dataset.id));
+          // Auto-advance to next step
+          step = 3; renderStep();
+        };
+      });
+    }
+
+    if (step===3 && !cadetPreselected) {
+      document.getElementById('cadet-search')?.addEventListener('input', e => { const s=e.target.value.toLowerCase(); document.querySelectorAll('.cadet-item').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(s)?'':'none';}); });
+      document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
+        el.onclick = () => {
+          selectedCadet = cadets.find(c => c.id === parseInt(el.dataset.id));
+          // Check gender appropriateness of selected item
+          if (selectedItem && selectedCadet) {
+            const name = selectedItem.short_name.toLowerCase();
+            const gender = selectedCadet.gender;
+            let mismatch = false;
+            if ((name.includes('(f)') || name.includes('female') || name.includes('skirt')) && gender === 'male') mismatch = true;
+            if ((name.includes('(m)') || name.includes('extra long')) && gender === 'female') mismatch = true;
+            if (mismatch) {
+              if (!confirm("⚠ " + selectedItem.short_name + " may not be suitable for this cadet gender. Issue anyway?")) {
+                selectedItem = null; selectedSize = null; step = 1; renderStep(); return;
+              }
+            }
+          }
+          // Auto-advance to confirm
+          step = 4; renderStep();
+        };
+      });
+    }
+
+    // Confirm step
+    const onConfirmStep = (cadetPreselected && step===3) || (!cadetPreselected && step===4);
+    if (onConfirmStep) {
+      document.getElementById('i-confirm').onclick = async () => {
+        const dupReason=document.getElementById('dup-reason')?.value?.trim()||null;
+        const existing=await GET(`/cadets/${selectedCadet.id}/issued`);
+        const hasDup=existing.some(i=>i.item_id===selectedItem.id);
+        if(hasDup&&selectedItem.allows_multiples&&!dupReason) {
+          if(!document.getElementById('dup-reason')) {
+            const div=document.createElement('div'); div.className='form-group';
+            div.innerHTML=`<div class="alert alert-warning" style="margin-bottom:12px">This cadet already has this item. A reason is required to issue another.</div><label>Reason for Duplicate Issue</label><input id="dup-reason" placeholder="e.g. Size change, lost previous item">`;
+            document.getElementById('issue-error').after(div);
+          } return;
+        }
+        if(hasDup&&!selectedItem.allows_multiples){showError('issue-error','This item cannot be issued multiple times to the same cadet.');return;}
+        const notes=document.getElementById('issue-notes')?.value?.trim()||null;
+        const btn=document.getElementById('i-confirm'); btn.disabled=true; btn.textContent='Issuing...';
+        try {
+          await POST('/transactions/issue',{cadet_id:selectedCadet.id,item_id:selectedItem.id,size_id:selectedSize.id,quantity:1,duplicate_reason:dupReason,notes});
+          S.stock=null;
+          showModal(`${mHead('ISSUE UNIFORM')}<div class="modal-body">
+            <div class="alert alert-success">&#10003; <strong>${selectedItem.short_name}</strong> (${selectedSize.size_label}) issued to ${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</div>
+            <div style="background:var(--blue-pale);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text2)">
+              <strong>Issued by:</strong> ${S.user.forename} ${S.user.surname}<br><strong>Time:</strong> ${fmt(new Date().toISOString())}
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-ghost" id="issue-print">🖨 Print Receipt</button><button class="btn btn-primary" id="issue-another">Issue Another Item</button></div>`);
+          document.getElementById('issue-another').onclick = () => openIssueFlow(preselectedCadetId);
+          document.getElementById('issue-print').onclick = () => printIssueReceipt(selectedCadet, selectedItem.short_name, selectedSize.size_label, S.user);
+        } catch(e) { btn.disabled=false; btn.textContent='Confirm Issue'; showError('issue-error',e.message); }
+      };
+    }
+  }
+
+  let selectedCategory = null;
+
+  function s1() {
+    // Gender filtering
+    const gender = selectedCadet ? selectedCadet.gender : null;
+    function isGenderAppropriate(item) {
+      const name = item.short_name.toLowerCase();
+      // Female-only items
+      if (name.includes('(f)') || name.includes('female') || name.includes('skirt')) {
+        return gender === 'female' || gender === 'other' || !gender;
+      }
+      // Male-only items
+      if (name.includes('(m)') || name.includes('extra long')) {
+        return gender === 'male' || gender === 'other' || !gender;
+      }
+      return true; // Neutral items shown to all
+    }
+
+    const filteredItems = gender ? items.filter(isGenderAppropriate) : items;
+
+    const catMap = {};
+    filteredItems.forEach(i => {
+      const cat = i.category || 'Other';
+      if (!catMap[cat]) catMap[cat] = [];
+      catMap[cat].push(i);
+    });
+
+    // Categories with only 1 item - show item directly, no sub-menu
+    // Categories with multiple items - show category button first
+    const directItems = [];
+    const categoryGroups = [];
+
+    Object.entries(catMap).forEach(([cat, catItems]) => {
+      if (catItems.length === 1) {
+        directItems.push({ cat, item: catItems[0] });
+      } else {
+        categoryGroups.push({ cat, items: catItems });
+      }
+    });
+
+    if (!selectedCategory) {
+      return `<div class="section-label">Select Item</div>
+      <div class="item-grid">
+        ${categoryGroups.map(({cat, items: ci}) => `
+          <div class="item-card cat-btn" data-cat="${cat}" style="padding:16px">
+            <div class="item-card-name">${cat}</div>
+            <div class="item-card-cat">${ci.length} options</div>
+          </div>
+        `).join('')}
+        ${directItems.map(({cat, item: i}) => `
+          <div class="item-card${selectedItem?.id===i.id?' selected':''}" data-id="${i.id}" style="padding:16px">
+            <div class="item-card-name">${i.short_name}</div>
+            <div class="item-card-cat">${cat}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    } else {
+      const catItems = catMap[selectedCategory] || [];
+      return `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <button class="btn btn-ghost btn-sm" id="cat-back">← Back</button>
+          <span style="font-size:14px;font-weight:600;color:var(--blue)">${selectedCategory}</span>
+        </div>
+        <div class="item-grid">
+          ${catItems.map(i => `
+            <div class="item-card${selectedItem?.id===i.id?' selected':''}" data-id="${i.id}" style="padding:16px">
+                <div class="item-card-name">${i.short_name}</div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+  }
+
+    function s2() {
+    const stockMap={}; (S.stock||[]).forEach(s=>{if(s.item_id===selectedItem.id)stockMap[s.size_id]=s.quantity;});
+    return `<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Selecting size for: <strong>${selectedItem.short_name}</strong></div>
+    <div class="size-grid">${selectedItem.sizes.map(s=>{const qty=stockMap[s.id]??0;const cls=qty===0?'out-of-stock':qty<=3?'low-stock':'';const sel=selectedSize?.id===s.id?' selected':'';return `<button class="size-btn${sel} ${cls}" data-id="${s.id}">${s.size_label}<span style="display:block;font-size:10px;opacity:0.6">${qty} in stock</span></button>`;}).join('')}</div>`;
+  }
+
+  function s3() {
+    return `<div style="margin-bottom:16px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Issuing: <strong>${selectedItem.short_name}</strong> &middot; Size: <strong>${selectedSize.size_label}</strong></div>
+    <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">&#128269;</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
+    <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
+      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item${selectedCadet?.id===c.id?' selected':''}" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.flight||c.gender||''}</div></div></div>`).join('')}
+    </div>`;
+  }
+
+  function sConfirm() {
+    return `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+      <div style="background:var(--blue);padding:14px 18px"><div style="font-family:var(--head);font-size:20px;letter-spacing:0.05em;color:white">Confirm Issue</div></div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Item</span>
+          <span style="font-weight:700;color:var(--text)">${selectedItem.short_name}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Size</span>
+          <span style="font-weight:700;color:var(--text);font-family:var(--mono)">${selectedSize.size_label}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issuing To</span>
+          <span style="font-weight:700;color:var(--text)">${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issued By</span>
+          <span style="font-weight:700;color:var(--text)">${S.user.forename} ${S.user.surname}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Time</span>
+          <span style="font-weight:700;color:var(--text);font-family:var(--mono)">${fmt(new Date().toISOString())}</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:16px"><label>Notes (Optional)</label><input id="issue-notes" placeholder="Any additional notes..."></div>
+    <div id="issue-error" style="margin-top:8px"></div>`;
+  }
+
+  renderStep();
+}
+
+// ── PRINT RECEIPTS ──
+function printIssueReceipt(cadet, item, sizeLabel, staffUser) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Issue Receipt — 1701 Sqn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box}body{margin:0;background:white;font-family:'Figtree',sans-serif;color:#0d1b3e}
+  @page{size:A5 portrait;margin:14mm 16mm}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+  </head><body><div style="max-width:480px;margin:0 auto;padding:28px 32px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg);flex-shrink:0"></div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 (JOHNSTONE) SQUADRON</div>
+          <div style="font-size:10px;color:#9099b5;letter-spacing:0.08em;font-family:'DM Mono',monospace">ROYAL AIR FORCE AIR CADETS</div>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#9099b5;font-family:'DM Mono',monospace;line-height:1.6">${dateStr}<br>${timeStr}</div>
+    </div>
+    <div style="border-top:3px solid #002868;padding-top:12px;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.06em;color:#002868">UNIFORM ISSUE RECEIPT</div>
+    </div>
+    <div style="background:#e8eef8;border-radius:8px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Issued To</div>
+      <div style="font-size:15px;font-weight:700">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
+      <div style="font-size:11px;color:#4a5578;font-family:'DM Mono',monospace;margin-top:2px">Svc No. ${cadet.service_number}</div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Items Issued</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Item</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Size</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Issued By</th>
+        </tr></thead>
+        <tbody><tr style="border-bottom:1px solid #dde3f0">
+          <td style="padding:9px 10px;font-weight:700">${item}</td>
+          <td style="padding:9px 10px;font-family:'DM Mono',monospace;font-size:12px">${sizeLabel}</td>
+          <td style="padding:9px 10px;font-size:12px">${staffUser.forename} ${staffUser.surname}</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Stores Staff Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">${staffUser.forename} ${staffUser.surname}</div></div>
+      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Cadet Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">I confirm receipt of the above item(s)</div></div>
+    </div>
+    <div style="background:#dcfce7;border:1px solid #b2dfcc;border-radius:6px;padding:9px 12px;font-size:12px;color:#166534;font-weight:600;text-align:center;margin-bottom:14px">✓ Item issued from 1701 Squadron stores</div>
+    <button class="no-print" onclick="window.print()" style="width:100%;padding:10px;background:#002868;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Figtree',sans-serif;margin-bottom:8px">🖨 Print Receipt</button>
+    <div style="font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · AP 1919 stores policy applies. Item remains property of the MOD. DPA 2018.</div>
+  </div></body></html>`;
+  const w = window.open('', '_blank', 'width=600,height=680');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 600);
+}
+
+function printReturnReceipt(cadet, issues, staffUser) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  const rows = issues.map(s => {
+    const svcBg = s.condition === 'serviceable' ? '#dcfce7' : '#fef3c7';
+    const svcCol = s.condition === 'serviceable' ? '#166534' : '#92400e';
+    const svcLabel = s.condition === 'serviceable' ? '✅ Serviceable' : '❌ Unserviceable';
+    return `<tr style="border-bottom:1px solid #dde3f0">
+      <td style="padding:9px 10px;font-weight:700">${s.short_name}</td>
+      <td style="padding:9px 10px;font-family:'DM Mono',monospace;font-size:12px">${s.size_label||'—'}</td>
+      <td style="padding:9px 10px"><span style="background:${svcBg};color:${svcCol};padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700">${svcLabel}</span></td>
+    </tr>`;
+  }).join('');
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Return Receipt — 1701 Sqn</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box}body{margin:0;background:white;font-family:'Figtree',sans-serif;color:#0d1b3e}
+  @page{size:A5 portrait;margin:14mm 16mm}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+  </head><body><div style="max-width:480px;margin:0 auto;padding:28px 32px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg);flex-shrink:0"></div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 (JOHNSTONE) SQUADRON</div>
+          <div style="font-size:10px;color:#9099b5;letter-spacing:0.08em;font-family:'DM Mono',monospace">ROYAL AIR FORCE AIR CADETS</div>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#9099b5;font-family:'DM Mono',monospace;line-height:1.6">${dateStr}<br>${timeStr}</div>
+    </div>
+    <div style="border-top:3px solid #002868;padding-top:12px;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.06em;color:#002868">UNIFORM RETURN RECEIPT</div>
+    </div>
+    <div style="background:#e8eef8;border-radius:8px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Returned By</div>
+      <div style="font-size:15px;font-weight:700">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
+      <div style="font-size:11px;color:#4a5578;font-family:'DM Mono',monospace;margin-top:2px">Svc No. ${cadet.service_number}</div>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Items Returned (${issues.length})</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Item</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Size</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Condition</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Accepted By</div><div style="font-size:12px;font-weight:600;margin-bottom:24px">${staffUser.forename} ${staffUser.surname}</div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">Stores staff signature</div></div>
+      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Cadet Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">I confirm the above item(s) have been returned</div></div>
+    </div>
+    <div style="background:#dcfce7;border:1px solid #b2dfcc;border-radius:6px;padding:9px 12px;font-size:12px;color:#166534;font-weight:600;text-align:center;margin-bottom:14px">✓ Item(s) confirmed returned to 1701 Squadron stores</div>
+    <button class="no-print" onclick="window.print()" style="width:100%;padding:10px;background:#002868;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Figtree',sans-serif;margin-bottom:8px">🖨 Print Receipt</button>
+    <div style="font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · AP 1919 stores policy applies. DPA 2018 applies to all personal data.</div>
+  </div></body></html>`;
+  const w = window.open('', '_blank', 'width=600,height=680');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 600);
+}
+
+// ── RETURN FLOW ──
+async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetObj=null) {
+  const cadets = await loadCadets();
+  let selectedCadet = cadetId ? (cadetObj || cadets.find(c=>c.id===cadetId)) : null;
+  let selectedIssue = issuedId ? {issued_id:issuedId, short_name:itemName} : null;
+  let issuedItems = null;
+  let condition = null;
+
+  async function loadIssued(cid) { issuedItems = await GET(`/cadets/${cid}/issued`); }
+  if (cadetId) await loadIssued(cadetId);
+
+  let step = issuedId ? 3 : 1;  // If item pre-selected, go straight to condition step
+
+  async function renderStep() {
+    showModal(`${mHead('RETURN UNIFORM')}<div class="modal-body">
+      <div class="steps">
+        <div class="step ${step===1?'active':step>1?'done':''}">1 · Select Cadet</div>
+        <div class="step ${step===2?'active':step>2?'done':''}">2 · Select Item</div>
+        <div class="step ${step===3?'active':''}">3 · Condition</div>
+      </div>
+      <div id="return-error"></div>
+      ${step===1?r1():step===2?r2():r3()}
+    </div>
+    <div class="modal-footer">
+      ${step>1&&!issuedId?`<button class="btn btn-ghost" id="r-back">← Back</button>`:''}
+      <button class="btn btn-ghost" data-action="close">Cancel</button>
+      ${step<3?`<button class="btn btn-primary" id="r-next">Next →</button>`:`<button class="btn btn-danger" id="r-confirm">Confirm Return</button>`}
+    </div>`, true);
+
+    document.getElementById('r-back')?.addEventListener('click', async () => { step--; await renderStep(); });
+
+    if (step===1) {
+      document.getElementById('cadet-search')?.addEventListener('input', e => { const s=e.target.value.toLowerCase(); document.querySelectorAll('.cadet-item').forEach(el=>{el.style.display=el.textContent.toLowerCase().includes(s)?'':'none';}); });
+      document.querySelectorAll('.cadet-item[data-id]').forEach(el => {
+        el.onclick = async () => { selectedCadet=cadets.find(c=>c.id===parseInt(el.dataset.id)); document.querySelectorAll('.cadet-item').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
+      });
+      document.getElementById('r-next').onclick = async () => {
+        if(!selectedCadet){showError('return-error','Please select a cadet');return;}
+        await loadIssued(selectedCadet.id);
+        if(issuedItems.length===0){showError('return-error','This cadet has no items currently issued');return;}
+        step=2; await renderStep();
+      };
+    }
+    if (step===2) {
+      document.querySelectorAll('.issued-item-btn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.dataset.id);
+          const item = issuedItems.find(i => i.issued_id === id);
+          if (!item) return;
+          if (item.short_name && item.short_name.toLowerCase().includes('sock')) {
+            showError('return-error', '⚠ Socks cannot be returned for hygiene reasons.');
+            return;
+          }
+          const existing = selectedIssues.findIndex(s => s.issued_id === id);
+          if (existing >= 0) {
+            selectedIssues.splice(existing, 1);
+          } else {
+            selectedIssues.push({ issued_id: id, short_name: item.short_name, size_label: item.size_label, condition: null, reason: null, notes: null });
+          }
+          renderStep();
+        };
+      });
+      document.querySelectorAll('.multi-condition').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.dataset.id);
+          const s = selectedIssues.find(s => s.issued_id === id);
+          if (s) { s.condition = btn.dataset.val; renderStep(); }
+        };
+      });
+      document.querySelectorAll('.multi-reason').forEach(sel => {
+        sel.onchange = (e) => {
+          e.stopPropagation();
+          const id = parseInt(sel.dataset.id);
+          const s = selectedIssues.find(s => s.issued_id === id);
+          if (s) s.reason = sel.value;
+        };
+      });
+      document.querySelectorAll('.multi-remove').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.dataset.id);
+          selectedIssues = selectedIssues.filter(s => s.issued_id !== id);
+          renderStep();
+        };
+      });
+      document.getElementById('r-next').onclick = () => {
+        if (selectedIssues.length === 0) { showError('return-error', 'Please select at least one item to return'); return; }
+        const missing = selectedIssues.find(s => !s.condition || !s.reason);
+        if (missing) { showError('return-error', 'Please set condition and reason for all selected items'); return; }
+        step = 3; renderStep();
+      };
+    }
+    if (step===3) {
+      document.querySelectorAll('.condition-btn').forEach(btn => {
+        btn.onclick = () => {
+          condition=btn.dataset.condition;
+          document.querySelectorAll('.condition-btn').forEach(x=>{x.classList.remove('selected-good','selected-bad');});
+          btn.classList.add(condition==='serviceable'?'selected-good':'selected-bad');
+          const warn=document.getElementById('unsvc-warn');
+          if(warn) warn.style.display=condition==='unserviceable'?'block':'none';
+        };
+      });
+      document.getElementById('r-confirm').onclick = async () => {
+        const btn=document.getElementById('r-confirm'); btn.disabled=true; btn.textContent='Processing...';
+        try {
+          // Process all returns
+          let warnings = [];
+          for (const s of selectedIssues) {
+            const fullNotes = s.reason || null;
+            const result = await POST('/transactions/return', {issued_item_id: s.issued_id, condition: s.condition, notes: fullNotes});
+            if (result.warning) warnings.push(s.short_name + ': ' + result.warning);
+          }
+          S.stock = null;
+          const serviceable = selectedIssues.filter(s => s.condition === 'serviceable');
+          const unserviceable = selectedIssues.filter(s => s.condition === 'unserviceable');
+          const capturedCadet = selectedCadet;
+          const capturedIssues = [...selectedIssues];
+          showModal(mHead('RETURNS PROCESSED') + '<div class="modal-body">' +
+            '<div class="alert alert-success">✓ ' + selectedIssues.length + ' item(s) returned successfully.</div>' +
+            (serviceable.length > 0 ? '<div style="background:var(--green-light);border-radius:var(--r);padding:12px;font-size:13px;color:var(--green);margin-top:8px">✓ ' + serviceable.length + ' item(s) returned to stock.</div>' : '') +
+            (unserviceable.length > 0 ? '<div class="alert alert-warning" style="margin-top:8px">⚠ ' + unserviceable.length + ' item(s) unserviceable — set aside for stores.</div>' : '') +
+            '</div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-ghost" id="ret-print">🖨 Print Receipt</button><button class="btn btn-primary" id="ret-another">Process Another</button></div>');
+          document.getElementById('ret-another').onclick = () => openReturnFlow();
+          document.getElementById('ret-print').onclick = () => printReturnReceipt(capturedCadet, capturedIssues, S.user);
+        } catch(e) { btn.disabled=false; btn.textContent='Confirm Return'; showError('return-error',e.message); }
+      };
+    }
+  }
+
+  function r1() {
+    return `<div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
+    <div style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
+      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.flight||c.gender||''}</div></div></div>`).join('')}
+    </div>`;
+  }
+  // Multi-return state
+  let selectedIssues = []; // Array of {issued_id, short_name, size_label, condition, reason, notes}
+
+  function r2() {
+    return '<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Returning kit from: <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + ', ' + selectedCadet.forename + '</strong></div>' +
+    '<div class="section-label">Select Items to Return</div>' +
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">Tap each item to expand and set condition. Select multiple items to return them all at once.</div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+    issuedItems.map(i => {
+      const sel = selectedIssues.find(s => s.issued_id === i.issued_id);
+      const isSock = i.short_name && i.short_name.toLowerCase().includes('sock');
+      return '<div style="border:1.5px solid ' + (sel ? 'var(--blue)' : 'var(--border)') + ';border-radius:var(--r);overflow:hidden">' +
+        '<div class="issued-item-btn cadet-item" data-id="' + i.issued_id + '" style="border:none;' + (isSock?'opacity:0.5':'') + '">' +
+          '<div style="flex:1"><div class="cadet-name">' + i.short_name + (isSock?' <span style="font-size:10px;color:var(--red)">(cannot return)</span>':'') + '</div><div class="cadet-meta">Size: ' + (i.size_label||'—') + ' · Issued: ' + fmt(i.issued_at) + '</div></div>' +
+          '<span style="color:' + (sel?'var(--blue)':'var(--text3)') + ';font-size:18px">' + (sel?'✓':'›') + '</span>' +
+        '</div>' +
+        (sel ? '<div style="padding:12px;background:var(--blue-pale);border-top:1px solid var(--border)">' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div><div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:4px">CONDITION</div>' +
+              '<div style="display:flex;gap:6px">' +
+                '<button class="btn btn-sm ' + (sel.condition==='serviceable'?'btn-primary':'btn-ghost') + ' multi-condition" data-id="' + i.issued_id + '" data-val="serviceable">✅ Good</button>' +
+                '<button class="btn btn-sm ' + (sel.condition==='unserviceable'?'btn-danger':'btn-ghost') + ' multi-condition" data-id="' + i.issued_id + '" data-val="unserviceable">❌ Damaged</button>' +
+              '</div>' +
+            '</div>' +
+            '<div><div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:4px">REASON</div>' +
+              '<select class="multi-reason" data-id="' + i.issued_id + '" style="font-size:12px;padding:6px">' +
+                '<option value="">— Select —</option>' +
+                ['Outgrown','Damaged','Discharge from Corps','Wrong Size','End of Loan','Other'].map(r => '<option value="' + r + '"' + (sel.reason===r?' selected':'') + '>' + r + '</option>').join('') +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<button class="btn btn-ghost btn-sm multi-remove" data-id="' + i.issued_id + '" style="font-size:11px;color:var(--red)">✕ Remove from return</button>' +
+        '</div>' : '') +
+      '</div>';
+    }).join('') +
+    '</div>' +
+    (selectedIssues.length > 0 ? '<div style="margin-top:12px;padding:10px 14px;background:var(--green-light);border-radius:var(--r);font-size:13px;color:var(--green)">' + selectedIssues.length + ' item(s) selected for return</div>' : '');
+  }
+  function r3() {
+    // Multi-return confirmation screen
+    const unserviceable = selectedIssues.filter(s => s.condition === 'unserviceable');
+    return '<div style="margin-bottom:16px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Confirming return from <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + '</strong></div>' +
+    '<div class="section-label">Items Being Returned (' + selectedIssues.length + ')</div>' +
+    '<div class="table-wrap"><table><thead><tr><th>Item</th><th>Size</th><th>Condition</th><th>Reason</th></tr></thead><tbody>' +
+    selectedIssues.map(s => '<tr>' +
+      '<td><strong>' + s.short_name + '</strong></td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + (s.size_label||'—') + '</td>' +
+      '<td><span class="badge ' + (s.condition==='serviceable'?'badge-green':'badge-gold') + '">' + (s.condition==='serviceable'?'✅ Serviceable':'❌ Unserviceable') + '</span></td>' +
+      '<td style="font-size:12px">' + (s.reason||'—') + '</td>' +
+    '</tr>').join('') +
+    '</tbody></table></div>' +
+    (unserviceable.length > 0 ? '<div class="alert alert-warning" style="margin-top:12px">⚠ <strong>' + unserviceable.length + ' item(s) are unserviceable</strong> — set aside and return to RAF parent stores for destruction.</div>' : '<div class="alert alert-success" style="margin-top:12px">✓ All items serviceable — will be returned to stock.</div>');
+  }
+
+  await renderStep();
+}
+
+// ── SEARCH STOCK ──
+async function openSearchUniform() {
+  const [items] = await Promise.all([loadItems(), loadStock()]);
+  let selectedItem = null;
+
+  function renderSearch() {
+    const stockMap={}; (S.stock||[]).forEach(s=>{stockMap[`${s.item_id}-${s.size_id}`]=s.quantity;});
+
+    showModal(`${mHead('SEARCH UNIFORM STOCK')}<div class="modal-body">
+      <div class="search-wrap" style="margin-bottom:16px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
+      ${!selectedItem?`<div id="stock-item-grid" class="item-grid">${items.map(i=>{
+        const totalStock = i.sizes ? i.sizes.reduce((sum,s)=>{return sum+(stockMap[i.id+'-'+s.id]||0);},0) : 0;
+        return `<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}" style="${totalStock===0?'opacity:0.5':''}">
+          <div class="item-card-name">${i.short_name}</div>
+          <div class="item-card-cat" style="color:${totalStock>0?'var(--green)':'var(--red)'}">${totalStock>0?totalStock+' in stock':'Out of stock'}</div>
+        </div>`;
+      }).join('')}</div>`
+      :renderSizes()}
+    </div>
+    <div class="modal-footer">
+      ${selectedItem?`<button class="btn btn-ghost" id="srch-back">← Back to Items</button>`:''}
+      <button class="btn btn-ghost" data-action="close">Close</button>
+    </div>`, true);
+
+    // Live search filter
+    document.getElementById('stock-search')?.addEventListener('input', e => {
+      const s = e.target.value.toLowerCase();
+      document.querySelectorAll('.item-card[data-name]').forEach(card => {
+        card.style.display = card.dataset.name.includes(s) ? '' : 'none';
+      });
+    });
+
+    document.getElementById('srch-back')?.addEventListener('click', () => { selectedItem=null; renderSearch(); });
+    document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderSearch(); }; });
+  }
+
+  function renderSizes() {
+    const stockMap={}; (S.stock||[]).forEach(s=>{stockMap[`${s.item_id}-${s.size_id}`]=s.quantity;});
+    const sizes=selectedItem.sizes.map(s=>({...s,qty:stockMap[`${selectedItem.id}-${s.id}`]??0}));
+    const inStock=sizes.filter(s=>s.qty>0).sort((a,b)=>b.qty-a.qty);
+    const outOfStock=sizes.filter(s=>s.qty===0);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div><div style="font-family:var(--head);font-size:28px;letter-spacing:0.04em;color:var(--blue)">${selectedItem.short_name}</div><div style="font-size:12px;color:var(--text3)">${selectedItem.name}</div></div>
+      <div style="text-align:right"><div style="font-size:24px;font-weight:800;color:var(--green)">${inStock.length}</div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">SIZES IN STOCK</div></div>
+    </div>
+    ${inStock.length>0?`<div class="section-label">In Stock</div><div class="size-grid">${inStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--green);border-radius:6px;background:var(--green-light);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green)">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:var(--green)">${s.qty}</div><div style="font-size:10px;color:var(--green);opacity:0.7">in stock</div></div>`).join('')}</div>`:''}
+    ${outOfStock.length>0?`<div class="section-label" style="margin-top:16px">Out of Stock</div><div class="size-grid">${outOfStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:#f8f9fd;text-align:center;opacity:0.6"><div style="font-family:var(--mono);font-size:13px;color:var(--text3)">${s.size_label}</div><div style="font-size:13px;color:var(--red);font-weight:700">Out</div></div>`).join('')}</div>`:''}
+    ${inStock.length===0?`<div class="alert alert-warning" style="margin-top:12px">⚠ No sizes of this item are currently in stock.</div>`:''}`;
+  }
+
+  renderSearch();
+}
+
+// ── ADMIN ──
+function openAdmin() {
+  showModal(`${mHead('ADMIN FUNCTIONS')}<div class="modal-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <button class="home-btn" id="a-manage" style="padding:24px"><div class="home-btn-icon">👥</div><div class="home-btn-label">Manage Staff</div><div class="home-btn-sub">Add, reset passwords, deactivate</div></button>
+      <button class="home-btn" id="a-managecadets" style="padding:24px"><div class="home-btn-icon">👤</div><div class="home-btn-label">Manage Cadets</div><div class="home-btn-sub">Add or deactivate cadets</div></button>
+      <button class="home-btn gold" id="a-stock" style="padding:24px"><div class="home-btn-icon">📦</div><div class="home-btn-label">Bulk Add Stock</div><div class="home-btn-sub">Add stock after a delivery</div></button>
+      <button class="home-btn red" id="a-removestock" style="padding:24px"><div class="home-btn-icon">📉</div><div class="home-btn-label">Adjust Stock</div><div class="home-btn-sub">Remove quantities from inventory</div></button>
+      <button class="home-btn" id="a-auditlog" style="padding:24px"><div class="home-btn-icon">📋</div><div class="home-btn-label">Audit Log</div><div class="home-btn-sub">Search all system activity</div></button>
+      <button class="home-btn red" id="a-unserviceable" style="padding:24px"><div class="home-btn-icon">⚠️</div><div class="home-btn-label">Unserviceable Kit</div><div class="home-btn-sub">Items to return to stores</div></button>
+      <button class="home-btn" id="a-reports" style="padding:24px"><div class="home-btn-icon">📊</div><div class="home-btn-label">Reports</div><div class="home-btn-sub">Kit deficiencies & common sizes</div></button>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Close</button></div>`);
+  document.getElementById('a-manage').onclick = openManageStaff;
+  document.getElementById('a-managecadets').onclick = openManageCadets;
+  document.getElementById('a-stock').onclick = openBulkStock;
+  document.getElementById('a-removestock').onclick = openRemoveStock;
+  document.getElementById('a-auditlog').onclick = openAuditLog;
+  document.getElementById('a-unserviceable').onclick = openUnserviceable;
+  document.getElementById('a-reports').onclick = openReports;
+
+}
+
+function openAddStaff() {
+  showModal(`${mHead('ADD STAFF USER')}<div class="modal-body">
+    <div class="alert alert-info">Username: <strong>surname.forename</strong> · Default password: <strong>Password1!</strong></div>
+    <div id="staff-error"></div>
+    <div class="grid-2"><div class="form-group"><label>Forename</label><input id="s-fore"></div><div class="form-group"><label>Surname</label><input id="s-sur"></div></div>
+    <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:14px;font-weight:600;color:var(--text)"><input type="checkbox" id="s-admin" style="width:auto;accent-color:var(--blue)"> Grant Admin Access</label></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-ghost" id="staff-back">← Back</button><button class="btn btn-primary" id="staff-submit">Create User</button></div>`);
+  // Insert rank/role fields before the admin checkbox
+  const adminCheck = document.getElementById('s-admin')?.closest('.form-group');
+  if (adminCheck) {
+    const rankRole = document.createElement('div');
+    rankRole.className = 'grid-2';
+    rankRole.innerHTML = `
+      <div class="form-group"><label>Rank</label>
+        <select id="s-rank">
+          <option value="">— Select Rank —</option>
+          ${['CI','Sgt','FS','WO','A/Plt Off','Plt Off','Fg Off','Flt Lt','Sqn Ldr'].map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Role</label>
+        <select id="s-role">
+          <option value="">— Select Role —</option>
+          ${['OC','Adj','Trg Off','SNCO','CI'].map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>`;
+    adminCheck.before(rankRole);
+  }
+  document.getElementById('staff-back').onclick = openManageStaff;
+  document.getElementById('staff-submit').onclick = async () => {
+    const fore=document.getElementById('s-fore').value.trim(), sur=document.getElementById('s-sur').value.trim();
+    if(!fore||!sur){showError('staff-error','Please enter forename and surname');return;}
+    const btn=document.getElementById('staff-submit'); btn.disabled=true; btn.textContent='Creating...';
+    try {
+      await POST('/users/',{forename:fore,surname:sur,rank:document.getElementById('s-rank')?.value||null,role:document.getElementById('s-role')?.value||null,is_admin:document.getElementById('s-admin').checked});
+      S.users=null;
+      showModal(`${mHead('ADD STAFF USER')}<div class="modal-body">
+        <div class="alert alert-success">✓ User created successfully.</div>
+        <div style="background:var(--blue-pale);padding:16px;border-radius:var(--r);font-size:14px"><strong>Username:</strong> ${sur.toLowerCase()}.${fore.toLowerCase()}<br><strong>Password:</strong> Password1!</div>
+      </div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addstaff">Add Another</button></div>`);
+    } catch(e) { btn.disabled=false; btn.textContent='Create User'; showError('staff-error',e.message); }
+  };
+}
+
+function openAddCadet() {
+  const rankOpts = ['Cdt','Cpl','Sgt','FS','CWO'].map(r => '<option value="' + r + '"' + (r==='Cdt'?' selected':'') + '>' + r + '</option>').join('');
+  showModal(mHead('ADD CADET') + '<div class="modal-body">' +
+    '<div id="cadet-error"></div>' +
+    '<div class="grid-2">' +
+      '<div class="form-group"><label>Forename</label><input id="c-fore"></div>' +
+      '<div class="form-group"><label>Surname</label><input id="c-sur"></div>' +
+      '<div class="form-group"><label>Rank</label><select id="c-rank">' + rankOpts + '</select></div>' +
+      '<div class="form-group"><label>Gender</label><select id="c-gender"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>' +
+      '<div class="form-group"><label>Flight (Optional)</label><input id="c-flight" placeholder="e.g. Alpha"></div>' +
+    '</div></div>' +
+    '<div class="modal-footer"><button class="btn btn-ghost" id="cadet-back">← Back</button><button class="btn btn-primary" id="cadet-submit">Add Cadet</button></div>');
+  document.getElementById('cadet-back').onclick = openManageCadets;
+  document.getElementById('cadet-submit').onclick = async () => {
+    const btn=document.getElementById('cadet-submit'); btn.disabled=true; btn.textContent='Adding...';
+    try {
+      // Auto-generate service number: get all cadets, find highest 1701xxx number
+      const existing = S.cadets || await loadCadets();
+      const nums = existing.map(c => {
+        const m = String(c.service_number||'').match(/^1701(\d+)$/);
+        return m ? parseInt(m[1]) : 0;
+      });
+      const nextNum = (Math.max(0, ...nums) + 1).toString().padStart(3, '0');
+      const svcNum = '1701' + nextNum;
+      await POST('/cadets/', {
+        service_number: svcNum,
+        rank: document.getElementById('c-rank').value,
+        forename: document.getElementById('c-fore').value.trim(),
+        surname: document.getElementById('c-sur').value.trim(),
+        gender: document.getElementById('c-gender').value,
+        flight: document.getElementById('c-flight').value.trim()||null
+      });
+      S.cadets=null;
+      showModal(mHead('ADD CADET') + '<div class="modal-body"><div class="alert alert-success">✓ Cadet added successfully. Service number: <strong>' + svcNum + '</strong></div></div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addcadet">Add Another</button></div>');
+    } catch(e) { btn.disabled=false; btn.textContent='Add Cadet'; showError('cadet-error',e.message); }
+  };
+}
+
+async function openBulkStock() {
+  const items = await loadItems();
+  let selectedItem = null;
+  function renderBulk() {
+    showModal(`${mHead('BULK ADD STOCK')}<div class="modal-body">
+      <div class="alert alert-info">Select an item, enter quantities received. Leave blank to skip a size.</div>
+      <div id="stock-error"></div>
+      ${!selectedItem?`<div class="section-label">Select Item</div><div class="item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>`
+      :`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-family:var(--head);font-size:24px;color:var(--blue)">${selectedItem.short_name}</div><button class="btn btn-ghost btn-sm" id="stk-change">Change Item</button></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
+        ${selectedItem.sizes.map(s=>`<div style="border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:6px">${s.size_label}</div><input type="number" class="size-qty" data-size-id="${s.id}" placeholder="0" min="0" style="text-align:center;font-size:16px;font-weight:700"></div>`).join('')}
+      </div>`}
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button>${selectedItem?`<button class="btn btn-primary" id="stk-submit">Add Stock</button>`:''}</div>`, true);
+
+    document.getElementById('stk-change')?.addEventListener('click', ()=>{selectedItem=null;renderBulk();});
+    document.querySelectorAll('.item-card').forEach(c=>{c.onclick=()=>{selectedItem=items.find(i=>i.id===parseInt(c.dataset.id));renderBulk();};});
+    document.getElementById('stk-submit')?.addEventListener('click', async ()=>{
+      const adj=[]; document.querySelectorAll('.size-qty').forEach(inp=>{const q=parseInt(inp.value);if(q>0)adj.push({item_id:selectedItem.id,size_id:parseInt(inp.dataset.sizeId),quantity:q});});
+      if(adj.length===0){showError('stock-error','Please enter at least one quantity');return;}
+      const btn=document.getElementById('stk-submit'); btn.disabled=true; btn.textContent='Adding...';
+      try {
+        await POST('/stock/bulk-adjust',adj); S.stock=null;
+        showModal(`${mHead('BULK ADD STOCK')}<div class="modal-body"><div class="alert alert-success">✓ Stock updated. ${adj.length} size${adj.length!==1?'s':''} updated.</div></div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="bulkstock">Add More</button></div>`);
+      } catch(e){btn.disabled=false;btn.textContent='Add Stock';showError('stock-error',e.message);}
+    });
+  }
+  renderBulk();
+}
+
+async function openManageStaff() {
+  const users = await loadUsers();
+  const active = users.filter(u => u.active);
+  const inactive = users.filter(u => !u.active);
+
+  const activeRows = active.map(u => '<tr>' +
+    '<td style="font-family:var(--mono);font-size:12px">' + u.username + '</td>' +
+    '<td><strong>' + u.surname + '</strong>, ' + u.forename + (u.rank ? ' <span style="color:var(--text3);font-size:12px">' + u.rank + '</span>' : '') + '</td>' +
+    '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
+    '<td><span class="badge ' + (u.is_admin?'badge-gold':'badge-blue') + '">' + (u.is_admin?'Admin':'Staff') + '</span></td>' +
+    '<td style="display:flex;gap:6px">' +
+      '<button class="btn btn-ghost btn-sm ms-edit" data-id="' + u.id + '">Edit</button>' +
+      (u.id !== S.user.id ? '<button class="btn btn-danger btn-sm ms-deact" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Deactivate</button>' : '') +
+    '</td>' +
+  '</tr>').join('');
+
+  const inactiveRows = inactive.map(u => '<tr style="opacity:0.65">' +
+    '<td style="font-family:var(--mono);font-size:12px">' + u.username + '</td>' +
+    '<td><strong>' + u.surname + '</strong>, ' + u.forename + '</td>' +
+    '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
+    '<td><span class="badge badge-grey">Inactive</span></td>' +
+    '<td><button class="btn btn-ghost btn-sm ms-reactivate" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Reactivate</button></td>' +
+  '</tr>').join('');
+
+  showModal(mHead('MANAGE STAFF') + '<div class="modal-body">' +
+    '<div style="margin-bottom:16px"><button class="btn btn-primary" id="ms-addstaff">+ Add Staff Member</button></div>' +
+    '<div class="section-label">Active Staff (' + active.length + ')</div>' +
+    '<div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Level</th><th>Actions</th></tr></thead><tbody>' + activeRows + '</tbody></table></div>' +
+    (inactive.length > 0 ? '<div class="section-label" style="margin-top:24px">Inactive Staff (' + inactive.length + ')</div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + inactiveRows + '</tbody></table></div>' : '') +
+    '</div><div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>', true);
+
+  document.getElementById('ms-addstaff').onclick = openAddStaff;
+  document.querySelectorAll('.ms-edit').forEach(btn => { btn.onclick = () => openEditStaff(parseInt(btn.dataset.id), users); });
+  document.querySelectorAll('.ms-reactivate').forEach(btn => { console.log('Reactivate btn bound for id', btn.dataset.id); });
+  document.querySelectorAll('.ms-deact').forEach(btn => { btn.onclick = async () => {
+    if (!confirm('Deactivate ' + btn.dataset.name + '?')) return;
+    try { await PATCH('/users/' + btn.dataset.id + '/deactivate'); S.users=null; openManageStaff(); } catch(e) { alert(e.message); }
+  };});
+  document.querySelectorAll('.ms-reactivate').forEach(btn => { btn.onclick = async () => {
+    if (!confirm('Reactivate ' + btn.dataset.name + '?')) return;
+    try { await PATCH('/users/' + btn.dataset.id + '/reactivate'); S.users=null; openManageStaff(); } catch(e) { alert(e.message); }
+  };});
+}
+
+function openEditStaff(userId, users) {
+  const u = users.find(u => u.id === userId);
+  if (!u) return;
+  const ranks = ['CI','Sgt','FS','WO','A/Plt Off','Plt Off','Fg Off','Flt Lt','Sqn Ldr'];
+  const roles = ['OC','Adj','Trg Off','SNCO','CI'];
+  const rankOpts = ranks.map(r => '<option value="' + r + '"' + (u.rank===r?' selected':'') + '>' + r + '</option>').join('');
+  const roleOpts = roles.map(r => '<option value="' + r + '"' + (u.role===r?' selected':'') + '>' + r + '</option>').join('');
+  showModal(mHead('EDIT STAFF MEMBER') + '<div class="modal-body">' +
+    '<div id="es-error"></div>' +
+    '<div class="form-group"><label>Forename</label><input id="es-forename" value="' + u.forename + '"></div>' +
+    '<div class="form-group"><label>Surname</label><input id="es-surname" value="' + u.surname + '"></div>' +
+    '<div class="form-group"><label>Rank</label><select id="es-rank"><option value="">— Select Rank —</option>' + rankOpts + '</select></div>' +
+    '<div class="form-group"><label>Role</label><select id="es-role"><option value="">— Select Role —</option>' + roleOpts + '</select></div>' +
+    '<div class="form-group"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="es-admin"' + (u.is_admin?' checked':'') + '> Admin privileges</label></div>' +
+    '</div><div class="modal-footer"><button class="btn btn-ghost" id="es-back">← Back</button><button class="btn btn-primary" id="es-save">Save Changes</button></div>', true);
+
+  document.getElementById('es-back').onclick = () => openManageStaff();
+  document.getElementById('es-save').onclick = async () => {
+    const btn = document.getElementById('es-save');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      await PATCH('/users/' + userId + '/edit', {
+        forename: document.getElementById('es-forename').value.trim(),
+        surname: document.getElementById('es-surname').value.trim(),
+        rank: document.getElementById('es-rank').value || null,
+        role: document.getElementById('es-role').value || null,
+        is_admin: document.getElementById('es-admin').checked
+      });
+      S.users = null;
+      openManageStaff();
+    } catch(e) { btn.disabled=false; btn.textContent='Save Changes'; showError('es-error', e.message); }
+  };
+}
+
+async function openManageCadets() {
+  const cadets = await loadCadets();
+  const active = cadets.filter(c => c.active);
+  const inactive = cadets.filter(c => !c.active);
+
+  function renderManageCadets() {
+    showModal(`${mHead('MANAGE CADETS')}<div class="modal-body">
+      <div style="margin-bottom:16px">
+        <button class="btn btn-primary" id="mc-addcadet">+ Add Cadet</button>
+      </div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input id="mc-search" placeholder="Search by name or service number..." type="text"></div>
+
+      <div class="section-label" style="margin-top:16px">Active Cadets <span style="font-weight:400;color:var(--text3)">(${active.length})</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Service No</th><th>Name</th><th>Flight</th><th>Actions</th></tr></thead>
+        <tbody id="mc-active-tbody">${activeTableHTML(active)}</tbody>
+      </table></div>
+
+      ${inactive.length > 0 ? `
+      <div class="section-label" style="margin-top:24px">Inactive Cadets <span style="font-weight:400;color:var(--text3)">(${inactive.length})</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Service No</th><th>Name</th><th>Flight</th><th>Actions</th></tr></thead>
+        <tbody id="mc-inactive-tbody">${inactiveTableHTML(inactive)}</tbody>
+      </table></div>` : ''}
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`, true);
+
+    document.getElementById('mc-addcadet').onclick = openAddCadet;
+
+    document.getElementById('mc-search').oninput = e => {
+      const s = e.target.value.toLowerCase();
+      const fa = active.filter(c => (c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s));
+      const fi = inactive.filter(c => (c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s));
+      document.getElementById('mc-active-tbody').innerHTML = activeTableHTML(fa);
+      if (document.getElementById('mc-inactive-tbody')) document.getElementById('mc-inactive-tbody').innerHTML = inactiveTableHTML(fi);
+      bindCadetTableActions();
+    };
+
+    bindCadetTableActions();
+  }
+
+  function activeTableHTML(list) {
+    if (!list.length) return '<tr><td colspan="4"><div class="empty">No active cadets found</div></td></tr>';
+    return list.map(c => `<tr>
+      
+      <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
+      <td style="font-size:13px">${c.flight||'—'}</td>
+      <td><button class="btn btn-danger btn-sm mc-deactivate" data-id="${c.id}" data-name="${c.rank} ${c.surname}">Deactivate</button></td>
+    </tr>`).join('');
+  }
+
+  function inactiveTableHTML(list) {
+    if (!list.length) return '<tr><td colspan="4"><div class="empty">No inactive cadets found</div></td></tr>';
+    return list.map(c => `<tr style="opacity:0.7">
+      
+      <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
+      <td style="font-size:13px">${c.flight||'—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" data-view="${c.id}">View Record</button>
+        <button class="btn btn-ghost btn-sm mc-reactivate" data-id="${c.id}">Reactivate</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  function bindCadetTableActions() {
+    document.querySelectorAll('[data-view]').forEach(btn => {
+      btn.onclick = () => openCadetRecord(parseInt(btn.dataset.view));
+    });
+    document.querySelectorAll('.mc-deactivate').forEach(btn => {
+      btn.onclick = async () => {
+        if (!confirm(`Deactivate ${btn.dataset.name}?\n\nThey must have no outstanding kit. Their history will be kept.`)) return;
+        btn.disabled = true; btn.textContent = 'Working...';
+        try {
+          await PATCH(`/cadets/${btn.dataset.id}/deactivate`);
+          S.cadets = null;
+          await loadCadets();
+          renderManageCadets();
+        } catch(e) { alert('Error: ' + e.message); btn.disabled=false; btn.textContent='Deactivate'; }
+      };
+    });
+
+    document.querySelectorAll('.mc-reactivate').forEach(btn => {
+      btn.onclick = async () => {
+        if (!confirm('Reactivate this cadet?')) return;
+        btn.disabled = true; btn.textContent = 'Working...';
+        try {
+          await PATCH(`/cadets/${btn.dataset.id}/reactivate`);
+          S.cadets = null;
+          await loadCadets();
+          renderManageCadets();
+        } catch(e) { alert('Error: ' + e.message); btn.disabled=false; btn.textContent='Reactivate'; }
+      };
+    });
+  }
+
+  renderManageCadets();
+}
+
+async function openRemoveStock() {
+  const [items] = await Promise.all([loadItems(), loadStock()]);
+  let selectedItem = null;
+
+  function renderAdjust() {
+    showModal(`${mHead('ADJUST STOCK')}<div class="modal-body">
+      <div class="alert alert-info">Select an item and size, then enter the quantity to <strong>remove</strong> from inventory. Use this for damaged, lost or written-off stock.</div>
+      ${!selectedItem ? `
+        <div class="section-label">Select Item</div>
+        <div class="item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>
+      ` : `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-family:var(--head);font-size:22px;color:var(--blue)">${selectedItem.short_name}</div>
+          <button class="btn btn-ghost btn-sm" id="adj-change">Change Item</button>
+        </div>
+        <div class="section-label">Select Size and Quantity to Remove</div>
+        <div id="adj-error"></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          ${selectedItem.sizes.map(s => {
+            const qty = (S.stock||[]).find(st=>st.item_id===selectedItem.id&&st.size_id===s.id)?.quantity??0;
+            return `<div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:4px">${s.size_label}</div>
+              <div style="font-size:13px;color:${qty===0?'var(--red)':'var(--green)'};font-weight:700;margin-bottom:8px">${qty} in stock</div>
+              ${qty > 0 ? `
+                <input type="number" class="adj-qty" data-item="${selectedItem.id}" data-size="${s.size_id||s.id}" data-max="${qty}" placeholder="Remove qty" min="1" max="${qty}" style="font-size:13px;padding:6px 10px">
+              ` : `<div style="font-size:12px;color:var(--text3)">None in stock</div>`}
+            </div>`;
+          }).join('')}
+        </div>
+      `}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="admin">← Back</button>
+      ${selectedItem ? `<button class="btn btn-danger" id="adj-submit">Remove Stock</button>` : ''}
+    </div>`, true);
+
+    document.getElementById('adj-change')?.addEventListener('click', () => { selectedItem=null; renderAdjust(); });
+    document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderAdjust(); }; });
+
+    document.getElementById('adj-submit')?.addEventListener('click', async () => {
+      const adjustments = [];
+      let hasError = false;
+      document.querySelectorAll('.adj-qty').forEach(inp => {
+        const qty = parseInt(inp.value);
+        const max = parseInt(inp.dataset.max);
+        if (!qty || qty <= 0) return;
+        if (qty > max) { showError('adj-error', `Cannot remove more than ${max} from a size`); hasError=true; return; }
+        adjustments.push({ item_id: parseInt(inp.dataset.item), size_id: parseInt(inp.dataset.size), quantity: -qty });
+      });
+      if (hasError) return;
+      if (adjustments.length === 0) { showError('adj-error', 'Please enter a quantity to remove for at least one size'); return; }
+
+      const btn = document.getElementById('adj-submit');
+      btn.disabled = true; btn.textContent = 'Removing...';
+      try {
+        await POST('/stock/bulk-adjust', adjustments);
+        S.stock = null;
+        showModal(`${mHead('ADJUST STOCK')}<div class="modal-body">
+          <div class="alert alert-success">&#10003; Stock updated. ${adjustments.length} size${adjustments.length!==1?'s':''} adjusted.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" data-action="close">Done</button>
+          <button class="btn btn-primary" id="adj-another">Adjust More Stock</button>
+        </div>`);
+        document.getElementById('adj-another').onclick = openRemoveStock;
+      } catch(e) { btn.disabled=false; btn.textContent='Remove Stock'; showError('adj-error', e.message); }
+    });
+  }
+
+  renderAdjust();
+}
+
+
+async function openInactiveCadets() {
+  await loadCadets();
+  const inactive = (S.cadets||[]).filter(c => !c.active);
+
+  showModal(`${mHead('INACTIVE CADETS')}<div class="modal-body">
+    <div class="alert alert-info">These cadets have been deactivated. Their kit history and audit records are fully preserved.</div>
+    ${inactive.length === 0
+      ? '<div class="empty">No inactive cadets on record.</div>'
+      : `<div class="table-wrap"><table>
+        <thead><tr><th>Service No</th><th>Name</th><th>Gender</th><th>Flight</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${inactive.map(c => `<tr>
+            
+            <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
+            <td style="font-size:13px">${c.gender}</td>
+            <td style="font-size:13px">${c.flight||'—'}</td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm" data-view="${c.id}">View Record</button>
+              <button class="btn btn-ghost btn-sm reactivate-btn" data-id="${c.id}" data-name="${c.rank} ${c.surname}">Reactivate</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`
+    }
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" data-action="admin">← Back</button>
+  </div>`, true);
+
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    btn.onclick = () => openCadetRecord(parseInt(btn.dataset.view));
+  });
+
+  document.querySelectorAll('.reactivate-btn').forEach(btn => {
+    btn.onclick = async () => {
+      if (!confirm(`Reactivate ${btn.dataset.name}?`)) return;
+      btn.disabled = true; btn.textContent = 'Working...';
+      try {
+        await PATCH(`/cadets/${btn.dataset.id}/reactivate`);
+        S.cadets = null;
+        await loadCadets();
+        openInactiveCadets();
+      } catch(e) { alert('Error: ' + e.message); btn.disabled=false; btn.textContent='Reactivate'; }
+    };
+  });
+}
+
+async function openFeedback() {
+  const items = await GET('/feedback/');
+  const isAdmin = S.user.is_admin;
+  const open = items.filter(f => f.status === 'open');
+  const replied = items.filter(f => f.status === 'replied');
+  const closed = items.filter(f => f.status === 'closed');
+
+  function statusBadge(s) {
+    if (s === 'open') return '<span class="badge badge-gold">Open</span>';
+    if (s === 'replied') return '<span class="badge badge-green">Replied</span>';
+    return '<span class="badge badge-grey">Closed</span>';
+  }
+
+  function catBadge(c) {
+    const map = { 'Stock Request': 'badge-blue', 'Issue / Problem': 'badge-gold', 'General': 'badge-grey', 'Other': 'badge-grey' };
+    return '<span class="badge ' + (map[c] || 'badge-grey') + '" style="margin-right:6px">' + c + '</span>';
+  }
+
+  function itemHTML(f) {
+    return '<div style="border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+        '<div style="font-weight:700;font-size:14px">' + f.subject + '</div>' +
+        '<div style="display:flex;gap:6px;align-items:center">' + catBadge(f.category) + statusBadge(f.status) + '</div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">From: ' + (f.submitted_by_rank ? f.submitted_by_rank + ' ' : '') + f.submitted_by + ' · ' + fmt(f.created_at) + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);background:var(--bg);padding:10px;border-radius:6px;margin-bottom:8px">' + f.message.split('\n').join('<br>') + '</div>' +
+      (f.admin_reply ? '<div style="font-size:12px;color:var(--text3);margin-bottom:4px">Reply from ' + f.replied_by + ' · ' + fmt(f.replied_at) + '</div><div style="font-size:13px;background:var(--green-light);color:var(--green);padding:10px;border-radius:6px;margin-bottom:8px">' + f.admin_reply.split('\n').join('<br>') + '</div>' : '') +
+      (isAdmin && f.status === 'open' ? '<div style="display:flex;gap:8px;align-items:flex-end"><textarea id="reply-' + f.id + '" rows="2" placeholder="Type a reply..." style="flex:1;font-size:13px"></textarea><button class="btn btn-primary btn-sm feedback-reply-btn" data-id="' + f.id + '">Reply</button><button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Close</button></div>' : '') +
+      (isAdmin && f.status === 'replied' ? '<button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Mark Closed</button>' : '') +
+    '</div>';
+  }
+
+  const submitForm = '<div style="background:var(--blue-pale);border-radius:var(--r);padding:16px;margin-bottom:16px">' +
+    '<div class="section-label" style="margin-bottom:12px">Submit a Note to Admin</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+      '<input id="fb-subject" placeholder="Subject..." style="font-size:13px">' +
+      '<select id="fb-category" style="font-size:13px"><option>General</option><option>Stock Request</option><option>Issue / Problem</option><option>Other</option></select>' +
+    '</div>' +
+    '<textarea id="fb-message" rows="3" placeholder="Describe your note or request..." style="font-size:13px;margin-bottom:8px"></textarea>' +
+    '<button class="btn btn-primary btn-sm" id="fb-submit">Submit Note</button>' +
+    '<span id="fb-error" style="color:var(--red);font-size:12px;margin-left:10px"></span>' +
+  '</div>';
+
+  // Admin can also submit notes to themselves for record-keeping
+  const adminView = (open.length > 0 ? '<div class="section-label">Open (' + open.length + ')</div>' + open.map(itemHTML).join('') : '<div class="alert alert-success" style="margin-bottom:16px">✓ No open notes.</div>') +
+    (replied.length > 0 ? '<div class="section-label" style="margin-top:16px">Replied (' + replied.length + ')</div>' + replied.map(itemHTML).join('') : '') +
+    (closed.length > 0 ? '<div class="section-label" style="margin-top:16px">Closed (' + closed.length + ')</div>' + closed.map(itemHTML).join('') : '');
+
+  const staffView = submitForm +
+    (items.length > 0 ? '<div class="section-label">Your Notes</div>' + items.map(itemHTML).join('') : '<div class="empty">No notes submitted yet.</div>');
+
+  showModal(mHead('💬 NOTES & FEEDBACK') + '<div class="modal-body">' + (isAdmin ? adminView : staffView) + '</div>' +
+    '<div class="modal-footer"><button class="btn btn-ghost" data-action="close">Close</button></div>', true);
+
+  // Submit
+  document.getElementById('fb-submit')?.addEventListener('click', async () => {
+    const subject = document.getElementById('fb-subject').value.trim();
+    const message = document.getElementById('fb-message').value.trim();
+    const category = document.getElementById('fb-category').value;
+    const err = document.getElementById('fb-error');
+    if (!subject || !message) { if(err) err.textContent = 'Please fill in subject and message'; return; }
+    try {
+      await POST('/feedback/', { subject, message, category });
+      openFeedback();
+    } catch(e) { if(err) err.textContent = e.message; }
+  });
+
+  // Admin reply
+  document.querySelectorAll('.feedback-reply-btn').forEach(btn => {
+    btn.onclick = async () => {
+      const reply = document.getElementById('reply-' + btn.dataset.id)?.value.trim();
+      if (!reply) return;
+      await PATCH('/feedback/' + btn.dataset.id + '/reply', { reply });
+      refreshFeedbackBadge();
+      openFeedback();
+    };
+  });
+
+  // Close
+  document.querySelectorAll('.feedback-close-btn').forEach(btn => {
+    btn.onclick = async () => {
+      await PATCH('/feedback/' + btn.dataset.id + '/close', {});
+      refreshFeedbackBadge();
+      openFeedback();
+    };
+  });
+
+  refreshFeedbackBadge();
+}
+
+async function openBadgeTracker(startView=null, startCat=null) {
+  const [cadets, allBadges] = await Promise.all([loadCadets(), GET('/badges/items')]);
+  const activeCadets = cadets.filter(c => c.active);
+  const badges = allBadges.filter(b => b.routine_stock || b.quantity > 0);
+
+  const categories = ['Rank Slides', 'Misc', 'Classification', 'PTS'];
+  const catIcons = { 'Rank Slides': '🎖️', 'Misc': '📌', 'Classification': '⭐', 'PTS': '🏅' };
+  const catDesc = {
+    'Rank Slides': 'Cadet & Staff Cadet rank slides (pairs)',
+    'Misc': 'Squadron identifier, beret badge, TRF, lanyard',
+    'Classification': '1st Class, Leading, Senior, Master',
+    'PTS': 'Progressive Training Standard badges'
+  };
+
+  const RANK_ORDER = ['Corporal', 'Sergeant', 'Flight Sergeant', 'Cadet Warrant Officer',
+    'Corporal – Staff Cadet', 'Sergeant – Staff Cadet', 'Flight Sergeant – Staff Cadet', 'Cadet Warrant Officer – Staff Cadet'];
+  const CLASS_ORDER = ['1st Class', 'Leading', 'Senior', 'Master'];
+
+  let selectedCat = startCat || null;
+  let view = startView || 'home'; // 'home', 'stock', 'issue', 'cadet'
+  let selectedCadet = null;
+  let selectedBadge = null;
+
+  function getCatBadges(cat) {
+    let list = badges.filter(b => b.category === cat);
+    if (cat === 'Rank Slides') list = list.sort((a, b) => RANK_ORDER.indexOf(a.name) - RANK_ORDER.indexOf(b.name));
+    if (cat === 'Classification') list = list.sort((a, b) => CLASS_ORDER.indexOf(a.name) - CLASS_ORDER.indexOf(b.name));
+    return list;
+  }
+
+  function catStockCount(cat) {
+    return badges.filter(b => b.category === cat).reduce((s, b) => s + b.quantity, 0);
+  }
+
+  function homeHTML() {
+    const tiles = categories.map(c => {
+      const total = catStockCount(c);
+      return '<button class="home-btn" data-cat-tile="' + c + '" style="padding:24px;text-align:center">' +
+        '<div class="home-btn-icon" style="font-size:28px;width:56px;height:56px">' + catIcons[c] + '</div>' +
+        '<div class="home-btn-label" style="font-size:18px">' + c + '</div>' +
+        '<div class="home-btn-sub">' + catDesc[c] + '</div>' +
+        '<div style="margin-top:8px;font-size:11px;font-family:var(--mono);color:' + (total > 0 ? 'var(--green)' : 'var(--text3)') + '">' + total + ' IN STOCK</div>' +
+        '</button>';
+    }).join('');
+
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' + tiles + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+      '<button class="btn btn-ghost" id="bt-cadet-view">👤 View Cadet Badges</button>' +
+      '</div>';
+  }
+
+  function stockHTML() {
+    const list = getCatBadges(selectedCat);
+    if (selectedCat === 'PTS') {
+      const disciplines = [...new Set(list.map(b => b.subcategory))];
+      let rows = '';
+      disciplines.forEach(disc => {
+        const discBadges = list.filter(b => b.subcategory === disc);
+        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + disc.toUpperCase() + '</td></tr>';
+        discBadges.forEach(b => {
+          const level = b.name.split(' – ').pop();
+          const levelColor = level === 'Blue' ? '#1d4ed8' : level === 'Bronze' ? '#92400e' : level === 'Silver' ? '#374151' : '#854d0e';
+          rows += '<tr><td style="padding-left:24px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + levelColor + ';margin-right:8px;vertical-align:middle"></span>' + level + '</td>';
+          rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
+          rows += '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>';
+        });
+      });
+      return '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }
+    if (selectedCat === 'Rank Slides') {
+      const subcats = [...new Set(list.map(b => b.subcategory || 'Other'))];
+      let rows = '';
+      subcats.forEach(sub => {
+        const subBadges = list.filter(b => (b.subcategory || 'Other') === sub);
+        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + sub.toUpperCase() + '</td></tr>';
+        subBadges.forEach(b => {
+          rows += '<tr><td style="padding-left:24px"><strong>' + b.name.replace(' – Staff Cadet', '') + '</strong></td>';
+          rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
+          rows += '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>';
+        });
+      });
+      return '<div class="table-wrap"><table><thead><tr><th>Rank Slide (Pairs)</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }
+    const rows = list.map(b => '<tr><td><strong>' + b.name + '</strong></td><td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td><td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td></tr>').join('');
+    return '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  function issueHTML() {
+    const list = getCatBadges(selectedCat);
+    const catChips = categories.map(c => '<button class="chip' + (selectedCat === c ? ' active' : '') + '" data-cat="' + c + '">' + c + '</button>').join('');
+    let badgeList = '';
+    if (selectedCat === 'PTS') {
+      const disciplines = [...new Set(list.map(b => b.subcategory))];
+      disciplines.forEach(disc => {
+        const discBadges = list.filter(b => b.subcategory === disc);
+        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + disc + '</div>';
+        discBadges.forEach(b => {
+          const level = b.name.split(' – ').pop();
+          const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
+          const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
+          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + level + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
+        });
+      });
+    } else if (selectedCat === 'Rank Slides') {
+      const subcats = [...new Set(list.map(b => b.subcategory || 'Other'))];
+      subcats.forEach(sub => {
+        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + sub + '</div>';
+        list.filter(b => (b.subcategory || 'Other') === sub).forEach(b => {
+          const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
+          const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
+          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + b.name.replace(' – Staff Cadet', '') + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' pairs</div></div>';
+        });
+      });
+    } else {
+      list.forEach(b => {
+        const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
+        const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
+        badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + b.name + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
+      });
+    }
+    const cadetList = activeCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
+    const selectedInfo = selectedBadge ? '<div style="background:var(--blue-pale);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:8px">Selected: <strong>' + selectedBadge.name + '</strong></div>' : '';
+    const issueDisabled = (!selectedBadge || !selectedCadet) ? 'disabled' : '';
+    return '<div id="badge-issue-error"></div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' + catChips + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+        '<div><div class="section-label">Select Badge</div><div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">' + badgeList + '</div></div>' +
+        '<div><div class="section-label">Select Cadet</div><input id="badge-cadet-search" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:4px">' + cadetList + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:12px">' + selectedInfo + '<button class="btn btn-primary" id="badge-issue-confirm" ' + issueDisabled + '>Issue Badge to Cadet</button></div>';
+  }
+
+  function cadetViewHTML() {
+    const cadetList = activeCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id2="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
+    return '<div class="section-label">Select Cadet</div><input id="badge-cadet-search2" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:16px">' + cadetList + '</div><div id="cadet-badge-history">' + (selectedCadet ? '<div class="loading-text">Select a cadet above</div>' : '<div class="empty">Select a cadet to view their badges</div>') + '</div>';
+  }
+
+  function render() {
+    let header, body, footer, backBtn;
+
+    if (view === 'home') {
+      header = mHead('BADGE TRACKER');
+      body = homeHTML();
+      footer = '<button class="btn btn-ghost" data-action="close">Close</button>';
+    } else if (view === 'stock') {
+      header = mHead(catIcons[selectedCat] + ' ' + selectedCat);
+      body = '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+        '<button class="btn btn-primary btn-sm" id="bv-stock">📦 Stock</button>' +
+        '<button class="btn btn-ghost btn-sm" id="bv-issue">➕ Issue Badge</button>' +
+        '</div>' + stockHTML();
+      footer = '<button class="btn btn-ghost" id="bt-back">← Back</button>';
+    } else if (view === 'issue') {
+      header = mHead('ISSUE BADGE');
+      body = issueHTML();
+      footer = '<button class="btn btn-ghost" id="bt-back">← Back</button>';
+    } else if (view === 'cadet') {
+      header = mHead('CADET BADGES');
+      body = cadetViewHTML();
+      footer = '<button class="btn btn-ghost" id="bt-back">← Back</button>';
+    }
+
+    showModal(header + '<div class="modal-body">' + body + '</div><div class="modal-footer">' + footer + '</div>', true);
+
+    // Home tile clicks
+    document.querySelectorAll('[data-cat-tile]').forEach(btn => {
+      btn.onclick = () => { selectedCat = btn.dataset.catTile; view = 'stock'; render(); };
+    });
+    document.getElementById('bt-cadet-view')?.addEventListener('click', () => { view = 'cadet'; render(); });
+    document.getElementById('bt-back')?.addEventListener('click', () => {
+      if (view === 'issue') { view = 'stock'; render(); }
+      else { view = 'home'; selectedCat = null; render(); }
+    });
+
+    // Stock view tabs
+    document.getElementById('bv-stock')?.addEventListener('click', () => { view = 'stock'; render(); });
+    document.getElementById('bv-issue')?.addEventListener('click', () => { view = 'issue'; render(); });
+
+    // Category chips in issue view
+    document.querySelectorAll('.chip[data-cat]').forEach(chip => {
+      chip.onclick = () => { selectedCat = chip.dataset.cat; selectedBadge = null; render(); };
+    });
+
+    // Add stock
+    document.querySelectorAll('.badge-add-stock').forEach(btn => {
+      btn.onclick = async () => {
+        const qty = parseInt(prompt("Add stock for " + btn.dataset.name + " - how many to add?"));
+        if (!qty || qty < 1) return;
+        await PATCH('/badges/stock/' + btn.dataset.id, { quantity: qty });
+        // Reload from server to get accurate quantities
+        const fresh = await GET('/badges/items');
+        allBadges.length = 0; fresh.forEach(b => allBadges.push(b));
+        badges.length = 0; fresh.filter(b => b.routine_stock || b.quantity > 0).forEach(b => badges.push(b));
+        render();
+      };
+    });
+
+    // Badge select in issue view
+    document.querySelectorAll('[data-badge-id]').forEach(el => {
+      el.onclick = () => {
+        const b = badges.find(b => b.id === parseInt(el.dataset.badgeId));
+        if (!b || b.quantity < 1) { if (document.getElementById('badge-issue-error')) showError('badge-issue-error', 'No stock for this badge'); return; }
+        selectedBadge = b; render();
+      };
+    });
+
+    document.querySelectorAll('[data-cadet-id]').forEach(el => {
+      el.onclick = () => { selectedCadet = activeCadets.find(c => c.id === parseInt(el.dataset.cadetId)); render(); };
+    });
+
+    document.getElementById('badge-cadet-search')?.addEventListener('input', e => {
+      const s = e.target.value.toLowerCase();
+      document.querySelectorAll('[data-cadet-id]').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(s) ? '' : 'none'; });
+    });
+
+    document.getElementById('badge-issue-confirm')?.addEventListener('click', async () => {
+      if (!selectedBadge || !selectedCadet) return;
+      const btn = document.getElementById('badge-issue-confirm');
+      btn.disabled = true; btn.textContent = 'Issuing...';
+      try {
+        await POST('/badges/issue', { badge_item_id: selectedBadge.id, cadet_id: selectedCadet.id });
+        selectedBadge.quantity--;
+        const abi = allBadges.find(b => b.id === selectedBadge.id);
+        if (abi) abi.quantity--;
+        const name = selectedBadge.name;
+        const cadetName = selectedCadet.rank + ' ' + selectedCadet.surname;
+        selectedBadge = null; selectedCadet = null;
+        showModal(mHead('BADGE ISSUED') + '<div class="modal-body"><div class="alert alert-success">✓ ' + name + ' issued to ' + cadetName + '.</div></div>' +
+          '<div class="modal-footer"><button class="btn btn-ghost" id="bi-back">Issue Another</button><button class="btn btn-primary" data-action="close">Done</button></div>');
+        document.getElementById('bi-back').onclick = () => { view = 'issue'; render(); };
+      } catch(e) { btn.disabled = false; btn.textContent = 'Issue Badge to Cadet'; showError('badge-issue-error', e.message); }
+    });
+
+    // Cadet view
+    document.querySelectorAll('[data-cadet-id2]').forEach(el => {
+      el.onclick = async () => {
+        selectedCadet = activeCadets.find(c => c.id === parseInt(el.dataset.cadetId2));
+        render();
+        const issued = await GET('/badges/issued/cadet/' + selectedCadet.id);
+        const el2 = document.getElementById('cadet-badge-history');
+        if (!el2) return;
+        if (!issued.length) { el2.innerHTML = '<div class="empty">No badges issued to this cadet yet.</div>'; return; }
+        let rows = issued.map(i => '<tr><td><strong>' + i.name + '</strong></td><td style="font-size:12px">' + i.category + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(i.issued_at) + '</td><td style="font-size:12px">' + i.issued_by + '</td><td><span class="badge ' + (i.returned ? 'badge-grey' : 'badge-green') + '">' + (i.returned ? 'Returned' : 'Active') + '</span></td><td>' + (!i.returned ? '<button class="btn btn-ghost btn-sm badge-return-btn" data-id="' + i.issued_id + '">Return</button>' : '') + '</td></tr>').join('');
+        el2.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+        document.querySelectorAll('.badge-return-btn').forEach(btn => {
+          btn.onclick = async () => {
+            if (!confirm('Return this badge to stock?')) return;
+            await PATCH('/badges/return/' + btn.dataset.id, {});
+            el.click();
+          };
+        });
+      };
+    });
+
+    document.getElementById('badge-cadet-search2')?.addEventListener('input', e => {
+      const s = e.target.value.toLowerCase();
+      document.querySelectorAll('[data-cadet-id2]').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(s) ? '' : 'none'; });
+    });
+  }
+
+  render();
+}
+
+
+async function openReports() {
+  const [cadets, items] = await Promise.all([loadCadets(), loadItems(), loadStock()]);
+  const activeCadets = cadets.filter(c => c.active);
+
+  showModal(`${mHead('REPORTS')}<div class="modal-body"><div class="loading-text">Generating reports...</div></div>`, true);
+
+  try {
+    // Stock summary using cached stock data
+    const stockData = S.stock || [];
+    const stockMap = {};
+    stockData.forEach(s => {
+      const item = items.find(i => i.id === s.item_id);
+      const size = item?.sizes?.find(sz => sz.id === s.size_id);
+      if (item && size) {
+        if (!stockMap[item.short_name]) stockMap[item.short_name] = [];
+        stockMap[item.short_name].push({ size: size.size_label, qty: s.quantity });
+      }
+    });
+
+    // Kit deficiency - check each active cadet's issued items
+    const kitChecks = await Promise.all(
+      activeCadets.slice(0, 50).map(c => GET('/cadets/' + c.id + '/issued').catch(() => []))
+    );
+
+    const deficiencies = activeCadets.slice(0, 50).map((c, i) => {
+      const issued = Array.isArray(kitChecks[i]) ? kitChecks[i] : [];
+      const hasShirt = issued.some(it => it.short_name && it.short_name.toLowerCase().includes('shirt'));
+      const hasTrousers = issued.some(it => it.short_name && (it.short_name.toLowerCase().includes('trouser') || it.short_name.toLowerCase().includes('skirt')));
+      const hasBeret = issued.some(it => it.short_name && it.short_name.toLowerCase().includes('beret'));
+      const missing = [];
+      if (!hasShirt) missing.push('Shirt');
+      if (!hasTrousers) missing.push('Trousers/Skirt');
+      if (!hasBeret) missing.push('Beret');
+      return { cadet: c, missing, total: issued.length };
+    }).filter(d => d.missing.length > 0);
+
+    showModal(`${mHead('REPORTS')}<div class="modal-body">
+      <div class="section-label">Kit Deficiencies — Active Cadets Missing Core Items</div>
+      ${deficiencies.length === 0
+        ? '<div class="alert alert-success" style="margin-bottom:16px">✓ All active cadets have core uniform items issued.</div>'
+        : `<div class="table-wrap"><table>
+          <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th><th>Issued</th></tr></thead>
+          <tbody>${deficiencies.map(d => `<tr>
+            <td><strong>${d.cadet.rank} ${d.cadet.surname}</strong>, ${d.cadet.forename}</td>
+            <td style="font-family:var(--mono);font-size:12px">${d.cadet.service_number}</td>
+            <td>${d.missing.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
+            <td style="text-align:center;font-family:var(--mono)">${d.total}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+
+      <div class="section-label" style="margin-top:24px">Current Stock Summary</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Sizes Available</th><th>Total</th></tr></thead>
+        <tbody>${Object.entries(stockMap).map(([name, sizes]) => {
+          const total = sizes.reduce((sum, s) => sum + s.qty, 0);
+          const inStock = sizes.filter(s => s.qty > 0);
+          return `<tr>
+            <td><strong>${name}</strong></td>
+            <td style="font-size:12px;color:var(--text2)">${inStock.length > 0 ? inStock.map(s => s.size + ': ' + s.qty).join(', ') : '<span style="color:var(--red)">None in stock</span>'}</td>
+            <td style="font-weight:700;color:${total > 0 ? 'var(--green)' : 'var(--red)'};font-family:var(--mono)">${total}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`, true);
+
+  } catch(e) {
+    showModal(`${mHead('REPORTS')}<div class="modal-body"><div class="alert alert-danger">Error: ${e.message}</div></div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`);
+  }
+}
+
+async function openUnserviceable() {
+  const data = await GET('/audit/unserviceable');
+
+  showModal(`${mHead('UNSERVICEABLE KIT')}<div class="modal-body">
+    <div class="alert alert-warning">&#9888; The items below have been returned as <strong>unserviceable</strong>. They must NOT be re-issued. Set them aside and return to RAF parent stores for destruction or disposal.</div>
+    ${!data || data.length === 0
+      ? '<div class="empty">No unserviceable items on record. ✓</div>'
+      : `<div class="table-wrap"><table>
+        <thead><tr><th>Date Returned</th><th>Item</th><th>Size</th><th>Returned By</th><th>Cadet</th><th>Notes</th></tr></thead>
+        <tbody>
+          ${data.map(r => `<tr>
+            <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmt(r.returned_at)}</td>
+            <td><strong>${r.item_name}</strong></td>
+            <td style="font-family:var(--mono)">${r.size_label}</td>
+            <td style="font-size:13px">${r.returned_by}</td>
+            <td style="font-size:13px">${r.cadet_name}</td>
+            <td style="font-size:12px;color:var(--text3)">${r.notes||'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`
+    }
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-ghost" data-action="admin">← Back</button>
+  </div>`, true);
+}
+
+async function openChangePin() {
+  let newPin = '';
+  let confirmPin = '';
+  let mode = 'new'; // 'new' or 'confirm'
+
+  function renderChangePin() {
+    showModal(`${mHead('CHANGE YOUR PIN')}<div class="modal-body">
+      <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Set a new PIN or password for your account. You will need this to access admin functions.</p>
+      <div id="cp-error"></div>
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:8px">${mode==='new'?'ENTER NEW PIN':'CONFIRM NEW PIN'}</div>
+        <div style="font-size:32px;letter-spacing:12px;color:var(--blue);font-family:var(--mono);min-height:48px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border)">
+          ${mode==='new'?(newPin?'●'.repeat(newPin.length):'<span style="color:var(--text3);font-size:14px">Enter new PIN</span>'):(confirmPin?'●'.repeat(confirmPin.length):'<span style="color:var(--text3);font-size:14px">Confirm PIN</span>')}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px">
+        ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k => k==='' ? '<div></div>' : `<button class="pin-key btn btn-ghost" data-key="${k}" style="padding:18px;font-size:20px;font-weight:700;border-radius:10px">${k}</button>`).join('')}
+      </div>
+      <div style="text-align:center">
+        <input id="cp-text" type="password" placeholder="Or type your PIN here..." style="max-width:240px;text-align:center;letter-spacing:4px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="close">Cancel</button>
+      <button class="btn btn-primary" id="cp-next">${mode==='new'?'Next →':'Save PIN'}</button>
+    </div>`);
+
+    document.querySelectorAll('.pin-key').forEach(btn => {
+      btn.onclick = () => {
+        const k = btn.dataset.key;
+        if (mode === 'new') {
+          if (k === '⌫') newPin = newPin.slice(0,-1);
+          else newPin += k;
+        } else {
+          if (k === '⌫') confirmPin = confirmPin.slice(0,-1);
+          else confirmPin += k;
+        }
+        const disp = document.querySelector('.modal-body div[style*="32px"]');
+        if (disp) {
+          const val = mode === 'new' ? newPin : confirmPin;
+          disp.innerHTML = val ? '●'.repeat(val.length) : `<span style="color:var(--text3);font-size:14px">${mode==='new'?'Enter new PIN':'Confirm PIN'}</span>`;
+        }
+      };
+    });
+
+    document.getElementById('cp-next').onclick = async () => {
+      const textVal = document.getElementById('cp-text').value;
+      if (mode === 'new') {
+        if (textVal) newPin = textVal;
+        if (!newPin) { showError('cp-error', 'Please enter a PIN'); return; }
+        mode = 'confirm';
+        document.getElementById('cp-text').value = '';
+        renderChangePin();
+      } else {
+        if (textVal) confirmPin = textVal;
+        if (!confirmPin) { showError('cp-error', 'Please confirm your PIN'); return; }
+        if (newPin !== confirmPin) { showError('cp-error', 'PINs do not match — try again'); confirmPin=''; renderChangePin(); return; }
+        const btn = document.getElementById('cp-next');
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+          await PATCH(`/users/${S.user.id}/change-pin`, { new_pin: newPin });
+          showModal(`${mHead('PIN CHANGED')}<div class="modal-body">
+            <div class="alert alert-success">✓ Your PIN has been updated successfully.</div>
+          </div><div class="modal-footer"><button class="btn btn-primary" data-action="close">Done</button></div>`);
+        } catch(e) {
+          btn.disabled=false; btn.textContent='Save PIN';
+          showError('cp-error', e.message);
+        }
+      }
+    };
+  }
+
+  renderChangePin();
+}
+
+async function openAuditLog() {
+  const [cadets, items] = await Promise.all([loadCadets(), loadItems()]);
+  let logs = [];
+  let filters = { staff: '', cadet: '', item: '', action: '' };
+
+  async function loadLogs() {
+    let path = '/audit/?limit=200';
+    if (filters.action) path += `&action=${filters.action}`;
+    logs = await GET(path);
+  }
+
+  async function renderAudit() {
+    await loadLogs();
+
+    // Apply client-side filters
+    let filtered = logs;
+    if (filters.cadet) filtered = filtered.filter(l => l.cadet_id === parseInt(filters.cadet));
+    if (filters.staff) filtered = filtered.filter(l => l.user_name.toLowerCase().includes(filters.staff.toLowerCase()));
+    if (filters.item) filtered = filtered.filter(l => l.item_id === parseInt(filters.item));
+
+    const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'CADET_CREATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'USER_CREATE', 'USER_DEACTIVATE', 'STOCK_DELETE'];
+
+    showModal(`${mHead('AUDIT LOG')}<div class="modal-body">
+      <!-- Filters -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div>
+          <label>Filter by Staff</label>
+          <input id="af-staff" placeholder="Staff name..." value="${filters.staff}">
+        </div>
+        <div>
+          <label>Filter by Cadet</label>
+          <select id="af-cadet">
+            <option value="">All Cadets</option>
+            ${cadets.map(c=>`<option value="${c.id}" ${filters.cadet==c.id?'selected':''}>${c.surname}, ${c.forename}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Filter by Item</label>
+          <select id="af-item">
+            <option value="">All Items</option>
+            ${items.map(i=>`<option value="${i.id}" ${filters.item==i.id?'selected':''}>${i.short_name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Filter by Action</label>
+          <select id="af-action">
+            ${actionTypes.map(a=>`<option value="${a}" ${filters.action===a?'selected':''}>${a||'All Actions'}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+        <button class="btn btn-primary btn-sm" id="af-apply">Apply Filters</button>
+        <button class="btn btn-ghost btn-sm" id="af-clear">Clear</button>
+        <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">${filtered.length} records</span>
+      </div>
+
+      <!-- Results -->
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Timestamp</th><th>Action</th><th>Staff</th><th>Details</th></tr></thead>
+          <tbody>
+            ${filtered.length === 0
+              ? '<tr><td colspan="4"><div class="empty">No records found</div></td></tr>'
+              : filtered.map(l => `<tr>
+                <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmt(l.timestamp)}</td>
+                <td><span class="badge ${
+                  l.action.includes('ISSUE') ? 'badge-blue' :
+                  l.action.includes('RETURN') ? 'badge-green' :
+                  l.action.includes('STOCK') ? 'badge-gold' :
+                  l.action.includes('CADET') ? 'badge-grey' : 'badge-grey'
+                }">${l.action}</span></td>
+                <td style="font-size:13px">${l.user_name}</td>
+                <td style="font-size:12px;color:var(--text2)">${l.details||'—'}</td>
+              </tr>`).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="admin">← Back</button>
+    </div>`, true);
+
+    document.getElementById('af-apply').onclick = async () => {
+      filters.staff = document.getElementById('af-staff').value;
+      filters.cadet = document.getElementById('af-cadet').value;
+      filters.item = document.getElementById('af-item').value;
+      filters.action = document.getElementById('af-action').value;
+      await renderAudit();
+    };
+
+    document.getElementById('af-clear').onclick = async () => {
+      filters = { staff: '', cadet: '', item: '', action: '' };
+      await renderAudit();
+    };
+  }
+
+  await renderAudit();
+}
+
+function bind() {
+  document.body.onclick = function(e) {
+    const btn = e.target.closest('button');
+    const id = btn ? btn.id : (e.target.id || '');
+    if (!id) return;
+    if (id === 'feedback-btn') openFeedback();
+    else if (id === 'dark-mode-btn') {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('dark-mode-btn').textContent = isDark ? '🌙' : '☀️';
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    else if (id === 'change-pin-btn') openChangePin();
+    else if (id === 'signout-btn') { if(confirm('Change user?')) doLogout(); }
+    else if (id === 'btn-cadets') openCadets();
+    else if (id === 'btn-issue') openIssueFlow();
+    else if (id === 'btn-return') openReturnFlow();
+    else if (id === 'btn-badges') openBadgeTracker();
+    else if (id === 'btn-search') openSearchUniform();
+    else if (id === 'btn-badges') openBadgeTracker();
+    else if (id === 'btn-admin') openAdmin(); // openAdminAuth() disabled temporarily
+  };
+
+  // Load staff list for selector screen
+  if (!S.user) {
+    loadStaffList().then(staff => {
+      const list = document.getElementById('staff-list');
+      if (!list) return;
+      if (!staff || staff.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text3);padding:20px">No staff found. Check backend is running.</div>';
+        return;
+      }
+      list.innerHTML = staff.map(u => `
+        <button class="staff-select-btn" data-user='${JSON.stringify(u).replace(/'/g,"&#39;")}' style="
+          display:flex;align-items:center;gap:14px;padding:14px 16px;
+          background:white;border:1.5px solid var(--border);border-radius:10px;
+          cursor:pointer;transition:all 0.15s;text-align:left;width:100%;
+          font-family:var(--body);
+        ">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0">
+            ${u.forename[0]}${u.surname[0]}
+          </div>
+          <div>
+            <div style="font-weight:700;color:var(--text);font-size:15px">${u.display_name}</div>
+            ${u.role ? `<div style="font-size:12px;color:var(--text3);font-family:var(--mono)">${u.role}</div>` : ''}
+          </div>
+          ${u.is_admin ? '<span style="margin-left:auto;font-size:10px;background:#fef9c3;color:#854d0e;padding:3px 8px;border-radius:4px;font-family:var(--mono)">ADMIN</span>' : ''}
+        </button>
+      `).join('');
+
+      list.querySelectorAll('.staff-select-btn').forEach(btn => {
+        btn.onmouseover = () => { btn.style.borderColor = 'var(--blue-light)'; btn.style.background = 'var(--blue-pale)'; };
+        btn.onmouseout = () => { btn.style.borderColor = 'var(--border)'; btn.style.background = 'white'; };
+        btn.onclick = () => {
+          const user = JSON.parse(btn.dataset.user);
+          selectUser(user);
+        };
+      });
+    }).catch(err => {
+      const list = document.getElementById('staff-list');
+      if (list) list.innerHTML = `<div class="alert alert-danger">Cannot connect to backend. Make sure the server is running.</div>`;
+    });
+  }
+}
+
+// ── ADMIN AUTH - PIN or Pattern ────────────────────────
+function openAdminAuth() {
+  if (!S.user?.is_admin) {
+    showModal(`${mHead('ADMIN ACCESS')}<div class="modal-body">
+      <div class="alert alert-danger">Your account does not have admin privileges.</div>
+    </div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Close</button></div>`);
+    return;
+  }
+
+  let authMode = 'pin'; // 'pin' or 'pattern'
+  let pinValue = '';
+  let patternSelected = [];
+  const PATTERN_DOTS = 9;
+
+  function renderAuth() {
+    showModal(`${mHead('ADMIN AUTHENTICATION')}<div class="modal-body">
+      <p style="color:var(--text2);margin-bottom:20px;font-size:14px">Verify your identity to access admin functions.</p>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn ${authMode==='pin'?'btn-primary':'btn-ghost'} btn-sm" id="auth-pin-tab">PIN / Password</button>
+        <button class="btn ${authMode==='pattern'?'btn-primary':'btn-ghost'} btn-sm" id="auth-pattern-tab">Pattern</button>
+      </div>
+
+      <div id="auth-error"></div>
+
+      ${authMode === 'pin' ? `
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:32px;letter-spacing:12px;color:var(--blue);font-family:var(--mono);min-height:48px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border)">
+            ${'●'.repeat(pinValue.length) || '<span style="color:var(--text3);font-size:14px">Enter PIN or password</span>'}
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px">
+          ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k => k==='' ? '<div></div>' : `
+            <button class="pin-key btn btn-ghost" data-key="${k}" style="padding:18px;font-size:20px;font-weight:700;border-radius:10px">${k}</button>
+          `).join('')}
+        </div>
+        <div style="text-align:center">
+          <input id="pin-text-input" type="password" placeholder="Or type password here..." style="max-width:240px;text-align:center;letter-spacing:4px">
+        </div>
+      ` : `
+        <div style="text-align:center;margin-bottom:16px">
+          <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Draw your pattern</p>
+          <div id="pattern-grid" style="display:inline-grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:24px;background:var(--bg);border-radius:12px;border:1.5px solid var(--border)">
+            ${Array.from({length:9},(_,i)=>`
+              <div class="pattern-dot" data-dot="${i}" style="
+                width:44px;height:44px;border-radius:50%;
+                background:${patternSelected.includes(i)?'var(--blue)':'var(--border)'};
+                cursor:pointer;transition:all 0.1s;
+                display:flex;align-items:center;justify-content:center;
+                color:white;font-weight:700;font-size:13px;
+              ">${patternSelected.includes(i)?patternSelected.indexOf(i)+1:''}</div>
+            `).join('')}
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-ghost btn-sm" id="clear-pattern">Clear</button>
+          </div>
+        </div>
+      `}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="close">Cancel</button>
+      <button class="btn btn-primary" id="auth-submit">Verify →</button>
+    </div>`);
+
+    // Tab switching
+    document.getElementById('auth-pin-tab').onclick = () => { authMode='pin'; pinValue=''; renderAuth(); };
+    document.getElementById('auth-pattern-tab').onclick = () => { authMode='pattern'; patternSelected=[]; renderAuth(); };
+
+    // PIN keypad
+    document.querySelectorAll('.pin-key').forEach(btn => {
+      btn.onclick = () => {
+        const k = btn.dataset.key;
+        if (k === '⌫') pinValue = pinValue.slice(0,-1);
+        else pinValue += k;
+        // Update display without full re-render
+        const disp = document.querySelector('#auth-pin-tab')?.closest('.modal-body')?.querySelector('div[style*="32px"]');
+        if (disp) disp.innerHTML = pinValue ? '●'.repeat(pinValue.length) : '<span style="color:var(--text3);font-size:14px">Enter PIN or password</span>';
+      };
+    });
+
+    // Pattern dots
+    document.querySelectorAll('.pattern-dot').forEach(dot => {
+      dot.onclick = () => {
+        const i = parseInt(dot.dataset.dot);
+        if (!patternSelected.includes(i)) {
+          patternSelected.push(i);
+          dot.style.background = 'var(--blue)';
+          dot.textContent = patternSelected.length;
+        }
+      };
+    });
+    document.getElementById('clear-pattern')?.addEventListener('click', () => { patternSelected=[]; renderAuth(); });
+
+    // Submit
+    document.getElementById('auth-submit').onclick = async () => {
+      let pin = '';
+      if (authMode === 'pin') {
+        pin = document.getElementById('pin-text-input')?.value || pinValue;
+      } else {
+        pin = patternSelected.join('');
+      }
+      if (!pin) { showError('auth-error', 'Please enter your PIN or draw a pattern'); return; }
+      const btn = document.getElementById('auth-submit');
+      btn.disabled=true; btn.textContent='Verifying...';
+      try {
+        await verifyAdminPin(S.user.id, pin);
+        S.adminVerified = true;
+        closeModal();
+        openAdmin();
+      } catch(e) {
+        btn.disabled=false; btn.textContent='Verify →';
+        showError('auth-error', e.message);
+        pinValue='';
+        patternSelected=[];
+      }
+    };
+  }
+
+  renderAuth();
+}
+
+// Secret admin passage - triple click crest
+let crestClicks = 0, crestTimer = null;
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'login-crest') {
+    crestClicks++;
+    clearTimeout(crestTimer);
+    crestTimer = setTimeout(() => { crestClicks = 0; }, 1500);
+    if (crestClicks >= 3) {
+      crestClicks = 0;
+      // Secret admin passage - use the public users list to find admin user
+      fetch(API + '/users/public').then(r => r.json()).then(staff => {
+        const adminUser = staff.find(u => u.is_admin);
+        if (adminUser) {
+          S.user = adminUser;
+          sessionStorage.setItem('user', JSON.stringify(adminUser));
+          render();
+        }
+      }).catch(() => {});
+    }
+  }
+});
+
+// Apply saved theme
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
+render();
+
+// Load feedback badge count
+async function refreshFeedbackBadge() {
+  if (!S.user) return;
+  try {
+    const data = await GET('/feedback/unread-count');
+    const badge = document.getElementById('feedback-badge');
+    if (badge) {
+      if (data.count > 0) {
+        badge.textContent = data.count;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch(e) {}
+}
+setTimeout(refreshFeedbackBadge, 1000);
+setInterval(refreshFeedbackBadge, 60000);
+
+// 30 second stock refresh
+setInterval(async () => {
+  if (S.user) {
+    S.stock = null;
+    await loadStock();
+  }
+}, 30000);
+</script>
+</body>
+</html>
