@@ -37,6 +37,7 @@ def list_cadets(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from sqlalchemy import func
     q = db.query(Cadet)
     if active_only:
         q = q.filter(Cadet.active == True)
@@ -47,7 +48,16 @@ def list_cadets(
             Cadet.forename.ilike(term) |
             Cadet.service_number.ilike(term)
         )
-    return q.order_by(Cadet.surname, Cadet.forename).all()
+    cadets = q.order_by(Cadet.surname, Cadet.forename).all()
+    issued_counts = dict(
+        db.query(IssuedItem.cadet_id, func.count(IssuedItem.id))
+        .filter(IssuedItem.returned == False)
+        .group_by(IssuedItem.cadet_id)
+        .all()
+    )
+    for c in cadets:
+        c.issued_count = issued_counts.get(c.id, 0)
+    return cadets
 
 
 @router.get("/{cadet_id}", response_model=CadetOut)

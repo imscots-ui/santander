@@ -81,6 +81,7 @@ class CadetOut(BaseModel):
     flight: Optional[str] = None
     active: bool
     joined_at: datetime
+    issued_count: int = 0
 
     model_config = {"from_attributes": True}
 
