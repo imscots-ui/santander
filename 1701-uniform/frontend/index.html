@@ -287,6 +287,7 @@ async function api(method, path, body=null) {
   const h = {'Content-Type':'application/json'};
   const token = await getToken();
   if (token) h['Authorization'] = `Bearer ${token}`;
+  if (S.user?.id) h['X-Staff-Id'] = String(S.user.id);
   const opts = {method, headers:h};
   if (body) opts.body = JSON.stringify(body);
   try {

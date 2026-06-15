@@ -1,6 +1,7 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Header, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from typing import Optional
 from database import get_db
 from models import User
 from utils.jwt_handler import verify_token
@@ -38,3 +39,23 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
             detail="Admin access required",
         )
     return current_user
+
+
+def get_audit_user_id(
+    x_staff_id: Optional[str] = Header(default=None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> int:
+    """Returns the user ID to use for audit logging.
+    Prefers X-Staff-Id header (the selected staff member) over the JWT user,
+    as all API calls share a single admin JWT but each staff member is tracked separately.
+    """
+    if x_staff_id:
+        try:
+            staff_id = int(x_staff_id)
+            staff = db.query(User).filter(User.id == staff_id, User.active == True).first()
+            if staff:
+                return staff_id
+        except (ValueError, TypeError):
+            pass
+    return current_user.id

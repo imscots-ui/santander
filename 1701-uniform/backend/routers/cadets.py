@@ -5,7 +5,7 @@ from typing import List, Optional
 from database import get_db
 from models import Cadet, IssuedItem, User
 from schemas import CadetCreate, CadetOut, CadetUpdate, IssuedItemDetail, CadetHistoryOut
-from utils.auth_dependencies import get_current_user, get_current_admin
+from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
 
 router = APIRouter(prefix="/cadets", tags=["Cadets"])
@@ -16,13 +16,14 @@ def create_cadet(
     cadet_in: CadetCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     if db.query(Cadet).filter(Cadet.service_number == cadet_in.service_number).first():
         raise HTTPException(status_code=400, detail="Service number already exists")
 
     cadet = Cadet(**cadet_in.model_dump())
     db.add(cadet)
-    log_action(db, user_id=current_user.id, action="CADET_CREATE",
+    log_action(db, user_id=audit_user_id, action="CADET_CREATE",
                details=f"Created cadet {cadet_in.service_number} {cadet_in.surname}, {cadet_in.forename}")
     db.commit()
     db.refresh(cadet)
@@ -169,6 +170,7 @@ def deactivate_cadet(
     cadet_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
     if not cadet:
@@ -187,7 +189,7 @@ def deactivate_cadet(
         )
 
     cadet.active = False
-    log_action(db, user_id=current_user.id, action="CADET_DEACTIVATE",
+    log_action(db, user_id=audit_user_id, action="CADET_DEACTIVATE",
                details=f"Deactivated cadet {cadet.service_number} {cadet.surname}, {cadet.forename}",
                cadet_id=cadet_id)
     db.commit()
@@ -202,13 +204,14 @@ def reactivate_cadet(
     cadet_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
     if not cadet:
         raise HTTPException(status_code=404, detail="Cadet not found")
 
     cadet.active = True
-    log_action(db, user_id=current_user.id, action="CADET_REACTIVATE",
+    log_action(db, user_id=audit_user_id, action="CADET_REACTIVATE",
                details=f"Reactivated cadet {cadet.service_number} {cadet.surname}, {cadet.forename}",
                cadet_id=cadet_id)
     db.commit()

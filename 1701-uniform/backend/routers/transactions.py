@@ -5,8 +5,8 @@ from database import get_db
 from schemas import IssueRequest, IssueOut, ReturnRequest, ReturnOut
 from logic.issue_logic import issue_item
 from logic.return_logic import return_item
-from utils.auth_dependencies import get_current_user
-from models import User
+from utils.auth_dependencies import get_current_user, get_audit_user_id
+from models import User, ReturnedItem, IssuedItem, Item, Size, Cadet, UniformCondition
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
@@ -16,6 +16,7 @@ def issue(
     request: IssueRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     """
     Issue a uniform item to a cadet.
@@ -29,11 +30,12 @@ def issue(
         item_id=request.item_id,
         size_id=request.size_id,
         quantity=request.quantity,
-        issued_by_id=current_user.id,
+        issued_by_id=audit_user_id,
         duplicate_reason=request.duplicate_reason,
         notes=request.notes,
     )
 
+    issuer = db.query(User).filter(User.id == audit_user_id).first() or current_user
     return IssueOut(
         issue_id=issued.id,
         cadet_id=issued.cadet_id,
@@ -41,7 +43,7 @@ def issue(
         short_name=issued.item.short_name,
         size_label=issued.size.size_label,
         quantity=issued.quantity,
-        issued_by=f"{current_user.forename} {current_user.surname}",
+        issued_by=f"{issuer.forename} {issuer.surname}",
         issued_at=issued.issued_at,
         duplicate_reason=issued.duplicate_reason,
         notes=issued.notes,
@@ -53,6 +55,7 @@ def process_return(
     request: ReturnRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     """
     Return a uniform item from a cadet.
@@ -65,16 +68,12 @@ def process_return(
         db=db,
         issued_item_id=request.issued_item_id,
         condition=request.condition,
-        returned_by_id=current_user.id,
+        returned_by_id=audit_user_id,
         notes=request.notes,
     )
 
     return ReturnOut(**result)
 
-
-from fastapi import APIRouter
-from sqlalchemy.orm import Session
-from models import ReturnedItem, IssuedItem, Item, Size, Cadet, User, UniformCondition
 
 @router.get("/returns/unserviceable")
 def get_unserviceable(

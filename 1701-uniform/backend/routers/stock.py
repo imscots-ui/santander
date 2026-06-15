@@ -5,7 +5,7 @@ from typing import List
 from database import get_db
 from models import Stock, Item, Size, User
 from schemas import StockOut, StockAdjust
-from utils.auth_dependencies import get_current_user, get_current_admin
+from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
 
 router = APIRouter(prefix="/stock", tags=["Stock"])
@@ -73,6 +73,7 @@ def adjust_stock(
     adjustment: StockAdjust,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     """Admin only. Add or remove stock. Use positive quantity to add, negative to remove."""
     item = db.query(Item).filter(Item.id == adjustment.item_id).first()
@@ -108,7 +109,7 @@ def adjust_stock(
 
     action = "STOCK_ADD" if adjustment.quantity > 0 else "STOCK_REMOVE"
     log_action(
-        db, user_id=admin.id, action=action,
+        db, user_id=audit_user_id, action=action,
         details=f"{action}: {item.short_name} size {size.size_label} by {adjustment.quantity} (new total: {new_qty})",
         item_id=adjustment.item_id,
     )
@@ -128,6 +129,7 @@ def bulk_adjust_stock(
     adjustments: List[StockAdjust],
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     """Admin only. Bulk add stock for multiple items at once."""
     results = []
@@ -151,7 +153,7 @@ def bulk_adjust_stock(
         new_qty = max(0, stock.quantity + adj.quantity)
         stock.quantity = new_qty
 
-        log_action(db, user_id=admin.id, action="STOCK_BULK_ADD",
+        log_action(db, user_id=audit_user_id, action="STOCK_BULK_ADD",
                    details=f"Bulk: {item.short_name} {size.size_label} +{adj.quantity} = {new_qty}",
                    item_id=adj.item_id)
 
@@ -165,11 +167,8 @@ def bulk_adjust_stock(
     return {"updated": results}
 
 
-# ---------------------------------------------------------
-# DELETE STOCK LINE (remove item/size entirely)
-# ---------------------------------------------------------
-from fastapi import APIRouter, Depends, HTTPException
 from models import IssuedItem
+
 
 @router.delete("/item/{item_id}/size/{size_id}")
 def delete_stock_line(
@@ -177,6 +176,7 @@ def delete_stock_line(
     size_id: int,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
 ):
     # Check no outstanding issued items for this size
     outstanding = db.query(IssuedItem).filter(
@@ -205,7 +205,7 @@ def delete_stock_line(
     db.delete(stock)
     db.delete(size)
 
-    log_action(db, user_id=admin.id, action="STOCK_DELETE",
+    log_action(db, user_id=audit_user_id, action="STOCK_DELETE",
                details=f"Deleted stock line: {item.short_name if item else item_id} size {size.size_label if size else size_id}",
                item_id=item_id)
     db.commit()
