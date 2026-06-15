@@ -111,6 +111,123 @@ export default function RiskAssessment({ showToast, addAudit }) {
     showToast(`Risk assessment approved and signed off.`);
   }
 
+  function printRA() {
+    const ra = selectedRA;
+    if (!ra) return;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const maxScore = ra.hazards.reduce((max, h) => Math.max(max, h.likelihood * h.severity), 0);
+    const maxResidual = ra.hazards.reduce((max, h) => Math.max(max, h.residualL * h.residualS), 0);
+    const ratingLabel = s => s <= 4 ? 'LOW' : s <= 9 ? 'MEDIUM' : s <= 14 ? 'HIGH' : 'CRITICAL';
+    const ratingStyle = s => {
+      if (s <= 4)  return 'background:#D1FAE5;color:#065F46';
+      if (s <= 9)  return 'background:#FEF3C7;color:#92400E';
+      if (s <= 14) return 'background:#FEE2E2;color:#991B1B';
+      return 'background:#7F1D1D;color:white';
+    };
+    const hazardRows = ra.hazards.map((h, i) => {
+      const init = h.likelihood * h.severity;
+      const resid = h.residualL * h.residualS;
+      return `<tr style="background:${i%2?'#fafcfe':'white'};vertical-align:top">
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;font-weight:700;font-size:12px;color:#00264D">${h.hazard}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;white-space:nowrap"><span style="background:#EFF2F7;color:#5A7090;padding:2px 7px;border-radius:7px;font-size:10px;font-weight:700">${h.category}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:15px">${h.likelihood}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:15px">${h.severity}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;white-space:nowrap"><span style="padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;${ratingStyle(init)}">${init} · ${ratingLabel(init)}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;font-size:11.5px;color:#1E293B;line-height:1.55;max-width:280px">${h.controls}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:15px">${h.residualL}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:15px">${h.residualS}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #E8ECF5;white-space:nowrap"><span style="padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;${ratingStyle(resid)}">${resid} · ${ratingLabel(resid)}</span></td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Risk Assessment — ${ra.activity}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 landscape;margin:12mm 14mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:12px;margin:0}
+.hdr{display:flex;align-items:flex-start;gap:14px;padding-bottom:10px;border-bottom:3px solid #C8A032;margin-bottom:12px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.doc-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;margin-left:auto;text-align:right}
+.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.meta-box{background:#F5F8FF;border:1.5px solid #D0DCF0;border-radius:7px;padding:9px 12px}
+.meta-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.meta-val{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D}
+.persons{background:#FFF3CC;border:1px solid #FDE68A;border-radius:7px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#92400E;font-weight:600}
+.status-bar{display:flex;align-items:center;gap:12px;padding:8px 14px;border-radius:7px;margin-bottom:12px;font-size:12px;font-weight:700}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#00264D;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#F4F7FB}
+th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#5A7090;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #D0DCF0;white-space:nowrap}
+th.c{text-align:center}
+.legend{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.sig-row{display:flex;gap:24px;margin-top:14px;padding-top:10px;border-top:2px solid #C8A032}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #00264D;height:34px;margin-bottom:4px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sig-name{font-size:11.5px;font-weight:700;color:#00264D;margin-top:2px}
+.reg-note{margin-top:10px;padding:8px 12px;background:#EAF4FF;border:1px solid #B3D4F0;border-radius:7px;font-size:10.5px;color:#003D80}
+.footer{margin-top:10px;padding-top:7px;border-top:1px solid #D0DCF0;font-size:9px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:38px">✈️</span>
+  <div>
+    <div class="sqn">1701 (Johnstone) Squadron ATC</div>
+    <div class="sub">Royal Air Force Air Cadets · Risk Assessment (RA) Form · JSP 375 / RAFAC AP 1919</div>
+  </div>
+  <div class="doc-title">Risk Assessment<br><span style="font-size:14px;color:#5A7090;font-weight:600">${ra.activity}</span></div>
+</div>
+<div class="meta-grid">
+  <div class="meta-box"><div class="meta-label">Activity</div><div class="meta-val">${ra.activity}</div></div>
+  <div class="meta-box"><div class="meta-label">Date(s)</div><div class="meta-val">${ra.date}</div></div>
+  <div class="meta-box"><div class="meta-label">Location</div><div class="meta-val">${ra.location}</div></div>
+  <div class="meta-box"><div class="meta-label">Supervisor</div><div class="meta-val">${ra.supervisor}</div></div>
+</div>
+<div class="meta-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">
+  <div class="meta-box"><div class="meta-label">Persons at Risk</div><div class="meta-val">${ra.personsAtRisk.join(', ')||'—'}</div></div>
+  <div class="meta-box"><div class="meta-label">Max Initial Risk</div><div class="meta-val"><span style="padding:3px 10px;border-radius:7px;font-size:13px;font-weight:800;${ratingStyle(maxScore)}">${maxScore} · ${ratingLabel(maxScore)}</span></div></div>
+  <div class="meta-box"><div class="meta-label">Max Residual Risk</div><div class="meta-val"><span style="padding:3px 10px;border-radius:7px;font-size:13px;font-weight:800;${ratingStyle(maxResidual)}">${maxResidual} · ${ratingLabel(maxResidual)}</span></div></div>
+</div>
+${ra.status === 'Approved' ? `<div class="status-bar" style="background:#D1FAE5;color:#065F46">✅ APPROVED — Signed off by ${ra.signedBy} on ${ra.signedDate}. Activity may proceed.</div>` : `<div class="status-bar" style="background:#FEF3C7;color:#92400E">⚠ DRAFT — This assessment requires OC sign-off before the activity commences.</div>`}
+<div class="section-title">Hazard Register (${ra.hazards.length} hazard${ra.hazards.length !== 1 ? 's' : ''})</div>
+<table>
+  <thead><tr>
+    <th>Hazard</th><th>Category</th>
+    <th class="c">L</th><th class="c">S</th><th>Initial Rating</th>
+    <th>Control Measures</th>
+    <th class="c">L</th><th class="c">S</th><th>Residual Rating</th>
+  </tr></thead>
+  <tbody>${hazardRows || '<tr><td colspan="9" style="padding:14px;text-align:center;color:#5A7090">No hazards logged for this assessment.</td></tr>'}</tbody>
+</table>
+<div class="legend">
+  <span style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase">Rating scale (L × S):</span>
+  <span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;background:#D1FAE5;color:#065F46">LOW (1–4)</span>
+  <span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;background:#FEF3C7;color:#92400E">MEDIUM (5–9)</span>
+  <span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;background:#FEE2E2;color:#991B1B">HIGH (10–14)</span>
+  <span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;background:#7F1D1D;color:white">CRITICAL (15–25)</span>
+  <span style="font-size:10px;color:#5A7090;margin-left:6px">L = Likelihood · S = Severity</span>
+</div>
+<div class="sig-row">
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Supervisor / Activity Leader</div><div class="sig-name">${ra.supervisor}</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Officer Commanding</div><div class="sig-name">${ra.status === 'Approved' ? ra.signedBy : 'Flt Lt A. McDonald'}</div><div class="sig-label">1701 (Johnstone) Squadron ATC</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Wing AT / Actitivies Officer</div><div class="sig-name">________________________</div><div class="sig-label">West of Scotland Wing ATC</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Date Approved</div><div class="sig-name">${ra.signedDate || dateStr}</div></div>
+</div>
+<div class="reg-note">This risk assessment is produced in accordance with JSP 375 (MOD Health & Safety Handbook) and RAFAC AP 1919. It must be approved and signed by the OC before the activity commences. A copy must be held at the activity venue and at squadron HQ. Review this assessment if circumstances change.</div>
+<div class="footer">1701-RA-${ra.id.toUpperCase()} · OFFICIAL · JSP 375 / RAFAC AP 1919 · ${dateStr} · West of Scotland Wing ATC</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Risk Assessment printed', ra.activity, `Printed by OC · ${dateStr}`);
+    showToast && showToast(`🖨️ Risk assessment printing: ${ra.activity}…`);
+  }
+
   const Pill = ({ children, bg, color, fontSize }) => (
     <span style={{ background:bg, color, padding:'2px 9px', borderRadius:10, fontSize: fontSize || 10, fontWeight:700, whiteSpace:'nowrap' }}>{children}</span>
   );
@@ -324,6 +441,10 @@ export default function RiskAssessment({ showToast, addAudit }) {
                 ✅ Approve & Sign Off
               </button>
             )}
+            <button onClick={printRA}
+              style={{ padding:'9px 18px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
+              🖨️ Print RA
+            </button>
             <button onClick={() => setShowNewHA(v => !v)}
               style={{ padding:'9px 18px', background:gold, color:navy, border:'none', borderRadius:8, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.03em' }}>
               + Add Hazard
