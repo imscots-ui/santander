@@ -99,7 +99,12 @@ def reply_to_feedback(feedback_id: int, payload: FeedbackReply, db: Session = De
 
 
 @router.patch("/{feedback_id}/close")
-def close_feedback(feedback_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+def close_feedback(feedback_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    item = db.execute(text("SELECT id, submitted_by_id FROM feedback WHERE id = :id"), {"id": feedback_id}).fetchone()
+    if not item:
+        raise HTTPException(status_code=404, detail="Feedback not found")
+    if not current_user.is_admin and item.submitted_by_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only close your own feedback items")
     db.execute(text("UPDATE feedback SET status = 'closed' WHERE id = :id"), {"id": feedback_id})
     db.commit()
     return {"message": "Feedback closed"}

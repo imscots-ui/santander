@@ -84,7 +84,7 @@ def update_cadet(
     if not cadet:
         raise HTTPException(status_code=404, detail="Cadet not found")
 
-    for field, value in update.model_dump(exclude_none=True).items():
+    for field, value in update.model_dump(exclude_unset=True).items():
         setattr(cadet, field, value)
 
     log_action(db, user_id=audit_user_id, action="CADET_UPDATE",

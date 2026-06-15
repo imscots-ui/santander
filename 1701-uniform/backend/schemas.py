@@ -72,7 +72,6 @@ class CadetUpdate(BaseModel):
     gender: Optional[Gender] = None
     flight: Optional[str] = None
     notes: Optional[str] = None
-    active: Optional[bool] = None
 
 
 class CadetOut(BaseModel):

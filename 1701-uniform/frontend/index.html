@@ -816,6 +816,14 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
 
     document.getElementById('i-back')?.addEventListener('click', () => { step--; if(step===1) selectedCategory=null; renderStep(); });
 
+    // "Next" button is shown while auto-advance steps are active; give feedback if clicked
+    document.getElementById('i-next')?.addEventListener('click', () => {
+      const msg = step===1 ? 'Please select an item to continue'
+        : step===2 ? 'Please select a size to continue'
+        : step===3 ? 'Please select a cadet to continue' : '';
+      if (msg) showError('issue-error', msg);
+    });
+
     if (step===1) {
       // Category buttons
       document.querySelectorAll('.cat-btn').forEach(c => {
@@ -1528,6 +1536,13 @@ async function openKitList() {
     const groups = {};
     kitItems.filter(k=>k.group_key).forEach(k => { if(!groups[k.group_key]) groups[k.group_key]=[]; groups[k.group_key].push(k); });
 
+    // Build map of item_id -> Set of gender_restriction values already on list
+    const usedMap = {};
+    kitItems.forEach(k => {
+      if (!usedMap[k.item_id]) usedMap[k.item_id] = new Set();
+      usedMap[k.item_id].add(k.gender_restriction || '');
+    });
+
     showModal(`${mHead('REQUIRED KIT LIST')}<div class="modal-body">
       <div class="alert alert-info" style="margin-bottom:16px">This list defines what items each active cadet is expected to have issued. Kit deficiency reports are based on this list.</div>
       <div class="section-label">Current Required Items (${kitItems.length})</div>
@@ -1549,7 +1564,19 @@ async function openKitList() {
         <div class="form-group" style="margin:0"><label>Item <span style="color:var(--red)">*</span></label>
           <select id="kl-item">
             <option value="">— Select item —</option>
-            ${allItems.map(i=>`<option value="${i.id}">${i.short_name} (${i.category||'Uncategorised'})</option>`).join('')}
+            ${allItems.map(i => {
+              const used = usedMap[i.id] || new Set();
+              const fullyUsed = used.has('') && used.has('male') && used.has('female');
+              let note = '';
+              if (used.size > 0) {
+                const parts = [];
+                if (used.has('')) parts.push('all');
+                if (used.has('male')) parts.push('male');
+                if (used.has('female')) parts.push('female');
+                note = ` — ${parts.join('+')} on list`;
+              }
+              return `<option value="${i.id}"${fullyUsed?' disabled':''}>${i.short_name} (${i.category||'Uncategorised'})${note}</option>`;
+            }).join('')}
           </select>
         </div>
         <div class="form-group" style="margin:0"><label>Gender Restriction</label>
@@ -1593,6 +1620,11 @@ async function openKitList() {
       const label = document.getElementById('kl-label').value.trim() || null;
       const group = document.getElementById('kl-group').value.trim() || null;
       if (!itemId) { showError('kl-error', 'Please select an item'); return; }
+      const dupKey = gender || '';
+      if ((usedMap[itemId] || new Set()).has(dupKey)) {
+        showError('kl-error', `This item is already on the kit list with the same gender restriction — choose a different gender or remove the existing entry first`);
+        return;
+      }
       const addBtn = document.getElementById('kl-add');
       addBtn.disabled = true; addBtn.textContent = 'Adding...';
       try {
@@ -2529,6 +2561,7 @@ async function openFeedback() {
       (f.admin_reply ? '<div style="font-size:12px;color:var(--text3);margin-bottom:4px">Reply from ' + f.replied_by + ' · ' + fmt(f.replied_at) + '</div><div style="font-size:13px;background:var(--green-light);color:var(--green);padding:10px;border-radius:6px;margin-bottom:8px">' + f.admin_reply.split('\n').join('<br>') + '</div>' : '') +
       (isAdmin && f.status === 'open' ? '<div style="display:flex;gap:8px;align-items:flex-end"><textarea id="reply-' + f.id + '" rows="2" placeholder="Type a reply..." style="flex:1;font-size:13px"></textarea><button class="btn btn-primary btn-sm feedback-reply-btn" data-id="' + f.id + '">Reply</button><button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Close</button></div>' : '') +
       (isAdmin && f.status === 'replied' ? '<button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Mark Closed</button>' : '') +
+      (!isAdmin && f.status === 'replied' ? '<button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '" style="font-size:12px;color:var(--green)">✓ Acknowledge &amp; Close</button>' : '') +
     '</div>';
   }
 
