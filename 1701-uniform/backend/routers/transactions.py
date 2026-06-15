@@ -75,6 +75,22 @@ def process_return(
     return ReturnOut(**result)
 
 
+@router.get("/issued-summary")
+def get_issued_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Returns count of currently outstanding issued items grouped by item and size."""
+    from sqlalchemy import func
+    rows = (
+        db.query(IssuedItem.item_id, IssuedItem.size_id, func.count(IssuedItem.id).label("count"))
+        .filter(IssuedItem.returned == False)
+        .group_by(IssuedItem.item_id, IssuedItem.size_id)
+        .all()
+    )
+    return [{"item_id": r.item_id, "size_id": r.size_id, "count": r.count} for r in rows]
+
+
 @router.get("/returns/unserviceable")
 def get_unserviceable(
     db: Session = Depends(get_db),

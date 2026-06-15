@@ -2377,9 +2377,20 @@ async function openReports() {
       }
     });
 
-    // Kit deficiency — use dashboard API (server-side KitListItem check, all cadets)
-    const dashData = await GET('/dashboard/');
+    // Kit deficiency and issued summary — fetch in parallel
+    const [dashData, issuedSummary] = await Promise.all([GET('/dashboard/'), GET('/transactions/issued-summary')]);
     const deficiencies = dashData.missing_kit_detail || [];
+
+    // Build size-demand map: { itemName: [{size, outstanding}] } sorted by count desc
+    const demandMap = {};
+    issuedSummary.forEach(row => {
+      const item = items.find(i => i.id === row.item_id);
+      const size = item?.sizes?.find(s => s.id === row.size_id);
+      if (!item || !size) return;
+      if (!demandMap[item.short_name]) demandMap[item.short_name] = [];
+      demandMap[item.short_name].push({ size: size.size_label, count: row.count });
+    });
+    Object.values(demandMap).forEach(arr => arr.sort((a,b) => b.count - a.count));
 
     showModal(`${mHead('REPORTS')}<div class="modal-body">
       <div class="section-label">Kit Deficiencies — Active Cadets Missing Kit Items</div>
@@ -2407,6 +2418,22 @@ async function openReports() {
           </tr>`;
         }).join('')}</tbody>
       </table></div>
+
+      <div class="section-label" style="margin-top:24px">Size Demand — Currently Outstanding</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Sizes most commonly held by cadets right now — use for procurement planning.</div>
+      ${Object.keys(demandMap).length === 0
+        ? '<div class="alert alert-info">No items currently issued.</div>'
+        : `<div class="table-wrap"><table>
+          <thead><tr><th>Item</th><th>Sizes in Demand (most → least)</th><th>Total Out</th></tr></thead>
+          <tbody>${Object.entries(demandMap).map(([name, sizes]) => {
+            const total = sizes.reduce((sum,s)=>sum+s.count,0);
+            return `<tr>
+              <td><strong>${name}</strong></td>
+              <td style="font-size:12px">${sizes.map(s=>`<span style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;margin-bottom:2px;background:var(--blue-pale);border-radius:4px;padding:2px 7px"><span style="font-family:var(--mono);font-size:12px;font-weight:600">${s.size}</span><span style="font-size:11px;color:var(--blue);font-weight:700">×${s.count}</span></span>`).join('')}</td>
+              <td style="font-weight:700;font-family:var(--mono);color:var(--blue)">${total}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>`}
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-action="admin">← Back</button>
