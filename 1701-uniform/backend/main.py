@@ -11,6 +11,7 @@ Base.metadata.create_all(bind=engine)
 from routers import auth, users, cadets, items, stock, transactions, dashboard, audit
 from routers import badges
 from routers import feedback
+from routers import kit_list
 
 app = FastAPI(
     title="1701 Squadron Uniform Inventory",
@@ -36,6 +37,7 @@ app.include_router(dashboard.router)
 app.include_router(audit.router)
 app.include_router(badges.router)
 app.include_router(feedback.router)
+app.include_router(kit_list.router)
 
 
 @app.get("/")

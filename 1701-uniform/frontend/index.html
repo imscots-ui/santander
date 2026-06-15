@@ -1471,6 +1471,7 @@ function openAdmin() {
       <button class="home-btn" id="a-auditlog" style="padding:24px"><div class="home-btn-icon">📋</div><div class="home-btn-label">Audit Log</div><div class="home-btn-sub">Search all system activity</div></button>
       <button class="home-btn red" id="a-unserviceable" style="padding:24px"><div class="home-btn-icon">⚠️</div><div class="home-btn-label">Unserviceable Kit</div><div class="home-btn-sub">Items to return to stores</div></button>
       <button class="home-btn" id="a-reports" style="padding:24px"><div class="home-btn-icon">📊</div><div class="home-btn-label">Reports</div><div class="home-btn-sub">Kit deficiencies & common sizes</div></button>
+      <button class="home-btn" id="a-kitlist" style="padding:24px"><div class="home-btn-icon">📋</div><div class="home-btn-label">Required Kit List</div><div class="home-btn-sub">Manage required items per cadet</div></button>
     </div>
   </div>
   <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Close</button></div>`);
@@ -1481,7 +1482,94 @@ function openAdmin() {
   document.getElementById('a-auditlog').onclick = openAuditLog;
   document.getElementById('a-unserviceable').onclick = openUnserviceable;
   document.getElementById('a-reports').onclick = openReports;
+  document.getElementById('a-kitlist').onclick = openKitList;
 
+}
+
+async function openKitList() {
+  showModal(`${mHead('REQUIRED KIT LIST')}<div class="modal-body"><div class="loading-text">Loading kit list...</div></div>`, true);
+  const [kitItems, allItems] = await Promise.all([GET('/kit-list/'), loadItems()]);
+
+  function render() {
+    const groups = {};
+    kitItems.filter(k=>k.group_key).forEach(k => { if(!groups[k.group_key]) groups[k.group_key]=[]; groups[k.group_key].push(k); });
+
+    showModal(`${mHead('REQUIRED KIT LIST')}<div class="modal-body">
+      <div class="alert alert-info" style="margin-bottom:16px">This list defines what items each active cadet is expected to have issued. Kit deficiency reports are based on this list.</div>
+      <div class="section-label">Current Required Items (${kitItems.length})</div>
+      ${kitItems.length===0?'<div class="empty">No items on the kit list yet.</div>':`
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Category</th><th>Gender</th><th>Group / Note</th><th></th></tr></thead>
+        <tbody>${kitItems.map(k=>`<tr>
+          <td><strong>${k.display_label||k.item_name}</strong>${k.display_label?`<br><span style="font-size:11px;color:var(--text3)">${k.item_name}</span>`:''}</td>
+          <td style="font-size:12px;color:var(--text3)">${k.category||'—'}</td>
+          <td>${k.gender_restriction?`<span class="badge ${k.gender_restriction==='female'?'badge-gold':'badge-blue'}">${k.gender_restriction}</span>`:'<span style="font-size:12px;color:var(--text3)">All</span>'}</td>
+          <td style="font-size:12px;color:var(--text3)">${k.group_key?`<span title="Items in the same group satisfy each other">Group: <strong>${k.group_key}</strong></span>`:'—'}</td>
+          <td><button class="btn btn-danger btn-sm kl-remove" data-id="${k.id}" data-name="${k.display_label||k.item_name}">Remove</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+
+      <div class="section-label" style="margin-top:24px">Add Item to Kit List</div>
+      <div id="kl-error"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group" style="margin:0"><label>Item <span style="color:var(--red)">*</span></label>
+          <select id="kl-item">
+            <option value="">— Select item —</option>
+            ${allItems.map(i=>`<option value="${i.id}">${i.short_name} (${i.category||'Uncategorised'})</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group" style="margin:0"><label>Gender Restriction</label>
+          <select id="kl-gender">
+            <option value="">All (no restriction)</option>
+            <option value="male">Male only</option>
+            <option value="female">Female only</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group" style="margin:0"><label>Display Label <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
+          <input id="kl-label" placeholder="e.g. Skirt or Slacks">
+        </div>
+        <div class="form-group" style="margin:0"><label>Group Key <span style="font-weight:400;color:var(--text3)">(optional — links "either/or" items)</span></label>
+          <input id="kl-group" placeholder="e.g. legwear-female">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="admin">← Back</button>
+      <button class="btn btn-primary" id="kl-add">+ Add to Kit List</button>
+    </div>`, true);
+
+    document.querySelectorAll('.kl-remove').forEach(btn => {
+      btn.onclick = async () => {
+        if (!confirm(`Remove "${btn.dataset.name}" from the required kit list?\n\nThis will affect missing kit calculations for all cadets.`)) return;
+        btn.disabled = true; btn.textContent = 'Removing...';
+        try {
+          await DELETE(`/kit-list/${btn.dataset.id}`);
+          const idx = kitItems.findIndex(k => k.id === parseInt(btn.dataset.id));
+          if (idx >= 0) kitItems.splice(idx, 1);
+          render();
+        } catch(e) { btn.disabled=false; btn.textContent='Remove'; alert('Error: '+e.message); }
+      };
+    });
+
+    document.getElementById('kl-add').onclick = async () => {
+      const itemId = parseInt(document.getElementById('kl-item').value);
+      const gender = document.getElementById('kl-gender').value || null;
+      const label = document.getElementById('kl-label').value.trim() || null;
+      const group = document.getElementById('kl-group').value.trim() || null;
+      if (!itemId) { showError('kl-error', 'Please select an item'); return; }
+      const addBtn = document.getElementById('kl-add');
+      addBtn.disabled = true; addBtn.textContent = 'Adding...';
+      try {
+        const newEntry = await POST('/kit-list/', { item_id: itemId, gender_restriction: gender, display_label: label, group_key: group });
+        kitItems.push(newEntry);
+        render();
+      } catch(e) { addBtn.disabled=false; addBtn.textContent='+ Add to Kit List'; showError('kl-error', e.message); }
+    };
+  }
+
+  render();
 }
 
 function openAddStaff() {
