@@ -1666,7 +1666,7 @@ async function openManageItems() {
           <td style="font-size:12px;color:var(--text3)">${esc(i.category||'—')}</td>
           <td style="font-size:12px">${i.sizes.map(s=>`<span class="size-tag" style="display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;margin-right:3px;margin-bottom:2px">${esc(s.size_label)}<button class="del-size-btn" data-item-id="${i.id}" data-size-id="${s.id}" data-size-label="${esc(s.size_label)}" title="Remove size" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:10px;padding:0 0 0 4px;line-height:1">✕</button></span>`).join('')}
             ${addSizeItemId === i.id
-              ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button>`
+              ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button><span id="new-size-error" style="color:var(--red);font-size:11px;margin-left:6px"></span>`
               : `<button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${esc(i.short_name)}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>`}
           </td>
           <td style="white-space:nowrap">
@@ -1837,7 +1837,7 @@ async function openManageItems() {
           S.items = null;
           addSizeItemId = null;
           render();
-        } catch(e) { newSizeSubmit.disabled=false; newSizeSubmit.textContent='Add'; showError('ni-error', e.message); }
+        } catch(e) { newSizeSubmit.disabled=false; newSizeSubmit.textContent='Add'; const errEl=document.getElementById('new-size-error'); if(errEl) errEl.textContent=e.message; else showError('ni-error', e.message); }
       };
     }
 
@@ -2092,11 +2092,13 @@ async function openManageStaff() {
   document.querySelectorAll('.ms-edit').forEach(btn => { btn.onclick = () => openEditStaff(parseInt(btn.dataset.id), users); });
   document.querySelectorAll('.ms-deact').forEach(btn => { btn.onclick = async () => {
     if (!confirm('Deactivate ' + btn.dataset.name + '?')) return;
-    try { await PATCH('/users/' + btn.dataset.id + '/deactivate'); S.users=null; openManageStaff(); } catch(e) { alert(e.message); }
+    btn.disabled = true; btn.textContent = 'Deactivating...';
+    try { await PATCH('/users/' + btn.dataset.id + '/deactivate'); S.users=null; openManageStaff(); } catch(e) { btn.disabled=false; btn.textContent='Deactivate'; alert(e.message); }
   };});
   document.querySelectorAll('.ms-reactivate').forEach(btn => { btn.onclick = async () => {
     if (!confirm('Reactivate ' + btn.dataset.name + '?')) return;
-    try { await PATCH('/users/' + btn.dataset.id + '/reactivate'); S.users=null; openManageStaff(); } catch(e) { alert(e.message); }
+    btn.disabled = true; btn.textContent = 'Reactivating...';
+    try { await PATCH('/users/' + btn.dataset.id + '/reactivate'); S.users=null; openManageStaff(); } catch(e) { btn.disabled=false; btn.textContent='Reactivate'; alert(e.message); }
   };});
 }
 
@@ -2330,14 +2332,34 @@ async function openImportCadets() {
     reader.onload = ev => {
       const lines = ev.target.result.trim().split('\n').filter(l => l.trim());
       if (lines.length < 2) { document.getElementById('import-error').innerHTML = '<div class="alert alert-danger">File appears empty or has no data rows.</div>'; return; }
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      function parseCSVLine(line) {
+        const vals = []; let i = 0;
+        while (i <= line.length) {
+          if (line[i] === '"') {
+            let field = ''; i++;
+            while (i < line.length) {
+              if (line[i] === '"' && line[i+1] === '"') { field += '"'; i += 2; }
+              else if (line[i] === '"') { i++; break; }
+              else { field += line[i++]; }
+            }
+            vals.push(field); if (line[i] === ',') i++;
+          } else {
+            let field = '';
+            while (i < line.length && line[i] !== ',') { field += line[i++]; }
+            vals.push(field.trim()); if (line[i] === ',') i++;
+          }
+          if (i > line.length) break;
+        }
+        return vals;
+      }
+      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
       const required = ['service_number','rank','forename','surname','gender'];
       const missing = required.filter(r => !headers.includes(r));
       if (missing.length) { document.getElementById('import-error').innerHTML = `<div class="alert alert-danger">Missing columns: ${missing.join(', ')}</div>`; return; }
       parsedRows = [];
       const errors = [];
       lines.slice(1).forEach((line, i) => {
-        const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+        const vals = parseCSVLine(line);
         const row = {};
         headers.forEach((h, idx) => row[h] = vals[idx] || '');
         if (!row.service_number || !row.forename || !row.surname) { errors.push(`Row ${i+2}: missing required fields`); return; }
