@@ -317,9 +317,9 @@ const PATCH = (p,b) => api('PATCH',p,b);
 const DELETE = p => api('DELETE',p);
 
 async function loadItems() { if (!S.items) S.items = await GET('/items/'); return S.items; }
-async function loadCadets() { S.cadets = await GET('/cadets/?active_only=false'); return S.cadets; }
-async function loadStock() { S.stock = await GET('/stock/'); return S.stock; }
-async function loadUsers() { S.users = await GET('/users/'); return S.users; }
+async function loadCadets() { if (!S.cadets) S.cadets = await GET('/cadets/?active_only=false'); return S.cadets; }
+async function loadStock() { if (!S.stock) S.stock = await GET('/stock/'); return S.stock; }
+async function loadUsers() { if (!S.users) S.users = await GET('/users/'); return S.users; }
 
 async function loadStaffList() {
   const res = await fetch(API + '/users/public');
