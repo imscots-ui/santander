@@ -506,7 +506,10 @@ function cadetListHTML(cadets) {
   if (!cadets.length) return '<div class="empty">No cadets found</div>';
   return cadets.map(c=>`<div class="cadet-item" data-id="${c.id}">
     <div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div>
-    <div style="flex:1"><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''} · ${c.gender}</div></div>
+    <div style="flex:1">
+      <div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}${c.notes?` <span title="${c.notes.slice(0,80)}${c.notes.length>80?'…':''}" style="font-size:12px;cursor:default">📝</span>`:''}</div>
+      <div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''} · ${c.gender}</div>
+    </div>
     ${c.active&&c.issued_count>0?`<span style="font-size:11px;font-family:var(--mono);color:var(--blue);background:var(--blue-pale);border-radius:10px;padding:2px 7px;font-weight:700;margin-right:6px">${c.issued_count} items</span>`:''}
     <span class="badge ${c.active?'badge-green':'badge-grey'}">${c.active?'Active':'Inactive'}</span>
     <span style="color:var(--text3);font-size:18px;margin-left:8px">›</span>
