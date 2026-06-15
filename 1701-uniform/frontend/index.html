@@ -481,6 +481,7 @@ async function openCadetRecord(cadetId) {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
+        <button class="btn btn-ghost btn-sm" id="edit-cadet-btn">✏ Edit</button>
         <button class="btn btn-ghost btn-sm" id="print-cadet-record">🖨 Print</button>
         <button class="btn btn-ghost btn-sm" data-action="cadets">← Back</button>
         ${cadet.active
@@ -528,6 +529,43 @@ async function openCadetRecord(cadetId) {
     btn.onclick = () => openReturnFlow(parseInt(btn.dataset.returnId), btn.dataset.returnName, cadetId, cadet);
   });
   document.getElementById('issue-from-record').onclick = () => openIssueFlow(cadetId);
+
+  document.getElementById('edit-cadet-btn').onclick = () => {
+    const RANKS = ['Cdt','Cpl','Sgt','FS','CWO'];
+    showModal(`${mHead('EDIT CADET')}<div class="modal-body">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Editing: <strong>${cadet.rank} ${cadet.surname}, ${cadet.forename}</strong> (${cadet.service_number})</div>
+      <div id="edit-cadet-error"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Rank</label>
+          <select id="ec-rank">
+            ${RANKS.map(r=>`<option value="${r}"${r===cadet.rank?' selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Flight (optional)</label>
+          <input id="ec-flight" value="${cadet.flight||''}" placeholder="e.g. Alpha, Bravo...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="ec-cancel">Cancel</button>
+      <button class="btn btn-primary" id="ec-save">Save Changes</button>
+    </div>`);
+    document.getElementById('ec-cancel').onclick = () => openCadetRecord(cadetId);
+    document.getElementById('ec-save').onclick = async () => {
+      const rank = document.getElementById('ec-rank').value;
+      const flight = document.getElementById('ec-flight').value.trim() || null;
+      const saveBtn = document.getElementById('ec-save');
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
+      try {
+        await PATCH(`/cadets/${cadetId}`, { rank, flight });
+        S.cadets = null;
+        openCadetRecord(cadetId);
+      } catch(e) {
+        saveBtn.disabled = false; saveBtn.textContent = 'Save Changes';
+        showError('edit-cadet-error', e.message);
+      }
+    };
+  };
 
   document.getElementById('print-cadet-record').onclick = () => {
     const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
