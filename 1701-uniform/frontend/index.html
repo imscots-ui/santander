@@ -3225,7 +3225,7 @@ async function openReports() {
       if (grouped) {
         flights.forEach(f => {
           const fCadets = ledgerData.filter(c => c.flight === f);
-          tableBody += `<tr><td colspan="4" style="background:#e8eef8;font-weight:700;font-size:10px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;color:#002868;padding:6px 10px">${f} FLIGHT (${fCadets.length} cadet${fCadets.length!==1?'s':''})</td></tr>`;
+          tableBody += `<tr><td colspan="4" style="background:#e8eef8;font-weight:700;font-size:10px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;color:#002868;padding:6px 10px">${esc(f)} FLIGHT (${fCadets.length} cadet${fCadets.length!==1?'s':''})</td></tr>`;
           fCadets.forEach(c => { tableBody += ledgerRow(c); });
         });
         const noFlight = ledgerData.filter(c => !c.flight);
