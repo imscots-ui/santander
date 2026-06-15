@@ -91,6 +91,43 @@ def get_issued_summary(
     return [{"item_id": r.item_id, "size_id": r.size_id, "count": r.count} for r in rows]
 
 
+@router.get("/outstanding-by-cadet")
+def get_outstanding_by_cadet(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Returns all outstanding issued items grouped by active cadet."""
+    rows = (
+        db.query(IssuedItem)
+        .filter(IssuedItem.returned == False)
+        .join(Cadet, IssuedItem.cadet_id == Cadet.id)
+        .filter(Cadet.active == True)
+        .order_by(Cadet.surname, Cadet.forename, IssuedItem.issued_at)
+        .all()
+    )
+
+    by_cadet = {}
+    for row in rows:
+        cid = row.cadet_id
+        if cid not in by_cadet:
+            c = row.cadet
+            by_cadet[cid] = {
+                "cadet_id": cid,
+                "service_number": c.service_number,
+                "rank": c.rank,
+                "forename": c.forename,
+                "surname": c.surname,
+                "flight": c.flight,
+                "items": [],
+            }
+        by_cadet[cid]["items"].append({
+            "item_name": row.item.short_name,
+            "size_label": row.size.size_label,
+        })
+
+    return list(by_cadet.values())
+
+
 @router.get("/returns/unserviceable")
 def get_unserviceable(
     db: Session = Depends(get_db),

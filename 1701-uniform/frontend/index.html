@@ -2527,8 +2527,12 @@ async function openReports() {
       }
     });
 
-    // Kit deficiency and issued summary — fetch in parallel
-    const [dashData, issuedSummary] = await Promise.all([GET('/dashboard/'), GET('/transactions/issued-summary')]);
+    // Kit deficiency, issued summary and outstanding ledger — fetch in parallel
+    const [dashData, issuedSummary, ledgerData] = await Promise.all([
+      GET('/dashboard/'),
+      GET('/transactions/issued-summary'),
+      GET('/transactions/outstanding-by-cadet').catch(() => []),
+    ]);
     const deficiencies = dashData.missing_kit_detail || [];
 
     // Build size-demand map: { itemName: [{size, outstanding}] } sorted by count desc
@@ -2590,11 +2594,26 @@ async function openReports() {
             </tr>`;
           }).join('')}</tbody>
         </table></div>`}
+
+      <div class="section-label" style="margin-top:24px">Outstanding Kit Ledger <span style="font-weight:400;color:var(--text3)">(${ledgerData.length} cadet${ledgerData.length!==1?'s':''})</span></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px">All currently issued kit, one row per cadet. Useful for parade night kit checks.</div>
+      ${ledgerData.length === 0
+        ? '<div class="alert alert-success">No items currently outstanding.</div>'
+        : `<div class="table-wrap"><table>
+          <thead><tr><th>Cadet</th><th>Flight</th><th>Outstanding Items</th><th style="text-align:right">Count</th></tr></thead>
+          <tbody>${ledgerData.map(c => `<tr class="ledger-row" data-cadet-id="${c.cadet_id}" style="cursor:pointer" title="Open cadet record">
+            <td><strong>${c.rank} ${c.surname}</strong>, ${c.forename}<br><span style="font-size:10px;font-family:var(--mono);color:var(--text3)">${c.service_number}</span></td>
+            <td style="font-size:13px">${c.flight||'—'}</td>
+            <td style="font-size:12px">${c.items.map(i=>`<span style="background:var(--blue-pale);color:var(--blue);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;margin-right:3px;margin-bottom:2px;display:inline-block">${i.item_name} <span style="font-family:var(--mono);font-weight:400">${i.size_label}</span></span>`).join('')}</td>
+            <td style="text-align:right;font-family:var(--mono);font-weight:700;color:var(--blue)">${c.items.length}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-action="admin">← Back</button>
       <button class="btn btn-ghost" id="rpt-csv">📥 Export CSV</button>
       <button class="btn btn-ghost" id="rpt-print">🖨 Print Report</button>
+      ${ledgerData.length > 0 ? `<button class="btn btn-ghost" id="rpt-ledger-print">🖨 Print Ledger</button>` : ''}
     </div>`, true);
 
     document.querySelectorAll('.def-row[data-cadet-id]').forEach(row => {
@@ -2679,6 +2698,67 @@ async function openReports() {
         </table>
         <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#002868;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
         <div style="margin-top:12px;font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · AP 1919 stores policy. DPA 2018 applies.</div>
+      </body></html>`;
+      const w = window.open('', '_blank', 'width=820,height=900');
+      w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+    };
+
+    document.querySelectorAll('.ledger-row[data-cadet-id]').forEach(row => {
+      row.addEventListener('click', () => openCadetRecord(parseInt(row.dataset.cadetId)));
+    });
+
+    document.getElementById('rpt-ledger-print')?.onclick = () => {
+      const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+      const flights = [...new Set(ledgerData.map(c=>c.flight).filter(Boolean))].sort();
+      const grouped = flights.length > 1;
+      let tableBody = '';
+      if (grouped) {
+        flights.forEach(f => {
+          const fCadets = ledgerData.filter(c => c.flight === f);
+          tableBody += `<tr><td colspan="4" style="background:#e8eef8;font-weight:700;font-size:10px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;color:#002868;padding:6px 10px">${f} FLIGHT (${fCadets.length} cadet${fCadets.length!==1?'s':''})</td></tr>`;
+          fCadets.forEach(c => { tableBody += ledgerRow(c); });
+        });
+        const noFlight = ledgerData.filter(c => !c.flight);
+        if (noFlight.length) {
+          tableBody += `<tr><td colspan="4" style="background:#e8eef8;font-weight:700;font-size:10px;font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;color:#002868;padding:6px 10px">NO FLIGHT ASSIGNED (${noFlight.length})</td></tr>`;
+          noFlight.forEach(c => { tableBody += ledgerRow(c); });
+        }
+      } else {
+        ledgerData.forEach(c => { tableBody += ledgerRow(c); });
+      }
+      function ledgerRow(c) {
+        return `<tr style="border-bottom:1px solid #dde3f0">
+          <td style="padding:6px 10px;font-weight:700;font-size:11px">${c.rank} ${c.surname}, ${c.forename}</td>
+          <td style="padding:6px 10px;font-family:monospace;font-size:10px">${c.service_number}</td>
+          <td style="padding:6px 10px;font-size:10px">${c.items.map(i=>`<span style="background:#e8eef8;color:#002868;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;margin-right:3px">${i.item_name} ${i.size_label}</span>`).join('')}</td>
+          <td style="padding:6px 10px;font-family:monospace;font-size:11px;font-weight:700;text-align:right">${c.items.length}</td>
+        </tr>`;
+      }
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kit Ledger — 1701 Sqn</title>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>*{box-sizing:border-box}body{margin:0;font-family:'Figtree',sans-serif;color:#0d1b3e}
+        @page{size:A4 portrait;margin:10mm 12mm}
+        @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}</style>
+      </head><body style="padding:16px 20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg)"></div>
+            <div><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.06em;color:#002868">1701 JOHNSTONE SQUADRON — OUTSTANDING KIT LEDGER</div>
+            <div style="font-size:9px;color:#9099b5">Printed: ${dateStr} · ${ledgerData.length} cadet${ledgerData.length!==1?'s':''} with outstanding kit</div></div>
+          </div>
+        </div>
+        <div style="border-top:2px solid #002868;margin-bottom:10px"></div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead><tr style="background:#e8eef8;border-bottom:2px solid #dde3f0">
+            <th style="padding:5px 10px;text-align:left;font-size:8px;font-family:monospace;text-transform:uppercase;color:#9099b5;letter-spacing:0.06em">Cadet</th>
+            <th style="padding:5px 10px;text-align:left;font-size:8px;font-family:monospace;text-transform:uppercase;color:#9099b5;letter-spacing:0.06em">Svc No</th>
+            <th style="padding:5px 10px;text-align:left;font-size:8px;font-family:monospace;text-transform:uppercase;color:#9099b5;letter-spacing:0.06em">Outstanding Items</th>
+            <th style="padding:5px 10px;text-align:right;font-size:8px;font-family:monospace;text-transform:uppercase;color:#9099b5;letter-spacing:0.06em">#</th>
+          </tr></thead>
+          <tbody>${tableBody}</tbody>
+        </table>
+        <button class="no-print" onclick="window.print()" style="margin-top:14px;padding:8px 18px;background:#002868;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
+        <div style="margin-top:10px;font-size:8px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:6px">OFFICIAL · AP 1919 stores policy. DPA 2018 applies.</div>
       </body></html>`;
       const w = window.open('', '_blank', 'width=820,height=900');
       w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
