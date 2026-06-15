@@ -323,11 +323,14 @@ export default function DofE({ showToast, addAudit }) {
               Bronze · Silver · Gold — 1701 (Johnstone) Squadron
             </div>
           </div>
-          <button
-            onClick={() => setShowEnrol(true)}
-            style={{ padding: '9px 18px', background: gold, color: navy, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'Barlow Condensed,sans-serif', letterSpacing: '0.04em' }}>
-            + Enrol Cadet
-          </button>
+          <div style={{ display:'flex', gap:10 }}>
+            <button onClick={printDofEReport} style={{ padding:'9px 16px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer' }}>📄 Print Report</button>
+            <button
+              onClick={() => setShowEnrol(true)}
+              style={{ padding: '9px 18px', background: gold, color: navy, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'Barlow Condensed,sans-serif', letterSpacing: '0.04em' }}>
+              + Enrol Cadet
+            </button>
+          </div>
         </div>
 
         {/* Stat pills */}

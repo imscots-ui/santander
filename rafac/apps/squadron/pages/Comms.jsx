@@ -148,6 +148,83 @@ export default function Comms({ showToast, addAudit }) {
     setActiveTemplate(null);
   }
 
+  function printSentLog() {
+    const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const typeColors = {
+      'Announcement':     '#00264D',
+      'Consent Reminder': '#075985',
+      'Event Notice':     '#166534',
+      'Award':            '#5B21B6',
+    };
+    const rows = sentLog.map(msg => {
+      const bg = typeColors[msg.type] || '#5A7090';
+      const preview = (msg.body || '').slice(0, 110) + (msg.body && msg.body.length > 110 ? '…' : '');
+      return `<tr>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;white-space:nowrap;font-size:12px;color:#00264D;font-weight:700">${msg.date}</td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;white-space:nowrap;font-size:11px;color:#5A7090">${msg.time}</td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0">
+          <span style="background:${bg};color:white;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:0.04em">${msg.type}</span>
+        </td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;font-size:12px;color:#0D1B2E;font-weight:600">${msg.subject}</td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;font-size:11px;color:#5A7090">${msg.recipients}</td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;font-size:11px;color:#5A7090">${msg.from}</td>
+        <td style="padding:7px 9px;border-bottom:1px solid #D0DCF0;font-size:11px;color:#4A5A70;word-break:break-word">${preview}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Comms Sent Log — 1701 Sqn</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  @page { size: A4 portrait; margin: 14mm 16mm; }
+  @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+  body { font-family: Barlow, sans-serif; color: #00264D; margin: 0; padding: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #00264D; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; padding: 8px 9px; text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div style="display:flex;align-items:center;gap:16px;border-bottom:3px solid #00264D;padding-bottom:12px;margin-bottom:20px">
+  <svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg>
+  <div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;letter-spacing:0.03em">1701 (JOHNSTONE) SQN ATC</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:#5A7090;letter-spacing:0.06em;text-transform:uppercase">COMMUNICATIONS — SENT LOG</div>
+  </div>
+  <div style="margin-left:auto;text-align:right">
+    <div style="font-size:11px;color:#5A7090;font-weight:600">Printed</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#00264D">${dateStr}</div>
+    <div style="font-size:10px;color:#5A7090;margin-top:2px">${sentLog.length} message${sentLog.length !== 1 ? 's' : ''}</div>
+  </div>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Date</th><th>Time</th><th>Type</th><th>Subject</th><th>Recipients</th><th>From</th><th>Message Preview</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+<div style="margin-top:28px;padding-top:10px;border-top:1.5px solid #D0DCF0;display:flex;justify-content:space-between;align-items:center">
+  <div style="font-size:10px;color:#5A7090">
+    <strong>OFFICIAL-SENSITIVE</strong> &mdash; Parent/guardian communications &middot; DPA 2018 compliant &middot; Retain 3 years (AP 3392 Vol 1)
+  </div>
+  <div style="font-size:10px;color:#5A7090">1701 (Johnstone) Sqn ATC</div>
+</div>
+</body>
+</html>`;
+
+    const w = window.open('', '_blank', 'width=900,height=700');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Comms sent log printed', 'Comms', `${sentLog.length} messages`);
+    showToast?.('📄 Sent log opened for print');
+  }
+
   const canSend = form.subject.trim().length > 0 && form.body.trim().length > 0;
 
   // ---- tab bar styles ----
@@ -356,8 +433,16 @@ export default function Comms({ showToast, addAudit }) {
   function renderSentLog() {
     return (
       <div>
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 800, color: navy, marginBottom: 14 }}>
-          Sent Log
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 16, fontWeight: 800, color: navy }}>
+            Sent Log
+          </div>
+          <button
+            onClick={printSentLog}
+            style={{ padding: '7px 14px', background: 'white', color: navy, border: `1.5px solid ${border}`, borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Barlow Condensed, sans-serif' }}
+          >
+            📄 Print Log
+          </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {sentLog.map(msg => {
