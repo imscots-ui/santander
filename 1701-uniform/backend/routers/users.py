@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -147,14 +147,26 @@ def change_pin(
     user_id: int,
     data: ChangePinRequest,
     db: Session = Depends(get_db),
+    x_staff_id: Optional[str] = Header(default=None),
 ):
-    """Allow any user to change their own PIN - no admin required."""
+    """Allow a staff member to change their own PIN. X-Staff-Id must match user_id."""
+    # Resolve the calling staff member from the X-Staff-Id header
+    caller_id = None
+    try:
+        caller_id = int(x_staff_id) if x_staff_id else None
+    except (ValueError, TypeError):
+        pass
+
+    if caller_id != user_id:
+        raise HTTPException(status_code=403, detail="You can only change your own PIN")
+
     user = db.query(User).filter(User.id == user_id, User.active == True).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if len(data.new_pin) < 4:
         raise HTTPException(status_code=400, detail="PIN must be at least 4 characters")
     user.password_hash = hash_password(data.new_pin)
+    log_action(db, user_id=user_id, action="USER_PIN_CHANGE", details=f"Changed own PIN: {user.username}")
     db.commit()
     return {"message": "PIN updated successfully"}
 

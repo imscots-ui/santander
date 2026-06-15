@@ -394,8 +394,8 @@ function homeHTML() {
     <div class="topbar-brand"><img src="1701_crest.png" style="width:130px;height:130px;object-fit:contain;mix-blend-mode:screen;margin:-30px 0" alt="1701 Crest"><span>1701 JOHNSTONE SQN</span></div>
     <div class="topbar-right">
       <div>
-        <div class="topbar-user-name">${S.user.rank ? S.user.rank+' ' : ''}${S.user.forename} ${S.user.surname}</div>
-        <div class="topbar-user-role">${S.user.role || (isAdmin?'★ Admin':'Staff')}</div>
+        <div class="topbar-user-name">${S.user.rank ? esc(S.user.rank)+' ' : ''}${esc(S.user.forename)} ${esc(S.user.surname)}</div>
+        <div class="topbar-user-role">${esc(S.user.role) || (isAdmin?'★ Admin':'Staff')}</div>
       </div>
       <button class="btn-signout" id="feedback-btn" style="margin-right:-8px;position:relative" title="Notes & Feedback">💬 Notes<span id="feedback-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:white;border-radius:50%;width:16px;height:16px;font-size:10px;line-height:16px;text-align:center"></span></button>
       <button class="btn-signout" id="dark-mode-btn" style="margin-right:-8px" title="Toggle dark mode">🌙</button>
@@ -441,6 +441,8 @@ function closeModal() { const r=document.getElementById('modal-root'); if(r) r.i
 function mHead(title) { return `<div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close">✕</button></div>`; }
 function showError(id, msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="alert alert-danger">${msg}</div>`; }
 function fmt(dt) { if(!dt) return '—'; return new Date(dt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function escNl(s) { if(!s) return ''; return esc(s).replace(/\n/g,'<br>'); }
 
 // ── VIEW CADETS ──
 async function openCadets() {
@@ -507,8 +509,8 @@ function cadetListHTML(cadets) {
   return cadets.map(c=>`<div class="cadet-item" data-id="${c.id}">
     <div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div>
     <div style="flex:1">
-      <div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}${c.notes?` <span title="${c.notes.slice(0,80)}${c.notes.length>80?'…':''}" style="font-size:12px;cursor:default">📝</span>`:''}</div>
-      <div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''} · ${c.gender}</div>
+      <div class="cadet-name">${esc(c.rank)} ${esc(c.surname)}, ${esc(c.forename)}${c.notes?` <span title="${esc(c.notes.slice(0,80))}${c.notes.length>80?'…':''}" style="font-size:12px;cursor:default">📝</span>`:''}</div>
+      <div class="cadet-meta">${esc(c.service_number)}${c.flight?` · ${esc(c.flight)}`:''} · ${esc(c.gender)}</div>
     </div>
     ${c.active&&c.issued_count>0?`<span style="font-size:11px;font-family:var(--mono);color:var(--blue);background:var(--blue-pale);border-radius:10px;padding:2px 7px;font-weight:700;margin-right:6px">${c.issued_count} items</span>`:''}
     <span class="badge ${c.active?'badge-green':'badge-grey'}">${c.active?'Active':'Inactive'}</span>
@@ -557,12 +559,12 @@ async function openCadetRecord(cadetId) {
     <div class="table-wrap"><table>
       <thead><tr><th>Item</th><th>Size</th><th>Issued By</th><th>Date Issued</th><th>Note</th><th></th></tr></thead>
       <tbody>${outstanding.map(i=>`<tr>
-        <td><strong>${i.short_name}</strong></td>
-        <td style="font-family:var(--mono)">${i.size_label}</td>
-        <td>${i.issued_by}</td>
+        <td><strong>${esc(i.short_name)}</strong></td>
+        <td style="font-family:var(--mono)">${esc(i.size_label)}</td>
+        <td>${esc(i.issued_by)}</td>
         <td style="font-family:var(--mono);font-size:12px">${fmt(i.issued_at)}</td>
-        <td style="font-size:12px;color:var(--text3)">${i.duplicate_reason?`⚠ ${i.duplicate_reason}`:(i.notes||'—')}</td>
-        <td><button class="btn btn-ghost btn-sm" data-return-id="${i.issued_id}" data-return-name="${i.short_name}">Return</button></td>
+        <td style="font-size:12px;color:var(--text3)">${i.duplicate_reason?`⚠ ${esc(i.duplicate_reason)}`:(esc(i.notes)||'—')}</td>
+        <td><button class="btn btn-ghost btn-sm" data-return-id="${i.issued_id}" data-return-name="${esc(i.short_name)}">Return</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`}
     ${missingKit.length > 0 ? `<div class="section-label" style="margin-top:24px">Missing from Kit List <span style="background:var(--amber-light);color:var(--amber);font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 8px;border-radius:10px;margin-left:6px">${missingKit.length} item${missingKit.length>1?'s':''}</span></div>
@@ -571,12 +573,12 @@ async function openCadetRecord(cadetId) {
     <div class="table-wrap"><table>
       <thead><tr><th>Item</th><th>Size</th><th>Issued</th><th>By</th><th>Status</th><th>Return Info</th></tr></thead>
       <tbody>${history.length===0?'<tr><td colspan="6"><div class="empty">No history</div></td></tr>':history.map(i=>`<tr>
-        <td><strong>${i.short_name}</strong></td>
-        <td style="font-family:var(--mono)">${i.size_label}</td>
+        <td><strong>${esc(i.short_name)}</strong></td>
+        <td style="font-family:var(--mono)">${esc(i.size_label)}</td>
         <td style="font-family:var(--mono);font-size:12px">${fmt(i.issued_at)}</td>
-        <td>${i.issued_by}</td>
+        <td>${esc(i.issued_by)}</td>
         <td><span class="badge ${i.returned?'badge-green':'badge-blue'}">${i.returned?'Returned':'Outstanding'}</span></td>
-        <td style="font-size:12px;color:var(--text3)">${i.return_record?`${i.return_record.returned_by} · ${fmt(i.return_record.returned_at)}<br><span class="badge ${i.return_record.condition==='serviceable'?'badge-green':'badge-gold'}" style="font-size:9px">${i.return_record.condition}</span>`:'—'}</td>
+        <td style="font-size:12px;color:var(--text3)">${i.return_record?`${esc(i.return_record.returned_by)} · ${fmt(i.return_record.returned_at)}<br><span class="badge ${i.return_record.condition==='serviceable'?'badge-green':'badge-gold'}" style="font-size:9px">${esc(i.return_record.condition)}</span>`:'—'}</td>
       </tr>`).join('')}</tbody>
     </table></div>
     <div class="section-label" style="margin-top:24px">Badge History <span id="badge-hist-toggle" style="font-size:12px;font-weight:400;color:var(--blue);cursor:pointer;margin-left:8px">▼ Show</span></div>
@@ -655,16 +657,16 @@ async function openCadetRecord(cadetId) {
     const outRows = outstanding.length === 0
       ? '<tr><td colspan="4" style="padding:12px;text-align:center;color:#166534">No items currently outstanding</td></tr>'
       : outstanding.map(i => `<tr style="border-bottom:1px solid #dde3f0">
-          <td style="padding:7px 10px;font-weight:700">${i.short_name}</td>
-          <td style="padding:7px 10px;font-family:monospace;font-size:11px">${i.size_label}</td>
-          <td style="padding:7px 10px;font-size:11px">${i.issued_by}</td>
+          <td style="padding:7px 10px;font-weight:700">${esc(i.short_name)}</td>
+          <td style="padding:7px 10px;font-family:monospace;font-size:11px">${esc(i.size_label)}</td>
+          <td style="padding:7px 10px;font-size:11px">${esc(i.issued_by)}</td>
           <td style="padding:7px 10px;font-family:monospace;font-size:11px">${fmt(i.issued_at)}</td>
         </tr>`).join('');
     const histRows = history.map(i => `<tr style="border-bottom:1px solid #dde3f0">
-      <td style="padding:6px 10px;font-weight:600;font-size:11px">${i.short_name}</td>
-      <td style="padding:6px 10px;font-family:monospace;font-size:10px">${i.size_label}</td>
+      <td style="padding:6px 10px;font-weight:600;font-size:11px">${esc(i.short_name)}</td>
+      <td style="padding:6px 10px;font-family:monospace;font-size:10px">${esc(i.size_label)}</td>
       <td style="padding:6px 10px;font-family:monospace;font-size:10px">${fmt(i.issued_at)}</td>
-      <td style="padding:6px 10px;font-size:10px">${i.issued_by}</td>
+      <td style="padding:6px 10px;font-size:10px">${esc(i.issued_by)}</td>
       <td style="padding:6px 10px"><span style="background:${i.returned?'#dcfce7':'#e8eef8'};color:${i.returned?'#166534':'#002868'};padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">${i.returned?'Returned':'Outstanding'}</span></td>
     </tr>`).join('');
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cadet Record — ${cadet.surname}</title>
@@ -747,7 +749,7 @@ async function openCadetRecord(cadetId) {
         sec.innerHTML = '<div class="empty" style="padding:16px">No badges issued to this cadet.</div>';
       } else {
         sec.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th></tr></thead><tbody>' +
-          badges.map(b => '<tr><td><strong>' + b.name + '</strong></td><td style="font-size:12px">' + b.category + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(b.issued_at) + '</td><td style="font-size:12px">' + b.issued_by + '</td><td><span class="badge ' + (b.returned?'badge-grey':'badge-green') + '">' + (b.returned?'Returned':'Active') + '</span></td></tr>').join('') +
+          badges.map(b => '<tr><td><strong>' + esc(b.name) + '</strong></td><td style="font-size:12px">' + esc(b.category) + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(b.issued_at) + '</td><td style="font-size:12px">' + esc(b.issued_by) + '</td><td><span class="badge ' + (b.returned?'badge-grey':'badge-green') + '">' + (b.returned?'Returned':'Active') + '</span></td></tr>').join('') +
           '</tbody></table></div>';
       }
     } else {
@@ -766,11 +768,11 @@ async function openCadetRecord(cadetId) {
       await PATCH(`/cadets/${cadetId}/deactivate`);
       S.cadets = null;
       showModal(`${mHead('CADET DISCHARGED')}<div class="modal-body">
-        <div class="alert alert-success">✓ ${cadet.rank} ${cadet.surname} has been discharged from the Corps.</div>
+        <div class="alert alert-success">✓ ${esc(cadet.rank)} ${esc(cadet.surname)} has been discharged from the Corps.</div>
         <div style="background:var(--bg);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text2)">
-          <strong>Cadet:</strong> ${cadet.rank} ${cadet.surname}, ${cadet.forename}<br>
-          <strong>Service No:</strong> ${cadet.service_number}<br>
-          <strong>Discharged by:</strong> ${S.user.forename} ${S.user.surname}<br>
+          <strong>Cadet:</strong> ${esc(cadet.rank)} ${esc(cadet.surname)}, ${esc(cadet.forename)}<br>
+          <strong>Service No:</strong> ${esc(cadet.service_number)}<br>
+          <strong>Discharged by:</strong> ${esc(S.user.forename)} ${esc(S.user.surname)}<br>
           <strong>Total items issued:</strong> ${summary.total_issued}<br>
           <strong>All kit returned:</strong> ✓
         </div>
@@ -801,12 +803,13 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
       : [{l:'1 · Select Item',s:1},{l:'2 · Select Size',s:2},{l:'3 · Select Cadet',s:3},{l:'4 · Confirm',s:4}];
     const maxStep = cadetPreselected ? 3 : 4;
     const isLast = step === maxStep;
+    const onConfirmStep = (cadetPreselected && step===3) || (!cadetPreselected && step===4);
 
     showModal(`${mHead('ISSUE UNIFORM')}<div class="modal-body">
       ${cadetPreselected ? `<div style="margin-bottom:16px;padding:10px 14px;background:var(--blue-pale);border-radius:var(--r);font-size:13px;color:var(--blue)">Issuing to: <strong>${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</strong></div>` : ''}
       <div class="steps">${steps.map(s=>`<div class="step ${step===s.s?'active':step>s.s?'done':''}">${s.l}</div>`).join('')}</div>
-      <div id="issue-error"></div>
-      ${step===1?s1():step===2?s2():(cadetPreselected&&step===3)?sConfirm():step===3?s3():sConfirm()}
+      ${onConfirmStep ? '' : '<div id="issue-error"></div>'}
+      ${step===1?s1():step===2?s2():onConfirmStep?sConfirm():s3()}
     </div>
     <div class="modal-footer">
       ${step>1?`<button class="btn btn-ghost" id="i-back">← Back</button>`:''}
@@ -906,7 +909,6 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
     }
 
     // Confirm step
-    const onConfirmStep = (cadetPreselected && step===3) || (!cadetPreselected && step===4);
     if (onConfirmStep) {
       document.getElementById('i-confirm').onclick = async () => {
         const dupReason=document.getElementById('dup-reason')?.value?.trim()||null;
@@ -932,9 +934,9 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
                <div style="display:flex;flex-direction:column;gap:4px">${remainingKit.slice(0,4).map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--amber-light);border:1px solid #d97706;border-radius:6px;padding:7px 12px"><span style="font-size:13px;font-weight:600;color:var(--amber)">${m.label}</span><button class="btn btn-primary btn-sm post-issue-btn" data-item-id="${m.item_id||''}" style="font-size:11px">Issue →</button></div>`).join('')}${remainingKit.length>4?`<div style="font-size:12px;color:var(--text3);padding:4px 8px">+${remainingKit.length-4} more items still missing</div>`:''}</div></div>`
             : `<div class="alert alert-success" style="margin-top:12px;background:var(--green-light);border-color:var(--green)">&#10003; Kit list complete — all required items now issued.</div>`;
           showModal(`${mHead('ISSUE UNIFORM')}<div class="modal-body">
-            <div class="alert alert-success">&#10003; <strong>${selectedItem.short_name}</strong> (${selectedSize.size_label}) issued to ${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</div>
+            <div class="alert alert-success">&#10003; <strong>${esc(selectedItem.short_name)}</strong> (${esc(selectedSize.size_label)}) issued to ${esc(selectedCadet.rank)} ${esc(selectedCadet.surname)}, ${esc(selectedCadet.forename)}</div>
             <div style="background:var(--blue-pale);border-radius:var(--r);padding:16px;font-size:13px;color:var(--text2)">
-              <strong>Issued by:</strong> ${S.user.forename} ${S.user.surname}<br><strong>Time:</strong> ${fmt(new Date().toISOString())}
+              <strong>Issued by:</strong> ${esc(S.user.forename)} ${esc(S.user.surname)}<br><strong>Time:</strong> ${fmt(new Date().toISOString())}
             </div>
             ${remainingSection}
           </div>
@@ -1051,23 +1053,23 @@ async function openIssueFlow(preselectedCadetId=null, preselectedItemId=null, pr
       <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Item</span>
-          <span style="font-weight:700;color:var(--text)">${selectedItem.short_name}</span>
+          <span style="font-weight:700;color:var(--text)">${esc(selectedItem.short_name)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Size</span>
-          <span style="font-weight:700;color:var(--text);font-family:var(--mono)">${selectedSize.size_label}</span>
+          <span style="font-weight:700;color:var(--text);font-family:var(--mono)">${esc(selectedSize.size_label)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issuing To</span>
-          <span style="font-weight:700;color:var(--text)">${selectedCadet.rank} ${selectedCadet.surname}, ${selectedCadet.forename}</span>
+          <span style="font-weight:700;color:var(--text)">${esc(selectedCadet.rank)} ${esc(selectedCadet.surname)}, ${esc(selectedCadet.forename)}</span>
         </div>
         ${selectedCadet.notes ? `<div style="padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:4px">Cadet Note</span>
-          <span style="font-size:13px;color:var(--text);background:rgba(0,0,0,0.04);border-radius:4px;padding:4px 8px;display:block">📝 ${selectedCadet.notes}</span>
+          <span style="font-size:13px;color:var(--text);background:rgba(0,0,0,0.04);border-radius:4px;padding:4px 8px;display:block">📝 ${esc(selectedCadet.notes)}</span>
         </div>` : ''}
         <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border)">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Issued By</span>
-          <span style="font-weight:700;color:var(--text)">${S.user.forename} ${S.user.surname}</span>
+          <span style="font-weight:700;color:var(--text)">${esc(S.user.forename)} ${esc(S.user.surname)}</span>
         </div>
         <div style="display:flex;justify-content:space-between">
           <span style="font-size:12px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Time</span>
@@ -1108,8 +1110,8 @@ function printIssueReceipt(cadet, item, sizeLabel, staffUser) {
     </div>
     <div style="background:#e8eef8;border-radius:8px;padding:12px 14px;margin-bottom:16px">
       <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Issued To</div>
-      <div style="font-size:15px;font-weight:700">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
-      <div style="font-size:11px;color:#4a5578;font-family:'DM Mono',monospace;margin-top:2px">Svc No. ${cadet.service_number}</div>
+      <div style="font-size:15px;font-weight:700">${esc(cadet.rank)} ${esc(cadet.surname)}, ${esc(cadet.forename)}</div>
+      <div style="font-size:11px;color:#4a5578;font-family:'DM Mono',monospace;margin-top:2px">Svc No. ${esc(cadet.service_number)}</div>
     </div>
     <div style="margin-bottom:16px">
       <div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Items Issued</div>
@@ -1120,14 +1122,14 @@ function printIssueReceipt(cadet, item, sizeLabel, staffUser) {
           <th style="padding:7px 10px;text-align:left;font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;letter-spacing:0.06em;text-transform:uppercase">Issued By</th>
         </tr></thead>
         <tbody><tr style="border-bottom:1px solid #dde3f0">
-          <td style="padding:9px 10px;font-weight:700">${item}</td>
-          <td style="padding:9px 10px;font-family:'DM Mono',monospace;font-size:12px">${sizeLabel}</td>
-          <td style="padding:9px 10px;font-size:12px">${staffUser.forename} ${staffUser.surname}</td>
+          <td style="padding:9px 10px;font-weight:700">${esc(item)}</td>
+          <td style="padding:9px 10px;font-family:'DM Mono',monospace;font-size:12px">${esc(sizeLabel)}</td>
+          <td style="padding:9px 10px;font-size:12px">${esc(staffUser.forename)} ${esc(staffUser.surname)}</td>
         </tr></tbody>
       </table>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
-      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Stores Staff Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">${staffUser.forename} ${staffUser.surname}</div></div>
+      <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Stores Staff Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">${esc(staffUser.forename)} ${esc(staffUser.surname)}</div></div>
       <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Cadet Signature</div><div style="height:32px"></div><div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">I confirm receipt of the above item(s)</div></div>
     </div>
     <div style="background:#dcfce7;border:1px solid #b2dfcc;border-radius:6px;padding:9px 12px;font-size:12px;color:#166534;font-weight:600;text-align:center;margin-bottom:14px">✓ Item issued from 1701 Squadron stores</div>
@@ -1363,7 +1365,7 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
     </div>`;
   }
   function r2() {
-    return '<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Returning kit from: <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + ', ' + selectedCadet.forename + '</strong></div>' +
+    return '<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Returning kit from: <strong>' + esc(selectedCadet.rank) + ' ' + esc(selectedCadet.surname) + ', ' + esc(selectedCadet.forename) + '</strong></div>' +
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div class="section-label" style="margin-bottom:0">Select Items to Return</div>' +
     '<button class="btn btn-ghost btn-sm" id="r-all-svc" style="font-size:11px;padding:5px 10px" title="Select all items, mark as serviceable, reason: End of Loan">⚡ All Serviceable</button></div>' +
     '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">Tap each item to expand and set condition. Select multiple items to return them all at once.</div>' +
@@ -1373,7 +1375,7 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
       const isSock = i.short_name && i.short_name.toLowerCase().includes('sock');
       return '<div style="border:1.5px solid ' + (sel ? 'var(--blue)' : 'var(--border)') + ';border-radius:var(--r);overflow:hidden">' +
         '<div class="issued-item-btn cadet-item" data-id="' + i.issued_id + '" style="border:none;' + (isSock?'opacity:0.5':'') + '">' +
-          '<div style="flex:1"><div class="cadet-name">' + i.short_name + (isSock?' <span style="font-size:10px;color:var(--red)">(cannot return)</span>':'') + '</div><div class="cadet-meta">Size: ' + (i.size_label||'—') + ' · Issued: ' + fmt(i.issued_at) + '</div></div>' +
+          '<div style="flex:1"><div class="cadet-name">' + esc(i.short_name) + (isSock?' <span style="font-size:10px;color:var(--red)">(cannot return)</span>':'') + '</div><div class="cadet-meta">Size: ' + esc(i.size_label||'—') + ' · Issued: ' + fmt(i.issued_at) + '</div></div>' +
           '<span style="color:' + (sel?'var(--blue)':'var(--text3)') + ';font-size:18px">' + (sel?'✓':'›') + '</span>' +
         '</div>' +
         (sel ? '<div style="padding:12px;background:var(--blue-pale);border-top:1px solid var(--border)">' +
@@ -1401,15 +1403,15 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
   function r3() {
     // Multi-return confirmation screen
     const unserviceable = selectedIssues.filter(s => s.condition === 'unserviceable');
-    return '<div style="margin-bottom:' + (selectedCadet.notes ? '8' : '16') + 'px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Confirming return from <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + '</strong></div>' +
-    (selectedCadet.notes ? '<div style="margin-bottom:16px;font-size:12px;color:var(--text2);background:rgba(0,0,0,0.04);border-radius:4px;padding:6px 10px">📝 ' + selectedCadet.notes + '</div>' : '') +
+    return '<div style="margin-bottom:' + (selectedCadet.notes ? '8' : '16') + 'px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Confirming return from <strong>' + esc(selectedCadet.rank) + ' ' + esc(selectedCadet.surname) + '</strong></div>' +
+    (selectedCadet.notes ? '<div style="margin-bottom:16px;font-size:12px;color:var(--text2);background:rgba(0,0,0,0.04);border-radius:4px;padding:6px 10px">📝 ' + esc(selectedCadet.notes) + '</div>' : '') +
     '<div class="section-label">Items Being Returned (' + selectedIssues.length + ')</div>' +
     '<div class="table-wrap"><table><thead><tr><th>Item</th><th>Size</th><th>Condition</th><th>Reason</th></tr></thead><tbody>' +
     selectedIssues.map(s => '<tr>' +
-      '<td><strong>' + s.short_name + '</strong></td>' +
-      '<td style="font-family:var(--mono);font-size:12px">' + (s.size_label||'—') + '</td>' +
+      '<td><strong>' + esc(s.short_name) + '</strong></td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + esc(s.size_label||'—') + '</td>' +
       '<td><span class="badge ' + (s.condition==='serviceable'?'badge-green':'badge-gold') + '">' + (s.condition==='serviceable'?'✅ Serviceable':'❌ Unserviceable') + '</span></td>' +
-      '<td style="font-size:12px">' + (s.reason||'—') + '</td>' +
+      '<td style="font-size:12px">' + esc(s.reason||'—') + '</td>' +
     '</tr>').join('') +
     '</tbody></table></div>' +
     (unserviceable.length > 0 ? '<div class="alert alert-warning" style="margin-top:12px">⚠ <strong>' + unserviceable.length + ' item(s) are unserviceable</strong> — set aside and return to RAF parent stores for destruction.</div>' : '<div class="alert alert-success" style="margin-top:12px">✓ All items serviceable — will be returned to stock.</div>');
@@ -2058,24 +2060,24 @@ async function openManageStaff() {
   }
 
   const activeRows = active.map(u => '<tr>' +
-    '<td style="font-family:var(--mono);font-size:12px">' + u.username + '</td>' +
-    '<td><strong>' + u.surname + '</strong>, ' + u.forename + (u.rank ? ' <span style="color:var(--text3);font-size:12px">' + u.rank + '</span>' : '') + '</td>' +
-    '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
+    '<td style="font-family:var(--mono);font-size:12px">' + esc(u.username) + '</td>' +
+    '<td><strong>' + esc(u.surname) + '</strong>, ' + esc(u.forename) + (u.rank ? ' <span style="color:var(--text3);font-size:12px">' + esc(u.rank) + '</span>' : '') + '</td>' +
+    '<td style="font-size:12px">' + esc(u.role||'—') + '</td>' +
     '<td><span class="badge ' + (u.is_admin?'badge-gold':'badge-blue') + '">' + (u.is_admin?'Admin':'Staff') + '</span></td>' +
     '<td>' + fmtLogin(u.last_login) + '</td>' +
     '<td style="display:flex;gap:6px">' +
       '<button class="btn btn-ghost btn-sm ms-edit" data-id="' + u.id + '">Edit</button>' +
-      (u.id !== S.user.id ? '<button class="btn btn-danger btn-sm ms-deact" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Deactivate</button>' : '') +
+      (u.id !== S.user.id ? '<button class="btn btn-danger btn-sm ms-deact" data-id="' + u.id + '" data-name="' + esc(u.forename) + ' ' + esc(u.surname) + '">Deactivate</button>' : '') +
     '</td>' +
   '</tr>').join('');
 
   const inactiveRows = inactive.map(u => '<tr style="opacity:0.65">' +
-    '<td style="font-family:var(--mono);font-size:12px">' + u.username + '</td>' +
-    '<td><strong>' + u.surname + '</strong>, ' + u.forename + '</td>' +
-    '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
+    '<td style="font-family:var(--mono);font-size:12px">' + esc(u.username) + '</td>' +
+    '<td><strong>' + esc(u.surname) + '</strong>, ' + esc(u.forename) + '</td>' +
+    '<td style="font-size:12px">' + esc(u.role||'—') + '</td>' +
     '<td><span class="badge badge-grey">Inactive</span></td>' +
     '<td>' + fmtLogin(u.last_login) + '</td>' +
-    '<td><button class="btn btn-ghost btn-sm ms-reactivate" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Reactivate</button></td>' +
+    '<td><button class="btn btn-ghost btn-sm ms-reactivate" data-id="' + u.id + '" data-name="' + esc(u.forename) + ' ' + esc(u.surname) + '">Reactivate</button></td>' +
   '</tr>').join('');
 
   showModal(mHead('MANAGE STAFF') + '<div class="modal-body">' +
@@ -2553,12 +2555,12 @@ async function openFeedback() {
   function itemHTML(f) {
     return '<div style="border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
-        '<div style="font-weight:700;font-size:14px">' + f.subject + '</div>' +
+        '<div style="font-weight:700;font-size:14px">' + esc(f.subject) + '</div>' +
         '<div style="display:flex;gap:6px;align-items:center">' + catBadge(f.category) + statusBadge(f.status) + '</div>' +
       '</div>' +
-      '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">From: ' + (f.submitted_by_rank ? f.submitted_by_rank + ' ' : '') + f.submitted_by + ' · ' + fmt(f.created_at) + '</div>' +
-      '<div style="font-size:13px;color:var(--text2);background:var(--bg);padding:10px;border-radius:6px;margin-bottom:8px">' + f.message.split('\n').join('<br>') + '</div>' +
-      (f.admin_reply ? '<div style="font-size:12px;color:var(--text3);margin-bottom:4px">Reply from ' + f.replied_by + ' · ' + fmt(f.replied_at) + '</div><div style="font-size:13px;background:var(--green-light);color:var(--green);padding:10px;border-radius:6px;margin-bottom:8px">' + f.admin_reply.split('\n').join('<br>') + '</div>' : '') +
+      '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">From: ' + esc((f.submitted_by_rank ? f.submitted_by_rank + ' ' : '') + f.submitted_by) + ' · ' + fmt(f.created_at) + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);background:var(--bg);padding:10px;border-radius:6px;margin-bottom:8px">' + escNl(f.message) + '</div>' +
+      (f.admin_reply ? '<div style="font-size:12px;color:var(--text3);margin-bottom:4px">Reply from ' + esc(f.replied_by) + ' · ' + fmt(f.replied_at) + '</div><div style="font-size:13px;background:var(--green-light);color:var(--green);padding:10px;border-radius:6px;margin-bottom:8px">' + escNl(f.admin_reply) + '</div>' : '') +
       (isAdmin && f.status === 'open' ? '<div style="display:flex;gap:8px;align-items:flex-end"><textarea id="reply-' + f.id + '" rows="2" placeholder="Type a reply..." style="flex:1;font-size:13px"></textarea><button class="btn btn-primary btn-sm feedback-reply-btn" data-id="' + f.id + '">Reply</button><button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Close</button></div>' : '') +
       (isAdmin && f.status === 'replied' ? '<button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '">Mark Closed</button>' : '') +
       (!isAdmin && f.status === 'replied' ? '<button class="btn btn-ghost btn-sm feedback-close-btn" data-id="' + f.id + '" style="font-size:12px;color:var(--green)">✓ Acknowledge &amp; Close</button>' : '') +
@@ -2666,8 +2668,8 @@ async function loadHomeDashboard() {
           ${d.recent_activity.slice(0,6).map(a => `<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
             <span style="font-size:16px">${actionIcon(a.action)}</span>
             <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:600;color:${actionColor(a.action)}">${a.action}</div>
-              <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.details||'—'}</div>
+              <div style="font-size:12px;font-weight:600;color:${actionColor(a.action)}">${esc(a.action)}</div>
+              <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.details)||'—'}</div>
             </div>
             <div style="text-align:right;flex-shrink:0">
               <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${fmt(a.timestamp)}</div>
@@ -3290,11 +3292,11 @@ async function openUnserviceable() {
         <tbody>
           ${data.map(r => `<tr>
             <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${fmt(r.returned_at)}</td>
-            <td><strong>${r.item_name}</strong></td>
-            <td style="font-family:var(--mono)">${r.size_label}</td>
-            <td style="font-size:13px">${r.returned_by}</td>
-            <td style="font-size:13px">${r.cadet_name}</td>
-            <td style="font-size:12px;color:var(--text3)">${r.notes||'—'}</td>
+            <td><strong>${esc(r.item_name)}</strong></td>
+            <td style="font-family:var(--mono)">${esc(r.size_label)}</td>
+            <td style="font-size:13px">${esc(r.returned_by)}</td>
+            <td style="font-size:13px">${esc(r.cadet_name)}</td>
+            <td style="font-size:12px;color:var(--text3)">${esc(r.notes)||'—'}</td>
           </tr>`).join('')}
         </tbody>
       </table></div>`
@@ -3309,11 +3311,11 @@ async function openUnserviceable() {
     const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
     const rows = data.map(r => `<tr style="border-bottom:1px solid #dde3f0">
       <td style="padding:7px 10px;font-family:monospace;font-size:11px">${fmt(r.returned_at)}</td>
-      <td style="padding:7px 10px;font-weight:700">${r.item_name}</td>
-      <td style="padding:7px 10px;font-family:monospace">${r.size_label}</td>
-      <td style="padding:7px 10px;font-size:12px">${r.returned_by}</td>
-      <td style="padding:7px 10px;font-size:12px">${r.cadet_name}</td>
-      <td style="padding:7px 10px;font-size:11px;color:#5a5a5a">${r.notes||'—'}</td>
+      <td style="padding:7px 10px;font-weight:700">${esc(r.item_name)}</td>
+      <td style="padding:7px 10px;font-family:monospace">${esc(r.size_label)}</td>
+      <td style="padding:7px 10px;font-size:12px">${esc(r.returned_by)}</td>
+      <td style="padding:7px 10px;font-size:12px">${esc(r.cadet_name)}</td>
+      <td style="padding:7px 10px;font-size:11px;color:#5a5a5a">${esc(r.notes)||'—'}</td>
     </tr>`).join('');
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Unserviceable Kit — 1701 Sqn</title>
       <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -3507,9 +3509,9 @@ async function openAuditLog() {
                   l.action.includes('RETURN') ? 'badge-green' :
                   l.action.includes('STOCK') ? 'badge-gold' :
                   l.action.includes('CADET') ? 'badge-grey' : 'badge-grey'
-                }">${l.action}</span></td>
-                <td style="font-size:13px">${l.user_name}</td>
-                <td style="font-size:12px;color:var(--text2)">${l.details||'—'}</td>
+                }">${esc(l.action)}</span></td>
+                <td style="font-size:13px">${esc(l.user_name)}</td>
+                <td style="font-size:12px;color:var(--text2)">${esc(l.details)||'—'}</td>
               </tr>`).join('')
             }
           </tbody>
@@ -3537,9 +3539,9 @@ async function openAuditLog() {
       const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
       const rowsHTML = filtered.map(l => `<tr>
         <td style="font-family:monospace;font-size:10px;white-space:nowrap">${fmt(l.timestamp)}</td>
-        <td><span style="background:${l.action.includes('ISSUE')?'#e8eef8':l.action.includes('RETURN')?'#dcfce7':'#fef3c7'};color:${l.action.includes('ISSUE')?'#002868':l.action.includes('RETURN')?'#166534':'#92400e'};padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">${l.action}</span></td>
-        <td style="font-size:11px">${l.user_name}</td>
-        <td style="font-size:11px;color:#5a5a5a">${l.details||'—'}</td>
+        <td><span style="background:${l.action.includes('ISSUE')?'#e8eef8':l.action.includes('RETURN')?'#dcfce7':'#fef3c7'};color:${l.action.includes('ISSUE')?'#002868':l.action.includes('RETURN')?'#166534':'#92400e'};padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">${esc(l.action)}</span></td>
+        <td style="font-size:11px">${esc(l.user_name)}</td>
+        <td style="font-size:11px;color:#5a5a5a">${esc(l.details)||'—'}</td>
       </tr>`).join('');
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Audit Log — 1701 Sqn</title>
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -3633,11 +3635,11 @@ function bind() {
           font-family:var(--body);
         ">
           <div style="width:42px;height:42px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0">
-            ${u.forename[0]}${u.surname[0]}
+            ${esc(u.forename[0])}${esc(u.surname[0])}
           </div>
           <div>
-            <div style="font-weight:700;color:var(--text);font-size:15px">${u.display_name}</div>
-            ${u.role ? `<div style="font-size:12px;color:var(--text3);font-family:var(--mono)">${u.role}</div>` : ''}
+            <div style="font-weight:700;color:var(--text);font-size:15px">${esc(u.display_name)}</div>
+            ${u.role ? `<div style="font-size:12px;color:var(--text3);font-family:var(--mono)">${esc(u.role)}</div>` : ''}
           </div>
           ${u.is_admin ? '<span style="margin-left:auto;font-size:10px;background:#fef9c3;color:#854d0e;padding:3px 8px;border-radius:4px;font-family:var(--mono)">ADMIN</span>' : ''}
         </button>

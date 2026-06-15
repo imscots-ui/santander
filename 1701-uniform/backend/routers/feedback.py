@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import Optional
@@ -53,16 +53,28 @@ def list_feedback(db: Session = Depends(get_db), current_user: User = Depends(ge
 
 
 @router.get("/unread-count")
-def unread_count(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if current_user.is_admin:
-        # Admin: count open items
+def unread_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    x_staff_id: Optional[str] = Header(default=None),
+):
+    # Resolve actual user from X-Staff-Id header (staff selector), falling back to JWT user
+    actual_user = current_user
+    if x_staff_id:
+        try:
+            staff = db.query(User).filter(User.id == int(x_staff_id), User.active == True).first()
+            if staff:
+                actual_user = staff
+        except (ValueError, TypeError):
+            pass
+
+    if actual_user.is_admin:
         row = db.execute(text("SELECT COUNT(*) as c FROM feedback WHERE status = 'open'")).fetchone()
     else:
-        # Staff: count items with new replies they haven't seen
         row = db.execute(text("""
-            SELECT COUNT(*) as c FROM feedback 
+            SELECT COUNT(*) as c FROM feedback
             WHERE submitted_by_id = :uid AND admin_reply IS NOT NULL AND status = 'replied'
-        """), {"uid": current_user.id}).fetchone()
+        """), {"uid": actual_user.id}).fetchone()
     return {"count": row.c}
 
 
