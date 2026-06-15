@@ -2555,7 +2555,7 @@ async function openAuditLog() {
     if (filters.staff) filtered = filtered.filter(l => l.user_name.toLowerCase().includes(filters.staff.toLowerCase()));
     if (filters.item) filtered = filtered.filter(l => l.item_id === parseInt(filters.item));
 
-    const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'CADET_CREATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'USER_CREATE', 'USER_DEACTIVATE', 'STOCK_DELETE'];
+    const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'STOCK_DELETE', 'CADET_CREATE', 'CADET_UPDATE', 'CADET_RANK_UPDATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'BADGE_CREATE', 'BADGE_STOCK_ADJUST', 'BADGE_ISSUE', 'BADGE_RETURN', 'USER_CREATE', 'USER_DEACTIVATE', 'USER_REACTIVATE', 'USER_EDIT', 'USER_PASSWORD_RESET', 'FEEDBACK_SUBMIT', 'FEEDBACK_REPLY'];
 
     showModal(`${mHead('AUDIT LOG')}<div class="modal-body">
       <!-- Filters -->
