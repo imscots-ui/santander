@@ -446,17 +446,46 @@ function fmt(dt) { if(!dt) return '—'; return new Date(dt).toLocaleString('en-
 async function openCadets() {
   showModal(`${mHead('VIEW CADETS')}<div class="modal-body"><div class="loading-text">Loading cadets...</div></div>`, true);
   await loadCadets();
-  const cadets = (S.cadets||[]).filter(c => c.active);
-  showModal(`${mHead('VIEW CADETS')}<div class="modal-body">
-    <div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search by name or service number..." type="text"></div>
-    <div id="cadet-list">${cadetListHTML(cadets)}</div>
-  </div>`, true);
-  document.getElementById('cadet-search').oninput = e => {
-    const s=e.target.value.toLowerCase();
-    const activeCadets = (S.cadets||[]).filter(c => c.active);
-    document.getElementById('cadet-list').innerHTML = cadetListHTML(activeCadets.filter(c=>(c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s)));
+  const allCadets = (S.cadets||[]).filter(c => c.active);
+  const flights = [...new Set(allCadets.map(c=>c.flight).filter(Boolean))].sort();
+  const flightCounts = {};
+  allCadets.forEach(c => { if (c.flight) flightCounts[c.flight] = (flightCounts[c.flight]||0)+1; });
+  let selectedFlight = null;
+
+  function getFiltered() {
+    const s = document.getElementById('cadet-search')?.value?.toLowerCase()||'';
+    let list = allCadets;
+    if (selectedFlight) list = list.filter(c => c.flight === selectedFlight);
+    if (s) list = list.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
+    return list;
+  }
+
+  function refreshList() {
+    document.getElementById('cadet-list').innerHTML = cadetListHTML(getFiltered());
     bindCadetItems();
-  };
+    document.querySelectorAll('.flight-chip').forEach(chip => {
+      const active = chip.dataset.flight === selectedFlight;
+      chip.style.background = active ? 'var(--blue)' : '';
+      chip.style.color = active ? 'white' : '';
+      chip.style.borderColor = active ? 'var(--blue)' : '';
+    });
+  }
+
+  showModal(`${mHead('VIEW CADETS')}<div class="modal-body">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search by name, flight or service number..." type="text"></div>
+    ${flights.length>1?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px">
+      ${flights.map(f=>`<button class="btn btn-ghost flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}<span style="font-size:10px;opacity:0.65;margin-left:4px">${flightCounts[f]}</span></button>`).join('')}
+    </div>`:''}
+    <div id="cadet-list">${cadetListHTML(allCadets)}</div>
+  </div>`, true);
+
+  document.getElementById('cadet-search').oninput = () => refreshList();
+  document.querySelectorAll('.flight-chip').forEach(chip => {
+    chip.onclick = () => {
+      selectedFlight = selectedFlight === chip.dataset.flight ? null : chip.dataset.flight;
+      refreshList();
+    };
+  });
   bindCadetItems();
 }
 
@@ -1162,6 +1191,12 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
         if (missing) { showError('return-error', 'Please set condition and reason for all selected items'); return; }
         step = 3; renderStep();
       };
+      document.getElementById('r-all-svc')?.addEventListener('click', () => {
+        selectedIssues = issuedItems
+          .filter(i => !i.short_name?.toLowerCase().includes('sock'))
+          .map(i => ({ issued_id: i.issued_id, short_name: i.short_name, size_label: i.size_label, condition: 'serviceable', reason: 'End of Loan', notes: null }));
+        renderStep();
+      });
     }
     if (step===3) {
       document.getElementById('r-confirm').onclick = async () => {
@@ -1199,7 +1234,8 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
   }
   function r2() {
     return '<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Returning kit from: <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + ', ' + selectedCadet.forename + '</strong></div>' +
-    '<div class="section-label">Select Items to Return</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div class="section-label" style="margin-bottom:0">Select Items to Return</div>' +
+    '<button class="btn btn-ghost btn-sm" id="r-all-svc" style="font-size:11px;padding:5px 10px" title="Select all items, mark as serviceable, reason: End of Loan">⚡ All Serviceable</button></div>' +
     '<div style="font-size:12px;color:var(--text3);margin-bottom:8px">Tap each item to expand and set condition. Select multiple items to return them all at once.</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px">' +
     issuedItems.map(i => {
