@@ -67,6 +67,9 @@ class CadetCreate(BaseModel):
 
 class CadetUpdate(BaseModel):
     rank: Optional[str] = None
+    forename: Optional[str] = None
+    surname: Optional[str] = None
+    gender: Optional[Gender] = None
     flight: Optional[str] = None
     active: Optional[bool] = None
 

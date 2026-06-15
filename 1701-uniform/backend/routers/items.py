@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from database import get_db
-from models import Item, Size, Stock, User
+from models import Item, Size, Stock, IssuedItem, User
 from schemas import ItemOut, StockCheckResult
 from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
 from utils.audit import log_action
@@ -106,6 +106,37 @@ def add_size(
     db.commit()
     db.refresh(size)
     return {"id": size.id, "size_label": size.size_label, "item_id": item_id}
+
+
+@router.delete("/{item_id}/sizes/{size_id}", status_code=204)
+def delete_size(
+    item_id: int,
+    size_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Remove a size from an item, provided no issued items reference it."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    size = db.query(Size).filter(Size.id == size_id, Size.item_id == item_id).first()
+    if not size:
+        raise HTTPException(status_code=404, detail="Size not found for this item")
+
+    in_use = db.query(IssuedItem).filter(IssuedItem.size_id == size_id).count()
+    if in_use > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete size '{size.size_label}' — it is referenced by {in_use} issued item record(s)"
+        )
+
+    log_action(db, user_id=audit_user_id, action="ITEM_DELETE_SIZE",
+               details=f"Deleted size '{size.size_label}' from {item.short_name}",
+               item_id=item_id)
+    db.delete(size)
+    db.commit()
 
 
 @router.get("/{item_id}/sizes/{size_id}/stock", response_model=StockCheckResult)

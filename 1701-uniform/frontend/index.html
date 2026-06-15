@@ -596,9 +596,20 @@ async function openCadetRecord(cadetId) {
       <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Editing: <strong>${cadet.rank} ${cadet.surname}, ${cadet.forename}</strong> (${cadet.service_number})</div>
       <div id="edit-cadet-error"></div>
       <div class="grid-2">
+        <div class="form-group"><label>Forename</label>
+          <input id="ec-fore" value="${cadet.forename}" autofocus>
+        </div>
+        <div class="form-group"><label>Surname</label>
+          <input id="ec-sur" value="${cadet.surname}">
+        </div>
         <div class="form-group"><label>Rank</label>
           <select id="ec-rank">
             ${RANKS.map(r=>`<option value="${r}"${r===cadet.rank?' selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Gender</label>
+          <select id="ec-gender">
+            ${['male','female','other'].map(g=>`<option value="${g}"${g===cadet.gender?' selected':''}>${g.charAt(0).toUpperCase()+g.slice(1)}</option>`).join('')}
           </select>
         </div>
         <div class="form-group"><label>Flight (optional)</label>
@@ -612,12 +623,16 @@ async function openCadetRecord(cadetId) {
     </div>`);
     document.getElementById('ec-cancel').onclick = () => openCadetRecord(cadetId);
     document.getElementById('ec-save').onclick = async () => {
+      const forename = document.getElementById('ec-fore').value.trim();
+      const surname = document.getElementById('ec-sur').value.trim();
       const rank = document.getElementById('ec-rank').value;
+      const gender = document.getElementById('ec-gender').value;
       const flight = document.getElementById('ec-flight').value.trim() || null;
+      if (!forename || !surname) { showError('edit-cadet-error', 'Forename and surname are required'); return; }
       const saveBtn = document.getElementById('ec-save');
       saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
       try {
-        await PATCH(`/cadets/${cadetId}`, { rank, flight });
+        await PATCH(`/cadets/${cadetId}`, { forename, surname, rank, gender, flight });
         S.cadets = null;
         openCadetRecord(cadetId);
       } catch(e) {
@@ -1584,18 +1599,25 @@ async function openManageItems() {
   const items = await loadItems();
   const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
   let addSizeItemId = null;
+  let miCatFilter = null;
 
   function render() {
+    const displayItems = miCatFilter ? items.filter(i => i.category === miCatFilter) : items;
     showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body">
       <div class="alert alert-info" style="margin-bottom:16px">Manage the uniform catalogue. Add new sizes to existing items or create new item types.</div>
 
-      <div class="section-label">Current Items (${items.length})</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <div class="search-wrap" style="flex:1;min-width:180px;margin:0"><span class="search-icon">🔍</span><input id="mi-search" placeholder="Search items..." type="text" style="padding-left:32px"></div>
+        ${CATEGORIES.map(c=>`<button class="btn btn-ghost btn-sm mi-cat-chip" data-cat="${c}" style="padding:4px 10px;font-size:12px${miCatFilter===c?';background:var(--blue);color:white;border-color:var(--blue)':''}">${c}</button>`).join('')}
+      </div>
+
+      <div class="section-label">Current Items <span id="mi-count" style="font-weight:400;color:var(--text3)">(${displayItems.length}${displayItems.length<items.length?' of '+items.length:''})</span></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Item</th><th>Category</th><th>Sizes</th><th></th></tr></thead>
-        <tbody>${items.map(i=>`<tr>
+        <tbody id="mi-tbody">${displayItems.map(i=>`<tr data-item-name="${(i.short_name+' '+i.name+' '+(i.category||'')).toLowerCase()}">
           <td><strong>${i.short_name}</strong><br><span style="font-size:11px;color:var(--text3)">${i.name}</span></td>
           <td style="font-size:12px;color:var(--text3)">${i.category||'—'}</td>
-          <td style="font-size:12px">${i.sizes.map(s=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;margin-right:3px">${s.size_label}</span>`).join('')}
+          <td style="font-size:12px">${i.sizes.map(s=>`<span class="size-tag" style="display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;margin-right:3px;margin-bottom:2px">${s.size_label}<button class="del-size-btn" data-item-id="${i.id}" data-size-id="${s.id}" data-size-label="${s.size_label}" title="Remove size" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:10px;padding:0 0 0 4px;line-height:1">✕</button></span>`).join('')}
             ${addSizeItemId === i.id
               ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button>`
               : `<button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>`}
@@ -1622,6 +1644,42 @@ async function openManageItems() {
       <button class="btn btn-ghost" data-action="admin">← Back</button>
       <button class="btn btn-primary" id="ni-submit">Add Item</button>
     </div>`, true);
+
+    // Search filter (DOM visibility, no re-render)
+    function applyMiSearch() {
+      const s = document.getElementById('mi-search')?.value?.toLowerCase() || '';
+      let vis = 0;
+      document.querySelectorAll('#mi-tbody tr').forEach(row => {
+        const show = !s || (row.dataset.itemName || '').includes(s);
+        row.style.display = show ? '' : 'none';
+        if (show) vis++;
+      });
+      const countEl = document.getElementById('mi-count');
+      const base = miCatFilter ? items.filter(i => i.category === miCatFilter).length : items.length;
+      if (countEl) countEl.textContent = `(${vis}${vis < items.length ? ' of ' + items.length : ''})`;
+    }
+    document.getElementById('mi-search')?.addEventListener('input', applyMiSearch);
+
+    // Category chips (re-render with filter)
+    document.querySelectorAll('.mi-cat-chip').forEach(chip => {
+      chip.onclick = () => { miCatFilter = miCatFilter === chip.dataset.cat ? null : chip.dataset.cat; addSizeItemId = null; render(); };
+    });
+
+    // Delete size buttons
+    document.querySelectorAll('.del-size-btn').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        if (!confirm(`Remove size "${btn.dataset.sizeLabel}" from this item?\n\nThis cannot be done if any issued records use this size.`)) return;
+        btn.disabled = true; btn.textContent = '…';
+        try {
+          await DELETE(`/items/${btn.dataset.itemId}/sizes/${btn.dataset.sizeId}`);
+          const item = items.find(i => i.id === parseInt(btn.dataset.itemId));
+          if (item) item.sizes = item.sizes.filter(s => s.id !== parseInt(btn.dataset.sizeId));
+          S.items = null;
+          render();
+        } catch(e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = '✕'; }
+      };
+    });
 
     document.querySelectorAll('.add-size-btn').forEach(btn => {
       btn.onclick = () => { addSizeItemId = parseInt(btn.dataset.itemId); render(); };
