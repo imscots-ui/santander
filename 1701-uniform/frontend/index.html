@@ -1947,7 +1947,7 @@ function openAddCadet() {
         flight: document.getElementById('c-flight').value.trim()||null
       });
       S.cadets=null;
-      showModal(mHead('ADD CADET') + '<div class="modal-body"><div class="alert alert-success">✓ Cadet added successfully. Service number: <strong>' + svcNum + '</strong></div></div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addcadet">Add Another</button></div>');
+      showModal(mHead('ADD CADET') + '<div class="modal-body"><div class="alert alert-success">✓ Cadet added successfully. Service number: <strong>' + esc(svcNum) + '</strong></div></div><div class="modal-footer"><button class="btn btn-ghost" data-action="close">Done</button><button class="btn btn-primary" data-action="addcadet">Add Another</button></div>');
     } catch(e) { btn.disabled=false; btn.textContent='Add Cadet'; showError('cadet-error',e.message); }
   };
 }
