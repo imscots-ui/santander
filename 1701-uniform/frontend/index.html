@@ -1612,11 +1612,11 @@ async function openManageItems() {
   const items = await loadItems();
   let archivedItems = [];
   try { archivedItems = await GET('/items/archived'); } catch {}
-  const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
   let addSizeItemId = null;
   let miCatFilter = null;
 
   function render() {
+    const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
     const displayItems = miCatFilter ? items.filter(i => i.category === miCatFilter) : items;
     showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body">
       <div class="alert alert-info" style="margin-bottom:16px">Manage the uniform catalogue. Add new sizes to existing items or create new item types.</div>
