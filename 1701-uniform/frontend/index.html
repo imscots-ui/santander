@@ -507,7 +507,7 @@ async function openCadets() {
 function cadetListHTML(cadets) {
   if (!cadets.length) return '<div class="empty">No cadets found</div>';
   return cadets.map(c=>`<div class="cadet-item" data-id="${c.id}">
-    <div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div>
+    <div class="cadet-avatar">${esc(c.forename[0])}${esc(c.surname[0])}</div>
     <div style="flex:1">
       <div class="cadet-name">${esc(c.rank)} ${esc(c.surname)}, ${esc(c.forename)}${c.notes?` <span title="${esc(c.notes.slice(0,80))}${c.notes.length>80?'…':''}" style="font-size:12px;cursor:default">📝</span>`:''}</div>
       <div class="cadet-meta">${esc(c.service_number)}${c.flight?` · ${esc(c.flight)}`:''} · ${esc(c.gender)}</div>
@@ -530,7 +530,7 @@ async function openCadetRecord(cadetId) {
   const {cadet, summary, outstanding, history} = data;
   showModal(`${mHead('CADET RECORD')}<div class="modal-body">
     <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--blue-pale);border-radius:var(--r);margin-bottom:20px">
-      <div class="cadet-avatar" style="width:52px;height:52px;font-size:18px">${cadet.forename[0]}${cadet.surname[0]}</div>
+      <div class="cadet-avatar" style="width:52px;height:52px;font-size:18px">${esc(cadet.forename[0])}${esc(cadet.surname[0])}</div>
       <div style="flex:1">
         <div style="font-family:var(--head);font-size:24px;letter-spacing:0.04em;color:var(--blue)">${esc(cadet.rank)} ${esc(cadet.surname)}, ${esc(cadet.forename)}</div>
         <div style="font-family:var(--mono);font-size:12px;color:var(--text3)">${esc(cadet.service_number)} · ${esc(cadet.gender)}${cadet.flight?` · ${esc(cadet.flight)}`:''}${cadet.joined_at?` · Joined ${new Date(cadet.joined_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`:''}</div>
@@ -2240,7 +2240,7 @@ async function openManageCadets() {
         ${c.issued_count > 0 ? `<span class="badge badge-blue" style="font-size:10px;margin-left:4px" title="${c.issued_count} item(s) issued">${c.issued_count} out</span>` : ''}
         ${c.notes ? `<span title="Has notes: ${esc(c.notes.slice(0,60))}${c.notes.length>60?'…':''}" style="cursor:default;font-size:12px;margin-left:2px">📝</span>` : ''}
       </td>
-      <td style="font-size:13px">${c.flight||'—'}</td>
+      <td style="font-size:13px">${esc(c.flight||'—')}</td>
       <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" data-view="${c.id}">View</button><button class="btn btn-danger btn-sm mc-deactivate" data-id="${c.id}" data-name="${esc(c.rank)} ${esc(c.surname)}">Deactivate</button></td>
     </tr>`).join('');
   }
@@ -2248,7 +2248,7 @@ async function openManageCadets() {
   function inactiveTableHTML(list) {
     if (!list.length) return '<tr><td colspan="4"><div class="empty">No inactive cadets found</div></td></tr>';
     return list.map(c => `<tr style="opacity:0.7">
-      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${esc(c.service_number||'—')}</td>
       <td><strong>${esc(c.surname)}</strong>, ${esc(c.forename)} <span style="color:var(--text3);font-size:12px">${esc(c.rank)}</span></td>
       <td style="font-size:13px">${esc(c.flight||'—')}</td>
       <td style="display:flex;gap:6px">
@@ -2487,10 +2487,10 @@ async function openInactiveCadets() {
         <thead><tr><th>Service No</th><th>Name</th><th>Gender</th><th>Flight</th><th>Actions</th></tr></thead>
         <tbody id="ic-tbody">
           ${inactive.map(c => `<tr data-ic-name="${(c.surname+' '+c.forename+' '+(c.service_number||'')).toLowerCase()}">
-            <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
+            <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${esc(c.service_number||'—')}</td>
             <td><strong>${esc(c.surname)}</strong>, ${esc(c.forename)} <span style="color:var(--text3);font-size:12px">${esc(c.rank)}</span></td>
             <td style="font-size:13px">${esc(c.gender)}</td>
-            <td style="font-size:13px">${c.flight||'—'}</td>
+            <td style="font-size:13px">${esc(c.flight||'—')}</td>
             <td style="display:flex;gap:6px">
               <button class="btn btn-ghost btn-sm" data-view="${c.id}">View Record</button>
               <button class="btn btn-ghost btn-sm reactivate-btn" data-id="${c.id}" data-name="${esc(c.rank)} ${esc(c.surname)}">Reactivate</button>
