@@ -730,7 +730,7 @@ async function openCadetRecord(cadetId) {
       <button class="no-print" onclick="window.print()" style="margin-top:16px;padding:10px 20px;background:#002868;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif">🖨 Print</button>
       <div style="margin-top:10px;font-size:9px;color:#9099b5;border-top:1px solid #dde3f0;padding-top:8px">OFFICIAL · 1701 (Johnstone) Squadron · AP 1919 stores policy · DPA 2018 applies</div>
     </body></html>`;
-    const w = window.open('', '_blank', 'width=820,height:950');
+    const w = window.open('', '_blank', 'width=820,height=950');
     w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
   };
 
