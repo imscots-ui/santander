@@ -165,6 +165,25 @@ ${notes ? `<div class="section-label" style="margin-top:18px">Parade Notes</div>
     showToast && showToast('🖨️ Print dialogue opening…');
   }
 
+  function exportCSV() {
+    const total = CADETS.length;
+    const header = 'Date,Session,Present,Absent,Attendance %\n';
+    const rows = PARADE_NIGHTS.map(p => {
+      const pct = Math.round((p.cadets.length / total) * 100);
+      return `"${p.date}","${p.label}",${p.cadets.length},${total - p.cadets.length},${pct}%`;
+    }).join('\n');
+    const csv = header + rows;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '1701-attendance-history.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit?.('Attendance CSV exported', 'Parade', `${PARADE_NIGHTS.length} parades`);
+    showToast('📥 CSV downloaded: 1701-attendance-history.csv');
+  }
+
   const lowAtt = CADETS.filter(c => c.att < 75);
 
   return (
@@ -177,7 +196,7 @@ ${notes ? `<div class="section-label" style="margin-top:18px">Parade Notes</div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => setQrOpen(true)} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>📲 QR Check-in</button>
           <button onClick={printAttendance} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>🖨️ Print sheet</button>
-          <button onClick={() => showToast('📥 Exporting attendance sheet…')} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📥 Export</button>
+          <button onClick={exportCSV} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📥 Export CSV</button>
         </div>
       </div>
 
@@ -265,21 +284,66 @@ ${notes ? `<div class="section-label" style="margin-top:18px">Parade Notes</div>
 
       {/* Historical */}
       <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'18px 20px' }}>
-        <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, marginBottom:14 }}>Recent Parades</div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+          <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy }}>Attendance Trend</div>
+          <div style={{ fontSize:11, color:muted }}>Last {PARADE_NIGHTS.length} sessions · {CADETS.length} on strength</div>
+        </div>
+
+        {/* SVG trend chart */}
+        {(() => {
+          const total = CADETS.length;
+          const pts = [...PARADE_NIGHTS].reverse(); // oldest → newest
+          const pcts = pts.map(p => Math.round((p.cadets.length / total) * 100));
+          const avgPct = Math.round(pcts.reduce((s, v) => s + v, 0) / pcts.length);
+          const chartH = 64, chartW = '100%';
+          const barW = Math.floor(100 / pts.length);
+          return (
+            <div style={{ marginBottom:18 }}>
+              {/* Bar chart */}
+              <div style={{ display:'flex', alignItems:'flex-end', gap:4, height:68, paddingBottom:18, position:'relative' }}>
+                {/* 75% guideline */}
+                <div style={{ position:'absolute', bottom:18 + Math.round((75/100)*chartH) - 1, left:0, right:0, borderTop:'1.5px dashed #D0DCF0', zIndex:0 }} />
+                {pts.map((p, i) => {
+                  const pct = pcts[i];
+                  const barH = Math.max(4, Math.round((pct / 100) * chartH));
+                  const barColor = pct >= 85 ? '#1B6B3A' : pct >= 70 ? '#C8A032' : '#C8102E';
+                  const shortDate = p.date.replace(' 2026', '').replace(' 2026', '');
+                  return (
+                    <div key={i} title={`${p.date}: ${pct}% (${p.cadets.length}/${total})`}
+                      style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2, cursor:'default' }}>
+                      <div style={{ fontSize:9, color: pct >= 85 ? '#1B6B3A' : pct >= 70 ? '#7A4A00' : '#8B1A1A', fontWeight:700 }}>{pct}%</div>
+                      <div style={{ width:'100%', height:barH, background:barColor, borderRadius:'3px 3px 0 0', minHeight:4 }} />
+                      <div style={{ fontSize:8, color:muted, textAlign:'center', lineHeight:1.2, marginTop:2 }}>{shortDate}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Legend */}
+              <div style={{ display:'flex', gap:14, fontSize:10, color:muted, marginTop:4 }}>
+                <span>Avg <strong style={{ color:navy }}>{avgPct}%</strong></span>
+                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:4, background:'#1B6B3A', borderRadius:2, display:'inline-block' }} /> ≥85%</span>
+                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:4, background:'#C8A032', borderRadius:2, display:'inline-block' }} /> 70–84%</span>
+                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:4, background:'#C8102E', borderRadius:2, display:'inline-block' }} /> &lt;70%</span>
+                <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:14, borderTop:'1.5px dashed #D0DCF0', display:'inline-block' }} /> 75% target</span>
+              </div>
+            </div>
+          );
+        })()}
+
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
           <thead><tr style={{ borderBottom:`2px solid ${border}` }}>
-            {['Date','Activity','Present','Absent','Attendance %'].map(h=><th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase' }}>{h}</th>)}
+            {['Date','Session','Present','Absent','Att %'].map(h=><th key={h} style={{ padding:'8px 12px', textAlign:'left', fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase' }}>{h}</th>)}
           </tr></thead>
           <tbody>
             {PARADE_NIGHTS.map((p, i) => {
               const pct = Math.round((p.cadets.length / CADETS.length) * 100);
               return (
                 <tr key={i} style={{ borderBottom:`1px solid ${border}`, background:i%2?'#fafcfe':'white' }}>
-                  <td style={{ padding:'10px 12px', fontWeight:700 }}>{p.date}</td>
-                  <td style={{ padding:'10px 12px' }}>{p.label}</td>
-                  <td style={{ padding:'10px 12px', color:'#1B6B3A', fontWeight:700 }}>{p.cadets.length}</td>
-                  <td style={{ padding:'10px 12px', color:'#8B1A1A' }}>{CADETS.length - p.cadets.length}</td>
-                  <td style={{ padding:'10px 12px' }}>
+                  <td style={{ padding:'9px 12px', fontWeight:700, fontSize:12 }}>{p.date}</td>
+                  <td style={{ padding:'9px 12px', fontSize:12 }}>{p.label}</td>
+                  <td style={{ padding:'9px 12px', color:'#1B6B3A', fontWeight:700 }}>{p.cadets.length}</td>
+                  <td style={{ padding:'9px 12px', color:'#8B1A1A' }}>{CADETS.length - p.cadets.length}</td>
+                  <td style={{ padding:'9px 12px' }}>
                     <span style={{ fontWeight:700, color: pct>=85 ? '#1B6B3A' : pct>=70 ? '#7A4A00' : '#8B1A1A' }}>{pct}%</span>
                   </td>
                 </tr>

@@ -42,7 +42,13 @@ export const EVENTS = [
 ];
 
 export const PARADE_NIGHTS = [
-  { date:'12 Jun 2026', label:'Parade Night',         cadets:['c01','c02','c03','c05','c07','c08'], guests:0 },
-  { date:'5 Jun 2026',  label:'Navigation Exercise',  cadets:['c01','c02','c04','c06'],             guests:0 },
-  { date:'29 May 2026', label:'Parade Night',         cadets:['c01','c02','c03','c07','c09'],       guests:1 },
+  { date:'12 Jun 2026', label:'Parade Night',         cadets:['c01','c02','c03','c05','c07','c08'],             guests:0 },
+  { date:'5 Jun 2026',  label:'Navigation Exercise',  cadets:['c01','c02','c04','c06'],                         guests:0 },
+  { date:'29 May 2026', label:'Parade Night',         cadets:['c01','c02','c03','c07','c09'],                   guests:1 },
+  { date:'22 May 2026', label:'Parade Night',         cadets:['c01','c02','c03','c04','c05','c07'],             guests:0 },
+  { date:'15 May 2026', label:'Parade Night',         cadets:['c01','c02','c03','c05','c07','c08','c09'],       guests:0 },
+  { date:'8 May 2026',  label:'Parade Night',         cadets:['c01','c02','c04','c05','c07','c08'],             guests:0 },
+  { date:'1 May 2026',  label:'Parade Night',         cadets:['c01','c02','c03','c04','c05','c06','c08'],       guests:0 },
+  { date:'24 Apr 2026', label:'Parade Night',         cadets:['c01','c02','c03','c04','c05','c07','c08','c09'], guests:1 },
+  { date:'17 Apr 2026', label:'Parade Night (Term start)', cadets:['c01','c02','c03','c04','c05','c06','c07','c08'], guests:2 },
 ];
