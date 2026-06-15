@@ -2153,9 +2153,9 @@ async function openManageCadets() {
     document.getElementById('mc-addcadet').onclick = openAddCadet;
     document.getElementById('mc-import').onclick = openImportCadets;
     document.getElementById('mc-export').onclick = () => {
-      const header = 'service_number,rank,forename,surname,gender,flight,status\n';
+      const header = 'service_number,rank,forename,surname,gender,flight,status,items_outstanding\n';
       const rows = cadets.map(c =>
-        [c.service_number||'', c.rank||'', c.forename, c.surname, c.gender||'', c.flight||'', c.active?'active':'inactive']
+        [c.service_number||'', c.rank||'', c.forename, c.surname, c.gender||'', c.flight||'', c.active?'active':'inactive', c.issued_count||0]
           .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
       ).join('\n');
       const blob = new Blob([header + rows], { type:'text/csv' });
@@ -2193,7 +2193,11 @@ async function openManageCadets() {
     if (!list.length) return '<tr><td colspan="4"><div class="empty">No active cadets found</div></td></tr>';
     return list.map(c => `<tr>
       <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
-      <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
+      <td>
+        <strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span>
+        ${c.issued_count > 0 ? `<span class="badge badge-blue" style="font-size:10px;margin-left:4px" title="${c.issued_count} item(s) issued">${c.issued_count} out</span>` : ''}
+        ${c.notes ? `<span title="Has notes: ${c.notes.slice(0,60)}${c.notes.length>60?'…':''}" style="cursor:default;font-size:12px;margin-left:2px">📝</span>` : ''}
+      </td>
       <td style="font-size:13px">${c.flight||'—'}</td>
       <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" data-view="${c.id}">View</button><button class="btn btn-danger btn-sm mc-deactivate" data-id="${c.id}" data-name="${c.rank} ${c.surname}">Deactivate</button></td>
     </tr>`).join('');
