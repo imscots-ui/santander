@@ -1958,11 +1958,17 @@ async function openManageStaff() {
   const active = users.filter(u => u.active);
   const inactive = users.filter(u => !u.active);
 
+  function fmtLogin(dt) {
+    if (!dt) return '<span style="color:var(--text3);font-size:11px">Never</span>';
+    return '<span style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + new Date(dt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + '</span>';
+  }
+
   const activeRows = active.map(u => '<tr>' +
     '<td style="font-family:var(--mono);font-size:12px">' + u.username + '</td>' +
     '<td><strong>' + u.surname + '</strong>, ' + u.forename + (u.rank ? ' <span style="color:var(--text3);font-size:12px">' + u.rank + '</span>' : '') + '</td>' +
     '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
     '<td><span class="badge ' + (u.is_admin?'badge-gold':'badge-blue') + '">' + (u.is_admin?'Admin':'Staff') + '</span></td>' +
+    '<td>' + fmtLogin(u.last_login) + '</td>' +
     '<td style="display:flex;gap:6px">' +
       '<button class="btn btn-ghost btn-sm ms-edit" data-id="' + u.id + '">Edit</button>' +
       (u.id !== S.user.id ? '<button class="btn btn-danger btn-sm ms-deact" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Deactivate</button>' : '') +
@@ -1974,14 +1980,15 @@ async function openManageStaff() {
     '<td><strong>' + u.surname + '</strong>, ' + u.forename + '</td>' +
     '<td style="font-size:12px">' + (u.role||'—') + '</td>' +
     '<td><span class="badge badge-grey">Inactive</span></td>' +
+    '<td>' + fmtLogin(u.last_login) + '</td>' +
     '<td><button class="btn btn-ghost btn-sm ms-reactivate" data-id="' + u.id + '" data-name="' + u.forename + ' ' + u.surname + '">Reactivate</button></td>' +
   '</tr>').join('');
 
   showModal(mHead('MANAGE STAFF') + '<div class="modal-body">' +
     '<div style="margin-bottom:16px"><button class="btn btn-primary" id="ms-addstaff">+ Add Staff Member</button></div>' +
     '<div class="section-label">Active Staff (' + active.length + ')</div>' +
-    '<div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Level</th><th>Actions</th></tr></thead><tbody>' + activeRows + '</tbody></table></div>' +
-    (inactive.length > 0 ? '<div class="section-label" style="margin-top:24px">Inactive Staff (' + inactive.length + ')</div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + inactiveRows + '</tbody></table></div>' : '') +
+    '<div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Level</th><th>Last Login</th><th>Actions</th></tr></thead><tbody>' + activeRows + '</tbody></table></div>' +
+    (inactive.length > 0 ? '<div class="section-label" style="margin-top:24px">Inactive Staff (' + inactive.length + ')</div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody>' + inactiveRows + '</tbody></table></div>' : '') +
     '</div><div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>', true);
 
   document.getElementById('ms-addstaff').onclick = openAddStaff;
