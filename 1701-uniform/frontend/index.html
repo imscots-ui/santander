@@ -439,7 +439,7 @@ function showModal(html, wide=false) {
 }
 function closeModal() { const r=document.getElementById('modal-root'); if(r) r.innerHTML=''; }
 function mHead(title) { return `<div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close">✕</button></div>`; }
-function showError(id, msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="alert alert-danger">${msg}</div>`; }
+function showError(id, msg) { const el=document.getElementById(id); if(el) el.innerHTML=`<div class="alert alert-danger">${esc(msg)}</div>`; }
 function fmt(dt) { if(!dt) return '—'; return new Date(dt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function escNl(s) { if(!s) return ''; return esc(s).replace(/\n/g,'<br>'); }
@@ -2359,7 +2359,7 @@ async function openImportCadets() {
     let added = 0, skipped = 0, failed = [];
     for (const row of parsedRows) {
       try { await POST('/cadets/', row); added++; }
-      catch(e) { if (e.message.toLowerCase().includes('already') || e.message.includes('409') || e.message.includes('duplicate')) skipped++; else failed.push(row.surname + ': ' + e.message); }
+      catch(e) { if (e.message.toLowerCase().includes('already') || e.message.includes('409') || e.message.includes('duplicate')) skipped++; else failed.push(esc(row.surname) + ': ' + esc(e.message)); }
     }
     parsedRows = [];
     S.cadets = null;
@@ -2549,7 +2549,7 @@ async function openFeedback() {
 
   function catBadge(c) {
     const map = { 'Stock Request': 'badge-blue', 'Issue / Problem': 'badge-gold', 'General': 'badge-grey', 'Other': 'badge-grey' };
-    return '<span class="badge ' + (map[c] || 'badge-grey') + '" style="margin-right:6px">' + c + '</span>';
+    return '<span class="badge ' + (map[c] || 'badge-grey') + '" style="margin-right:6px">' + esc(c) + '</span>';
   }
 
   function itemHTML(f) {
@@ -2673,7 +2673,7 @@ async function loadHomeDashboard() {
             </div>
             <div style="text-align:right;flex-shrink:0">
               <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${fmt(a.timestamp)}</div>
-              <div style="font-size:10px;color:var(--text3)">${a.user}</div>
+              <div style="font-size:10px;color:var(--text3)">${esc(a.user)}</div>
             </div>
           </div>`).join('')}
         </div>`;
@@ -2709,9 +2709,9 @@ async function openBadgeTracker(startView=null, startCat=null) {
 
   function addStockCell(b) {
     if (addStockBadgeId === b.id) {
-      return '<td><input id="stock-qty-input" type="number" min="1" placeholder="Qty" style="width:60px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px"><button class="btn btn-primary btn-sm" id="stock-qty-submit" data-id="' + b.id + '" data-name="' + b.name + '" style="margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="stock-qty-cancel" style="margin-left:4px">✕</button></td>';
+      return '<td><input id="stock-qty-input" type="number" min="1" placeholder="Qty" style="width:60px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px"><button class="btn btn-primary btn-sm" id="stock-qty-submit" data-id="' + b.id + '" data-name="' + esc(b.name) + '" style="margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="stock-qty-cancel" style="margin-left:4px">✕</button></td>';
     }
-    return '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + b.name + '">+ Add Stock</button></td>';
+    return '<td><button class="btn btn-ghost btn-sm badge-add-stock" data-id="' + b.id + '" data-name="' + esc(b.name) + '">+ Add Stock</button></td>';
   }
 
   function getCatBadges(cat) {
@@ -2749,11 +2749,11 @@ async function openBadgeTracker(startView=null, startCat=null) {
       let rows = '';
       disciplines.forEach(disc => {
         const discBadges = list.filter(b => b.subcategory === disc);
-        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + disc.toUpperCase() + '</td></tr>';
+        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + esc(disc).toUpperCase() + '</td></tr>';
         discBadges.forEach(b => {
           const level = b.name.split(' – ').pop();
           const levelColor = level === 'Blue' ? '#1d4ed8' : level === 'Bronze' ? '#92400e' : level === 'Silver' ? '#374151' : '#854d0e';
-          rows += '<tr><td style="padding-left:24px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + levelColor + ';margin-right:8px;vertical-align:middle"></span>' + level + '</td>';
+          rows += '<tr><td style="padding-left:24px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + levelColor + ';margin-right:8px;vertical-align:middle"></span>' + esc(level) + '</td>';
           rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
           rows += addStockCell(b) + '</tr>';
         });
@@ -2765,16 +2765,16 @@ async function openBadgeTracker(startView=null, startCat=null) {
       let rows = '';
       subcats.forEach(sub => {
         const subBadges = list.filter(b => (b.subcategory || 'Other') === sub);
-        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + sub.toUpperCase() + '</td></tr>';
+        rows += '<tr><td colspan="3" style="background:var(--bg);font-weight:700;font-size:12px;font-family:var(--mono);color:var(--text2);padding:8px 12px;letter-spacing:0.06em">' + esc(sub).toUpperCase() + '</td></tr>';
         subBadges.forEach(b => {
-          rows += '<tr><td style="padding-left:24px"><strong>' + b.name.replace(' – Staff Cadet', '') + '</strong></td>';
+          rows += '<tr><td style="padding-left:24px"><strong>' + esc(b.name.replace(' – Staff Cadet', '')) + '</strong></td>';
           rows += '<td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>';
           rows += addStockCell(b) + '</tr>';
         });
       });
       return '<div class="table-wrap"><table><thead><tr><th>Rank Slide (Pairs)</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     }
-    const rows = list.map(b => '<tr><td><strong>' + b.name + '</strong></td><td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>' + addStockCell(b) + '</tr>').join('');
+    const rows = list.map(b => '<tr><td><strong>' + esc(b.name) + '</strong></td><td><span style="font-size:20px;font-weight:800;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + '</span></td>' + addStockCell(b) + '</tr>').join('');
     return '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Stock</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
@@ -2786,40 +2786,40 @@ async function openBadgeTracker(startView=null, startCat=null) {
       const disciplines = [...new Set(list.map(b => b.subcategory))];
       disciplines.forEach(disc => {
         const discBadges = list.filter(b => b.subcategory === disc);
-        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + disc + '</div>';
+        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + esc(disc) + '</div>';
         discBadges.forEach(b => {
           const level = b.name.split(' – ').pop();
           const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
           const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
-          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + level + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
+          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + esc(level) + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
         });
       });
     } else if (selectedCat === 'Rank Slides') {
       const subcats = [...new Set(list.map(b => b.subcategory || 'Other'))];
       subcats.forEach(sub => {
-        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + sub + '</div>';
+        badgeList += '<div style="font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:0.1em;margin:8px 0 4px;text-transform:uppercase">' + esc(sub) + '</div>';
         list.filter(b => (b.subcategory || 'Other') === sub).forEach(b => {
           const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
           const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
-          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + b.name.replace(' – Staff Cadet', '') + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' pairs</div></div>';
+          badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + esc(b.name.replace(' – Staff Cadet', '')) + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' pairs</div></div>';
         });
       });
     } else {
       list.forEach(b => {
         const sel = selectedBadge && selectedBadge.id === b.id ? ' selected' : '';
         const op = b.quantity < 1 ? 'style="opacity:0.4"' : '';
-        badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + b.name + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
+        badgeList += '<div class="cadet-item' + sel + '" data-badge-id="' + b.id + '" ' + op + '><div style="font-size:13px;font-weight:600">' + esc(b.name) + '</div><div style="font-size:11px;color:' + (b.quantity > 0 ? 'var(--green)' : 'var(--red)') + '">' + b.quantity + ' in stock</div></div>';
       });
     }
     const issueFlights = [...new Set(activeCadets.map(c=>c.flight).filter(Boolean))].sort();
     const issueFlightChips = issueFlights.length > 1
       ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">' +
         '<button class="chip' + (!badgeCadetFlight ? ' active' : '') + '" data-bif="all">All</button>' +
-        issueFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bif="' + f + '">' + f + '</button>').join('') +
+        issueFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bif="' + esc(f) + '">' + esc(f) + '</button>').join('') +
         '</div>' : '';
     const issueCadets = badgeCadetFlight ? activeCadets.filter(c => c.flight === badgeCadetFlight) : activeCadets;
-    const cadetList = issueCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
-    const selectedInfo = selectedBadge ? '<div style="background:var(--blue-pale);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:8px">Selected: <strong>' + selectedBadge.name + '</strong></div>' : '';
+    const cadetList = issueCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + esc(c.surname) + '</strong>, ' + esc(c.forename) + ' <span style="color:var(--text3)">' + esc(c.rank) + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + esc(c.service_number) + '</div></div>').join('');
+    const selectedInfo = selectedBadge ? '<div style="background:var(--blue-pale);border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:8px">Selected: <strong>' + esc(selectedBadge.name) + '</strong></div>' : '';
     const issueDisabled = (!selectedBadge || !selectedCadet) ? 'disabled' : '';
     return '<div id="badge-issue-error"></div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' + catChips + '</div>' +
@@ -2835,10 +2835,10 @@ async function openBadgeTracker(startView=null, startCat=null) {
     const cvFlightChips = cvFlights.length > 1
       ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">' +
         '<button class="chip' + (!badgeCadetFlight ? ' active' : '') + '" data-bcf="all">All</button>' +
-        cvFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bcf="' + f + '">' + f + '</button>').join('') +
+        cvFlights.map(f => '<button class="chip' + (badgeCadetFlight === f ? ' active' : '') + '" data-bcf="' + esc(f) + '">' + esc(f) + '</button>').join('') +
         '</div>' : '';
     const cvCadets = badgeCadetFlight ? activeCadets.filter(c => c.flight === badgeCadetFlight) : activeCadets;
-    const cadetList = cvCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id2="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + c.surname + '</strong>, ' + c.forename + ' <span style="color:var(--text3)">' + c.rank + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + c.service_number + '</div></div>').join('');
+    const cadetList = cvCadets.map(c => '<div class="cadet-item' + (selectedCadet && selectedCadet.id === c.id ? ' selected' : '') + '" data-cadet-id2="' + c.id + '" style="padding:8px 12px"><div style="font-size:13px"><strong>' + esc(c.surname) + '</strong>, ' + esc(c.forename) + ' <span style="color:var(--text3)">' + esc(c.rank) + '</span></div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">' + esc(c.service_number) + '</div></div>').join('');
     return '<div class="section-label">Select Cadet</div>' + cvFlightChips + '<input id="badge-cadet-search2" placeholder="Search cadets..." style="margin-bottom:8px"><div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:16px">' + cadetList + '</div><div id="cadet-badge-history">' + (selectedCadet ? '<div class="loading-text">Select a cadet above</div>' : '<div class="empty">Select a cadet to view their badges</div>') + '</div>';
   }
 
@@ -2964,7 +2964,7 @@ async function openBadgeTracker(startView=null, startCat=null) {
         const el2 = document.getElementById('cadet-badge-history');
         if (!el2) return;
         if (!issued.length) { el2.innerHTML = '<div class="empty">No badges issued to this cadet yet.</div>'; return; }
-        let rows = issued.map(i => '<tr><td><strong>' + i.name + '</strong></td><td style="font-size:12px">' + i.category + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(i.issued_at) + '</td><td style="font-size:12px">' + i.issued_by + '</td><td><span class="badge ' + (i.returned ? 'badge-grey' : 'badge-green') + '">' + (i.returned ? 'Returned' : 'Active') + '</span></td><td>' + (!i.returned ? '<button class="btn btn-ghost btn-sm badge-return-btn" data-id="' + i.issued_id + '">Return</button>' : '') + '</td></tr>').join('');
+        let rows = issued.map(i => '<tr><td><strong>' + esc(i.name) + '</strong></td><td style="font-size:12px">' + esc(i.category) + '</td><td style="font-family:var(--mono);font-size:11px">' + fmt(i.issued_at) + '</td><td style="font-size:12px">' + esc(i.issued_by) + '</td><td><span class="badge ' + (i.returned ? 'badge-grey' : 'badge-green') + '">' + (i.returned ? 'Returned' : 'Active') + '</span></td><td>' + (!i.returned ? '<button class="btn btn-ghost btn-sm badge-return-btn" data-id="' + i.issued_id + '">Return</button>' : '') + '</td></tr>').join('');
         el2.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Category</th><th>Issued</th><th>By</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
         document.querySelectorAll('.badge-return-btn').forEach(btn => {
           btn.onclick = async () => {
@@ -3449,7 +3449,7 @@ async function openAuditLog() {
     if (filters.dateFrom) { const d = new Date(filters.dateFrom); filtered = filtered.filter(l => new Date(l.timestamp) >= d); }
     if (filters.dateTo) { const d = new Date(filters.dateTo); d.setHours(23,59,59,999); filtered = filtered.filter(l => new Date(l.timestamp) <= d); }
 
-    const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'STOCK_DELETE', 'CADET_CREATE', 'CADET_UPDATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'ITEM_CREATE', 'ITEM_EDIT', 'ITEM_ADD_SIZE', 'ITEM_DELETE_SIZE', 'ITEM_DEACTIVATE', 'ITEM_REACTIVATE', 'KIT_LIST_ADD', 'KIT_LIST_REMOVE', 'BADGE_CREATE', 'BADGE_STOCK_ADJUST', 'BADGE_ISSUE', 'BADGE_RETURN', 'USER_CREATE', 'USER_DEACTIVATE', 'USER_REACTIVATE', 'USER_EDIT', 'USER_PASSWORD_RESET', 'FEEDBACK_SUBMIT', 'FEEDBACK_REPLY'];
+    const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'STOCK_DELETE', 'CADET_CREATE', 'CADET_UPDATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'ITEM_CREATE', 'ITEM_EDIT', 'ITEM_ADD_SIZE', 'ITEM_DELETE_SIZE', 'ITEM_DEACTIVATE', 'ITEM_REACTIVATE', 'KIT_LIST_ADD', 'KIT_LIST_REMOVE', 'BADGE_CREATE', 'BADGE_STOCK_ADJUST', 'BADGE_ISSUE', 'BADGE_RETURN', 'USER_CREATE', 'USER_DEACTIVATE', 'USER_REACTIVATE', 'USER_EDIT', 'USER_PASSWORD_RESET', 'USER_PIN_CHANGE', 'FEEDBACK_SUBMIT', 'FEEDBACK_REPLY'];
 
     showModal(`${mHead('AUDIT LOG')}<div class="modal-body">
       <!-- Filters -->
