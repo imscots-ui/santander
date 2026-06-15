@@ -214,6 +214,33 @@ td { padding: 11px 14px; vertical-align: middle; }
   [data-theme="dark"] .cadet-item:hover { background: #222538; }
   [data-theme="dark"] .staff-select-btn { background: #1a1d27 !important; border-color: #2a2d3e !important; }
   [data-theme="dark"] .staff-select-btn:hover { background: #222538 !important; border-color: var(--blue) !important; }
+  [data-theme="dark"] table tbody td { background: #1a1d27; color: var(--text); border-color: #2a2d3e; }
+  [data-theme="dark"] table tbody tr:nth-child(even) td { background: #1e2235; }
+  [data-theme="dark"] .home-content { background: transparent; }
+  [data-theme="dark"] .modal-footer { background: #0d1525; border-top-color: #2a2d3e; }
+  [data-theme="dark"] .btn-ghost { background: #1a1d27; border-color: #2a2d3e; color: var(--text); }
+  [data-theme="dark"] .btn-ghost:hover { background: #222538; border-color: var(--blue); }
+  [data-theme="dark"] .size-btn { background: #1a1d27; border-color: #2a2d3e; color: var(--text); }
+  [data-theme="dark"] .size-btn:hover { background: #222538; }
+  [data-theme="dark"] .size-btn.low-stock { border-color: #d97706; color: #f59e0b; }
+  [data-theme="dark"] #conn-banner { background: #7f1d1d !important; }
+  [data-theme="dark"] #home-stats > div { background: rgba(26,29,39,0.85) !important; }
+  [data-theme="dark"] .home-btn-icon { background: #1e2235; }
+  [data-theme="dark"] .home-btn.green .home-btn-icon { background: #0d2318; }
+  [data-theme="dark"] .home-btn.red .home-btn-icon { background: #2d1010; }
+  [data-theme="dark"] .home-btn.amber .home-btn-icon { background: #2a1d05; }
+  [data-theme="dark"] .home-btn.gold .home-btn-icon { background: #1e1a08; }
+  [data-theme="dark"] .alert-danger { background: #2d1010; color: #fca5a5; }
+  [data-theme="dark"] .alert-success { background: #0d2318; color: #86efac; }
+  [data-theme="dark"] .alert-warning { background: #1f1400; color: #fcd34d; }
+  [data-theme="dark"] .alert-info { background: #1a2a3e; color: #93c5fd; }
+  [data-theme="dark"] .badge-blue { background: #1a2a3e; color: #93c5fd; }
+  [data-theme="dark"] .badge-green { background: #0d2318; color: #86efac; }
+  [data-theme="dark"] .badge-red { background: #2d1010; color: #fca5a5; }
+  [data-theme="dark"] .badge-amber { background: #1f1400; color: #fcd34d; }
+  [data-theme="dark"] .item-card { background: #1a1d27; }
+  [data-theme="dark"] .item-card.selected { background: #1a2a3e; }
+  [data-theme="dark"] .form-group label { color: var(--text2); }
 
   </style>
 </head>
@@ -420,7 +447,7 @@ async function openCadets() {
   document.getElementById('cadet-search').oninput = e => {
     const s=e.target.value.toLowerCase();
     const activeCadets = (S.cadets||[]).filter(c => c.active);
-    document.getElementById('cadet-list').innerHTML = cadetListHTML(activeCadets.filter(c=>(c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s)));
+    document.getElementById('cadet-list').innerHTML = cadetListHTML(activeCadets.filter(c=>(c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s)));
     bindCadetItems();
   };
   bindCadetItems();
@@ -448,7 +475,7 @@ async function openCadetRecord(cadetId) {
       <div class="cadet-avatar" style="width:52px;height:52px;font-size:18px">${cadet.forename[0]}${cadet.surname[0]}</div>
       <div style="flex:1">
         <div style="font-family:var(--head);font-size:24px;letter-spacing:0.04em;color:var(--blue)">${cadet.rank} ${cadet.surname}, ${cadet.forename}</div>
-        <div style="font-family:var(--mono);font-size:12px;color:var(--text3)">${cadet.gender}${cadet.flight?` · ${cadet.flight}`:''}</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text3)">${cadet.service_number} · ${cadet.gender}${cadet.flight?` · ${cadet.flight}`:''}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
@@ -460,8 +487,8 @@ async function openCadetRecord(cadetId) {
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-      ${[['Total Issued',summary.total_issued,'var(--blue)'],['Outstanding',summary.outstanding_count,'#92400e'],['Returned',summary.returned_count,'var(--green)']].map(([l,v,c])=>`
-        <div style="background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      ${[['Total Issued',summary.total_issued,'var(--blue)'],['Outstanding',summary.outstanding_count,'var(--amber)'],['Returned',summary.returned_count,'var(--green)']].map(([l,v,c])=>`
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
           <div style="font-family:var(--head);font-size:32px;color:${c}">${v}</div>
           <div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">${l}</div>
         </div>`).join('')}
@@ -1207,9 +1234,11 @@ async function openSearchUniform() {
       <div class="search-wrap" style="margin-bottom:16px"><span class="search-icon">🔍</span><input id="stock-search" placeholder="Search items..." type="text" autofocus></div>
       ${!selectedItem?`<div id="stock-item-grid" class="item-grid">${items.map(i=>{
         const totalStock = i.sizes ? i.sizes.reduce((sum,s)=>{return sum+(stockMap[i.id+'-'+s.id]||0);},0) : 0;
-        return `<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}" style="${totalStock===0?'opacity:0.5':''}">
+        const lowSizes = i.sizes ? i.sizes.filter(s=>{const q=stockMap[i.id+'-'+s.id]??0;return q>0&&q<=3;}).length : 0;
+        const isLow = totalStock>0 && lowSizes>0 && totalStock<=3*Math.max(1,i.sizes?.length||1);
+        return `<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}" style="${totalStock===0?'opacity:0.5':''}${lowSizes>0&&totalStock<=lowSizes*3?';border-color:#d97706':''}" title="${lowSizes>0?lowSizes+' size(s) running low':''}">
           <div class="item-card-name">${i.short_name}</div>
-          <div class="item-card-cat" style="color:${totalStock>0?'var(--green)':'var(--red)'}">${totalStock>0?totalStock+' in stock':'Out of stock'}</div>
+          <div class="item-card-cat" style="color:${totalStock===0?'var(--red)':lowSizes>0?'#d97706':'var(--green)'}">${totalStock===0?'Out of stock':lowSizes>0?totalStock+' ('+lowSizes+' low)':totalStock+' in stock'}</div>
         </div>`;
       }).join('')}</div>`
       :renderSizes()}
@@ -1234,15 +1263,18 @@ async function openSearchUniform() {
   function renderSizes() {
     const stockMap={}; (S.stock||[]).forEach(s=>{stockMap[`${s.item_id}-${s.size_id}`]=s.quantity;});
     const sizes=selectedItem.sizes.map(s=>({...s,qty:stockMap[`${selectedItem.id}-${s.id}`]??0}));
-    const inStock=sizes.filter(s=>s.qty>0).sort((a,b)=>b.qty-a.qty);
+    const good=sizes.filter(s=>s.qty>3).sort((a,b)=>b.qty-a.qty);
+    const low=sizes.filter(s=>s.qty>0&&s.qty<=3).sort((a,b)=>b.qty-a.qty);
     const outOfStock=sizes.filter(s=>s.qty===0);
+    const inStockCount=good.length+low.length;
     return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div><div style="font-family:var(--head);font-size:28px;letter-spacing:0.04em;color:var(--blue)">${selectedItem.short_name}</div><div style="font-size:12px;color:var(--text3)">${selectedItem.name}</div></div>
-      <div style="text-align:right"><div style="font-size:24px;font-weight:800;color:var(--green)">${inStock.length}</div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">SIZES IN STOCK</div></div>
+      <div style="text-align:right"><div style="font-size:24px;font-weight:800;color:${inStockCount>0?'var(--green)':'var(--red)'}">${inStockCount}</div><div style="font-size:11px;font-family:var(--mono);color:var(--text3)">SIZES IN STOCK</div></div>
     </div>
-    ${inStock.length>0?`<div class="section-label">In Stock</div><div class="size-grid">${inStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--green);border-radius:6px;background:var(--green-light);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green)">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:var(--green)">${s.qty}</div><div style="font-size:10px;color:var(--green);opacity:0.7">in stock</div></div>`).join('')}</div>`:''}
-    ${outOfStock.length>0?`<div class="section-label" style="margin-top:16px">Out of Stock</div><div class="size-grid">${outOfStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:#f8f9fd;text-align:center;opacity:0.6"><div style="font-family:var(--mono);font-size:13px;color:var(--text3)">${s.size_label}</div><div style="font-size:13px;color:var(--red);font-weight:700">Out</div></div>`).join('')}</div>`:''}
-    ${inStock.length===0?`<div class="alert alert-warning" style="margin-top:12px">⚠ No sizes of this item are currently in stock.</div>`:''}`;
+    ${good.length>0?`<div class="section-label">In Stock</div><div class="size-grid">${good.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--green);border-radius:6px;background:var(--green-light);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green)">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:var(--green)">${s.qty}</div><div style="font-size:10px;color:var(--green);opacity:0.7">in stock</div></div>`).join('')}</div>`:''}
+    ${low.length>0?`<div class="section-label" style="margin-top:${good.length?'14px':'0'};color:#d97706">⚠ Low Stock</div><div class="size-grid">${low.map(s=>`<div style="padding:10px 14px;border:1.5px solid #d97706;border-radius:6px;background:var(--amber-light,#fef3c7);text-align:center"><div style="font-family:var(--mono);font-size:13px;font-weight:600;color:#92400e">${s.size_label}</div><div style="font-size:18px;font-weight:800;color:#d97706">${s.qty}</div><div style="font-size:10px;color:#d97706;opacity:0.8">low stock</div></div>`).join('')}</div>`:''}
+    ${outOfStock.length>0?`<div class="section-label" style="margin-top:${(good.length||low.length)?'14px':'0'}">Out of Stock</div><div class="size-grid">${outOfStock.map(s=>`<div style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg2);text-align:center;opacity:0.6"><div style="font-family:var(--mono);font-size:13px;color:var(--text3)">${s.size_label}</div><div style="font-size:13px;color:var(--red);font-weight:700">Out</div></div>`).join('')}</div>`:''}
+    ${inStockCount===0?`<div class="alert alert-warning" style="margin-top:12px">⚠ No sizes of this item are currently in stock.</div>`:''}`;
   }
 
   renderSearch();
@@ -1859,15 +1891,25 @@ async function loadHomeDashboard() {
   if (!el) return;
   try {
     const d = await GET('/dashboard/');
+    const lowStockCount = (d.low_stock || []).length;
+    const kitGapCount = (d.cadets_missing_kit || d.missing_kit_detail || []).length;
     const stats = [
       { label:'Active Cadets', value: d.total_active_cadets, color:'var(--blue)' },
       { label:'Items Issued', value: d.total_items_issued, color:'var(--green)' },
-      { label:'Cadets w/ Kit Gap', value: (d.cadets_missing_kit || []).length, color: (d.cadets_missing_kit||[]).length > 0 ? 'var(--red)' : 'var(--green)' },
+      { label:'Cadets w/ Kit Gap', value: kitGapCount, color: kitGapCount > 0 ? 'var(--red)' : 'var(--green)' },
+      { label:'Low Stock Lines', value: lowStockCount, color: lowStockCount > 0 ? '#d97706' : 'var(--green)', warn: lowStockCount > 0 },
     ];
-    el.innerHTML = stats.map(s => `<div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(4px);border:1px solid var(--border);border-radius:10px;padding:12px 20px;min-width:110px;text-align:center">
+    el.innerHTML = stats.map(s => `<div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(4px);border:1px solid ${s.warn?'#d97706':'var(--border)'};border-radius:10px;padding:12px 20px;min-width:110px;text-align:center;position:relative">
+      ${s.warn?'<div style="position:absolute;top:-6px;right:-6px;width:12px;height:12px;background:#d97706;border-radius:50%;border:2px solid var(--bg)"></div>':''}
       <div style="font-family:var(--head);font-size:28px;color:${s.color};line-height:1">${s.value}</div>
       <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px">${s.label}</div>
     </div>`).join('');
+    // Update Search Stock tile badge
+    const searchBtn = document.getElementById('btn-search');
+    if (searchBtn && lowStockCount > 0) {
+      searchBtn.querySelector('.home-btn-sub').textContent = `${lowStockCount} line${lowStockCount===1?'':'s'} running low`;
+      searchBtn.style.borderColor = '#d97706';
+    }
   } catch { /* silently skip if backend unreachable */ }
 }
 
