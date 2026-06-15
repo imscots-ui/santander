@@ -1629,7 +1629,10 @@ async function openManageItems() {
               ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button>`
               : `<button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>`}
           </td>
-          <td><button class="btn btn-ghost btn-sm archive-item-btn" data-id="${i.id}" data-name="${i.short_name}" style="font-size:11px;padding:2px 8px;color:var(--text3)">Archive</button></td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-ghost btn-sm edit-item-btn" data-id="${i.id}" style="font-size:11px;padding:2px 8px">Edit</button>
+            <button class="btn btn-ghost btn-sm archive-item-btn" data-id="${i.id}" data-name="${i.short_name}" style="font-size:11px;padding:2px 8px;color:var(--text3);margin-left:4px">Archive</button>
+          </td>
         </tr>`).join('')}
         </tbody>
       </table></div>
@@ -1695,6 +1698,52 @@ async function openManageItems() {
           S.items = null;
           render();
         } catch(e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = '✕'; }
+      };
+    });
+
+    // Edit item
+    document.querySelectorAll('.edit-item-btn').forEach(btn => {
+      btn.onclick = () => {
+        const item = items.find(i => i.id === parseInt(btn.dataset.id));
+        if (!item) return;
+        const CATS = [...new Set([...CATEGORIES, item.category].filter(Boolean))].sort();
+        showModal(`${mHead('EDIT ITEM')}<div class="modal-body">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Editing: <strong>${item.short_name}</strong></div>
+          <div id="ei-error"></div>
+          <div class="grid-2">
+            <div class="form-group"><label>Short Name <span style="color:var(--red)">*</span></label>
+              <input id="ei-short" value="${item.short_name}">
+            </div>
+            <div class="form-group"><label>Full Name <span style="color:var(--red)">*</span></label>
+              <input id="ei-name" value="${item.name}">
+            </div>
+            <div class="form-group"><label>Category</label>
+              <input id="ei-cat" list="ei-cat-list" value="${item.category||''}">
+              <datalist id="ei-cat-list">${CATS.map(c=>`<option value="${c}">`).join('')}</datalist>
+            </div>
+          </div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:14px;font-weight:600;color:var(--text)"><input type="checkbox" id="ei-multi" style="width:auto;accent-color:var(--blue)"${item.allows_multiples?' checked':''}> Allow multiple issues to same cadet</label></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="ei-cancel">Cancel</button>
+          <button class="btn btn-primary" id="ei-save">Save Changes</button>
+        </div>`);
+        document.getElementById('ei-cancel').onclick = () => { addSizeItemId = null; render(); };
+        document.getElementById('ei-save').onclick = async () => {
+          const short_name = document.getElementById('ei-short').value.trim();
+          const name = document.getElementById('ei-name').value.trim();
+          const category = document.getElementById('ei-cat').value.trim() || null;
+          const allows_multiples = document.getElementById('ei-multi').checked;
+          if (!short_name || !name) { showError('ei-error', 'Short name and full name are required'); return; }
+          const saveBtn = document.getElementById('ei-save');
+          saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
+          try {
+            const updated = await PATCH(`/items/${item.id}`, { name, short_name, category, allows_multiples });
+            Object.assign(item, updated);
+            S.items = null;
+            render();
+          } catch(e) { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes'; showError('ei-error', e.message); }
+        };
       };
     });
 

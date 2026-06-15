@@ -24,6 +24,13 @@ class ItemCreate(BaseModel):
     sizes: List[str] = []
 
 
+class ItemUpdate(BaseModel):
+    name: Optional[str] = None
+    short_name: Optional[str] = None
+    category: Optional[str] = None
+    allows_multiples: Optional[bool] = None
+
+
 @router.get("/", response_model=List[ItemOut])
 def list_items(
     db: Session = Depends(get_db),
@@ -80,6 +87,41 @@ def create_item(
     log_action(db, user_id=audit_user_id, action="ITEM_CREATE",
                details=f"Created item: {payload.short_name}" + (f" with {len(payload.sizes)} size(s)" if payload.sizes else ""),
                item_id=item.id)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.patch("/{item_id}", response_model=ItemOut)
+def update_item(
+    item_id: int,
+    payload: ItemUpdate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Edit an item's name, short name, category, or duplicate-issue setting."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if payload.short_name is not None:
+        conflict = db.query(Item).filter(
+            Item.short_name == payload.short_name, Item.id != item_id
+        ).first()
+        if conflict:
+            raise HTTPException(status_code=400, detail="Another item with this short name already exists")
+        item.short_name = payload.short_name
+
+    if payload.name is not None:
+        item.name = payload.name
+    if payload.category is not None:
+        item.category = payload.category or None
+    if payload.allows_multiples is not None:
+        item.allows_multiples = payload.allows_multiples
+
+    log_action(db, user_id=audit_user_id, action="ITEM_EDIT",
+               details=f"Edited item: {item.short_name}", item_id=item_id)
     db.commit()
     db.refresh(item)
     return item
