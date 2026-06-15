@@ -2744,7 +2744,7 @@ async function openChangePin() {
 async function openAuditLog() {
   const [cadets, items] = await Promise.all([loadCadets(), loadItems()]);
   let logs = [];
-  let filters = { staff: '', cadet: '', item: '', action: '' };
+  let filters = { staff: '', cadet: '', item: '', action: '', dateFrom: '', dateTo: '' };
 
   async function loadLogs() {
     let path = '/audit/?limit=200';
@@ -2760,12 +2760,14 @@ async function openAuditLog() {
     if (filters.cadet) filtered = filtered.filter(l => l.cadet_id === parseInt(filters.cadet));
     if (filters.staff) filtered = filtered.filter(l => l.user_name.toLowerCase().includes(filters.staff.toLowerCase()));
     if (filters.item) filtered = filtered.filter(l => l.item_id === parseInt(filters.item));
+    if (filters.dateFrom) { const d = new Date(filters.dateFrom); filtered = filtered.filter(l => new Date(l.timestamp) >= d); }
+    if (filters.dateTo) { const d = new Date(filters.dateTo); d.setHours(23,59,59,999); filtered = filtered.filter(l => new Date(l.timestamp) <= d); }
 
     const actionTypes = ['', 'ISSUE', 'RETURN', 'STOCK_ADD', 'STOCK_REMOVE', 'STOCK_BULK_ADD', 'STOCK_DELETE', 'CADET_CREATE', 'CADET_UPDATE', 'CADET_RANK_UPDATE', 'CADET_DEACTIVATE', 'CADET_REACTIVATE', 'BADGE_CREATE', 'BADGE_STOCK_ADJUST', 'BADGE_ISSUE', 'BADGE_RETURN', 'USER_CREATE', 'USER_DEACTIVATE', 'USER_REACTIVATE', 'USER_EDIT', 'USER_PASSWORD_RESET', 'FEEDBACK_SUBMIT', 'FEEDBACK_REPLY'];
 
     showModal(`${mHead('AUDIT LOG')}<div class="modal-body">
       <!-- Filters -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:8px">
         <div>
           <label>Filter by Staff</label>
           <input id="af-staff" placeholder="Staff name..." value="${filters.staff}">
@@ -2791,10 +2793,20 @@ async function openAuditLog() {
           </select>
         </div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
-        <button class="btn btn-primary btn-sm" id="af-apply">Apply Filters</button>
-        <button class="btn btn-ghost btn-sm" id="af-clear">Clear</button>
-        <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">${filtered.length} records</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;margin-bottom:12px">
+        <div>
+          <label>From Date</label>
+          <input type="date" id="af-date-from" value="${filters.dateFrom}" style="font-size:13px">
+        </div>
+        <div>
+          <label>To Date</label>
+          <input type="date" id="af-date-to" value="${filters.dateTo}" style="font-size:13px">
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px;padding-bottom:2px">
+          <button class="btn btn-primary btn-sm" id="af-apply">Apply Filters</button>
+          <button class="btn btn-ghost btn-sm" id="af-clear">Clear All</button>
+          <span style="font-size:12px;color:var(--text3);font-family:var(--mono)">${filtered.length} records${filters.dateFrom||filters.dateTo?' (date filtered)':''}</span>
+        </div>
       </div>
 
       <!-- Results -->
@@ -2881,11 +2893,13 @@ async function openAuditLog() {
       filters.cadet = document.getElementById('af-cadet').value;
       filters.item = document.getElementById('af-item').value;
       filters.action = document.getElementById('af-action').value;
+      filters.dateFrom = document.getElementById('af-date-from').value;
+      filters.dateTo = document.getElementById('af-date-to').value;
       await renderAudit();
     };
 
     document.getElementById('af-clear').onclick = async () => {
-      filters = { staff: '', cadet: '', item: '', action: '' };
+      filters = { staff: '', cadet: '', item: '', action: '', dateFrom: '', dateTo: '' };
       await renderAudit();
     };
   }
