@@ -523,7 +523,7 @@ async function openCadetRecord(cadetId) {
         <td style="font-family:var(--mono);font-size:12px">${fmt(i.issued_at)}</td>
         <td>${i.issued_by}</td>
         <td><span class="badge ${i.returned?'badge-green':'badge-blue'}">${i.returned?'Returned':'Outstanding'}</span></td>
-        <td style="font-size:12px;color:var(--text3)">${i.return_record?`${i.return_record.returned_by} · ${fmt(i.return_record.returned_at)}`:'—'}</td>
+        <td style="font-size:12px;color:var(--text3)">${i.return_record?`${i.return_record.returned_by} · ${fmt(i.return_record.returned_at)}<br><span class="badge ${i.return_record.condition==='serviceable'?'badge-green':'badge-gold'}" style="font-size:9px">${i.return_record.condition}</span>`:'—'}</td>
       </tr>`).join('')}</tbody>
     </table></div>
     <div class="section-label" style="margin-top:24px">Badge History <span id="badge-hist-toggle" style="font-size:12px;font-weight:400;color:var(--blue);cursor:pointer;margin-left:8px">▼ Show</span></div>
