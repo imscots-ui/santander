@@ -874,7 +874,7 @@ async function openIssueFlow(preselectedCadetId=null) {
     return `<div style="margin-bottom:16px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Issuing: <strong>${selectedItem.short_name}</strong> &middot; Size: <strong>${selectedSize.size_label}</strong></div>
     <div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">&#128269;</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
     <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
-      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item${selectedCadet?.id===c.id?' selected':''}" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.flight||c.gender||''}</div></div></div>`).join('')}
+      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item${selectedCadet?.id===c.id?' selected':''}" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
     </div>`;
   }
 
@@ -1163,7 +1163,7 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
   function r1() {
     return `<div class="search-wrap"><span class="search-icon">🔍</span><input id="cadet-search" placeholder="Search cadets..." type="text"></div>
     <div style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px">
-      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.flight||c.gender||''}</div></div></div>`).join('')}
+      ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
     </div>`;
   }
   // Multi-return state
