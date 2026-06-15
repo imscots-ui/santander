@@ -600,18 +600,6 @@ async function openCadetRecord(cadetId) {
     w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
   };
 
-  document.getElementById('deactivate-cadet')?.addEventListener('click', async () => {
-    const btn = document.getElementById('deactivate-cadet');
-    const name = btn.dataset.name;
-    if (!confirm(`Deactivate ${name}?\n\nThis will mark them as inactive. Their kit history will be kept. They must have no outstanding kit.`)) return;
-    try {
-      await PATCH(`/cadets/${cadetId}/deactivate`);
-      S.cadets = null;
-      alert(`${name} has been deactivated.`);
-      openCadets();
-    } catch(e) { alert('Error: ' + e.message); }
-  });
-
   document.getElementById('reactivate-cadet')?.addEventListener('click', async () => {
     if (!confirm('Reactivate this cadet?')) return;
     try {
@@ -1789,7 +1777,7 @@ async function openInactiveCadets() {
         <thead><tr><th>Service No</th><th>Name</th><th>Gender</th><th>Flight</th><th>Actions</th></tr></thead>
         <tbody>
           ${inactive.map(c => `<tr>
-            
+            <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
             <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
             <td style="font-size:13px">${c.gender}</td>
             <td style="font-size:13px">${c.flight||'—'}</td>
@@ -1860,7 +1848,7 @@ async function openFeedback() {
     '<div class="section-label" style="margin-bottom:12px">Submit a Note to Admin</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
       '<input id="fb-subject" placeholder="Subject..." style="font-size:13px">' +
-      '<select id="fb-category" style="font-size:13px"><option>General</option><option>Stock Request</option><option>Issue / Problem</option><option>Other</option></select>' +
+      '<select id="fb-category" style="font-size:13px"><option value="General">General</option><option value="Stock Request">Stock Request</option><option value="Issue / Problem">Issue / Problem</option><option value="Other">Other</option></select>' +
     '</div>' +
     '<textarea id="fb-message" rows="3" placeholder="Describe your note or request..." style="font-size:13px;margin-bottom:8px"></textarea>' +
     '<button class="btn btn-primary btn-sm" id="fb-submit">Submit Note</button>' +
@@ -1912,7 +1900,6 @@ async function openFeedback() {
   });
 
   refreshFeedbackBadge();
-  loadHomeDashboard();
 }
 
 async function loadHomeDashboard() {
@@ -1925,14 +1912,22 @@ async function loadHomeDashboard() {
     const stats = [
       { label:'Active Cadets', value: d.total_active_cadets, color:'var(--blue)' },
       { label:'Items Outstanding', value: d.total_items_outstanding ?? d.total_items_issued ?? 0, color:'var(--green)' },
-      { label:'Cadets w/ Kit Gap', value: kitGapCount, color: kitGapCount > 0 ? 'var(--red)' : 'var(--green)' },
-      { label:'Low Stock Lines', value: lowStockCount, color: lowStockCount > 0 ? '#d97706' : 'var(--green)', warn: lowStockCount > 0 },
+      { label:'Cadets w/ Kit Gap', value: kitGapCount, color: kitGapCount > 0 ? 'var(--red)' : 'var(--green)', action: kitGapCount > 0 ? 'reports' : '' },
+      { label:'Low Stock Lines', value: lowStockCount, color: lowStockCount > 0 ? '#d97706' : 'var(--green)', warn: lowStockCount > 0, action: lowStockCount > 0 ? 'stock' : '' },
     ];
-    el.innerHTML = stats.map(s => `<div style="background:var(--bg2);backdrop-filter:blur(4px);border:1px solid ${s.warn?'#d97706':'var(--border)'};border-radius:10px;padding:12px 20px;min-width:110px;text-align:center;position:relative">
+    el.innerHTML = stats.map(s => `<div data-stat-action="${s.action||''}" style="background:var(--bg2);backdrop-filter:blur(4px);border:1px solid ${s.warn?'#d97706':'var(--border)'};border-radius:10px;padding:12px 20px;min-width:110px;text-align:center;position:relative;${s.action?'cursor:pointer':''}">
       ${s.warn?'<div style="position:absolute;top:-6px;right:-6px;width:12px;height:12px;background:#d97706;border-radius:50%;border:2px solid var(--bg)"></div>':''}
       <div style="font-family:var(--head);font-size:28px;color:${s.color};line-height:1">${s.value}</div>
       <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px">${s.label}</div>
     </div>`).join('');
+    el.querySelectorAll('[data-stat-action]').forEach(card => {
+      const action = card.dataset.statAction;
+      if (!action) return;
+      card.addEventListener('click', () => {
+        if (action === 'reports') openReports();
+        else if (action === 'stock') openSearchUniform();
+      });
+    });
     // Update Search Stock tile badge
     const searchBtn = document.getElementById('btn-search');
     if (searchBtn && lowStockCount > 0) {
@@ -2207,8 +2202,7 @@ async function openBadgeTracker(startView=null, startCat=null) {
 
 
 async function openReports() {
-  const [cadets, items] = await Promise.all([loadCadets(), loadItems(), loadStock()]);
-  const activeCadets = cadets.filter(c => c.active);
+  const [items] = await Promise.all([loadItems(), loadStock()]);
 
   showModal(`${mHead('REPORTS')}<div class="modal-body"><div class="loading-text">Generating reports...</div></div>`, true);
 
@@ -2225,34 +2219,20 @@ async function openReports() {
       }
     });
 
-    // Kit deficiency - check each active cadet's issued items
-    const kitChecks = await Promise.all(
-      activeCadets.slice(0, 50).map(c => GET('/cadets/' + c.id + '/issued').catch(() => []))
-    );
-
-    const deficiencies = activeCadets.slice(0, 50).map((c, i) => {
-      const issued = Array.isArray(kitChecks[i]) ? kitChecks[i] : [];
-      const hasShirt = issued.some(it => it.short_name && it.short_name.toLowerCase().includes('shirt'));
-      const hasTrousers = issued.some(it => it.short_name && (it.short_name.toLowerCase().includes('trouser') || it.short_name.toLowerCase().includes('skirt')));
-      const hasBeret = issued.some(it => it.short_name && it.short_name.toLowerCase().includes('beret'));
-      const missing = [];
-      if (!hasShirt) missing.push('Shirt');
-      if (!hasTrousers) missing.push('Trousers/Skirt');
-      if (!hasBeret) missing.push('Beret');
-      return { cadet: c, missing, total: issued.length };
-    }).filter(d => d.missing.length > 0);
+    // Kit deficiency — use dashboard API (server-side KitListItem check, all cadets)
+    const dashData = await GET('/dashboard/');
+    const deficiencies = dashData.missing_kit_detail || [];
 
     showModal(`${mHead('REPORTS')}<div class="modal-body">
-      <div class="section-label">Kit Deficiencies — Active Cadets Missing Core Items</div>
+      <div class="section-label">Kit Deficiencies — Active Cadets Missing Kit Items</div>
       ${deficiencies.length === 0
-        ? '<div class="alert alert-success" style="margin-bottom:16px">✓ All active cadets have core uniform items issued.</div>'
+        ? '<div class="alert alert-success" style="margin-bottom:16px">✓ All active cadets have their required kit issued.</div>'
         : `<div class="table-wrap"><table>
-          <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th><th>Issued</th></tr></thead>
+          <thead><tr><th>Cadet</th><th>Service No</th><th>Missing</th></tr></thead>
           <tbody>${deficiencies.map(d => `<tr>
-            <td><strong>${d.cadet.rank} ${d.cadet.surname}</strong>, ${d.cadet.forename}</td>
-            <td style="font-family:var(--mono);font-size:12px">${d.cadet.service_number}</td>
-            <td>${d.missing.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
-            <td style="text-align:center;font-family:var(--mono)">${d.total}</td>
+            <td><strong>${d.rank} ${d.surname}</strong>, ${d.forename}</td>
+            <td style="font-family:var(--mono);font-size:12px">${d.service_number}</td>
+            <td>${d.missing_items.map(m => `<span class="badge badge-gold" style="margin-right:4px;font-size:10px">${m}</span>`).join('')}</td>
           </tr>`).join('')}</tbody>
         </table></div>`}
 
@@ -2277,9 +2257,9 @@ async function openReports() {
     </div>`, true);
 
     document.getElementById('rpt-csv').onclick = () => {
-      const header = 'Cadet,Service No,Missing Items,Total Issued\n';
+      const header = 'Cadet,Service No,Missing Items\n';
       const rows = deficiencies.map(d =>
-        [`${d.cadet.rank} ${d.cadet.surname} ${d.cadet.forename}`, d.cadet.service_number, d.missing.join('; '), d.total]
+        [`${d.rank} ${d.surname} ${d.forename}`, d.service_number, d.missing_items.join('; ')]
           .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
       ).join('\n');
       const blob = new Blob([header + rows], { type:'text/csv' });
@@ -2290,12 +2270,11 @@ async function openReports() {
     document.getElementById('rpt-print').onclick = () => {
       const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
       const defRows = deficiencies.length === 0
-        ? '<tr><td colspan="4" style="padding:16px;text-align:center;color:#166534">✓ All active cadets have core uniform items issued</td></tr>'
+        ? '<tr><td colspan="3" style="padding:16px;text-align:center;color:#166534">✓ All active cadets have their required kit issued</td></tr>'
         : deficiencies.map(d => `<tr style="border-bottom:1px solid #dde3f0">
-            <td style="padding:7px 10px;font-weight:700">${d.cadet.rank} ${d.cadet.surname}, ${d.cadet.forename}</td>
-            <td style="padding:7px 10px;font-family:monospace;font-size:11px">${d.cadet.service_number}</td>
-            <td style="padding:7px 10px">${d.missing.map(m=>`<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px">${m}</span>`).join('')}</td>
-            <td style="padding:7px 10px;text-align:center;font-family:monospace">${d.total}</td>
+            <td style="padding:7px 10px;font-weight:700">${d.rank} ${d.surname}, ${d.forename}</td>
+            <td style="padding:7px 10px;font-family:monospace;font-size:11px">${d.service_number}</td>
+            <td style="padding:7px 10px">${d.missing_items.map(m=>`<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px">${m}</span>`).join('')}</td>
           </tr>`).join('');
       const stockRows = Object.entries(stockMap).map(([name, sizes]) => {
         const total = sizes.reduce((sum,s) => sum+s.qty, 0);
@@ -2316,7 +2295,7 @@ async function openReports() {
           <div style="display:flex;align-items:center;gap:12px">
             <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#4a90d9 0deg 120deg,#ffffff 120deg 240deg,#c8202d 240deg 360deg)"></div>
             <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.06em;color:#002868">1701 JOHNSTONE SQUADRON — KIT REPORT</div>
-            <div style="font-size:10px;color:#9099b5">Printed: ${dateStr} · ${activeCadets.length} active cadets</div></div>
+            <div style="font-size:10px;color:#9099b5">Printed: ${dateStr} · ${dashData.total_active_cadets} active cadets</div></div>
           </div>
         </div>
         <div style="border-top:2px solid #002868;margin-bottom:14px"></div>
@@ -2326,7 +2305,6 @@ async function openReports() {
             <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Cadet</th>
             <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Svc No</th>
             <th style="padding:6px 10px;text-align:left;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Missing</th>
-            <th style="padding:6px 10px;text-align:center;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:#9099b5">Issued</th>
           </tr></thead>
           <tbody>${defRows}</tbody>
         </table>
@@ -2672,6 +2650,9 @@ function bind() {
     else if (id === 'btn-search') openSearchUniform();
     else if (id === 'btn-admin') openAdmin(); // openAdminAuth() disabled temporarily
   };
+
+  // Load dashboard stats on home screen
+  if (S.user) loadHomeDashboard();
 
   // Load staff list for selector screen
   if (!S.user) {
