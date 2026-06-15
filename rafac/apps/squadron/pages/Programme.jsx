@@ -135,6 +135,164 @@ export default function Programme({ showToast, addAudit }) {
     addAudit?.('Programme', 'Notes', `Opened notes editor for ${term}`);
   }
 
+  function printTonightsProgramme() {
+    const tonight = termSessions.find(s => !isPast(s.date) && !isToday(s.date)) || termSessions[0];
+    if (!tonight) { showToast('No upcoming sessions found'); return; }
+    const subRows = tonight.subjects.map(sid => {
+      const s = SUBJECT_MAP[sid];
+      if (!s) return '';
+      return `<tr><td style="padding:10px 14px;border-bottom:1px solid #D0DCF0">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${s.color};margin-right:8px;vertical-align:middle"></span>
+        <strong>${s.name}</strong></td>
+        <td style="padding:10px 14px;border-bottom:1px solid #D0DCF0;color:#5A7090">—</td>
+        <td style="padding:10px 14px;border-bottom:1px solid #D0DCF0;font-family:monospace;font-size:11px;color:#5A7090">20 min</td>
+      </tr>`;
+    }).join('');
+    const dateStr = formatDate(tonight.date);
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+      <title>Programme Card — ${dateStr}</title>
+      <style>@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap');
+      *{box-sizing:border-box;margin:0;padding:0}body{font-family:Barlow,sans-serif;color:#0D1B2E;background:white;padding:24px 32px;font-size:12px;max-width:680px;margin:0 auto}
+      .hdr{background:#00264D;color:white;padding:18px 24px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+      .t{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.02em}
+      .sub{font-size:10px;opacity:0.5;letter-spacing:0.08em;margin-top:3px}
+      .date-pill{background:rgba(200,160,50,0.25);border:1px solid #C8A032;border-radius:8px;padding:8px 14px;text-align:center}
+      .date-big{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#C8A032}
+      .date-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+      table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px}
+      th{background:#F4F7FB;padding:9px 14px;text-align:left;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;border-bottom:2px solid #D0DCF0}
+      .roundel{width:46px;height:46px;border-radius:50%;background:conic-gradient(#003087 0deg 120deg,#fff 120deg 240deg,#c8102e 240deg 360deg);border:2px solid #C8A032;flex-shrink:0}
+      .card{border:1.5px solid #D0DCF0;border-radius:8px;padding:12px 16px;margin-bottom:14px}
+      .card-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#00264D;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+      @media print{body{padding:12px 16px}.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head>
+      <body>
+      <div class="hdr">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="roundel"></div>
+          <div><div class="t">1701 (JOHNSTONE) SQUADRON</div>
+          <div class="sub">PARADE NIGHT PROGRAMME · WEST SCOTLAND SECTOR ATC</div></div>
+        </div>
+        <div class="date-pill">
+          <div class="date-big">${dateStr}</div>
+          <div class="date-sub">1900–2200 HRS</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tonight's Session: ${tonight.label}</div>
+        <div style="display:flex;gap:16px;font-size:12px;color:#5A7090">
+          <span>👤 Instructor in Charge: <strong style="color:#0D1B2E">${tonight.lead}</strong></span>
+          ${tonight.notes ? `<span>📋 ${tonight.notes}</span>` : ''}
+        </div>
+      </div>
+
+      <table>
+        <thead><tr><th>Subject</th><th>Activity detail</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr style="background:#FFF8E7"><td style="padding:10px 14px;border-bottom:1px solid #D0DCF0" colspan="2"><strong>1900–1910 Fall-in, roll call, admin announcements</strong></td><td style="padding:10px 14px;border-bottom:1px solid #D0DCF0;font-family:monospace;font-size:11px">10 min</td></tr>
+          ${subRows}
+          <tr style="background:#FFF8E7"><td style="padding:10px 14px;border-bottom:1px solid #D0DCF0" colspan="2"><strong>2140–2200 Dismiss, kit away, parent collection</strong></td><td style="padding:10px 14px;border-bottom:1px solid #D0DCF0;font-family:monospace;font-size:11px">20 min</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+        <div class="card">
+          <div class="card-title">Safety reminders</div>
+          <ul style="padding-left:16px;line-height:2;font-size:12px">
+            <li>Fire exits: front door and rear fire exit</li>
+            <li>Assembly point: car park on Station Road</li>
+            <li>First aid kit: stores room, left shelf</li>
+            <li>DSL on duty: OC Harris (07700 900001)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">Staff on duty tonight</div>
+          <ul style="list-style:none;padding:0;line-height:2;font-size:12px">
+            <li>Sqn Ldr J. Harris — OC</li>
+            <li>Plt Off P. Smith — Training Officer</li>
+            <li>SSgt L. Fletcher — Band PI</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #D0DCF0;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;color:#9AACBF">
+        <span>1701 (Johnstone) Sqn ATC · West Scotland Wing · RAFAC</span>
+        <span>OFFICIAL · For staff use — not for public display</span>
+      </div></body></html>`;
+    const w = window.open('', '_blank', 'width=780,height=650');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 500);
+    showToast(`🖨️ Programme card for ${dateStr} — print dialog opening…`);
+    addAudit?.(`Programme card printed — ${tonight.label}`, 'Programme');
+  }
+
+  function printTermProgramme() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const rows = termSessions.map((s,i) => {
+      const past = isPast(s.date);
+      const type = getSessionType(s);
+      const badge = TYPE_BADGE[type];
+      const subNames = s.subjects.map(sid => SUBJECT_MAP[sid]?.name || sid).join(', ');
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};opacity:${past?0.7:1};">
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;white-space:nowrap;font-weight:700;color:${past?'#5A7090':'#00264D'};">${formatDate(s.date)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;"><span style="background:${badge.bg};color:${badge.color};padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;">${s.label}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${subNames}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${s.lead}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#00264D;">${s.notes}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>${term} Programme — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 12mm 14mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">${term.toUpperCase()} TRAINING PROGRAMME</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">Printed ${today} · ${termSessions.length} sessions · Wing Inspection Ready</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Parade nights: ${paradeCount}</div>
+          <div style="font-size:10px;color:#5A7090;">Events / AT: ${eventCount}</div>
+        </td>
+      </tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;white-space:nowrap;">DATE</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SESSION</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SUBJECTS</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">LEAD</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NOTES</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      ${['Commanding Officer','Wing Training Officer','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?'Sqn Ldr Harris':i===2?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · 1701 (Johnstone) Squadron ATC · West Scotland Wing · AP 1919
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.(`${term} programme printed`, 'Programme', `Printed by Sqn Ldr Harris on ${today}`);
+    showToast(`🖨️ ${term} programme sent to printer`);
+  }
+
   const TERMS = ['Summer 2026', 'Autumn 2026'];
 
   return (
@@ -179,6 +337,14 @@ export default function Programme({ showToast, addAudit }) {
               </button>
             ))}
           </div>
+          <button onClick={printTermProgramme}
+            style={{ padding:'7px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+            📄 Print Term
+          </button>
+          <button onClick={printTonightsProgramme}
+            style={{ padding:'7px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+            🖨️ Print card
+          </button>
           <button onClick={handleAddNote}
             style={{ padding:'7px 16px', background:navy, color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>
             + Add Session
