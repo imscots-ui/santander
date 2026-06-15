@@ -446,15 +446,18 @@ function fmt(dt) { if(!dt) return '—'; return new Date(dt).toLocaleString('en-
 async function openCadets() {
   showModal(`${mHead('VIEW CADETS')}<div class="modal-body"><div class="loading-text">Loading cadets...</div></div>`, true);
   await loadCadets();
-  const allCadets = (S.cadets||[]).filter(c => c.active);
+  const sortFn = (a,b) => a.surname.localeCompare(b.surname) || a.forename.localeCompare(b.forename);
+  const allCadets = (S.cadets||[]).filter(c => c.active).sort(sortFn);
+  const inactiveCadets = (S.cadets||[]).filter(c => !c.active).sort(sortFn);
   const flights = [...new Set(allCadets.map(c=>c.flight).filter(Boolean))].sort();
   const flightCounts = {};
   allCadets.forEach(c => { if (c.flight) flightCounts[c.flight] = (flightCounts[c.flight]||0)+1; });
   let selectedFlight = null;
+  let showInactive = false;
 
   function getFiltered() {
     const s = document.getElementById('cadet-search')?.value?.toLowerCase()||'';
-    let list = allCadets;
+    let list = showInactive ? [...allCadets, ...inactiveCadets] : allCadets;
     if (selectedFlight) list = list.filter(c => c.flight === selectedFlight);
     if (s) list = list.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
     return list;
@@ -469,6 +472,8 @@ async function openCadets() {
       chip.style.color = active ? 'white' : '';
       chip.style.borderColor = active ? 'var(--blue)' : '';
     });
+    const btn = document.getElementById('toggle-inactive');
+    if (btn) btn.textContent = showInactive ? `Hide Discharged (${inactiveCadets.length})` : `Show Discharged (${inactiveCadets.length})`;
   }
 
   showModal(`${mHead('VIEW CADETS')}<div class="modal-body">
@@ -477,7 +482,10 @@ async function openCadets() {
       ${flights.map(f=>`<button class="btn btn-ghost flight-chip" data-flight="${f}" style="padding:4px 12px;font-size:12px">${f}<span style="font-size:10px;opacity:0.65;margin-left:4px">${flightCounts[f]}</span></button>`).join('')}
     </div>`:''}
     <div id="cadet-list">${cadetListHTML(allCadets)}</div>
-  </div>`, true);
+  </div>
+  ${inactiveCadets.length>0?`<div class="modal-footer" style="justify-content:center;padding:8px 16px;border-top:1px solid var(--border)">
+    <button class="btn btn-ghost btn-sm" id="toggle-inactive" style="font-size:12px;color:var(--text3)">Show Discharged (${inactiveCadets.length})</button>
+  </div>`:''}`, true);
 
   document.getElementById('cadet-search').oninput = () => refreshList();
   document.querySelectorAll('.flight-chip').forEach(chip => {
@@ -485,6 +493,11 @@ async function openCadets() {
       selectedFlight = selectedFlight === chip.dataset.flight ? null : chip.dataset.flight;
       refreshList();
     };
+  });
+  document.getElementById('toggle-inactive')?.addEventListener('click', () => {
+    showInactive = !showInactive;
+    if (showInactive) selectedFlight = null; // flight filter doesn't apply to discharged
+    refreshList();
   });
   bindCadetItems();
 }
