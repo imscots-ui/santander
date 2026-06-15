@@ -686,6 +686,10 @@ async function openCadetRecord(cadetId) {
         </tr></thead>
         <tbody>${histRows||'<tr><td colspan="5" style="padding:10px;text-align:center;color:#9099b5">No history</td></tr>'}</tbody>
       </table>
+      ${missingKit.length > 0 ? `<div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.05em;color:#c0392b;margin-bottom:6px">MISSING FROM KIT LIST (${missingKit.length})</div>
+      <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:11px">
+        ${missingKit.map(m=>`<span style="background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px;display:inline-block;margin-bottom:2px">${m.label}</span>`).join('')}
+      </div>` : `<div style="background:#dcfce7;border:1px solid #b2dfcc;border-radius:6px;padding:6px 12px;margin-bottom:14px;font-size:11px;color:#166534;font-weight:600">✓ All required kit items issued</div>`}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px">
         <div><div style="font-size:10px;font-family:'DM Mono',monospace;color:#9099b5;text-transform:uppercase;margin-bottom:24px">Stores Staff Signature</div>
           <div style="border-top:1px solid #0d1b3e;padding-top:4px;font-size:10px;color:#9099b5">Name / Date</div></div>
@@ -1472,6 +1476,7 @@ function openAdmin() {
       <button class="home-btn red" id="a-unserviceable" style="padding:24px"><div class="home-btn-icon">⚠️</div><div class="home-btn-label">Unserviceable Kit</div><div class="home-btn-sub">Items to return to stores</div></button>
       <button class="home-btn" id="a-reports" style="padding:24px"><div class="home-btn-icon">📊</div><div class="home-btn-label">Reports</div><div class="home-btn-sub">Kit deficiencies & common sizes</div></button>
       <button class="home-btn" id="a-kitlist" style="padding:24px"><div class="home-btn-icon">📋</div><div class="home-btn-label">Required Kit List</div><div class="home-btn-sub">Manage required items per cadet</div></button>
+      <button class="home-btn" id="a-items" style="padding:24px"><div class="home-btn-icon">🗂️</div><div class="home-btn-label">Manage Items</div><div class="home-btn-sub">Add items and sizes to the catalogue</div></button>
     </div>
   </div>
   <div class="modal-footer"><button class="btn btn-ghost" data-action="close">Close</button></div>`);
@@ -1483,6 +1488,7 @@ function openAdmin() {
   document.getElementById('a-unserviceable').onclick = openUnserviceable;
   document.getElementById('a-reports').onclick = openReports;
   document.getElementById('a-kitlist').onclick = openKitList;
+  document.getElementById('a-items').onclick = openManageItems;
 
 }
 
@@ -1566,6 +1572,86 @@ async function openKitList() {
         kitItems.push(newEntry);
         render();
       } catch(e) { addBtn.disabled=false; addBtn.textContent='+ Add to Kit List'; showError('kl-error', e.message); }
+    };
+  }
+
+  render();
+}
+
+async function openManageItems() {
+  showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body"><div class="loading-text">Loading items...</div></div>`, true);
+  S.items = null; // force fresh load
+  const items = await loadItems();
+  const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
+
+  function render() {
+    showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body">
+      <div class="alert alert-info" style="margin-bottom:16px">Manage the uniform catalogue. Add new sizes to existing items or create new item types.</div>
+
+      <div class="section-label">Current Items (${items.length})</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Category</th><th>Sizes</th><th></th></tr></thead>
+        <tbody>${items.map(i=>`<tr>
+          <td><strong>${i.short_name}</strong><br><span style="font-size:11px;color:var(--text3)">${i.name}</span></td>
+          <td style="font-size:12px;color:var(--text3)">${i.category||'—'}</td>
+          <td style="font-size:12px">${i.sizes.map(s=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;margin-right:3px">${s.size_label}</span>`).join('')}
+            <button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>
+          </td>
+          <td></td>
+        </tr>`).join('')}
+        </tbody>
+      </table></div>
+
+      <div class="section-label" style="margin-top:24px">Add New Item</div>
+      <div id="ni-error"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Short Name <span style="color:var(--red)">*</span></label><input id="ni-short" placeholder="e.g. No.1 Jacket"></div>
+        <div class="form-group"><label>Full Name <span style="color:var(--red)">*</span></label><input id="ni-name" placeholder="e.g. Number 1 Dress Jacket"></div>
+        <div class="form-group"><label>Category</label>
+          <input id="ni-cat" list="ni-cat-list" placeholder="e.g. Jacket">
+          <datalist id="ni-cat-list">${CATEGORIES.map(c=>`<option value="${c}">`).join('')}</datalist>
+        </div>
+        <div class="form-group"><label>Sizes <span style="font-weight:400;color:var(--text3)">(comma-separated)</span></label><input id="ni-sizes" placeholder="e.g. S, M, L, XL" style="font-family:var(--mono)"></div>
+      </div>
+      <div class="form-group" style="margin-top:-8px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:14px;font-weight:600;color:var(--text)"><input type="checkbox" id="ni-multi" style="width:auto;accent-color:var(--blue)"> Allow multiple issues to same cadet</label></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-action="admin">← Back</button>
+      <button class="btn btn-primary" id="ni-submit">Add Item</button>
+    </div>`, true);
+
+    document.querySelectorAll('.add-size-btn').forEach(btn => {
+      btn.onclick = () => {
+        const label = prompt(`Add size to ${btn.dataset.itemName}:\nEnter the size label (e.g. 185/96)`);
+        if (!label?.trim()) return;
+        btn.disabled = true;
+        POST(`/items/${btn.dataset.itemId}/sizes`, { size_label: label.trim() })
+          .then(size => {
+            const item = items.find(i => i.id === parseInt(btn.dataset.itemId));
+            if (item) item.sizes.push(size);
+            S.items = null;
+            render();
+          })
+          .catch(e => { btn.disabled=false; alert('Error: ' + e.message); });
+      };
+    });
+
+    document.getElementById('ni-submit').onclick = async () => {
+      const shortName = document.getElementById('ni-short').value.trim();
+      const name = document.getElementById('ni-name').value.trim();
+      const category = document.getElementById('ni-cat').value.trim() || null;
+      const sizesRaw = document.getElementById('ni-sizes').value.trim();
+      const sizes = sizesRaw ? sizesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+      const multi = document.getElementById('ni-multi').checked;
+      if (!shortName || !name) { showError('ni-error', 'Short name and full name are required'); return; }
+      const btn = document.getElementById('ni-submit');
+      btn.disabled = true; btn.textContent = 'Adding...';
+      try {
+        const newItem = await POST('/items/', { name, short_name: shortName, category, allows_multiples: multi, sizes });
+        items.push(newItem);
+        S.items = null;
+        render();
+      } catch(e) { btn.disabled=false; btn.textContent='Add Item'; showError('ni-error', e.message); }
     };
   }
 

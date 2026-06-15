@@ -1,13 +1,27 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from database import get_db
-from models import Item, Size, Stock
+from models import Item, Size, Stock, User
 from schemas import ItemOut, StockCheckResult
-from utils.auth_dependencies import get_current_user
+from utils.auth_dependencies import get_current_user, get_current_admin, get_audit_user_id
+from utils.audit import log_action
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/items", tags=["Items"])
+
+
+class SizeCreate(BaseModel):
+    size_label: str
+
+
+class ItemCreate(BaseModel):
+    name: str
+    short_name: str
+    category: Optional[str] = None
+    allows_multiples: bool = False
+    sizes: List[str] = []
 
 
 @router.get("/", response_model=List[ItemOut])
@@ -28,6 +42,70 @@ def get_item(
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     return item
+
+
+@router.post("/", response_model=ItemOut)
+def create_item(
+    payload: ItemCreate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Add a new uniform item."""
+    if db.query(Item).filter(Item.short_name == payload.short_name).first():
+        raise HTTPException(status_code=400, detail="An item with this short name already exists")
+
+    item = Item(
+        name=payload.name,
+        short_name=payload.short_name,
+        category=payload.category or None,
+        allows_multiples=payload.allows_multiples,
+    )
+    db.add(item)
+    db.flush()
+
+    for label in payload.sizes:
+        label = label.strip()
+        if label:
+            db.add(Size(item_id=item.id, size_label=label))
+
+    log_action(db, user_id=audit_user_id, action="ITEM_CREATE",
+               details=f"Created item: {payload.short_name}" + (f" with {len(payload.sizes)} size(s)" if payload.sizes else ""),
+               item_id=item.id)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.post("/{item_id}/sizes")
+def add_size(
+    item_id: int,
+    payload: SizeCreate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Add a new size to an existing item."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    label = payload.size_label.strip()
+    if not label:
+        raise HTTPException(status_code=400, detail="Size label cannot be empty")
+
+    existing = db.query(Size).filter(Size.item_id == item_id, Size.size_label == label).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Size '{label}' already exists for this item")
+
+    size = Size(item_id=item_id, size_label=label)
+    db.add(size)
+    log_action(db, user_id=audit_user_id, action="ITEM_ADD_SIZE",
+               details=f"Added size '{label}' to {item.short_name}",
+               item_id=item_id)
+    db.commit()
+    db.refresh(size)
+    return {"id": size.id, "size_label": size.size_label, "item_id": item_id}
 
 
 @router.get("/{item_id}/sizes/{size_id}/stock", response_model=StockCheckResult)
