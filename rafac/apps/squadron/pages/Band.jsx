@@ -143,6 +143,93 @@ export default function Band({ showToast, addAudit }) {
   const [performances, setPerformances] = useState(PERFORMANCES);
 
   const totalMusicians   = musicians.length;
+
+  function printBandRegister() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const attClr = a => a>=90?'#065F46':a>=80?'#1E40AF':'#8B1A1A';
+    const attBg  = a => a>=90?'#D1FAE5':a>=80?'#EEF6FF':'#F8D7DA';
+    const gcBg   = g => g==='Advanced'?'#D1FAE5':g==='Intermediate'?'#EEF6FF':'#F4F7FB';
+    const gcClr  = g => g==='Advanced'?'#065F46':g==='Intermediate'?'#1E40AF':'#5A7090';
+    const rows = musicians.map((m,i) => `<tr style="background:${i%2?'#FAFCFE':'white'};">
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;color:#00264D;">${m.rank} ${m.name}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;">${m.instrument}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${gcBg(m.grade)};color:${gcClr(m.grade)};padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;">${m.grade}</span></td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${attBg(m.practiceAtt)};color:${attClr(m.practiceAtt)};padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;">${m.practiceAtt}%</span></td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-weight:700;">${m.performances}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${m.joinedBand}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${m.notes}</td>
+    </tr>`).join('');
+    const perfRows = performances.map((p,i) => `<tr style="background:${i%2?'#FAFCFE':'white'};">
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;">${p.name}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${p.date}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;">${p.type}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${p.confirmed?'#D1FAE5':'#FFF3CC'};color:${p.confirmed?'#065F46':'#7A4A00'};padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700;">${p.confirmed?'CONFIRMED':'PENDING'}</span></td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Band Register — 1701 Sqn</title>
+    <style>
+      @page { size: A4 portrait; margin: 14mm 16mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">MUSIC SECTION REGISTER — DRUM CORPS &amp; BAND</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">PI: SSgt Fletcher, L. · As at ${today}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Musicians: ${musicians.length}</div>
+          <div style="font-size:10px;color:#5A7090;">Avg practice att: ${Math.round(musicians.reduce((s,m)=>s+m.practiceAtt,0)/musicians.length)}%</div>
+        </td>
+      </tr>
+    </table>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">Musicians</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:20px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">MUSICIAN</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">INSTRUMENT</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">GRADE</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">PRACTICE ATT.</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">PERFS</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">JOINED BAND</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NOTES</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">Upcoming Performances</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:20px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">PERFORMANCE</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DATE</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TYPE</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">STATUS</th>
+      </tr></thead>
+      <tbody>${perfRows}</tbody>
+    </table>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
+      <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+        <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Parade Instructor (Drums)</div>
+        <div style="font-size:11px;color:#00264D;margin-top:2px;">SSgt Fletcher, L.&nbsp;</div>
+      </div>
+      <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+        <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Date</div>
+        <div style="font-size:11px;color:#00264D;margin-top:2px;">${today}&nbsp;</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · 1701 (Johnstone) Squadron ATC Music Section
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Band Register printed', 'Band', `Printed by SSgt Fletcher on ${today}`);
+    showToast('🖨️ Band register sent to printer');
+  }
   const avgAtt           = Math.round(musicians.reduce((s, m) => s + m.practiceAtt, 0) / totalMusicians);
   const upcomingCount    = performances.filter(p => new Date(p.date) > new Date('2026-06-14')).length;
 
@@ -519,12 +606,12 @@ export default function Band({ showToast, addAudit }) {
           <div style={{ fontSize: 12, color: muted }}>1701 (Johnstone) Squadron · Drum Corps &amp; Band</div>
         </div>
         <button
-          onClick={() => showToast('📥 Exporting band record…')}
+          onClick={printBandRegister}
           style={{
             padding: '8px 16px',
-            background: navy,
-            color: 'white',
-            border: 'none',
+            background: 'white',
+            color: navy,
+            border: `1.5px solid ${border}`,
             borderRadius: 7,
             fontSize: 13,
             fontWeight: 700,
@@ -533,7 +620,7 @@ export default function Band({ showToast, addAudit }) {
             letterSpacing: '0.03em',
           }}
         >
-          Export
+          📄 Print Register
         </button>
       </div>
 
