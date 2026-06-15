@@ -227,6 +227,20 @@ export default function KitStores({ showToast, addAudit }) {
     showToast('📄 Kit ledger opened for print');
   }
 
+  function exportKitCSV() {
+    const header = 'Item,Issued To,Date Issued,Size,Status\n';
+    const rows = kit.map(k => [k.item, k.toName, k.date, k.size, k.status].map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '1701-kit-register.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    addAudit?.('Kit register exported to CSV', 'Kit', `${kit.length} items`);
+    showToast('📊 Kit register CSV downloaded');
+  }
+
   const filtered = kit.filter(k =>
     !search || k.item.toLowerCase().includes(search.toLowerCase()) || k.toName.toLowerCase().includes(search.toLowerCase())
   );
@@ -244,6 +258,7 @@ export default function KitStores({ showToast, addAudit }) {
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => setTab('issue')} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>+ Issue Kit</button>
+          <button onClick={exportKitCSV} style={{ padding:'8px 14px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📊 Export CSV</button>
           <button onClick={printKitLedger} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📄 Print Ledger</button>
         </div>
       </div>
