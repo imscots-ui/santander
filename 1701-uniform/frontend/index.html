@@ -2348,6 +2348,9 @@ async function openRemoveStock() {
             <option value="">— Select reason —</option>
             ${['Damaged in use','Lost / stolen','Written off','Audit correction','Returned to stores','Other'].map(r=>`<option>${r}</option>`).join('')}
           </select>
+          <div id="adj-other-wrap" style="display:none;margin-top:6px">
+            <input id="adj-other-text" placeholder="Please describe…" style="font-size:13px;width:100%">
+          </div>
         </div>
         <div class="section-label">Select Size and Quantity to Remove</div>
         <div id="adj-error"></div>
@@ -2371,6 +2374,10 @@ async function openRemoveStock() {
     </div>`, true);
 
     document.getElementById('adj-change')?.addEventListener('click', () => { selectedItem=null; renderAdjust(); });
+    document.getElementById('adj-reason')?.addEventListener('change', e => {
+      const wrap = document.getElementById('adj-other-wrap');
+      if (wrap) wrap.style.display = e.target.value === 'Other' ? '' : 'none';
+    });
     document.getElementById('adj-search')?.addEventListener('input', e => {
       const s = e.target.value.toLowerCase();
       document.querySelectorAll('#adj-item-grid .item-card[data-name]').forEach(card => {
@@ -2380,8 +2387,11 @@ async function openRemoveStock() {
     document.querySelectorAll('.item-card').forEach(c => { c.onclick = () => { selectedItem=items.find(i=>i.id===parseInt(c.dataset.id)); renderAdjust(); }; });
 
     document.getElementById('adj-submit')?.addEventListener('click', async () => {
-      const reason = document.getElementById('adj-reason')?.value?.trim() || '';
-      if (!reason) { showError('adj-error', 'Please select a reason for the removal'); return; }
+      const reasonSel = document.getElementById('adj-reason')?.value?.trim() || '';
+      if (!reasonSel) { showError('adj-error', 'Please select a reason for the removal'); return; }
+      const otherText = document.getElementById('adj-other-text')?.value?.trim() || '';
+      if (reasonSel === 'Other' && !otherText) { showError('adj-error', 'Please describe the reason'); return; }
+      const reason = reasonSel === 'Other' ? `Other: ${otherText}` : reasonSel;
       const adjustments = [];
       let hasError = false;
       document.querySelectorAll('.adj-qty').forEach(inp => {

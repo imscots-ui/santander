@@ -131,6 +131,14 @@ def reset_password(user_id: int, db: Session = Depends(get_db), admin: User = De
     return {"message": f"PIN reset for {user.username}. Default PIN: 1701"}
 
 
+class UserEditRequest(BaseModel):
+    forename: Optional[str] = None
+    surname: Optional[str] = None
+    rank: Optional[str] = None
+    role: Optional[str] = None
+    is_admin: Optional[bool] = None
+
+
 class ChangePinRequest(BaseModel):
     new_pin: str
 
@@ -164,16 +172,24 @@ def reactivate_user(user_id: int, db: Session = Depends(get_db), admin: User = D
 
 
 @router.patch("/{user_id}/edit")
-def edit_user(user_id: int, payload: dict, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+def edit_user(user_id: int, payload: UserEditRequest, db: Session = Depends(get_db),
+              admin: User = Depends(get_current_admin),
               audit_user_id: int = Depends(get_audit_user_id)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.forename = payload.get("forename", user.forename)
-    user.surname = payload.get("surname", user.surname)
-    user.staff_rank = payload.get("rank", user.staff_rank)
-    user.role = payload.get("role", user.role)
-    user.is_admin = payload.get("is_admin", user.is_admin)
+    if payload.forename is not None:
+        user.forename = payload.forename
+    if payload.surname is not None:
+        user.surname = payload.surname
+    if payload.rank is not None:
+        user.staff_rank = payload.rank or None
+    if payload.role is not None:
+        user.role = payload.role or None
+    if payload.is_admin is not None:
+        if user.id == admin.id and not payload.is_admin:
+            raise HTTPException(status_code=400, detail="Cannot remove your own admin status")
+        user.is_admin = payload.is_admin
     log_action(db, user_id=audit_user_id, action="USER_EDIT", details=f"Edited user {user.username}")
     db.commit()
     return {"message": "User updated"}
