@@ -1393,7 +1393,8 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
   function r3() {
     // Multi-return confirmation screen
     const unserviceable = selectedIssues.filter(s => s.condition === 'unserviceable');
-    return '<div style="margin-bottom:16px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Confirming return from <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + '</strong></div>' +
+    return '<div style="margin-bottom:' + (selectedCadet.notes ? '8' : '16') + 'px;padding:12px;background:var(--blue-pale);border-radius:var(--r);font-size:13px">Confirming return from <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + '</strong></div>' +
+    (selectedCadet.notes ? '<div style="margin-bottom:16px;font-size:12px;color:var(--text2);background:rgba(0,0,0,0.04);border-radius:4px;padding:6px 10px">📝 ' + selectedCadet.notes + '</div>' : '') +
     '<div class="section-label">Items Being Returned (' + selectedIssues.length + ')</div>' +
     '<div class="table-wrap"><table><thead><tr><th>Item</th><th>Size</th><th>Condition</th><th>Reason</th></tr></thead><tbody>' +
     selectedIssues.map(s => '<tr>' +
