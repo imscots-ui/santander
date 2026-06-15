@@ -54,15 +54,18 @@ export default function Overview({ showToast, auditLog = [], navigate }) {
       {/* Stat tiles — row 1 */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:14 }}>
         {[
-          { label:'Strength on roll',  value:strength, sub:'Active cadets',   accent:navy },
-          { label:'Actions required',  value:ACTIONS.filter(a=>a.urgency==='high').length, sub:'High priority', accent:'#8B1A1A' },
-          { label:'Attendance ≥90%',   value:highAtt,  sub:'Cadets this term', accent:'#1B6B3A' },
-          { label:'Welfare flags',     value:lowAtt,   sub:'Attendance <75%', accent:'#7A4A00' },
+          { label:'Strength on roll',  value:strength, sub:'Active cadets',   accent:navy,      page:'cadets' },
+          { label:'Actions required',  value:ACTIONS.filter(a=>a.urgency==='high').length, sub:'High priority', accent:'#8B1A1A', page:null },
+          { label:'Attendance ≥90%',   value:highAtt,  sub:'Cadets this term', accent:'#1B6B3A', page:'cadets' },
+          { label:'Welfare flags',     value:lowAtt,   sub:'Attendance <75%', accent:'#7A4A00',  page:'safeguarding' },
         ].map(t => (
-          <div key={t.label} style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px' }}>
+          <div key={t.label} onClick={() => t.page && navigate && navigate(t.page)}
+            style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px', cursor:t.page?'pointer':'default', transition:'box-shadow 0.15s' }}
+            onMouseEnter={e => { if (t.page) e.currentTarget.style.boxShadow='0 2px 10px rgba(0,38,77,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; }}>
             <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
             <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:32, fontWeight:800, color:t.accent }}>{t.value}</div>
-            <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+            <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}{t.page && <span style={{ marginLeft:6, color:`${t.accent}88`, fontSize:10 }}>→</span>}</div>
           </div>
         ))}
       </div>
@@ -70,15 +73,18 @@ export default function Overview({ showToast, auditLog = [], navigate }) {
       {/* Stat tiles — row 2 */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>
         {[
-          { label:'DofE enrolled',     value:4,         sub:'1 Gold · 1 Silver · 2 Bronze', accent:'#166534' },
-          { label:'Band musicians',    value:5,         sub:'Next practice 26 Jun',          accent:'#C8A032' },
-          { label:'Risk assessments',  value:2,         sub:'1 draft · 1 approved',          accent:'#7A4A00' },
-          { label:'Budget position',   value:'£+1,310', sub:'Income over expenditure',       accent:'#1B6B3A' },
+          { label:'DofE enrolled',     value:4,         sub:'1 Gold · 1 Silver · 2 Bronze', accent:'#166534', page:'dofe' },
+          { label:'Band musicians',    value:5,         sub:'Next practice 26 Jun',          accent:'#C8A032', page:'band' },
+          { label:'Risk assessments',  value:2,         sub:'1 draft · 1 approved',          accent:'#7A4A00', page:'riskassessment' },
+          { label:'Budget position',   value:'£+1,310', sub:'Income over expenditure',       accent:'#1B6B3A', page:'budget' },
         ].map(t => (
-          <div key={t.label} style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px' }}>
+          <div key={t.label} onClick={() => t.page && navigate && navigate(t.page)}
+            style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:'16px 18px', cursor:t.page?'pointer':'default', transition:'box-shadow 0.15s' }}
+            onMouseEnter={e => { if (t.page) e.currentTarget.style.boxShadow='0 2px 10px rgba(0,38,77,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; }}>
             <div style={{ fontSize:11, color:muted, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{t.label}</div>
             <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:28, fontWeight:800, color:t.accent }}>{t.value}</div>
-            <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}</div>
+            <div style={{ fontSize:11, color:muted, marginTop:3 }}>{t.sub}{t.page && <span style={{ marginLeft:6, color:`${t.accent}88`, fontSize:10 }}>→</span>}</div>
           </div>
         ))}
       </div>

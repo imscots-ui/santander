@@ -58,6 +58,13 @@ const DOFE = {
 
 const RANK_LADDER = ['Cdt','LCdt','Cpl','Sgt','FS','WO'];
 
+const NOTICES = [
+  { id:'n1', date:'14 Jun', icon:'📅', text:'Parade Night this Thursday 1900hrs — No.2 dress, bring notebook.' },
+  { id:'n2', date:'10 Jun', icon:'⏰', text:'Summer Camp consent forms due 21 Jun — ask a parent to check the Portal.' },
+  { id:'n3', date:'5 Jun',  icon:'🥾', text:'Silver Fieldcraft departs 27 Jun 0730 Johnstone Station. Kit list on Portal.' },
+  { id:'n4', date:'1 Jun',  icon:'🎯', text:'Shooting practice: Tue 17 Jun 1800hrs at Linwood Range. Bring valid ID.' },
+];
+
 const ATTENDANCE_HISTORY = [
   { month:'Jan', pct:100 }, { month:'Feb', pct:75 }, { month:'Mar', pct:100 },
   { month:'Apr', pct:90 },  { month:'May', pct:85 }, { month:'Jun', pct:100 },
@@ -138,6 +145,20 @@ export default function CadetApp() {
 
         {tab === 'home' && (
           <>
+            {/* Notice board */}
+            <div style={{ marginBottom:20 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10 }}>Squadron Notices</div>
+              {NOTICES.map(n => (
+                <div key={n.id} style={{ display:'flex', gap:10, padding:'10px 12px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:8, marginBottom:8, alignItems:'flex-start' }}>
+                  <span style={{ fontSize:16, flexShrink:0 }}>{n.icon}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:12, color:'rgba(255,255,255,0.8)', lineHeight:1.5 }}>{n.text}</div>
+                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:3 }}>{n.date} Jun 2026</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div style={{ marginBottom:20 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:12 }}>Your Progress</div>
               {PROGRESS.map(p => (

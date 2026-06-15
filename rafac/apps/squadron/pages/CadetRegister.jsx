@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import { CADETS, RANK_COLOR } from '../../../data/cadets.js';
 
-const navy = '#00264D', muted = '#5A7090', border = '#D0DCF0';
+const navy = '#00264D', gold = '#C8A032', muted = '#5A7090', border = '#D0DCF0';
+
+const PROFILE_EXTRA = {
+  c01: { parent:'Mrs K. Mitchell', contact:'07700 900123', dofe:'Gold — In Progress', shooting:'1st Class', aef:'2 AEF · 3 GIF · Blue Wings', attHistory:[100,75,100,90,85,100], forms:'1/2 complete', kit:3 },
+  c02: { parent:'Mr G. Thomas',   contact:'07700 900124', dofe:'Silver — In Progress', shooting:'Marksman',   aef:'2 AEF · 1 GIF · GS holder', attHistory:[100,100,100,96,100,100], forms:'2/2 complete', kit:4 },
+  c03: { parent:'Mr S. Ahmed',    contact:'07700 900125', dofe:'Bronze — Complete',   shooting:'2nd Class',  aef:'1 AEF · 1 GIF',              attHistory:[88,80,90,88,90,85],  forms:'2/2 complete', kit:2 },
+  c04: { parent:'Ms L. Harper',   contact:'07700 900126', dofe:'Not enrolled',         shooting:'Unclassified',aef:'No flights',                attHistory:[70,74,74,70,80,74],  forms:'0/0 complete', kit:1 },
+  c05: { parent:'Mr T. Khan',     contact:'07700 900127', dofe:'Bronze — In Progress', shooting:'3rd Class',  aef:'1 AEF · GIF pending',        attHistory:[80,88,85,78,82,80],  forms:'0/0 complete', kit:1 },
+  c06: { parent:'Ms A. Mason',    contact:'07700 900128', dofe:'Not enrolled',         shooting:'Unclassified',aef:'No flights',                attHistory:[70,65,70,63,72,70],  forms:'0/0 complete', kit:0 },
+  c07: { parent:'Mr D. Wright',   contact:'07700 900129', dofe:'Bronze — In Progress', shooting:'3rd Class',  aef:'No flights',                attHistory:[85,82,88,80,90,85],  forms:'0/0 complete', kit:2 },
+  c08: { parent:'Mrs S. Patel',   contact:'07700 900130', dofe:'Not enrolled',         shooting:'Unclassified',aef:'1 AEF',                     attHistory:[77,80,75,78,80,77],  forms:'0/0 complete', kit:1 },
+  c09: { parent:'Mr B. Cooper',   contact:'07700 900131', dofe:'Not enrolled',         shooting:'Unclassified',aef:'No flights',                attHistory:[60,65,63,60,66,63],  forms:'0/0 complete', kit:1 },
+};
 
 const ISSUE_STYLE = {
   'Consent pending':   { bg:'#FFF3CC', color:'#7A4A00' },
@@ -97,38 +109,78 @@ export default function CadetRegister({ showToast }) {
       </div>
 
       {/* Detail panel */}
-      {Card && (
-        <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:20, alignSelf:'flex-start', position:'sticky', top:0 }}>
-          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:16 }}>
-            <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, fontSize:16 }}>Cadet Profile</div>
-            <button onClick={() => setSelected(null)} style={{ border:'none', background:'none', fontSize:18, cursor:'pointer', color:muted }}>×</button>
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16, paddingBottom:16, borderBottom:`1px solid ${border}` }}>
-            <div style={{ width:48, height:48, borderRadius:'50%', background:navy, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:800 }}>{Card.ini}</div>
-            <div>
-              <div style={{ fontWeight:800, fontSize:15 }}>{Card.sn}, {Card.fn}</div>
-              <div style={{ fontSize:12, color:muted }}>{Card.rank} · Svc {Card.svc}</div>
+      {Card && (() => {
+        const extra = PROFILE_EXTRA[Card.id] || {};
+        return (
+          <div style={{ background:'white', border:`1.5px solid ${border}`, borderRadius:10, padding:20, alignSelf:'flex-start', position:'sticky', top:0, maxHeight:'90vh', overflowY:'auto' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
+              <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontWeight:800, color:navy, fontSize:16 }}>Cadet Profile</div>
+              <button onClick={() => setSelected(null)} style={{ border:'none', background:'none', fontSize:18, cursor:'pointer', color:muted }}>×</button>
             </div>
-          </div>
-          {[['Age', Card.age],['Attendance', `${Card.att}%`],['PTS Classification', Card.pts],['Badges', Card.badges],['Swimming test', Card.swim ? '✅ Passed' : '❌ Not passed']].map(([l,v])=>(
-            <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:`1px solid ${border}`, fontSize:13 }}>
-              <span style={{ color:muted }}>{l}</span>
-              <span style={{ fontWeight:700 }}>{v}</span>
+
+            {/* Identity */}
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14, paddingBottom:14, borderBottom:`1px solid ${border}` }}>
+              <div style={{ width:48, height:48, borderRadius:'50%', background:navy, color:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:800, flexShrink:0 }}>{Card.ini}</div>
+              <div>
+                <div style={{ fontWeight:800, fontSize:15, color:'#0D1B2E' }}>{Card.sn}, {Card.fn}</div>
+                <div style={{ fontSize:12, color:muted }}>{Card.rank} · Svc {Card.svc} · Age {Card.age}</div>
+                {extra.parent && <div style={{ fontSize:11, color:muted, marginTop:2 }}>👤 {extra.parent} · {extra.contact}</div>}
+              </div>
             </div>
-          ))}
-          {Card.issue && (
-            <div style={{ marginTop:14, background:'#FFF3CC', border:'1px solid #F0C84A', borderRadius:8, padding:'10px 12px', fontSize:12, color:'#7A4A00', fontWeight:600 }}>
-              ⚠️ {Card.issue}
-            </div>
-          )}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:16 }}>
-            {['Edit profile','Send message','View forms','Promote'].map(a => (
-              <button key={a} onClick={() => showToast(`▶ ${a}: ${Card.rank} ${Card.sn}`)}
-                style={{ padding:'8px 10px', background:'#F4F7FB', border:`1px solid ${border}`, borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>{a}</button>
+
+            {/* Attendance sparkline */}
+            {extra.attHistory && (
+              <div style={{ marginBottom:14, paddingBottom:14, borderBottom:`1px solid ${border}` }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:muted, textTransform:'uppercase', letterSpacing:'0.05em' }}>Attendance</div>
+                  <span style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:18, fontWeight:800, color:Card.att>=90?'#1B6B3A':Card.att>=75?'#7A4A00':'#8B1A1A' }}>{Card.att}%</span>
+                </div>
+                <div style={{ display:'flex', gap:4, alignItems:'flex-end', height:28 }}>
+                  {['J','F','M','A','M','J'].map((m,i) => (
+                    <div key={m} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+                      <div style={{ width:'100%', height:`${(extra.attHistory[i]/100)*22}px`, borderRadius:2, minHeight:3,
+                        background:extra.attHistory[i]>=90?'#1B6B3A':extra.attHistory[i]>=75?gold:'#C8102E' }} />
+                      <div style={{ fontSize:8, color:muted }}>{m}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Key stats */}
+            {[
+              ['PTS Class', Card.pts],
+              ['Badges', Card.badges],
+              ['Swimming', Card.swim ? '✅ Passed' : '❌ Not passed'],
+              ['DofE', extra.dofe || '—'],
+              ['Shooting', extra.shooting || '—'],
+              ['AEF/Flying', extra.aef || '—'],
+              ['Forms', extra.forms || '—'],
+              ['Kit items', extra.kit !== undefined ? `${extra.kit} items` : '—'],
+            ].map(([l,v])=>(
+              <div key={l} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:`1px solid ${border}`, fontSize:12 }}>
+                <span style={{ color:muted }}>{l}</span>
+                <span style={{ fontWeight:700, color:'#0D1B2E', textAlign:'right', maxWidth:160 }}>{v}</span>
+              </div>
             ))}
+
+            {/* Issue alert */}
+            {Card.issue && (
+              <div style={{ marginTop:12, background:'#FFF3CC', border:'1px solid #F0C84A', borderRadius:8, padding:'10px 12px', fontSize:12, color:'#7A4A00', fontWeight:600 }}>
+                ⚠️ {Card.issue}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:14 }}>
+              {['Edit profile','Send message','View forms','Promote'].map(a => (
+                <button key={a} onClick={() => showToast(`▶ ${a}: ${Card.rank} ${Card.sn}`)}
+                  style={{ padding:'8px 10px', background:'#F4F7FB', border:`1px solid ${border}`, borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>{a}</button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

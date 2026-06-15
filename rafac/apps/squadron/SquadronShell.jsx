@@ -17,6 +17,7 @@ import Band            from './pages/Band.jsx';
 import Shooting        from './pages/Shooting.jsx';
 import AEF             from './pages/AEF.jsx';
 import Staff           from './pages/Staff.jsx';
+import Awards          from './pages/Awards.jsx';
 import Compliance      from './pages/Compliance.jsx';
 import Safeguarding    from './pages/Safeguarding.jsx';
 import AuditLog        from './pages/AuditLog.jsx';
@@ -45,6 +46,7 @@ const NAV = [
   { id:'aef',            icon:'✈️', label:'AEF & Flying' },
   { section:'COMPLIANCE & RECORDS' },
   { id:'staff',          icon:'👮', label:'Staff Register' },
+  { id:'awards',         icon:'🏅', label:'Awards & Honours' },
   { id:'compliance',     icon:'🛡️', label:'Compliance' },
   { id:'safeguarding',   icon:'🧒', label:'Safeguarding' },
   { id:'audit',          icon:'📋', label:'Audit Log' },
@@ -87,6 +89,7 @@ export default function SquadronShell({ showToast }) {
       case 'shooting':       return <Shooting       showToast={showToast} addAudit={addAudit} />;
       case 'aef':            return <AEF            showToast={showToast} addAudit={addAudit} />;
       case 'staff':          return <Staff          showToast={showToast} addAudit={addAudit} />;
+      case 'awards':         return <Awards         showToast={showToast} addAudit={addAudit} />;
       case 'compliance':     return <Compliance     showToast={showToast} addAudit={addAudit} />;
       case 'safeguarding':   return <Safeguarding   showToast={showToast} addAudit={addAudit} />;
       case 'audit':          return <AuditLog       auditLog={auditLog} />;
