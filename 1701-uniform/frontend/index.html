@@ -517,7 +517,10 @@ function bindCadetItems() { document.querySelectorAll('.cadet-item[data-id]').fo
 // ── CADET RECORD ──
 async function openCadetRecord(cadetId) {
   showModal(`${mHead('CADET RECORD')}<div class="modal-body"><div class="loading-text">Loading record...</div></div>`, true);
-  const data = await GET(`/cadets/${cadetId}/history`);
+  const [data, missingKit] = await Promise.all([
+    GET(`/cadets/${cadetId}/history`),
+    GET(`/cadets/${cadetId}/missing-kit`).catch(() => []),
+  ]);
   if (!data) return;
   const {cadet, summary, outstanding, history} = data;
   showModal(`${mHead('CADET RECORD')}<div class="modal-body">
@@ -529,6 +532,7 @@ async function openCadetRecord(cadetId) {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-success btn-sm" id="issue-from-record">Issue Kit</button>
+        ${outstanding.length > 0 ? `<button class="btn btn-ghost btn-sm" id="return-from-record">Return Kit</button>` : ''}
         <button class="btn btn-ghost btn-sm" id="edit-cadet-btn">✏ Edit</button>
         <button class="btn btn-ghost btn-sm" id="print-cadet-record">🖨 Print</button>
         <button class="btn btn-ghost btn-sm" data-action="cadets">← Back</button>
@@ -557,6 +561,8 @@ async function openCadetRecord(cadetId) {
         <td><button class="btn btn-ghost btn-sm" data-return-id="${i.issued_id}" data-return-name="${i.short_name}">Return</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`}
+    ${missingKit.length > 0 ? `<div class="section-label" style="margin-top:24px">Missing from Kit List <span style="background:var(--amber-light);color:var(--amber);font-size:10px;font-weight:700;font-family:var(--mono);padding:2px 8px;border-radius:10px;margin-left:6px">${missingKit.length} item${missingKit.length>1?'s':''}</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">${missingKit.map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--amber-light);border:1px solid #d97706;border-radius:var(--r);padding:9px 14px"><span style="font-weight:600;color:var(--amber)">${m.label}</span><button class="btn btn-primary btn-sm missing-kit-issue" data-item-id="${m.item_id||''}">Issue →</button></div>`).join('')}</div>` : ''}
     <div class="section-label" style="margin-top:24px">Full History</div>
     <div class="table-wrap"><table>
       <thead><tr><th>Item</th><th>Size</th><th>Issued</th><th>By</th><th>Status</th><th>Return Info</th></tr></thead>
@@ -577,6 +583,12 @@ async function openCadetRecord(cadetId) {
     btn.onclick = () => openReturnFlow(parseInt(btn.dataset.returnId), btn.dataset.returnName, cadetId, cadet);
   });
   document.getElementById('issue-from-record').onclick = () => openIssueFlow(cadetId);
+  document.getElementById('return-from-record')?.addEventListener('click', () => openReturnFlow(null, null, cadetId, cadet));
+
+  document.querySelectorAll('.missing-kit-issue').forEach(btn => {
+    const itemId = btn.dataset.itemId ? parseInt(btn.dataset.itemId) : null;
+    btn.addEventListener('click', () => openIssueFlow(cadetId, itemId));
+  });
 
   document.getElementById('edit-cadet-btn').onclick = () => {
     const RANKS = ['Cdt','Cpl','Sgt','FS','CWO'];

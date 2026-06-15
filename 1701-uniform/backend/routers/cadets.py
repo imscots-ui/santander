@@ -229,6 +229,22 @@ def reactivate_cadet(
     return {"message": f"Cadet {cadet.service_number} {cadet.surname} reactivated"}
 
 
+@router.get("/{cadet_id}/missing-kit")
+def get_missing_kit(
+    cadet_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Returns the list of required kit items not yet issued to this cadet."""
+    from models import KitListItem
+    from routers.dashboard import _get_missing_kit
+    cadet = db.query(Cadet).filter(Cadet.id == cadet_id).first()
+    if not cadet:
+        raise HTTPException(status_code=404, detail="Cadet not found")
+    kit_list = db.query(KitListItem).all()
+    return _get_missing_kit(db, cadet, kit_list)
+
+
 @router.patch("/{cadet_id}/rank")
 def update_cadet_rank(
     cadet_id: int,
