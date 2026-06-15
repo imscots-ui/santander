@@ -33,6 +33,82 @@ export default function Training({ showToast, addAudit }) {
   const [typeFilter, setTypeFilter] = useState('all');
   const [search, setSearch]   = useState('');
 
+  function printATQueue() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const rows = AT_QUEUE.map((a,i) => {
+      const st = atStatus[a.id];
+      const stBg  = st==='approved'?'#D4EDDA':st==='queried'?'#EAF4FF':'#F4F7FB';
+      const stClr = st==='approved'?'#0F4020':st==='queried'?'#003D80':muted;
+      const stLbl = st==='approved'?'✅ Approved':st==='queried'?'📧 Queried':a.eligible?'Eligible':'⚠ Blocked';
+      const tg21Bg  = a.tg21==='Signed'?'#D4EDDA':a.tg21==='Awaiting'?'#FEE2E2':'#FFF3CC';
+      const tg21Clr = a.tg21==='Signed'?'#0F4020':a.tg21==='Awaiting'?'#8B1A1A':'#7A4A00';
+      return `<tr style="background:${i%2?'#FAFCFE':'white'};${!a.eligible?'border-left:3px solid #DC2626;':''}">
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-weight:700;">${a.cadet}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#00264D;">${a.event}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;white-space:nowrap;">${a.date}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${tg21Bg};color:${tg21Clr};padding:2px 7px;border-radius:8px;font-size:9px;font-weight:700;">${a.tg21}</span></td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-size:10px;color:#5A7090;">${a.tg23}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;font-size:13px;">${a.swim}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${stBg};color:${stClr};padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700;">${stLbl}</span>${a.block?`<div style="font-size:8px;color:#8B1A1A;margin-top:2px;">${a.block}</div>`:''}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #D0DCF0;font-size:9px;color:#5A7090;font-family:monospace;">${a.svc}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>AT Approval Queue — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 12mm 14mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;padding-bottom:10px;border-bottom:3px solid #00264D;">
+      <tr>
+        <td style="width:50px;"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg></td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">ADVENTURE TRAINING APPROVAL QUEUE</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">As at ${today} · West Scotland Wing</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Total cadets: ${AT_QUEUE.length}</div>
+          <div style="font-size:10px;color:#7A4A00;font-weight:700;">Pending approval: ${AT_QUEUE.filter(a=>!atStatus[a.id]).length}</div>
+        </td>
+      </tr>
+    </table>
+    <div style="background:#EAF4FF;border:1px solid #B3D4F0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:10px;color:#003D80;">
+      🔒 TG23 details are special-category data — this register shows only that a TG23 is on file. Actual medical information is held inside the controlled TG23 form on a need-to-know basis.
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CADET</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">ACTIVITY</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">DATES</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TG21</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">TG23</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SWIM</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">STATUS</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">SVC No.</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      ${['Authorising Officer','Wing AT Officer','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?'Sqn Ldr Harris':i===2?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · AP 1919 · TG21/TG23 data retained 3 years post-activity
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('AT Approval Queue printed', 'Training', `Printed by Sqn Ldr Harris on ${today}`);
+    showToast('🖨️ AT approval queue sent to printer');
+  }
+
   function approve(id) {
     setAtStatus(p => ({ ...p, [id]: 'approved' }));
     const a = AT_QUEUE.find(x => x.id === id);
@@ -66,6 +142,12 @@ export default function Training({ showToast, addAudit }) {
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy }}>Training & AT</div>
           <div style={{ fontSize:12, color:muted }}>AT Approval Queue · Course Tracking · West Scotland Wing</div>
         </div>
+        {view === 'queue' && (
+          <button onClick={printATQueue}
+            style={{ padding:'8px 16px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
+            📄 Print Queue
+          </button>
+        )}
       </div>
 
       {/* Sub-nav */}
