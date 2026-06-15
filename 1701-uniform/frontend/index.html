@@ -3433,7 +3433,7 @@ async function openAuditLog() {
   let filters = { staff: '', cadet: '', item: '', action: '', dateFrom: '', dateTo: '' };
 
   async function loadLogs() {
-    let path = '/audit/?limit=200';
+    let path = '/audit/?limit=500';
     if (filters.action) path += `&action=${filters.action}`;
     logs = await GET(path);
   }

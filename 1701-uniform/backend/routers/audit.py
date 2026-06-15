@@ -11,7 +11,7 @@ router = APIRouter(prefix="/audit", tags=["Audit"])
 
 @router.get("/")
 def get_audit_log(
-    limit: int = Query(50, le=200),
+    limit: int = Query(100, le=1000),
     offset: int = 0,
     action: Optional[str] = None,
     db: Session = Depends(get_db),
