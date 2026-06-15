@@ -33,12 +33,12 @@ def login(
     db.commit()
 
     token = create_access_token({"sub": user.username, "user_id": user.id})
-    return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+    return TokenResponse(access_token=token, user=UserOut.from_orm_user(user))
 
 
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+    return UserOut.from_orm_user(current_user)
 
 
 @router.post("/change-password")
