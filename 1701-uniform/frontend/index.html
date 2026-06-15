@@ -411,6 +411,7 @@ function homeHTML() {
       <button class="home-btn gold" id="btn-badges"><div class="home-btn-icon">🎖️</div><div class="home-btn-label">Badge Tracker</div><div class="home-btn-sub">Issue &amp; track badges</div></button>
       ${isAdmin?`<button class="home-btn gold admin" id="btn-admin"><div class="home-btn-icon">⚙️</div><div class="home-btn-label">Admin</div><div class="home-btn-sub">Staff, cadets and stock</div></button>`:''}
     </div>
+    <div id="home-recent" style="max-width:800px;margin:24px auto 0;width:100%"></div>
   </div>
   <div id="modal-root"></div></div>`;
 }
@@ -1933,6 +1934,27 @@ async function loadHomeDashboard() {
     if (searchBtn && lowStockCount > 0) {
       searchBtn.querySelector('.home-btn-sub').textContent = `${lowStockCount} line${lowStockCount===1?'':'s'} running low`;
       searchBtn.style.borderColor = '#d97706';
+    }
+
+    // Recent activity feed
+    const recentEl = document.getElementById('home-recent');
+    if (recentEl && d.recent_activity && d.recent_activity.length > 0) {
+      const actionColor = a => a.includes('ISSUE') ? 'var(--blue)' : a.includes('RETURN') ? 'var(--green)' : a.includes('STOCK') ? '#d97706' : 'var(--text3)';
+      const actionIcon = a => a.includes('ISSUE') ? '📤' : a.includes('RETURN') ? '📥' : a.includes('STOCK') ? '📦' : a.includes('CADET') ? '👤' : '📋';
+      recentEl.innerHTML = `<div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Recent Activity</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${d.recent_activity.slice(0,6).map(a => `<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+            <span style="font-size:16px">${actionIcon(a.action)}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:${actionColor(a.action)}">${a.action}</div>
+              <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.details||'—'}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${fmt(a.timestamp)}</div>
+              <div style="font-size:10px;color:var(--text3)">${a.user}</div>
+            </div>
+          </div>`).join('')}
+        </div>`;
     }
   } catch { /* silently skip if backend unreachable */ }
 }
