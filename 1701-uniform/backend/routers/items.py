@@ -32,6 +32,14 @@ def list_items(
     return db.query(Item).filter(Item.is_active == True).order_by(Item.category, Item.short_name).all()
 
 
+@router.get("/archived", response_model=List[ItemOut])
+def list_archived_items(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    return db.query(Item).filter(Item.is_active == False).order_by(Item.category, Item.short_name).all()
+
+
 @router.get("/{item_id}", response_model=ItemOut)
 def get_item(
     item_id: int,
@@ -106,6 +114,48 @@ def add_size(
     db.commit()
     db.refresh(size)
     return {"id": size.id, "size_label": size.size_label, "item_id": item_id}
+
+
+@router.patch("/{item_id}/deactivate")
+def deactivate_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Archive an item so it no longer appears in the active catalogue."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    outstanding = db.query(IssuedItem).filter(IssuedItem.item_id == item_id, IssuedItem.returned == False).count()
+    if outstanding > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot archive '{item.short_name}' — {outstanding} unit(s) are still outstanding"
+        )
+    item.is_active = False
+    log_action(db, user_id=audit_user_id, action="ITEM_DEACTIVATE",
+               details=f"Archived item: {item.short_name}", item_id=item_id)
+    db.commit()
+    return {"message": f"Item '{item.short_name}' archived"}
+
+
+@router.patch("/{item_id}/reactivate")
+def reactivate_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+    audit_user_id: int = Depends(get_audit_user_id),
+):
+    """Admin only. Restore a previously archived item."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    item.is_active = True
+    log_action(db, user_id=audit_user_id, action="ITEM_REACTIVATE",
+               details=f"Restored item: {item.short_name}", item_id=item_id)
+    db.commit()
+    return {"message": f"Item '{item.short_name}' restored"}
 
 
 @router.delete("/{item_id}/sizes/{size_id}", status_code=204)

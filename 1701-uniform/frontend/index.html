@@ -1597,6 +1597,8 @@ async function openManageItems() {
   showModal(`${mHead('MANAGE ITEMS')}<div class="modal-body"><div class="loading-text">Loading items...</div></div>`, true);
   S.items = null; // force fresh load
   const items = await loadItems();
+  let archivedItems = [];
+  try { archivedItems = await GET('/items/archived'); } catch {}
   const CATEGORIES = [...new Set(items.map(i=>i.category).filter(Boolean))].sort();
   let addSizeItemId = null;
   let miCatFilter = null;
@@ -1622,10 +1624,20 @@ async function openManageItems() {
               ? `<input id="new-size-input" type="text" placeholder="e.g. 185/96" autocomplete="off" style="font-family:var(--mono);font-size:11px;width:100px;padding:2px 6px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);margin-left:4px"><button class="btn btn-primary btn-sm" id="new-size-submit" data-item-id="${i.id}" style="font-size:11px;padding:2px 8px;margin-left:4px">Add</button><button class="btn btn-ghost btn-sm" id="new-size-cancel" style="font-size:11px;padding:2px 8px;margin-left:4px">✕</button>`
               : `<button class="btn btn-ghost btn-sm add-size-btn" data-item-id="${i.id}" data-item-name="${i.short_name}" style="font-size:11px;padding:2px 8px;margin-left:4px">+ Size</button>`}
           </td>
-          <td></td>
+          <td><button class="btn btn-ghost btn-sm archive-item-btn" data-id="${i.id}" data-name="${i.short_name}" style="font-size:11px;padding:2px 8px;color:var(--text3)">Archive</button></td>
         </tr>`).join('')}
         </tbody>
       </table></div>
+
+      ${archivedItems.length > 0 ? `<div class="section-label" style="margin-top:24px;color:var(--text3)">Archived Items (${archivedItems.length})</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Category</th><th></th></tr></thead>
+        <tbody>${archivedItems.map(a=>`<tr style="opacity:0.65">
+          <td><strong>${a.short_name}</strong><br><span style="font-size:11px;color:var(--text3)">${a.name}</span></td>
+          <td style="font-size:12px;color:var(--text3)">${a.category||'—'}</td>
+          <td><button class="btn btn-ghost btn-sm restore-item-btn" data-id="${a.id}" data-name="${a.short_name}" style="font-size:11px;padding:2px 8px">Restore</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : ''}
 
       <div class="section-label" style="margin-top:24px">Add New Item</div>
       <div id="ni-error"></div>
@@ -1678,6 +1690,37 @@ async function openManageItems() {
           S.items = null;
           render();
         } catch(e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = '✕'; }
+      };
+    });
+
+    // Archive item
+    document.querySelectorAll('.archive-item-btn').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        if (!confirm(`Archive "${btn.dataset.name}"?\n\nIt will be removed from the active catalogue. Cannot be done if any items are currently issued.`)) return;
+        btn.disabled = true; btn.textContent = '…';
+        try {
+          await PATCH(`/items/${btn.dataset.id}/deactivate`);
+          const idx = items.findIndex(i => i.id === parseInt(btn.dataset.id));
+          if (idx >= 0) { archivedItems.push(items[idx]); items.splice(idx, 1); }
+          S.items = null;
+          render();
+        } catch(e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = 'Archive'; }
+      };
+    });
+
+    // Restore archived item
+    document.querySelectorAll('.restore-item-btn').forEach(btn => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        btn.disabled = true; btn.textContent = '…';
+        try {
+          await PATCH(`/items/${btn.dataset.id}/reactivate`);
+          const idx = archivedItems.findIndex(a => a.id === parseInt(btn.dataset.id));
+          if (idx >= 0) { items.push(archivedItems[idx]); archivedItems.splice(idx, 1); }
+          S.items = null;
+          render();
+        } catch(e) { alert('Error: ' + e.message); btn.disabled = false; btn.textContent = 'Restore'; }
       };
     });
 

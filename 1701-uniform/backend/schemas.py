@@ -229,13 +229,13 @@ class MissingKitEntry(BaseModel):
     rank: str
     forename: str
     surname: str
+    flight: Optional[str] = None
     missing_items: List[str]
 
 
 class DashboardOut(BaseModel):
     total_cadets: int
     total_active_cadets: int
-    total_items_issued: int
     total_items_outstanding: int
     cadets_missing_kit: int
     missing_kit_detail: List[MissingKitEntry]
