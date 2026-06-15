@@ -1393,7 +1393,7 @@ async function openBulkStock() {
     showModal(`${mHead('BULK ADD STOCK')}<div class="modal-body">
       <div class="alert alert-info">Select an item, enter quantities received. Leave blank to skip a size.</div>
       <div id="stock-error"></div>
-      ${!selectedItem?`<div class="section-label">Select Item</div><div class="item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>`
+      ${!selectedItem?`<div class="search-wrap" style="margin-bottom:12px"><span class="search-icon">🔍</span><input id="stk-search" placeholder="Search items..." type="text" autofocus></div><div class="section-label">Select Item</div><div class="item-grid" id="stk-item-grid">${items.map(i=>`<div class="item-card" data-id="${i.id}" data-name="${i.short_name.toLowerCase()}"><div class="item-card-name">${i.short_name}</div><div class="item-card-cat">${i.category||''}</div></div>`).join('')}</div>`
       :`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-family:var(--head);font-size:24px;color:var(--blue)">${selectedItem.short_name}</div><button class="btn btn-ghost btn-sm" id="stk-change">Change Item</button></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">
         ${selectedItem.sizes.map(s=>`<div style="border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:6px">${s.size_label}</div><input type="number" class="size-qty" data-size-id="${s.id}" placeholder="0" min="0" style="text-align:center;font-size:16px;font-weight:700"></div>`).join('')}
@@ -1402,6 +1402,12 @@ async function openBulkStock() {
     <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button>${selectedItem?`<button class="btn btn-primary" id="stk-submit">Add Stock</button>`:''}</div>`, true);
 
     document.getElementById('stk-change')?.addEventListener('click', ()=>{selectedItem=null;renderBulk();});
+    document.getElementById('stk-search')?.addEventListener('input', e => {
+      const s = e.target.value.toLowerCase();
+      document.querySelectorAll('#stk-item-grid .item-card[data-name]').forEach(card => {
+        card.style.display = card.dataset.name.includes(s) ? '' : 'none';
+      });
+    });
     document.querySelectorAll('.item-card').forEach(c=>{c.onclick=()=>{selectedItem=items.find(i=>i.id===parseInt(c.dataset.id));renderBulk();};});
     document.getElementById('stk-submit')?.addEventListener('click', async ()=>{
       const adj=[]; document.querySelectorAll('.size-qty').forEach(inp=>{const q=parseInt(inp.value);if(q>0)adj.push({item_id:selectedItem.id,size_id:parseInt(inp.dataset.sizeId),quantity:q});});
@@ -1449,7 +1455,6 @@ async function openManageStaff() {
 
   document.getElementById('ms-addstaff').onclick = openAddStaff;
   document.querySelectorAll('.ms-edit').forEach(btn => { btn.onclick = () => openEditStaff(parseInt(btn.dataset.id), users); });
-  document.querySelectorAll('.ms-reactivate').forEach(btn => { console.log('Reactivate btn bound for id', btn.dataset.id); });
   document.querySelectorAll('.ms-deact').forEach(btn => { btn.onclick = async () => {
     if (!confirm('Deactivate ' + btn.dataset.name + '?')) return;
     try { await PATCH('/users/' + btn.dataset.id + '/deactivate'); S.users=null; openManageStaff(); } catch(e) { alert(e.message); }
@@ -1521,15 +1526,26 @@ async function openManageCadets() {
         <tbody id="mc-inactive-tbody">${inactiveTableHTML(inactive)}</tbody>
       </table></div>` : ''}
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button></div>`, true);
+    <div class="modal-footer"><button class="btn btn-ghost" data-action="admin">← Back</button><button class="btn btn-ghost" id="mc-export">📥 Export CSV</button></div>`, true);
 
     document.getElementById('mc-addcadet').onclick = openAddCadet;
     document.getElementById('mc-import').onclick = openImportCadets;
+    document.getElementById('mc-export').onclick = () => {
+      const header = 'service_number,rank,forename,surname,gender,flight,status\n';
+      const rows = cadets.map(c =>
+        [c.service_number||'', c.rank||'', c.forename, c.surname, c.gender||'', c.flight||'', c.active?'active':'inactive']
+          .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob([header + rows], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = '1701-cadets.csv'; a.click();
+      URL.revokeObjectURL(url);
+    };
 
     document.getElementById('mc-search').oninput = e => {
       const s = e.target.value.toLowerCase();
-      const fa = active.filter(c => (c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s));
-      const fi = inactive.filter(c => (c.surname+c.forename+(c.flight||'')).toLowerCase().includes(s));
+      const fa = active.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
+      const fi = inactive.filter(c => (c.surname+c.forename+(c.flight||'')+(c.service_number||'')).toLowerCase().includes(s));
       document.getElementById('mc-active-tbody').innerHTML = activeTableHTML(fa);
       if (document.getElementById('mc-inactive-tbody')) document.getElementById('mc-inactive-tbody').innerHTML = inactiveTableHTML(fi);
       bindCadetTableActions();
@@ -1541,17 +1557,17 @@ async function openManageCadets() {
   function activeTableHTML(list) {
     if (!list.length) return '<tr><td colspan="4"><div class="empty">No active cadets found</div></td></tr>';
     return list.map(c => `<tr>
-      
+      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
       <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
       <td style="font-size:13px">${c.flight||'—'}</td>
-      <td><button class="btn btn-danger btn-sm mc-deactivate" data-id="${c.id}" data-name="${c.rank} ${c.surname}">Deactivate</button></td>
+      <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" data-view="${c.id}">View</button><button class="btn btn-danger btn-sm mc-deactivate" data-id="${c.id}" data-name="${c.rank} ${c.surname}">Deactivate</button></td>
     </tr>`).join('');
   }
 
   function inactiveTableHTML(list) {
     if (!list.length) return '<tr><td colspan="4"><div class="empty">No inactive cadets found</div></td></tr>';
     return list.map(c => `<tr style="opacity:0.7">
-      
+      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${c.service_number||'—'}</td>
       <td><strong>${c.surname}</strong>, ${c.forename} <span style="color:var(--text3);font-size:12px">${c.rank}</span></td>
       <td style="font-size:13px">${c.flight||'—'}</td>
       <td style="display:flex;gap:6px">
