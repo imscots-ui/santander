@@ -270,6 +270,189 @@ export default function Budget({ showToast, addAudit }) {
   // ── add entry form ────────────────────────────────────────────────────────────
   const filteredCats = newEntry.type === 'Income' ? INCOME_CATEGORIES : EXPENDITURE_CATEGORIES;
 
+  // ── print / export ───────────────────────────────────────────────────────────
+  function printFinancialStatement() {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+    const ledgerRows = allSorted.map((l, i) => `
+      <tr style="background:${i%2?'#fafcfe':'white'}">
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11.5px;color:#5A7090;white-space:nowrap">${fmtDate(l.date)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5">
+          <span style="background:${l.type==='Income'?'#D1FAE5':'#FEE2E2'};color:${l.type==='Income'?'#065F46':'#991B1B'};padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">${l.type}</span>
+        </td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11px;color:#5A7090;white-space:nowrap">${l.category}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:11.5px;color:#1a2b4a">${l.description}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-family:monospace;font-size:10.5px;color:#9BA8BC;white-space:nowrap">${l.ref||'—'}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-family:monospace;font-weight:700;font-size:12px;white-space:nowrap;color:${l.type==='Income'?'#065F46':'#991B1B'}">${l.type==='Income'?'+':'−'}${fmt(l.amount)}</td>
+      </tr>`).join('');
+
+    const incomeBudgetRows = INCOME_CATEGORIES.map(cat => {
+      const target = BUDGET_TARGETS[cat]?.income || 0;
+      const actual = actualByCategory[cat] || 0;
+      const pct = target > 0 ? Math.round((actual/target)*100) : 100;
+      const over = actual > target && target > 0;
+      return `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:12px;color:#00264D;font-weight:600">${cat}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-family:monospace;font-size:12px;font-weight:700;color:#065F46">${fmt(actual)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-family:monospace;font-size:12px;color:#5A7090">${fmt(target)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-size:11px;font-weight:700;color:${over?'#991B1B':'#065F46'}">${pct}%${over?' ▲':''}</td>
+      </tr>`;
+    }).join('');
+
+    const expendBudgetRows = EXPENDITURE_CATEGORIES.map(cat => {
+      const target = BUDGET_TARGETS[cat]?.expenditure || 0;
+      const actual = actualByCategory[cat] || 0;
+      const pct = target > 0 ? Math.round((actual/target)*100) : 0;
+      const over = actual > target && target > 0;
+      return `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;font-size:12px;color:#00264D;font-weight:600">${cat}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-family:monospace;font-size:12px;font-weight:700;color:#991B1B">${fmt(actual)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-family:monospace;font-size:12px;color:#5A7090">${fmt(target)}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #E8ECF5;text-align:right;font-size:11px;font-weight:700;color:${over?'#991B1B':'#065F46'}">${pct}%${over?' ▲':''}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Financial Statement — 1701 Sqn ${FY}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:14mm 16mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:12px;margin:0}
+.hdr{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #C8A032;margin-bottom:16px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.title-block{margin-left:auto;text-align:right}
+.doc-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800}
+.doc-sub{font-size:11px;color:#5A7090;margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat-box{background:#F5F8FF;border:1.5px solid #D0DCF0;border-radius:8px;padding:11px 14px}
+.stat-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-family:monospace;font-size:20px;font-weight:800}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#F4F7FB}
+th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:#5A7090;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #D0DCF0}
+th.r{text-align:right}
+.totals-row td{background:#F4F7FB;font-weight:800;border-top:2px solid #D0DCF0;padding:7px 10px;font-family:monospace;font-size:12px}
+.totals-row td.r{text-align:right}
+.balances{background:#EAF4FF;border:1.5px solid #BFDBFE;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sig-section{display:flex;gap:24px;margin-top:16px;padding-top:12px;border-top:2px solid #C8A032}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #00264D;height:36px;margin-bottom:4px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.sig-name{font-size:11.5px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:14px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+.section-wrap{margin-bottom:14px}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 portrait;margin:14mm 16mm}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:42px">✈️</span>
+  <div>
+    <div class="sqn">1701 (Johnstone) Squadron ATC</div>
+    <div class="sub">Air Training Corps · Royal Air Force Air Cadets · West of Scotland Wing</div>
+  </div>
+  <div class="title-block">
+    <div class="doc-title">Financial Statement</div>
+    <div class="doc-sub">Financial Year: ${FY} · Printed: ${dateStr}</div>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-box">
+    <div class="stat-label">Total Income</div>
+    <div class="stat-val" style="color:#065F46">${fmt(totalIncome)}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Total Expenditure</div>
+    <div class="stat-val" style="color:#991B1B">${fmt(totalExpend)}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Net Position</div>
+    <div class="stat-val" style="color:${netPosition>=0?'#065F46':'#991B1B'}">${netPosition>=0?'+':'−'}${fmt(Math.abs(netPosition))}</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-label">Total Transactions</div>
+    <div class="stat-val" style="color:#00264D">${lines.length}</div>
+  </div>
+</div>
+
+<div class="balances">
+  <div><div class="stat-label">Bank Balance</div><div style="font-family:monospace;font-weight:800;font-size:15px;color:#00264D">${fmt(BANK_BALANCE)}</div></div>
+  <div><div class="stat-label">Petty Cash</div><div style="font-family:monospace;font-weight:800;font-size:15px;color:#00264D">${fmt(PETTY_CASH)}</div></div>
+  <div><div class="stat-label">Combined Balance</div><div style="font-family:monospace;font-weight:800;font-size:15px;color:#00264D">${fmt(BANK_BALANCE+PETTY_CASH)}</div></div>
+</div>
+
+<div class="two-col">
+  <div class="section-wrap">
+    <div class="section-title">Income vs Budget</div>
+    <table>
+      <thead><tr><th>Category</th><th class="r">Actual</th><th class="r">Budget</th><th class="r">%</th></tr></thead>
+      <tbody>${incomeBudgetRows}
+        <tr class="totals-row"><td>TOTAL INCOME</td><td class="r" style="color:#065F46">${fmt(totalIncome)}</td><td class="r" style="color:#5A7090">${fmt(INCOME_CATEGORIES.reduce((s,c)=>s+(BUDGET_TARGETS[c]?.income||0),0))}</td><td class="r">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-wrap">
+    <div class="section-title">Expenditure vs Budget</div>
+    <table>
+      <thead><tr><th>Category</th><th class="r">Actual</th><th class="r">Budget</th><th class="r">%</th></tr></thead>
+      <tbody>${expendBudgetRows}
+        <tr class="totals-row"><td>TOTAL EXPENDITURE</td><td class="r" style="color:#991B1B">${fmt(totalExpend)}</td><td class="r" style="color:#5A7090">${fmt(EXPENDITURE_CATEGORIES.reduce((s,c)=>s+(BUDGET_TARGETS[c]?.expenditure||0),0))}</td><td class="r">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-wrap">
+  <div class="section-title">Transaction Ledger (${allSorted.length} entries, date descending)</div>
+  <table>
+    <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Ref</th><th class="r">Amount</th></tr></thead>
+    <tbody>${ledgerRows}
+      <tr class="totals-row"><td colspan="5">NET POSITION</td><td class="r" style="color:${netPosition>=0?'#065F46':'#991B1B'}">${netPosition>=0?'+':'−'}${fmt(Math.abs(netPosition))}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sig-section">
+  <div class="sig-block">
+    <div class="sig-line"></div>
+    <div class="sig-label">Officer Commanding</div>
+    <div class="sig-name">Flt Lt A. McDonald</div>
+    <div class="sig-label">1701 (Johnstone) Squadron ATC</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line"></div>
+    <div class="sig-label">Squadron Treasurer</div>
+    <div class="sig-name">________________________</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line"></div>
+    <div class="sig-label">Wing Finance Officer</div>
+    <div class="sig-name">________________________</div>
+    <div class="sig-label">West of Scotland Wing</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line"></div>
+    <div class="sig-label">Date</div>
+    <div class="sig-name">${dateStr}</div>
+  </div>
+</div>
+
+<div class="footer">
+  1701-FIN-${new Date().getFullYear()} · OFFICIAL · Retain all original receipts ≥ 6 years (MOD/HMRC) · DPA 2018 applies · ${dateStr}
+</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit({ category:'Budget', action:`Financial statement printed — ${FY}` });
+    showToast('📄 Financial statement printing…');
+  }
+
   // ── render ────────────────────────────────────────────────────────────────────
   return (
     <div style={{ fontFamily: 'Barlow, sans-serif' }}>
@@ -329,7 +512,7 @@ export default function Budget({ showToast, addAudit }) {
             </button>
           )}
           <button
-            onClick={() => showToast('PDF export — available in full version')}
+            onClick={printFinancialStatement}
             style={{
               padding: '7px 14px',
               background: navy,
@@ -342,7 +525,7 @@ export default function Budget({ showToast, addAudit }) {
               cursor: 'pointer',
             }}
           >
-            Print / Export
+            📄 Print Statement
           </button>
         </div>
       </div>
