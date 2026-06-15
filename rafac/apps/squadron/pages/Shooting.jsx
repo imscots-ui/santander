@@ -234,6 +234,163 @@ export default function Shooting({ showToast, addAudit }) {
     showToast && showToast(`Classification updated: ${shooter.name} → ${newClass}`);
   }
 
+  // ── Print helpers ─────────────────────────────────────────────────────────
+
+  function printShootingRegister() {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const totalShots = shooters.reduce((s, sh) => s + sh.totalShots, 0);
+    const marksmanCount = shooters.filter(s => s.class === 'Marksman').length;
+    const firstClassCount = shooters.filter(s => s.class === '1st Class').length;
+
+    const rows = shooters.map((s, i) => {
+      const cc = CLASS_COLOR[s.class] || CLASS_COLOR['Unclassified'];
+      const recentBars = s.recentScores.map(score => {
+        const pct = Math.max(0, Math.min(1, (score - 140) / 60));
+        const h = Math.max(2, Math.round(pct * 40));
+        const col = score >= 190 ? '#065F46' : score >= 175 ? '#92400E' : '#5A7090';
+        return `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;vertical-align:bottom;width:16px"><span style="font-size:8.5px;color:${col};font-weight:700">${score}</span><div style="width:10px;height:${h}px;background:${col};border-radius:2px"></div></span>`;
+      }).join('');
+      return `<tr style="background:${i%2?'#fafcfe':'white'}">
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;font-weight:700;color:#00264D;font-size:12px">${s.rank} ${s.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center"><span style="background:${cc.bg};color:${cc.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">${s.class}</span></td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-size:11px;color:#5A7090">${s.classDate||'—'}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-weight:800;font-size:15px;color:#00264D">${s.bestScore}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5"><div style="display:flex;align-items:flex-end;gap:3px">${recentBars}</div></td>
+        <td style="padding:8px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-size:12px;color:#5A7090">${s.totalShots}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Shooting Register — 1701 Sqn</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 landscape;margin:14mm 16mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:12px;margin:0}
+.hdr{display:flex;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:14px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.doc-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;margin-left:auto;text-align:right}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat-box{background:#F5F8FF;border:1.5px solid #D0DCF0;border-radius:8px;padding:11px 14px;text-align:center}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#F4F7FB}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:#5A7090;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #D0DCF0}
+th.c{text-align:center}
+.sig-row{display:flex;gap:32px;margin-top:16px;padding-top:12px;border-top:2px solid #C8A032}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #00264D;height:36px;margin-bottom:4px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sig-name{font-size:12px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:12px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:40px">🎯</span>
+  <div><div class="sqn">1701 (Johnstone) Squadron ATC</div><div class="sub">Shooting Register · WTSA · NCSF · ${dateStr}</div></div>
+  <div class="doc-title">Cadet Shooting Register</div>
+</div>
+<div class="stat-row">
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#00264D">${shooters.length}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Shooters</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#C8A032">${marksmanCount}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Marksman</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#065F46">${firstClassCount}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">1st Class</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:22px;font-weight:800;color:#5A7090">${totalShots.toLocaleString()}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Total Shots</div></div>
+</div>
+<div class="section-title">Shooter Classification Register (${shooters.length} cadets · ${dateStr})</div>
+<table>
+  <thead><tr><th>Shooter</th><th class="c">Classification</th><th class="c">Class Date</th><th class="c">Best Score</th><th>Recent 5</th><th class="c">Total Shots</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+<div class="sig-row">
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Classification Officer / Shooting Instructor</div><div class="sig-name">CI Morrison, K.</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Officer Commanding</div><div class="sig-name">Flt Lt A. McDonald</div><div class="sig-label">1701 (Johnstone) Squadron ATC</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Date</div><div class="sig-name">${dateStr}</div></div>
+</div>
+<div class="footer">1701-SHOOT-REG-${new Date().getFullYear()} · OFFICIAL · WTSA / NCSF · ${dateStr} · West of Scotland Wing</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit({ action:'Shooting register printed', category:'Training' });
+    showToast && showToast('📄 Shooting register printing…');
+  }
+
+  function printCompetitionReport(comp) {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const hasPos = comp.results.some(r => r.position !== null);
+    const rows = comp.results.map((r, i) => {
+      const col = r.score >= 190 ? '#065F46' : r.score >= 175 ? '#92400E' : '#5A7090';
+      const bg  = r.score >= 190 ? '#D1FAE5' : r.score >= 175 ? '#FEF3C7' : '#F4F7FB';
+      return `<tr style="background:${i%2?'#fafcfe':'white'}">
+        ${hasPos?`<td style="padding:9px 12px;border-bottom:1px solid #E8ECF5;text-align:center;font-family:monospace;font-size:16px;font-weight:800;color:${r.position===1?'#C8A032':'#00264D'}">${r.position?`#${r.position}`:'—'}</td>`:''}
+        <td style="padding:9px 12px;border-bottom:1px solid #E8ECF5;font-weight:700;color:#00264D;font-size:13px">${r.name}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid #E8ECF5;text-align:center"><span style="background:${bg};color:${col};padding:4px 12px;border-radius:20px;font-size:14px;font-weight:800;font-family:monospace">${r.score}</span></td>
+        <td style="padding:9px 12px;border-bottom:1px solid #E8ECF5;font-size:12px;color:#5A7090;line-height:1.5">${r.notes||'—'}</td>
+      </tr>`;
+    }).join('');
+    const best = comp.results.reduce((a, b) => (b.score > a.score ? b : a), comp.results[0] || { name:'—', score:0 });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Competition Report — ${comp.name}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4 portrait;margin:16mm 20mm}
+*{box-sizing:border-box}
+body{font-family:'Barlow',sans-serif;color:#00264D;background:white;font-size:13px;margin:0}
+.hdr{display:flex;align-items:center;gap:16px;padding-bottom:12px;border-bottom:3px solid #C8A032;margin-bottom:18px}
+.sqn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+.sub{font-size:11px;color:#5A7090;margin-top:2px}
+.comp-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;margin-bottom:6px}
+.meta{font-size:12px;color:#5A7090;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.stat-box{background:#F5F8FF;border:1.5px solid #D0DCF0;border-radius:8px;padding:12px;text-align:center}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#00264D;border-bottom:2px solid #D0DCF0;padding-bottom:5px;margin-bottom:0;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse;margin-bottom:18px}
+thead tr{background:#F4F7FB}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:#5A7090;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #D0DCF0}
+th.c{text-align:center}
+.sig-row{display:flex;gap:24px;padding-top:12px;border-top:2px solid #C8A032}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #00264D;height:36px;margin-bottom:4px}
+.sig-label{font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.sig-name{font-size:12px;font-weight:700;color:#00264D;margin-top:2px}
+.footer{margin-top:14px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9.5px;color:#9BA8BC;text-align:center}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="hdr">
+  <span style="font-size:40px">🎯</span>
+  <div><div class="sqn">1701 (Johnstone) Squadron ATC</div><div class="sub">Shooting Competition Report · ${dateStr}</div></div>
+</div>
+<div class="comp-name">${comp.name}</div>
+<div class="meta">${comp.date} · ${comp.location} · ${comp.type} · <strong style="color:#00264D">Status: ${comp.status}</strong>${comp.teamScore?` · Team score: <strong>${comp.teamScore}</strong>`:''}</div>
+<div class="stats">
+  <div class="stat-box"><div style="font-family:monospace;font-size:24px;font-weight:800;color:#00264D">${comp.results.length}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Entrants</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:24px;font-weight:800;color:#C8A032">${best.score}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Top Score (${best.name.split(',')[0]})</div></div>
+  <div class="stat-box"><div style="font-family:monospace;font-size:24px;font-weight:800;color:#065F46">${comp.results.length>0?Math.round(comp.results.reduce((a,b)=>a+b.score,0)/comp.results.length):'—'}</div><div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;margin-top:2px">Squad Average</div></div>
+</div>
+<div class="section-title">Results</div>
+<table>
+  <thead><tr>${hasPos?'<th class="c">Pos</th>':''}<th>Shooter</th><th class="c">Score (/200)</th><th>Notes</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+<div class="sig-row">
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Shooting Instructor</div><div class="sig-name">CI Morrison, K.</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Officer Commanding</div><div class="sig-name">Flt Lt A. McDonald</div></div>
+  <div class="sig-block"><div class="sig-line"></div><div class="sig-label">Date</div><div class="sig-name">${dateStr}</div></div>
+</div>
+<div class="footer">1701-COMP-${comp.id.toUpperCase()}-${new Date().getFullYear()} · OFFICIAL · ${comp.name} · ${dateStr}</div>
+</body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit && addAudit({ action:`Competition report printed: ${comp.name}`, category:'Training' });
+    showToast && showToast(`📄 Competition report printing: ${comp.name}…`);
+  }
+
   // ── Register tab ───────────────────────────────────────────────────────
 
   function RegisterTab() {
@@ -635,6 +792,12 @@ export default function Shooting({ showToast, addAudit }) {
                           </div>
                         );
                       })}
+                      <div style={{ textAlign:'right', paddingTop:10, paddingRight:4 }}>
+                        <button onClick={e => { e.stopPropagation(); printCompetitionReport(comp); }}
+                          style={{ padding:'5px 14px', background:navy, color:'white', border:'none', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif' }}>
+                          📄 Print Results
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -922,13 +1085,19 @@ export default function Shooting({ showToast, addAudit }) {
   return (
     <div style={{ fontFamily: 'Barlow, sans-serif' }}>
       {/* Page heading */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, fontSize: 24, color: navy, letterSpacing: '0.01em' }}>
-          Shooting
+      <div style={{ marginBottom: 20, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+        <div>
+          <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, fontSize: 24, color: navy, letterSpacing: '0.01em' }}>
+            Shooting
+          </div>
+          <div style={{ fontSize: 13, color: muted, marginTop: 2 }}>
+            25m Gallery · 300m Full Bore · WTSA Regional · Bisley NCSF
+          </div>
         </div>
-        <div style={{ fontSize: 13, color: muted, marginTop: 2 }}>
-          25m Gallery · 300m Full Bore · WTSA Regional · Bisley NCSF
-        </div>
+        <button onClick={printShootingRegister}
+          style={{ padding:'8px 16px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'Barlow,sans-serif', flexShrink:0, marginTop:2 }}>
+          📄 Print Register
+        </button>
       </div>
 
       {/* Tab bar */}
