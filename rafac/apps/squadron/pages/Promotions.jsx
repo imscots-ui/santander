@@ -30,6 +30,137 @@ export default function Promotions({ showToast, addAudit }) {
   const [recStatus, setRecStatus] = useState({});
   const [badgeStatus, setBadgeStatus] = useState({});
 
+  function printPromotionRegister() {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const rankColors = { 'Cdt':'#5A7090','LCdt':'#2E6B9E','Cpl':'#1B6B3A','Sgt':'#7A4A00','FS':'#6B2E7A','WO':'#8B2000' };
+    const rows = CADETS.map((c, i) => {
+      const idx = RANK_ORDER.indexOf(c.rank);
+      const pct = Math.round((idx / (RANK_ORDER.length - 1)) * 100);
+      const nextRank = idx < RANK_ORDER.length - 1 ? RANK_ORDER[idx + 1] : '—';
+      return `<tr style="background:${i%2?'#FAFCFE':'white'}">
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;">${c.sn}, ${c.fn}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:${rankColors[c.rank]||'#5A7090'};color:white;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;white-space:nowrap;">${c.rank}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;">
+          <div style="background:#E8EEF5;border-radius:4px;height:8px;width:100%;"><div style="background:#C8A032;width:${pct}%;height:8px;border-radius:4px;"></div></div>
+          <div style="font-size:9px;color:#5A7090;margin-top:2px;">${pct}% to WO</div>
+        </td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;"><span style="background:#EAF4FF;color:#003D80;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;">${c.pts}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;text-align:center;">${c.badges}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #D0DCF0;font-size:10px;color:#5A7090;">${nextRank}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Promotion Register — 1701 Sqn</title>
+    <style>
+      @page { size: A4 landscape; margin: 12mm 14mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:11px; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+      <tr>
+        <td style="width:50px;">
+          <svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg>
+        </td>
+        <td style="padding-left:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#00264D;line-height:1.1;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#C8A032;letter-spacing:0.04em;">PROMOTION & PROGRESSION REGISTER</div>
+          <div style="font-size:10px;color:#5A7090;margin-top:2px;">As at ${today}</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;">
+          <div style="font-size:10px;color:#5A7090;">Total cadets: ${CADETS.length}</div>
+          <div style="font-size:10px;color:#5A7090;">Pending recommendations: ${RECOMMENDATIONS.filter(r=>r.eligible).length}</div>
+        </td>
+      </tr>
+    </table>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:#00264D;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CADET</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">CURRENT RANK</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">RANK PROGRESSION</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">PTS CLASSIFICATION</th>
+        <th style="padding:8px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">BADGES</th>
+        <th style="padding:8px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;">NEXT RANK</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;">
+      ${['Commanding Officer','Wing Commander Cadets','Sqn Admin Officer','Date'].map((l,i) => `
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:9px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">${l}</div>
+          <div style="font-size:11px;color:#00264D;margin-top:2px;">${i===0?'Sqn Ldr Harris':i===3?today:''}&nbsp;</div>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:14px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · Promotions governed by AP 1919 Section 7 · Retain 3 years from date of promotion
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Promotion Register printed', 'Promotions', `Printed by Sqn Ldr Harris on ${today}`);
+    showToast('🖨️ Promotion register sent to printer');
+  }
+
+  function printPromotionLetter(rec) {
+    const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Promotion Letter — ${rec.name}</title>
+    <style>
+      @page { size: A4 portrait; margin: 18mm 20mm }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+      body { font-family:'Barlow',sans-serif; color:#1A1A2E; margin:0; font-size:12px; line-height:1.6; }
+    </style></head><body>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px;border-bottom:3px solid #00264D;padding-bottom:12px;">
+      <tr>
+        <td style="width:56px;">
+          <svg width="50" height="50" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg>
+        </td>
+        <td style="padding-left:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#00264D;">1701 (Johnstone) Squadron ATC</div>
+          <div style="font-size:10px;color:#5A7090;">Johnston Leisure Centre, Ludovic Square, Johnstone PA5 8EG</div>
+        </td>
+        <td style="text-align:right;vertical-align:top;font-size:11px;color:#5A7090;">
+          ${today}
+        </td>
+      </tr>
+    </table>
+    <p style="font-size:11px;color:#5A7090;margin-bottom:20px;">RAFAC / 1701 / PROMO / ${today.replace(/ /g,'-')}</p>
+    <p><strong>${rec.name}</strong><br>1701 (Johnstone) Squadron ATC</p>
+    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:#00264D;margin:20px 0 10px;">PROMOTION NOTIFICATION — ${rec.from.toUpperCase()} TO ${rec.to.toUpperCase()}</h2>
+    <p>Dear ${rec.name.split(',')[1]?.trim() || rec.name},</p>
+    <p>I am pleased to inform you that, having met all the criteria for promotion within the Air Training Corps, you have been promoted to the rank of <strong>${rec.to}</strong> with effect from ${today}.</p>
+    <p>This promotion has been recommended by <strong>${rec.recommender}</strong> and authorised by the Commanding Officer under two-officer sign-off procedures in accordance with AP 1919 Section 7.</p>
+    <p>You should wear the insignia of your new rank with immediate effect. Your record will be updated on the squadron's management system within 5 working days, and your Wing HQ will be notified.</p>
+    <p>Please take a moment to review the responsibilities that accompany this promotion and speak to your Flight Commander if you have any questions.</p>
+    <p>Congratulations on this achievement — it reflects your hard work, dedication, and commitment to the Air Training Corps.</p>
+    <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:30px;">
+      <div>
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Commanding Officer</div>
+          <div style="font-size:12px;color:#00264D;margin-top:2px;">Sqn Ldr Harris</div>
+          <div style="font-size:10px;color:#5A7090;">1701 (Johnstone) Squadron ATC</div>
+        </div>
+      </div>
+      <div>
+        <div style="border-top:1.5px solid #00264D;padding-top:6px;">
+          <div style="font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Date</div>
+          <div style="font-size:12px;color:#00264D;margin-top:2px;">${today}</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:30px;padding-top:8px;border-top:1px solid #D0DCF0;font-size:9px;color:#8A9AB5;text-align:center;">
+      OFFICIAL — RAFAC INTERNAL · This letter is an official record of promotion · Retain on personal file (AP 1919 Section 7)
+    </div>
+    </body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html); w.document.close();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Promotion letter printed', rec.name, `${rec.from} → ${rec.to} · printed by Sqn Ldr Harris on ${today}`);
+    showToast(`🖨️ Promotion letter for ${rec.name} sent to printer`);
+  }
+
   function authorise(id) {
     const r = RECOMMENDATIONS.find(x => x.id === id);
     setRecStatus(p => ({ ...p, [id]: 'authorised' }));
@@ -61,10 +192,16 @@ export default function Promotions({ showToast, addAudit }) {
           <div style={{ fontFamily:'Barlow Condensed,sans-serif', fontSize:22, fontWeight:800, color:navy }}>Promotion & Progression</div>
           <div style={{ fontSize:12, color:muted }}>Rank ladder · PTS classification · badge awards · two-officer authorisation</div>
         </div>
-        <button onClick={() => { setTab('recommendations'); showToast('+ New promotion recommendation'); }}
-          style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>
-          + New Recommendation
-        </button>
+        <div style={{ display:'flex', gap:8 }}>
+          <button onClick={printPromotionRegister}
+            style={{ padding:'8px 16px', background:'white', color:navy, border:`1.5px solid ${border}`, borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif' }}>
+            📄 Print Register
+          </button>
+          <button onClick={() => { setTab('recommendations'); showToast('+ New promotion recommendation'); }}
+            style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>
+            + New Recommendation
+          </button>
+        </div>
       </div>
 
       <div style={{ display:'flex', gap:0, marginBottom:20, borderBottom:`2px solid ${border}` }}>
@@ -154,8 +291,13 @@ export default function Promotions({ showToast, addAudit }) {
                       <td style={{ padding:'12px 12px', fontSize:12, color:muted }}>{r.recommender}</td>
                       <td style={{ padding:'12px 12px', whiteSpace:'nowrap' }}>
                         {!st && r.eligible && <button onClick={() => authorise(r.id)} style={{ padding:'5px 12px', background:'#1B6B3A', color:'white', border:'none', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer', marginRight:4 }}>✍️ Authorise (2nd sign-off)</button>}
-                        {!st && <button onClick={() => defer(r.id)} style={{ padding:'5px 12px', border:`1px solid ${border}`, borderRadius:6, fontSize:11, background:'white', cursor:'pointer' }}>Defer</button>}
-                        {st === 'authorised' && <Pill bg='#D4EDDA' color='#0F4020'>✅ Authorised</Pill>}
+                        {!st && <button onClick={() => defer(r.id)} style={{ padding:'5px 12px', border:`1px solid ${border}`, borderRadius:6, fontSize:11, background:'white', cursor:'pointer', marginRight:4 }}>Defer</button>}
+                        {st === 'authorised' && (
+                          <span style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+                            <Pill bg='#D4EDDA' color='#0F4020'>✅ Authorised</Pill>
+                            <button onClick={() => printPromotionLetter(r)} style={{ padding:'4px 10px', border:`1px solid ${border}`, borderRadius:6, fontSize:10, background:'white', cursor:'pointer', fontWeight:600 }}>📄 Print Letter</button>
+                          </span>
+                        )}
                         {st === 'deferred'   && <Pill bg='#E8E8F0' color='#555'>↩ Deferred</Pill>}
                       </td>
                     </tr>
