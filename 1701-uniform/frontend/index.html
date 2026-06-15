@@ -1061,14 +1061,19 @@ function printReturnReceipt(cadet, issues, staffUser) {
 async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetObj=null) {
   const cadets = await loadCadets();
   let selectedCadet = cadetId ? (cadetObj || cadets.find(c=>c.id===cadetId)) : null;
-  let selectedIssue = issuedId ? {issued_id:issuedId, short_name:itemName} : null;
   let issuedItems = null;
-  let condition = null;
 
   async function loadIssued(cid) { issuedItems = await GET(`/cadets/${cid}/issued`); }
   if (cadetId) await loadIssued(cadetId);
 
-  let step = issuedId ? 3 : 1;  // If item pre-selected, go straight to condition step
+  // Multi-return state — pre-populate if a specific item was requested
+  let selectedIssues = [];
+  if (issuedId && issuedItems) {
+    const preItem = issuedItems.find(i => i.issued_id === issuedId);
+    if (preItem) selectedIssues = [{ issued_id: preItem.issued_id, short_name: preItem.short_name, size_label: preItem.size_label, condition: null, reason: null, notes: null }];
+  }
+
+  let step = issuedId ? 2 : 1;  // If item pre-selected, go to condition step (step 2)
 
   async function renderStep() {
     showModal(`${mHead('RETURN UNIFORM')}<div class="modal-body">
@@ -1151,15 +1156,6 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
       };
     }
     if (step===3) {
-      document.querySelectorAll('.condition-btn').forEach(btn => {
-        btn.onclick = () => {
-          condition=btn.dataset.condition;
-          document.querySelectorAll('.condition-btn').forEach(x=>{x.classList.remove('selected-good','selected-bad');});
-          btn.classList.add(condition==='serviceable'?'selected-good':'selected-bad');
-          const warn=document.getElementById('unsvc-warn');
-          if(warn) warn.style.display=condition==='unserviceable'?'block':'none';
-        };
-      });
       document.getElementById('r-confirm').onclick = async () => {
         const btn=document.getElementById('r-confirm'); btn.disabled=true; btn.textContent='Processing...';
         try {
@@ -1193,9 +1189,6 @@ async function openReturnFlow(issuedId=null, itemName=null, cadetId=null, cadetO
       ${cadets.filter(c=>c.active).map(c=>`<div class="cadet-item" data-id="${c.id}"><div class="cadet-avatar">${c.forename[0]}${c.surname[0]}</div><div><div class="cadet-name">${c.rank} ${c.surname}, ${c.forename}</div><div class="cadet-meta">${c.service_number}${c.flight?` · ${c.flight}`:''}</div></div></div>`).join('')}
     </div>`;
   }
-  // Multi-return state
-  let selectedIssues = []; // Array of {issued_id, short_name, size_label, condition, reason, notes}
-
   function r2() {
     return '<div style="margin-bottom:16px;font-size:13px;color:var(--text2)">Returning kit from: <strong>' + selectedCadet.rank + ' ' + selectedCadet.surname + ', ' + selectedCadet.forename + '</strong></div>' +
     '<div class="section-label">Select Items to Return</div>' +
