@@ -34,7 +34,7 @@ const CADETS_LIST = [
   { id:'c09', label:'Cdt Cooper, O.' },
 ];
 
-export default function KitStores({ showToast }) {
+export default function KitStores({ showToast, addAudit }) {
   const [kit, setKit]             = useState(INITIAL_KIT);
   const [tab, setTab]             = useState('issued');   // issued | stock | issue
   const [issueForm, setIssueForm] = useState({ cadetId:'c01', item:'', size:'', date: new Date().toLocaleDateString('en-GB') });
@@ -72,6 +72,161 @@ export default function KitStores({ showToast }) {
     setTab('issued');
   }
 
+  function printReturnRequests() {
+    const byGender = {};
+    awaitingReturn.forEach(k => {
+      if (!byGender[k.toName]) byGender[k.toName] = [];
+      byGender[k.toName].push(k);
+    });
+    if (Object.keys(byGender).length === 0) { showToast('No items awaiting return'); return; }
+    const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const letters = Object.entries(byGender).map(([cadetName, items]) => {
+      const itemList = items.map(i =>
+        `<li style="margin:6px 0">${i.item} (Size: ${i.size}) — originally issued ${i.date}</li>`
+      ).join('');
+      return `
+        <div style="page-break-after:always;padding:40px 48px;font-family:Barlow,sans-serif;max-width:680px;margin:0 auto">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
+            <div>
+              <div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:800;color:#00264D">1701 (JOHNSTONE) SQUADRON</div>
+              <div style="font-size:11px;color:#5A7090;letter-spacing:0.08em;margin-top:2px">ROYAL AIR FORCE AIR CADETS · WEST SCOTLAND WING</div>
+            </div>
+            <div style="text-align:right;font-size:11px;color:#5A7090">${dateStr}</div>
+          </div>
+          <div style="border-top:3px solid #00264D;padding-top:20px;margin-bottom:24px">
+            <div style="font-size:14px;font-weight:700;color:#0D1B2E">To the parent/guardian of: ${cadetName}</div>
+          </div>
+          <p style="font-size:13px;line-height:1.7;color:#0D1B2E;margin-bottom:16px">
+            Dear Parent / Guardian,
+          </p>
+          <p style="font-size:13px;line-height:1.7;color:#0D1B2E;margin-bottom:16px">
+            Our records show that the following items of RAFAC-owned uniform or equipment are currently held
+            by <strong>${cadetName}</strong> and are marked as pending return on our kit management system.
+          </p>
+          <div style="background:#F4F7FB;border:1px solid #D0DCF0;border-radius:8px;padding:16px 20px;margin:20px 0">
+            <div style="font-size:12px;font-weight:700;color:#00264D;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">Items to be returned</div>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:#0D1B2E">${itemList}</ul>
+          </div>
+          <p style="font-size:13px;line-height:1.7;color:#0D1B2E;margin-bottom:16px">
+            Please arrange to return all items listed above to the squadron stores
+            <strong>by the next parade night</strong> (or contact us to arrange a convenient time).
+            Items should be in clean, serviceable condition.
+          </p>
+          <p style="font-size:13px;line-height:1.7;color:#0D1B2E;margin-bottom:32px">
+            If you believe any item has already been returned, or if there are exceptional circumstances,
+            please contact the Squadron Admin Officer at the details below.
+          </p>
+          <div style="border-top:1px solid #D0DCF0;padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:40px">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#00264D;margin-bottom:8px">OC 1701 Squadron</div>
+              <div style="border-top:1px solid #0D1B2E;padding-top:6px;margin-top:40px;font-size:11px;color:#5A7090">Sqn Ldr J. Harris</div>
+            </div>
+            <div style="font-size:11px;color:#5A7090;line-height:1.8">
+              📍 Johnstone Community Centre<br>
+              📞 01505 123456<br>
+              ✉ 1701sqn@aircadets.org<br>
+              Parade: Thursdays 1900–2200
+            </div>
+          </div>
+          <div style="margin-top:20px;font-size:9px;color:#9AACBF;border-top:1px solid #D0DCF0;padding-top:10px">
+            OFFICIAL · This letter contains details about a RAFAC cadet. It must only be shared with the cadet and their parent/guardian. GDPR DPA 2018 applies.
+          </div>
+        </div>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Kit Return Requests — 1701 Sqn</title>
+      <style>@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap');*{box-sizing:border-box}body{margin:0;background:white}@media print{body{margin:0}}</style>
+      </head><body>${letters}</body></html>`;
+    const w = window.open('', '_blank', 'width=800,height=700');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 600);
+    showToast(`📄 ${Object.keys(byGender).length} return request letter${Object.keys(byGender).length > 1 ? 's' : ''} opened`);
+  }
+
+  function printKitLedger() {
+    const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    const allRows = kit.map(k => {
+      const held = k.status === 'Held';
+      return `<tr>
+        <td style="padding:8px 12px;font-weight:700;color:#0D1B2E">${k.item}</td>
+        <td style="padding:8px 12px">${k.toName}</td>
+        <td style="padding:8px 12px;color:#5A7090;font-size:11px">${k.date}</td>
+        <td style="padding:8px 12px;font-family:monospace;font-size:11px">${k.size}</td>
+        <td style="padding:8px 12px"><span style="background:${held?'#D4EDDA':'#FFF3CC'};color:${held?'#0F4020':'#7A4A00'};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">${k.status}</span></td>
+      </tr>`;
+    }).join('');
+    const stockRows = STOCK.map(s => {
+      const inStores = s.total - s.issued;
+      const low = inStores <= 2;
+      return `<tr>
+        <td style="padding:8px 12px;font-weight:700;color:#0D1B2E">${s.item}</td>
+        <td style="padding:8px 12px;text-align:center">${s.total}</td>
+        <td style="padding:8px 12px;text-align:center;color:#5A7090">${s.issued}</td>
+        <td style="padding:8px 12px;text-align:center;font-weight:800;color:${low?'#8B1A1A':'#1B6B3A'}">${inStores}${low?' ⚠':''}${low?'<span style="margin-left:4px;background:#F8D7DA;color:#8B1A1A;padding:1px 5px;border-radius:5px;font-size:9px;font-weight:700">LOW</span>':''}</td>
+        <td style="padding:8px 12px;font-size:11px;color:#5A7090">${s.sizes.join(', ')}</td>
+      </tr>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Kit Ledger — 1701 Sqn</title>
+      <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+      <style>*{box-sizing:border-box}body{margin:0;background:white;font-family:Barlow,sans-serif}@page{size:A4 landscape;margin:14mm 16mm}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+      </head><body>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#00264D"/><circle cx="22" cy="22" r="12" fill="#C8A032"/><circle cx="22" cy="22" r="5" fill="#00264D"/></svg>
+          <div>
+            <div style="font-family:Barlow Condensed,sans-serif;font-size:22px;font-weight:800;color:#00264D">KIT STORES LEDGER</div>
+            <div style="font-size:11px;color:#5A7090;letter-spacing:0.07em">1701 (JOHNSTONE) SQUADRON · ROYAL AIR FORCE AIR CADETS · WEST SCOTLAND WING</div>
+          </div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:#5A7090;line-height:1.7">
+          <strong style="color:#0D1B2E">Printed:</strong> ${dateStr}<br>
+          <strong style="color:#0D1B2E">Total items issued:</strong> ${kit.length}<br>
+          <strong style="color:#0D1B2E">Awaiting return:</strong> ${awaitingReturn.length}
+        </div>
+      </div>
+      <div style="border-top:3px solid #00264D;margin-bottom:16px"></div>
+
+      <div style="font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;color:#00264D;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">▸ Issued Items Register</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px">
+        <thead>
+          <tr style="background:#F4F7FB">
+            ${['Item','Issued to','Date issued','Size','Status'].map(h=>`<th style="padding:8px 12px;text-align:left;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;border-bottom:2px solid #D0DCF0">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>${allRows}</tbody>
+      </table>
+
+      <div style="font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;color:#00264D;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">▸ Stock Levels Summary</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px">
+        <thead>
+          <tr style="background:#F4F7FB">
+            ${['Uniform item','Total stock','Issued','In stores','Available sizes'].map(h=>`<th style="padding:8px 12px;text-align:left;font-size:10px;color:#5A7090;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;border-bottom:2px solid #D0DCF0">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>${stockRows}</tbody>
+      </table>
+
+      <div style="border-top:1.5px solid #00264D;padding-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:12px">
+        ${[['OC 1701 Squadron','Sqn Ldr J. Harris'],['Admin Officer','Admin Off T. Murray'],['Date checked','']].map(([role,name])=>`
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#00264D;margin-bottom:4px">${role}</div>
+            <div style="border-top:1px solid #0D1B2E;padding-top:5px;margin-top:36px;font-size:10px;color:#5A7090">${name}</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:9px;color:#9AACBF;border-top:1px solid #D0DCF0;padding-top:8px">
+        OFFICIAL · Kit records retained 3 years post-issue in accordance with AP 1919 stores management policy. DPA 2018 applies to all cadet personal data contained herein.
+      </div>
+      </body></html>`;
+    const w = window.open('', '_blank', 'width=1050,height=750');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 600);
+    addAudit?.('Kit ledger printed', 'Kit', `${kit.length} items`);
+    showToast('📄 Kit ledger opened for print');
+  }
+
   const filtered = kit.filter(k =>
     !search || k.item.toLowerCase().includes(search.toLowerCase()) || k.toName.toLowerCase().includes(search.toLowerCase())
   );
@@ -89,7 +244,7 @@ export default function KitStores({ showToast }) {
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => setTab('issue')} style={{ padding:'8px 16px', background:gold, color:'#00264D', border:'none', borderRadius:7, fontSize:13, fontWeight:800, cursor:'pointer', fontFamily:'Barlow Condensed,sans-serif', letterSpacing:'0.04em' }}>+ Issue Kit</button>
-          <button onClick={() => showToast('📦 Stock report exported')} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📦 Stock report</button>
+          <button onClick={printKitLedger} style={{ padding:'8px 14px', background:navy, color:'white', border:'none', borderRadius:7, fontSize:13, fontWeight:700, cursor:'pointer' }}>📄 Print Ledger</button>
         </div>
       </div>
 
@@ -165,10 +320,16 @@ export default function KitStores({ showToast }) {
           {awaitingReturn.length > 0 && (
             <div style={{ marginTop:14, background:'#FFF8E6', border:'1.5px solid #F0C84A', borderRadius:8, padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <div style={{ fontSize:13, color:'#7A4A00', fontWeight:600 }}>⏰ {awaitingReturn.length} item{awaitingReturn.length>1?'s':''} awaiting return</div>
-              <button onClick={() => { awaitingReturn.forEach(k => chaseReturn(k)); }}
-                style={{ padding:'6px 14px', background:'#7A4A00', color:'white', border:'none', borderRadius:6, fontSize:12, fontWeight:700, cursor:'pointer' }}>
-                📧 Chase all
-              </button>
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={printReturnRequests}
+                  style={{ padding:'6px 14px', background:'white', color:'#7A4A00', border:'1.5px solid #F0C84A', borderRadius:6, fontSize:12, fontWeight:700, cursor:'pointer' }}>
+                  📄 Print return letters
+                </button>
+                <button onClick={() => { awaitingReturn.forEach(k => chaseReturn(k)); }}
+                  style={{ padding:'6px 14px', background:'#7A4A00', color:'white', border:'none', borderRadius:6, fontSize:12, fontWeight:700, cursor:'pointer' }}>
+                  📧 Chase all
+                </button>
+              </div>
             </div>
           )}
         </>
