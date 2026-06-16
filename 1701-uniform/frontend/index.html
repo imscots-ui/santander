@@ -3255,7 +3255,7 @@ async function openReports() {
       chip.onclick = () => { ledgerFlightFilter = ledgerFlightFilter===chip.dataset.flight ? null : chip.dataset.flight; applyLedgerFilter(); };
     });
 
-    document.getElementById('rpt-ledger-print')?.onclick = () => {
+    const ledgerPrintBtn = document.getElementById('rpt-ledger-print'); if (ledgerPrintBtn) ledgerPrintBtn.onclick = () => {
       const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
       const flights = [...new Set(ledgerData.map(c=>c.flight).filter(Boolean))].sort();
       const grouped = flights.length > 1;
@@ -3345,7 +3345,7 @@ async function openUnserviceable() {
     ${data && data.length > 0 ? `<button class="btn btn-ghost" id="unsvc-print">🖨 Print List</button>` : ''}
   </div>`, true);
 
-  document.getElementById('unsvc-print')?.onclick = () => {
+  const unsvcPrintBtn = document.getElementById('unsvc-print'); if (unsvcPrintBtn) unsvcPrintBtn.onclick = () => {
     const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
     const rows = data.map(r => `<tr style="border-bottom:1px solid #dde3f0">
       <td style="padding:7px 10px;font-family:monospace;font-size:11px">${fmt(r.returned_at)}</td>
