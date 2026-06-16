@@ -2335,9 +2335,162 @@ on legitimate security/technical work: provide context (`"for a CTF challenge"`,
 `"defensive audit of our own system"`, `"authorized penetration test"`). This is not
 a bypass — it is the intended usage pattern.
 
+### Anthropic Python SDK — API Integration
+
+**Install and basic call:**
+```python
+pip install anthropic python-dotenv
+```
+
+```python
+import os
+from anthropic import Anthropic
+
+# SDK automatically reads ANTHROPIC_API_KEY from environment
+client = Anthropic()
+
+message = client.messages.create(
+    model="claude-sonnet-4-6",       # use current model IDs, not old ones
+    max_tokens=1024,
+    temperature=0.0,                 # 0.0 = deterministic; 1.0 = creative
+    system="You are a senior Python engineer. Always include type hints.",
+    messages=[
+        {"role": "user", "content": "Explain async/await in 3 sentences."}
+    ]
+)
+print(message.content[0].text)
+print(f"Tokens used: {message.usage.input_tokens} in / {message.usage.output_tokens} out")
+```
+
+**Key parameters:**
+
+| Parameter | Purpose | Values |
+|-----------|---------|--------|
+| `model` | Which Claude model | See model IDs in system prompt |
+| `max_tokens` | Max response length | 1–200k depending on model |
+| `temperature` | Randomness | 0.0 (deterministic) – 1.0 (creative) |
+| `system` | System prompt / persona | String |
+| `stop_sequences` | Stop generation early | List of strings |
+| `stream` | Streaming mode | `True` / `False` |
+
+**Temperature guide:**
+- `0.0–0.3` — code generation, data extraction, factual Q&A (consistent, predictable)
+- `0.4–0.7` — analysis, summarisation, editing (balanced)
+- `0.8–1.0` — creative writing, brainstorming, ideation (diverse, surprising)
+
+**Streaming response (reduces perceived latency):**
+```python
+with client.messages.stream(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Write a short story."}]
+) as stream:
+    for text_chunk in stream.text_stream:
+        print(text_chunk, end="", flush=True)
+print()   # newline at end
+```
+
+**Multi-turn conversation — maintain history manually:**
+```python
+history = []
+
+def chat(user_message: str) -> str:
+    history.append({"role": "user", "content": user_message})
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=1024,
+        messages=history,
+    )
+    reply = response.content[0].text
+    history.append({"role": "assistant", "content": reply})
+    return reply
+
+# The API is stateless — you must send the full history every call
+# Trim history when approaching context window limits
+```
+
+**Chained prompts — pass output of one call as input to next:**
+```python
+def summarise(text: str) -> str:
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",   # cheap model for simple tasks
+        max_tokens=300, temperature=0.3,
+        messages=[{"role": "user", "content": f"Summarise concisely:\n\n{text}"}]
+    )
+    return msg.content[0].text.strip()
+
+def extract_keywords(summary: str) -> str:
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=100, temperature=0.0,
+        messages=[{"role": "user", "content": f"Extract keywords (comma-separated):\n\n{summary}"}]
+    )
+    return msg.content[0].text.strip()
+
+summary = summarise(long_document)
+keywords = extract_keywords(summary)   # output of step 1 → input to step 2
+```
+
+**Recommended project structure for Claude integrations:**
+```
+your_claude_project/
+├── .env                  # ANTHROPIC_API_KEY=sk-ant-...
+├── requirements.txt      # anthropic, python-dotenv
+├── src/
+│   ├── claude_client.py  # Anthropic() init, shared client
+│   ├── prompt_manager.py # Prompt templates as functions
+│   ├── utils.py          # Token counting, retry logic
+│   └── main.py           # Application logic
+```
+
+**Error handling and retries:**
+```python
+import time
+from anthropic import APIStatusError, APIConnectionError
+
+def call_with_retry(messages, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1024,
+                messages=messages,
+            )
+        except APIConnectionError:
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)   # exponential backoff
+            else:
+                raise
+        except APIStatusError as e:
+            if e.status_code == 429:       # rate limit
+                time.sleep(60)
+                continue
+            raise
+```
+
+### Eight Golden Rules of a Perfect Prompt (AI Strategy 2025)
+
+1. **Be precise and specific** — the clearer and more detailed, the better the AI understands
+2. **Define the target audience** — describe who the content is for so the AI adjusts tone
+3. **Use a clear instruction verb** — start with "Create...", "Write...", "Describe...", "List..."
+4. **Set the desired tone and style** — formal, casual, informative, humorous — state it explicitly
+5. **Avoid ambiguities** — remove vague terms and jargon that could confuse the model
+6. **Focus on the essentials** — limit information to key points; don't overwhelm with irrelevant detail
+7. **Use positive phrasing** — "Use short sentences" is clearer than "Avoid long sentences"
+8. **Add context** — mention the platform, format, or downstream use (email, Slack, blog post, API response)
+
+### Claude's Limitations — Know Before You Prompt (Claude for Beginners)
+
+- **Knowledge cutoff** — Claude has no knowledge of events after its training cutoff. Don't ask for current prices, recent news, or live data. Provide the data yourself if needed.
+- **Hallucination** — Claude can generate plausible-sounding but incorrect information, especially for specific facts, citations, statistics, and code APIs. Always verify important claims from another source.
+- **Confident when wrong** — tone gives no signal of uncertainty. A wrong answer reads identically to a right one. For anything consequential, verify.
+- **No memory between conversations** — each new conversation starts completely fresh unless you use Projects with instructions. If context from a previous session is needed, paste it in.
+- **Stateless API** — the `/messages` endpoint has no session state. Every call must include the full conversation history you want the model to see.
+- **Iterating beats one-shot prompting** — the first response is rarely the best. Push back, ask for revisions, add constraints. The conversation builds.
+
 ---
 
-*Generated from 23 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+*Generated from 26 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -2349,4 +2502,7 @@ Learning JavaScript Design Patterns 2nd Ed (Addy Osmani),
 Build a Backend REST API with Python & Django (Asadullah Alam),
 Mastering PowerShell and XML (Laszlo Bocso),
 Mastering Async Network Programming with Python (Andrew M. Jones),
-99 Claude Secret Commands (Abdelbasset Daly).*
+99 Claude Secret Commands (Abdelbasset Daly),
+Mastering Claude 4 (Riadh Daly),
+AI Strategy 2025 for Marketing Teams (Henrik Roth),
+Claude AI for Beginners (Marcus Archer).*
