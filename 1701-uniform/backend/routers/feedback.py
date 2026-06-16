@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -35,35 +36,38 @@ class FeedbackReply(BaseModel):
         return v.strip()
 
 
+def _row_to_dict(row) -> dict:
+    d = dict(row._mapping)
+    # Build full names from separate columns (avoids CONCAT dialect differences)
+    sub_fore = d.pop("sub_forename", "") or ""
+    sub_sur  = d.pop("sub_surname", "") or ""
+    rep_fore = d.pop("rep_forename", None)
+    rep_sur  = d.pop("rep_surname", None)
+    d["submitted_by"] = f"{sub_fore} {sub_sur}".strip()
+    d["replied_by"] = f"{rep_fore} {rep_sur}".strip() if rep_fore else None
+    return d
+
+
 @router.get("/")
 def list_feedback(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Admins see all, staff see only their own
+    base_select = """
+        SELECT f.id, f.subject, f.message, f.category, f.status,
+               f.admin_reply, f.created_at, f.replied_at,
+               u.forename  AS sub_forename, u.surname  AS sub_surname,
+               u.staff_rank AS submitted_by_rank,
+               r.forename  AS rep_forename, r.surname  AS rep_surname
+        FROM feedback f
+        JOIN users u ON u.id = f.submitted_by_id
+        LEFT JOIN users r ON r.id = f.replied_by_id
+    """
     if current_user.is_admin:
-        rows = db.execute(text("""
-            SELECT f.id, f.subject, f.message, f.category, f.status,
-                   f.admin_reply, f.created_at, f.replied_at,
-                   CONCAT(u.forename, ' ', u.surname) as submitted_by,
-                   u.staff_rank as submitted_by_rank,
-                   CONCAT(r.forename, ' ', r.surname) as replied_by
-            FROM feedback f
-            JOIN users u ON u.id = f.submitted_by_id
-            LEFT JOIN users r ON r.id = f.replied_by_id
-            ORDER BY f.status ASC, f.created_at DESC
-        """)).fetchall()
+        rows = db.execute(text(base_select + " ORDER BY f.status ASC, f.created_at DESC")).fetchall()
     else:
-        rows = db.execute(text("""
-            SELECT f.id, f.subject, f.message, f.category, f.status,
-                   f.admin_reply, f.created_at, f.replied_at,
-                   CONCAT(u.forename, ' ', u.surname) as submitted_by,
-                   u.staff_rank as submitted_by_rank,
-                   CONCAT(r.forename, ' ', r.surname) as replied_by
-            FROM feedback f
-            JOIN users u ON u.id = f.submitted_by_id
-            LEFT JOIN users r ON r.id = f.replied_by_id
-            WHERE f.submitted_by_id = :uid
-            ORDER BY f.created_at DESC
-        """), {"uid": current_user.id}).fetchall()
-    return [dict(r._mapping) for r in rows]
+        rows = db.execute(
+            text(base_select + " WHERE f.submitted_by_id = :uid ORDER BY f.created_at DESC"),
+            {"uid": current_user.id},
+        ).fetchall()
+    return [_row_to_dict(r) for r in rows]
 
 
 @router.get("/unread-count")
@@ -72,7 +76,6 @@ def unread_count(
     current_user: User = Depends(get_current_user),
     x_staff_id: Optional[str] = Header(default=None),
 ):
-    # Resolve actual user from X-Staff-Id header (staff selector), falling back to JWT user
     actual_user = current_user
     if x_staff_id:
         try:
@@ -114,10 +117,11 @@ def reply_to_feedback(feedback_id: int, payload: FeedbackReply, db: Session = De
     item = db.execute(text("SELECT id FROM feedback WHERE id = :id"), {"id": feedback_id}).fetchone()
     if not item:
         raise HTTPException(status_code=404, detail="Feedback not found")
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     db.execute(text("""
         UPDATE feedback SET admin_reply = :reply, replied_by_id = :uid,
-        replied_at = NOW(), status = 'replied' WHERE id = :id
-    """), {"reply": payload.reply, "uid": current_user.id, "id": feedback_id})
+        replied_at = :now, status = 'replied' WHERE id = :id
+    """), {"reply": payload.reply, "uid": current_user.id, "id": feedback_id, "now": now})
     log_action(db, user_id=current_user.id, action="FEEDBACK_REPLY",
                details=f"Replied to feedback #{feedback_id}")
     db.commit()

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -126,14 +127,19 @@ def get_cadet_badges(cadet_id: int, db: Session = Depends(get_db), current_user:
     rows = db.execute(text("""
         SELECT bi.id as issued_id, bitem.name, bitem.category, bitem.subcategory,
                bi.issued_at, bi.returned, bi.returned_at,
-               CONCAT(u.forename, ' ', u.surname) as issued_by
+               u.forename as iss_forename, u.surname as iss_surname
         FROM badge_issued bi
         JOIN badge_items bitem ON bitem.id = bi.badge_item_id
         JOIN users u ON u.id = bi.issued_by_id
         WHERE bi.cadet_id = :cid
         ORDER BY bi.issued_at DESC
     """), {"cid": cadet_id}).fetchall()
-    return [dict(r._mapping) for r in rows]
+    result = []
+    for r in rows:
+        d = dict(r._mapping)
+        d["issued_by"] = f"{d.pop('iss_forename', '')} {d.pop('iss_surname', '')}".strip()
+        result.append(d)
+    return result
 
 
 @router.patch("/return/{issued_id}")
@@ -144,7 +150,8 @@ def return_badge(issued_id: int, db: Session = Depends(get_db), current_user: Us
         raise HTTPException(status_code=404, detail="Badge issue record not found")
     if issued.returned:
         raise HTTPException(status_code=400, detail="Badge already returned")
-    db.execute(text("UPDATE badge_issued SET returned = 1, returned_at = NOW() WHERE id = :id"), {"id": issued_id})
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.execute(text("UPDATE badge_issued SET returned = 1, returned_at = :now WHERE id = :id"), {"now": now, "id": issued_id})
     # Only return to stock if it has a stock row
     existing = db.execute(text("SELECT id FROM badge_stock WHERE badge_item_id = :id"), {"id": issued.badge_item_id}).fetchone()
     if existing:
