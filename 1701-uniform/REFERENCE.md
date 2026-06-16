@@ -18,6 +18,12 @@ and cloud computing. Intended for AI coding agents to prevent recurring mistakes
 8. [Windows Development & PowerShell](#windows-development--powershell)
 9. [Project-Specific Lessons Learned](#project-specific-lessons-learned)
 10. [Architecture Checklist](#architecture-checklist)
+11. [React & JavaScript Frontend Patterns](#react--javascript-frontend-patterns)
+12. [Pydantic v2 Patterns](#pydantic-v2-patterns)
+13. [JWT & Authentication Flows](#jwt--authentication-flows)
+14. [REST API Conventions](#rest-api-conventions)
+15. [Alembic & Schema Migrations](#alembic--schema-migrations)
+16. [Python Async in FastAPI](#python-async-in-fastapi)
 
 ---
 
@@ -1401,7 +1407,532 @@ pass in on $ext_if proto tcp from <spamd-white> to port 25
 
 ---
 
+## React & JavaScript Frontend Patterns
+
+### This Project's App.jsx Architecture
+
+`App.jsx` is a **single 3,200-line closure** — one React function component with all state
+at the top and all sub-components as inner functions. This is intentional and must be preserved.
+
+**Critical rules:**
+- **No hooks inside sub-functions.** `renderXxx`, `HomeScreen`, `RMSheet`, etc. are closures,
+  not React components. Calling `useState`/`useEffect` inside them violates the Rules of Hooks
+  and will cause a runtime error. All state MUST be declared at the top of `App`.
+- **Do not extract to separate files** unless explicitly asked.
+- **State declaration order matters** — React hooks must not be called conditionally or in loops.
+
+```
+Navigation state:
+  tab      = 'home' | 'approve' | 'audit' | 'mtd' | 'statements'
+  workflow = null | 'closure' | 'biz' | 'mandate' | 'wages' | 'dormancy' | 'idcheck' | 'mtd-submit'
+  step     = 0-based integer within the active workflow
+  viewMode = 'mobile' | 'desktop'
+```
+
+### JavaScript Foot-Guns
+
+**Optional chaining on the left side of assignment is a SyntaxError:**
+```js
+// WRONG — crashes at parse time
+element?.onclick = handler
+
+// RIGHT — guard then assign
+if (element) element.onclick = handler
+// or
+const el = document.getElementById('foo')
+if (el) el.addEventListener('click', handler)
+```
+
+**`==` vs `===`:**
+```js
+0 == false   // true  — type coercion
+0 === false  // false — strict, no coercion
+null == undefined   // true
+null === undefined  // false
+// Rule: always use === unless you specifically need loose equality
+```
+
+**`const` does not make objects immutable:**
+```js
+const obj = { x: 1 }
+obj.x = 2   // valid — const prevents rebinding, not mutation
+obj = {}    // TypeError — rebinding is prevented
+```
+
+**Truthiness traps:**
+```js
+// All falsy: false, 0, '', null, undefined, NaN
+// Trap: empty array [] and empty object {} are TRUTHY
+if ([]) console.log('truthy')  // prints
+// Use .length check: if (arr.length)
+```
+
+**Array methods that return new arrays (don't mutate):**
+```js
+const b = arr.map(x => x * 2)    // new array
+const c = arr.filter(x => x > 0) // new array
+arr.sort()   // MUTATES in place — clone first if needed: [...arr].sort()
+arr.splice() // MUTATES in place
+```
+
+### React Patterns
+
+**Controlled inputs** — always use `value` + `onChange` together:
+```jsx
+<input value={name} onChange={e => setName(e.target.value)} />
+// NOT: defaultValue (that's uncontrolled — React loses track of it)
+```
+
+**Key prop** — required on list items, must be stable and unique:
+```jsx
+items.map(item => <div key={item.id}>{item.name}</div>)
+// NOT key={index} — causes bugs when list reorders
+```
+
+**useEffect dependency array:**
+```jsx
+useEffect(() => { /* runs once on mount */ }, [])
+useEffect(() => { /* runs when dep changes */ }, [dep])
+useEffect(() => { /* runs every render — usually a mistake */ })
+```
+
+**Stale closure trap** — functions inside useEffect capture the value at creation time:
+```jsx
+// WRONG: count never updates inside the interval
+useEffect(() => {
+    const id = setInterval(() => console.log(count), 1000)
+    return () => clearInterval(id)
+}, [])  // count not in deps
+
+// RIGHT
+}, [count])  // re-register when count changes
+```
+
+### Tailwind Conventions (this project)
+
+- Brand red: `text-red-700` / `bg-red-700` maps to `#c8102e`
+- Background: `bg-[#faf6ef]` (warm off-white — use the hex, no Tailwind equivalent)
+- Monetary amounts: add `num-tab` CSS class for tabular figures alignment
+- Custom animations (`anim-fade`, `anim-slide`, `shimmer`, `stagger-1` through `stagger-7`)
+  are defined in the `css` template literal inside App.jsx — don't add them to Tailwind config
+
+---
+
+## Pydantic v2 Patterns
+
+### v1 vs v2 — Breaking Changes
+
+| v1 (old — DO NOT USE) | v2 (current) |
+|----------------------|--------------|
+| `@validator('field')` | `@field_validator('field')` |
+| `@root_validator` | `@model_validator(mode='before'/'after')` |
+| `class Config: orm_mode = True` | `model_config = ConfigDict(from_attributes=True)` |
+| `schema_extra` in Config | `json_schema_extra` in ConfigDict |
+| `.dict()` | `.model_dump()` |
+| `.json()` | `.model_dump_json()` |
+| `.parse_obj(data)` | `Model.model_validate(data)` |
+
+### Field Validators
+
+```python
+from pydantic import BaseModel, field_validator
+
+class IssueRequest(BaseModel):
+    cadet_id: int
+    quantity: int
+    notes: Optional[str] = None
+
+    @field_validator('quantity')
+    @classmethod
+    def quantity_positive(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError('must be at least 1')
+        return v
+
+    @field_validator('notes')
+    @classmethod
+    def notes_strip(cls, v: Optional[str]) -> Optional[str]:
+        return v.strip() if v else v
+```
+
+### Optional Fields
+
+```python
+from typing import Optional
+
+# Optional[str] means str | None — field is not required AND can be None
+notes: Optional[str] = None   # correct — has a default
+notes: Optional[str]          # no default — field IS required but can be None (unusual)
+
+# Pydantic v2 also accepts the union syntax:
+notes: str | None = None
+```
+
+### Model Config for ORM
+
+```python
+from pydantic import BaseModel, ConfigDict
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # replaces orm_mode = True
+
+    id: int
+    forename: str
+    surname: str
+```
+
+### Response Models and Exclusion
+
+```python
+# Exclude fields from response without removing from model
+class UserOut(BaseModel):
+    id: int
+    forename: str
+    surname: str
+    # password_hash: str — just don't include it in the Out schema
+
+# FastAPI uses response_model to filter output
+@router.get("/me", response_model=UserOut)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user  # SQLAlchemy model — from_attributes=True handles conversion
+```
+
+---
+
+## JWT & Authentication Flows
+
+### JWT Structure
+
+A JWT is three base64url-encoded parts separated by dots:
+```
+header.payload.signature
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0In0.SflKxw...
+```
+
+- **Header:** algorithm (`alg: HS256`) and type (`typ: JWT`)
+- **Payload (claims):** `sub` (subject/user ID), `exp` (expiry Unix timestamp), `iat` (issued at), custom claims
+- **Signature:** HMAC-SHA256 of header+payload using the secret key — proves authenticity
+
+**The signature prevents tampering but the payload is NOT encrypted — never put passwords or PII in JWT claims.**
+
+### FastAPI JWT Pattern
+
+```python
+import jwt  # pip install PyJWT
+from datetime import datetime, timedelta, timezone
+
+SECRET_KEY = os.getenv("SECRET_KEY")   # must be long, random, from env — never hardcoded
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+def create_access_token(user_id: int, is_admin: bool) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": str(user_id), "is_admin": is_admin, "exp": expire}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token: str) -> dict:
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+```
+
+### Dependency Chain (this project)
+
+```python
+# utils/auth_dependencies.py pattern:
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    payload = decode_token(token)
+    user = db.query(User).filter(User.id == int(payload["sub"]), User.active == True).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found or inactive")
+    return user
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+    return current_user
+
+def get_audit_user_id(
+    current_user: User = Depends(get_current_user),
+    x_staff_id: Optional[str] = Header(default=None),
+    db: Session = Depends(get_db),
+) -> int:
+    # Admins can act-as another user by passing X-Staff-Id header
+    if x_staff_id and current_user.is_admin:
+        staff = db.query(User).filter(User.id == int(x_staff_id), User.active == True).first()
+        if staff:
+            return staff.id
+    return current_user.id
+```
+
+### Security Rules
+
+- Store JWT in `httpOnly` cookie (not `localStorage`) — prevents XSS theft
+- Always validate `exp` claim — PyJWT does this automatically with `jwt.decode()`
+- Use a minimum 256-bit (32-byte) secret key: `secrets.token_hex(32)`
+- Rotate secret key = invalidates all existing tokens (no blocklist needed for short-lived tokens)
+- For token revocation before expiry: maintain a Redis blocklist of invalidated JTIs (`jti` claim)
+- Never return `401 Unauthorized` and `403 Forbidden` interchangeably:
+  - `401` = not authenticated (no token / bad token)
+  - `403` = authenticated but not authorised (wrong role/ownership)
+
+---
+
+## REST API Conventions
+
+### HTTP Status Codes
+
+| Code | Meaning | When to use |
+|------|---------|-------------|
+| `200 OK` | Success | GET, PATCH, DELETE that returns body |
+| `201 Created` | Resource created | POST that creates a record |
+| `204 No Content` | Success, no body | DELETE with no response body |
+| `400 Bad Request` | Client sent invalid data | Business logic validation failures |
+| `401 Unauthorized` | Not authenticated | Missing/invalid/expired token |
+| `403 Forbidden` | Not authorised | Valid token but wrong role/ownership |
+| `404 Not Found` | Resource doesn't exist | Query returned nothing |
+| `409 Conflict` | State conflict | Duplicate unique key, already returned item |
+| `422 Unprocessable Entity` | Schema validation failed | FastAPI uses this automatically for Pydantic errors |
+| `500 Internal Server Error` | Unhandled exception | Never return intentionally — fix the bug |
+
+**Rule:** `400` is for business logic rejections you handle explicitly. `422` is for malformed
+request bodies that Pydantic rejects automatically — don't catch Pydantic errors and re-raise
+as `400` unless you're simplifying the error message for the client.
+
+### Error Response Shape
+
+FastAPI's default `HTTPException` format:
+```json
+{"detail": "Item not found"}
+```
+
+For field validation errors (422), FastAPI returns:
+```json
+{
+  "detail": [
+    {"loc": ["body", "quantity"], "msg": "must be at least 1", "type": "value_error"}
+  ]
+}
+```
+
+Stick to this default — don't invent a custom error envelope unless the frontend specifically needs it.
+
+### Idempotency
+
+| Method | Idempotent | Safe (no side effects) |
+|--------|-----------|----------------------|
+| GET | Yes | Yes |
+| PUT | Yes | No |
+| DELETE | Yes | No |
+| POST | No | No |
+| PATCH | No (usually) | No |
+
+**Idempotent** = calling it multiple times has the same effect as calling it once.
+Design endpoints to respect this: DELETE on an already-deleted record should return `404`,
+not `500`.
+
+### URL Naming Conventions
+
+```
+GET    /items              → list all items
+GET    /items/{id}         → get one item
+POST   /items              → create item
+PATCH  /items/{id}         → partial update
+PUT    /items/{id}         → full replace
+DELETE /items/{id}         → delete
+
+# Sub-resources:
+GET    /cadets/{id}/items  → items belonging to a cadet
+
+# Actions (when CRUD doesn't fit):
+POST   /transactions/issue    → issue an item (verb is fine for actions)
+POST   /transactions/return   → return an item
+PATCH  /badges/return/{id}    → mark badge returned
+```
+
+Use plural nouns for collections (`/items`, not `/item`). Use kebab-case for multi-word
+paths (`/issued-summary`, not `/issuedSummary`).
+
+---
+
+## Alembic & Schema Migrations
+
+### SQLite ALTER TABLE Limitations
+
+SQLite supports only a tiny subset of `ALTER TABLE`:
+```sql
+ALTER TABLE t RENAME TO new_name;   -- supported
+ALTER TABLE t ADD COLUMN col TEXT;  -- supported (with restrictions)
+ALTER TABLE t DROP COLUMN col;      -- supported only in SQLite 3.35+ (2021)
+ALTER TABLE t RENAME COLUMN old TO new;  -- supported only in SQLite 3.25+ (2018)
+
+-- NOT supported in any SQLite version:
+ALTER TABLE t ALTER COLUMN col TYPE INT;
+ALTER TABLE t ADD CONSTRAINT ...;
+```
+
+**Safe migration pattern for complex changes (rename, change type, add constraint):**
+```sql
+-- 1. Create new table with correct schema
+CREATE TABLE items_new (...);
+-- 2. Copy data
+INSERT INTO items_new SELECT ... FROM items;
+-- 3. Drop old table
+DROP TABLE items;
+-- 4. Rename new table
+ALTER TABLE items_new RENAME TO items;
+```
+
+### Alembic Setup
+
+```bash
+pip install alembic
+alembic init alembic          # creates alembic/ dir and alembic.ini
+```
+
+In `alembic/env.py`:
+```python
+from database import Base, DATABASE_URL
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+target_metadata = Base.metadata
+```
+
+In `alembic.ini`:
+```ini
+sqlalchemy.url = %(DATABASE_URL)s  # override with env var
+```
+
+### SQLite + Alembic: batch mode
+
+Alembic's `batch_alter_table` works around SQLite's limitations by doing the
+create-copy-drop-rename dance automatically:
+
+```python
+# In migration file (alembic/versions/xxxx_add_column.py):
+
+def upgrade():
+    with op.batch_alter_table('items') as batch_op:
+        batch_op.add_column(sa.Column('short_name', sa.String(50), nullable=True))
+        batch_op.alter_column('name', new_column_name='full_name')
+
+def downgrade():
+    with op.batch_alter_table('items') as batch_op:
+        batch_op.drop_column('short_name')
+        batch_op.alter_column('full_name', new_column_name='name')
+```
+
+Enable batch mode by default in `env.py`:
+```python
+context.configure(..., render_as_batch=True)  # safe for both SQLite and MySQL
+```
+
+### Common Alembic Commands
+
+```bash
+alembic revision --autogenerate -m "add short_name to items"  # generate migration
+alembic upgrade head       # apply all pending migrations
+alembic downgrade -1       # roll back one migration
+alembic current            # show current revision
+alembic history            # list all revisions
+alembic check              # check if models match DB (no migration needed?)
+```
+
+**Never edit a migration that has already been applied to production.** Create a new one.
+
+---
+
+## Python Async in FastAPI
+
+### sync def vs async def — The Rule
+
+| Route type | DB/IO pattern | Use |
+|------------|--------------|-----|
+| SQLAlchemy (sync) | Blocking DB calls | `def` (not async) |
+| httpx / aiohttp / asyncpg | Async IO | `async def` |
+| CPU-bound work | No IO | `def` (FastAPI runs it in a thread pool) |
+
+**FastAPI runs `def` routes in a thread pool automatically — they don't block the event loop.**
+**`async def` routes run on the event loop — blocking calls inside them WILL freeze the server.**
+
+```python
+# CORRECT — SQLAlchemy is sync; use plain def
+@router.get("/items")
+def list_items(db: Session = Depends(get_db)):
+    return db.query(Item).all()
+
+# WRONG — SQLAlchemy blocks the event loop inside async def
+@router.get("/items")
+async def list_items(db: Session = Depends(get_db)):
+    return db.query(Item).all()  # blocks event loop during query
+
+# CORRECT — truly async operation
+@router.get("/external")
+async def fetch_external():
+    async with httpx.AsyncClient() as client:
+        resp = await client.get("https://api.example.com/data")
+    return resp.json()
+```
+
+### await Rules
+
+- `await` can only appear inside `async def` functions
+- You cannot `await` a non-coroutine — it will raise `TypeError`
+- `async for` and `async with` require an async iterator/context manager
+
+### Background Tasks
+
+FastAPI has a built-in `BackgroundTasks` for fire-and-forget work (e.g. sending email
+after a response is returned):
+
+```python
+from fastapi import BackgroundTasks
+
+def send_notification(email: str, message: str):
+    # runs after response is sent — can be sync or async
+    ...
+
+@router.post("/issue", status_code=201)
+def issue(
+    request: IssueRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    result = issue_item(db, ...)
+    background_tasks.add_task(send_notification, email="...", message="Item issued")
+    return result
+```
+
+### Startup / Shutdown Events
+
+```python
+# Modern FastAPI uses lifespan context manager (not deprecated @app.on_event)
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    print("Starting up")
+    yield
+    # shutdown
+    print("Shutting down")
+
+app = FastAPI(lifespan=lifespan)
+```
+
+---
+
 *Generated from 17 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
+Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
+Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
+The Book of PF (Peter Hansteen), Fire Brigades to Firewalls (John Kuforiji),
+Windows System Protection (Rozale Jax), Computer Programming (Coding Hood),
+Advanced Lambda Practices in Java (NOB TREX), Advances in Intelligent Computing (Mandal et al.),
+Advances in Cloud Computing (Ranjan et al.).* Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
