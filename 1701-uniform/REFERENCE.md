@@ -24,6 +24,7 @@ and cloud computing. Intended for AI coding agents to prevent recurring mistakes
 14. [REST API Conventions](#rest-api-conventions)
 15. [Alembic & Schema Migrations](#alembic--schema-migrations)
 16. [Python Async in FastAPI](#python-async-in-fastapi)
+17. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
 
 ---
 
@@ -1010,6 +1011,78 @@ in TPM. Credentials never leave the device. Phishing-resistant.
 NTLM is legacy — used when Kerberos fails (cross-domain, IP-based access). NTLM hashes
 are the primary target for pass-the-hash attacks. Credential Guard prevents NTLM hash extraction.
 
+### PowerShell XML Manipulation
+
+PowerShell treats XML as first-class objects via the `[xml]` type accelerator:
+
+```powershell
+# Load XML from file
+[xml]$config = Get-Content "config.xml"
+
+# Navigate as object properties
+$config.configuration.appSettings.add | Where-Object { $_.key -eq "LogLevel" }
+
+# XPath queries via SelectNodes / SelectSingleNode
+$errorLogs = $xml.SelectNodes("//log[@level='ERROR']")
+$errorLogs | ForEach-Object { Write-Host "Error: $($_.message) at $($_.timestamp)" }
+
+# Select-Xml cmdlet (namespace-aware)
+$ns = @{ atom = "http://www.w3.org/2005/Atom" }
+Select-Xml -Xml $xml -XPath "//atom:entry" -Namespace $ns | ForEach-Object { $_.Node }
+
+# Modify and save
+$config.configuration.appSettings.add |
+    Where-Object { $_.key -eq "LogLevel" } |
+    ForEach-Object { $_.value = "Debug" }
+$config.Save("config.xml")
+```
+
+**Convert objects to/from XML:**
+```powershell
+# Serialize PowerShell objects to XML (round-trips perfectly)
+Get-Process | Export-Clixml -Path "processes.xml"
+$procs = Import-Clixml -Path "processes.xml"
+
+# Convert single object to XML string
+$obj = Get-Process | Select-Object -First 1
+$xml = ConvertTo-Xml -InputObject $obj -As String
+```
+
+**Call REST APIs from PowerShell:**
+```powershell
+# GET JSON API
+$response = Invoke-RestMethod -Uri "https://api.example.com/items" -Method Get
+$response.items | ForEach-Object { Write-Host $_.name }
+
+# POST with auth token
+$headers = @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" }
+$body = @{ name = "test"; quantity = 5 } | ConvertTo-Json
+Invoke-RestMethod -Uri "https://api.example.com/items" -Method Post -Headers $headers -Body $body
+```
+
+**Secure credentials — never store passwords as plain strings:**
+```powershell
+# SecureString (encrypted in memory)
+$securePass = ConvertTo-SecureString "MyPassword" -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential("username", $securePass)
+
+# Prompt interactively (best practice)
+$cred = Get-Credential
+```
+
+**Error handling:**
+```powershell
+try {
+    [xml]$xmlDoc = Get-Content "data.xml"
+} catch [System.Xml.XmlException] {
+    Write-Error "Failed to parse XML: $_"
+}
+
+# Large files — use streaming to avoid loading into memory
+$reader = [System.Xml.XmlReader]::Create("large_file.xml")
+while ($reader.Read()) { ... }
+```
+
 ---
 
 ## Project-Specific Lessons Learned
@@ -1516,6 +1589,119 @@ useEffect(() => {
 - Custom animations (`anim-fade`, `anim-slide`, `shimmer`, `stagger-1` through `stagger-7`)
   are defined in the `css` template literal inside App.jsx — don't add them to Tailwind config
 
+### JavaScript Design Patterns (Osmani)
+
+Design patterns are reusable solutions to commonly occurring problems. Three categories:
+
+- **Creational** — how objects are created (Constructor, Factory, Prototype, Singleton)
+- **Structural** — how objects are composed (Facade, Decorator, Flyweight, Mixin)
+- **Behavioural** — how objects communicate (Observer, Mediator, Command)
+
+**Module Pattern** — encapsulates private state using closure; only the returned object is public:
+```js
+const counter = (() => {
+    let count = 0                        // private
+    return {
+        increment: () => ++count,
+        reset: () => { count = 0 },
+        getCount: () => count,
+    }
+})()
+counter.increment()
+counter.getCount()   // 1
+// count is inaccessible outside the IIFE
+```
+
+**Revealing Module** — define all functions privately, return only references. Cleaner than Module
+because the public interface is declared in one place:
+```js
+const myModule = (() => {
+    let name = 'default'
+    const setName = n => { name = n }
+    const getName = () => name
+    return { setName, getName }    // reveal only what is public
+})()
+```
+
+**Observer Pattern** — publish/subscribe without tight coupling. Subject maintains a list of
+observers and notifies them on state change. Used heavily in React event systems and Redux:
+```js
+class EventEmitter {
+    constructor() { this.events = {} }
+    on(event, fn) {
+        (this.events[event] ??= []).push(fn)
+    }
+    emit(event, data) {
+        (this.events[event] || []).forEach(fn => fn(data))
+    }
+    off(event, fn) {
+        this.events[event] = (this.events[event] || []).filter(f => f !== fn)
+    }
+}
+```
+
+**Factory Pattern** — create objects without specifying exact class. Useful when the type is
+determined at runtime:
+```js
+function createAnimal(type) {
+    if (type === 'dog') return { speak: () => 'Woof' }
+    if (type === 'cat') return { speak: () => 'Meow' }
+    throw new Error(`Unknown type: ${type}`)
+}
+```
+
+**Facade Pattern** — simplified interface over a complex subsystem. Good for abstracting fetch/API:
+```js
+const API = {
+    async get(path) {
+        const res = await fetch(`/api${path}`, {
+            headers: { Authorization: `Bearer ${getToken()}` }
+        })
+        if (!res.ok) throw new Error(res.statusText)
+        return res.json()
+    }
+}
+// Callers use API.get('/items') — don't know about headers or error handling
+```
+
+**Singleton Pattern** — ensure only one instance exists. In JS, a module-level `const` is already
+a singleton (module cache means it's only evaluated once):
+```js
+// db.js — the export IS the singleton
+const db = new Database(config)
+export default db    // same instance imported everywhere
+```
+
+**Decorator Pattern** — wrap a function/object to add behaviour without changing the original:
+```js
+function readonly(target, key, descriptor) {
+    descriptor.writable = false
+    return descriptor
+}
+// Or in plain JS:
+function withLogging(fn) {
+    return (...args) => {
+        console.log(`Calling with`, args)
+        return fn(...args)
+    }
+}
+```
+
+**ES Modules vs older formats:**
+
+| Format | Syntax | Loads |
+|--------|--------|-------|
+| ES Modules (ESM) | `import` / `export` | Static, tree-shakeable — use this |
+| CommonJS (CJS) | `require()` / `module.exports` | Dynamic — Node.js default, avoid in browser |
+| AMD | `define([], fn)` | Async loader — legacy, don't use |
+
+**Anti-patterns to avoid:**
+
+- Polluting the global namespace (`window.myVar = ...`)
+- Passing strings to `setTimeout`/`setInterval` (triggers `eval`)
+- Modifying `Object.prototype` (breaks all `for...in` loops)
+- Deeply nested callbacks ("callback hell") — use Promises / async-await
+
 ---
 
 ## Pydantic v2 Patterns
@@ -1757,6 +1943,52 @@ PATCH  /badges/return/{id}    → mark badge returned
 Use plural nouns for collections (`/items`, not `/item`). Use kebab-case for multi-word
 paths (`/issued-summary`, not `/issuedSummary`).
 
+### Django REST Framework — Key Concepts (translates to FastAPI)
+
+Django REST Framework (DRF) is the canonical Python REST framework alongside FastAPI. Its
+patterns are widely documented and translate directly to FastAPI concepts:
+
+| DRF | FastAPI equivalent |
+|-----|--------------------|
+| `Serializer` | Pydantic `BaseModel` (request/response schema) |
+| `ModelViewSet` | Router with CRUD endpoints |
+| `APIView` | Individual `@router.get/post/patch/delete` functions |
+| `Permission class` | `Depends(get_current_user)` / `Depends(get_current_admin)` |
+| `Throttle class` | `fastapi-limiter` rate limiting dependency |
+| `Pagination class` | Manual `limit`/`offset` query params + total count |
+| `Router.register()` | `app.include_router()` |
+
+**ModelViewSet provides these actions automatically:**
+
+| Action | HTTP | URL |
+|--------|------|-----|
+| `list` | GET | `/items/` |
+| `create` | POST | `/items/` |
+| `retrieve` | GET | `/items/{id}/` |
+| `update` | PUT | `/items/{id}/` |
+| `partial_update` | PATCH | `/items/{id}/` |
+| `destroy` | DELETE | `/items/{id}/` |
+
+**APIView method dispatch** — in FastAPI this is per-decorator, but the logic is the same:
+```python
+# DRF style (illustrative — don't use DRF in this project):
+class BookView(APIView):
+    def get(self, request):   ...   # handles GET
+    def post(self, request):  ...   # handles POST
+
+# FastAPI equivalent:
+@router.get("/books")
+def list_books(...): ...
+@router.post("/books", status_code=201)
+def create_book(...): ...
+```
+
+**Token auth header** (used for testing APIs):
+```
+Authorization: Token <token_value>   # DRF token auth
+Authorization: Bearer <jwt_value>    # JWT (this project)
+```
+
 ---
 
 ## Alembic & Schema Migrations
@@ -1923,27 +2155,198 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 ```
 
+### asyncio Patterns (Mastering Async Network Programming — Jones)
+
+**Run a coroutine** — entry point for all asyncio programs:
+```python
+import asyncio
+
+async def main():
+    await asyncio.sleep(1)
+    print("done")
+
+asyncio.run(main())   # creates event loop, runs coroutine, closes loop
+```
+
+**Concurrent tasks with `gather`** — run multiple coroutines at the same time:
+```python
+async def fetch(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return await resp.text()
+
+async def main():
+    urls = ["https://api.example.com/a", "https://api.example.com/b"]
+    results = await asyncio.gather(*[fetch(u) for u in urls])
+    # All fetches run concurrently; gather returns list of results in order
+```
+
+**`create_task` vs `gather`** — prefer `gather` for a known set; `create_task` for fire-and-forget:
+```python
+task = asyncio.create_task(some_coroutine())   # starts immediately, runs in background
+# ... do other work ...
+result = await task   # await it later when you need the result
+```
+
+**Timeout:**
+```python
+try:
+    result = await asyncio.wait_for(fetch(url), timeout=5.0)
+except asyncio.TimeoutError:
+    print("Request timed out")
+```
+
+**Semaphore — limit concurrency** (prevent hammering an API):
+```python
+sem = asyncio.Semaphore(10)   # max 10 concurrent
+
+async def fetch_limited(url):
+    async with sem:
+        return await fetch(url)
+
+await asyncio.gather(*[fetch_limited(u) for u in many_urls])
+```
+
+**asyncio.Queue — producer/consumer pattern:**
+```python
+queue = asyncio.Queue()
+
+async def producer():
+    for item in items:
+        await queue.put(item)
+
+async def consumer():
+    while True:
+        item = await queue.get()
+        await process(item)
+        queue.task_done()
+
+await asyncio.gather(producer(), consumer())
+```
+
+**StreamReader/StreamWriter — raw async TCP:**
+```python
+reader, writer = await asyncio.open_connection("host", 8080)
+writer.write(b"GET / HTTP/1.0\r\n\r\n")
+await writer.drain()
+data = await reader.read(1024)
+writer.close()
+await writer.wait_closed()
+```
+
+**aiohttp client — the async alternative to `requests`:**
+```python
+import aiohttp
+
+async def get_json(url: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            resp.raise_for_status()   # raises ClientResponseError on 4xx/5xx
+            return await resp.json()
+```
+
+**Common pitfalls:**
+- Forgetting `await` — returns a coroutine object, not the result (no error raised)
+- Using `requests` inside `async def` — blocks the event loop; use `aiohttp` instead
+- Sharing a `ClientSession` across requests is efficient; creating one per call is wasteful but works
+- `asyncio.run()` cannot be called inside an already-running event loop (e.g. Jupyter) — use `await` directly
+
 ---
 
-*Generated from 17 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+## Claude AI Prompting Patterns
+
+### Why XML Structure Works
+
+Claude's parser processes XML tags as semantic boundaries, allowing it to
+distinguish instructions from data from context. Unstructured prompts under high
+token load cause constraint drift — later instructions override earlier ones. XML
+prevents this by making hierarchy explicit.
+
+```xml
+<system_instructions>
+  Act as a senior Python engineer. Prefer explicit error handling over
+  bare exceptions. Always include type hints.
+</system_instructions>
+<context>
+  <codebase>FastAPI + SQLAlchemy + SQLite/MySQL dual-dialect</codebase>
+  <constraint>No bcrypt/passlib — use stdlib pbkdf2_hmac</constraint>
+</context>
+<task>
+  Refactor the password hashing in utils/hashing.py
+</task>
+<output_format>
+  Single Python file, no markdown fences, no explanatory comments.
+</output_format>
+```
+
+### The Systemic Anchor
+
+For long sessions, wrap the system context in a persistent variable block so Claude
+can re-reference it throughout the conversation rather than re-reading the full history:
+
+```xml
+<persistent_context id="project_rules">
+  - SQLite + MySQL: never use CONCAT() or NOW() — use Python f-strings and datetime
+  - No bcrypt/passlib — pbkdf2_hmac only
+  - Single-file App.jsx — no hooks inside closures
+  - Branch: claude/add-claude-documentation-eaPc5
+</persistent_context>
+```
+
+Start subsequent messages with: `Referencing <persistent_context id="project_rules">...`
+
+### Structural Prompt Elements
+
+| Tag | Purpose |
+|-----|---------|
+| `<system_instructions>` | Role and high-level behaviour |
+| `<context>` | Background facts the model needs |
+| `<task>` | The specific thing to do |
+| `<constraints>` | Hard limits (don't do X) |
+| `<examples>` | Few-shot demonstrations |
+| `<output_format>` | How to structure the response |
+| `<reasoning_loop>` | Step-by-step thinking instructions |
+
+### Prompting Principles
+
+- **Specificity beats length** — "Return only the modified function, no prose" is better
+  than a paragraph asking for conciseness
+- **Role anchoring** — "Act as a senior security engineer reviewing for OWASP Top 10"
+  produces more targeted output than no role
+- **Explicit output format** — if you want JSON, say `output valid JSON only, no markdown`
+- **Constraint positioning** — put hard constraints (things to avoid) near the top, not
+  buried at the end — constraint drift means late constraints get lower weight
+- **Few-shot examples** — for format-sensitive tasks, show one input/output pair rather than
+  describing the format in prose
+- **Chain of thought** — for complex reasoning, add `<reasoning_loop>Think step by step
+  before answering</reasoning_loop>` — improves accuracy on multi-step problems
+- **Temperature** — lower temperature (more deterministic) for code generation; higher for
+  creative writing. Claude Code uses deterministic settings by default.
+
+### Constitutional Alignment
+
+Claude is trained with Constitutional AI — it prioritises:
+1. Helpful (complete the task)
+2. Harmless (don't cause harm)
+3. Honest (don't fabricate)
+
+When a prompt conflicts with these, Claude will refuse or hedge. To avoid false refusals
+on legitimate security/technical work: provide context (`"for a CTF challenge"`,
+`"defensive audit of our own system"`, `"authorized penetration test"`). This is not
+a bypass — it is the intended usage pattern.
+
+---
+
+*Generated from 23 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
 The Book of PF (Peter Hansteen), Fire Brigades to Firewalls (John Kuforiji),
 Windows System Protection (Rozale Jax), Computer Programming (Coding Hood),
 Advanced Lambda Practices in Java (NOB TREX), Advances in Intelligent Computing (Mandal et al.),
-Advances in Cloud Computing (Ranjan et al.).* Python Crash Course (James Deep), Python Made Simple (James Young),
-Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
-Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
-Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
-The Book of PF (Peter Hansteen), Fire Brigades to Firewalls (John Kuforiji),
-Windows System Protection (Rozale Jax), Computer Programming (Coding Hood),
-Advanced Lambda Practices in Java (NOB TREX), Advances in Intelligent Computing (Mandal et al.),
-Advances in Cloud Computing (Ranjan et al.).* Python Crash Course (James Deep), Python Made Simple (James Young),
-Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
-Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
-Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
-The Book of PF (Peter Hansteen), Fire Brigades to Firewalls (John Kuforiji),
-Windows System Protection (Rozale Jax), Computer Programming (Coding Hood),
-Advanced Lambda Practices in Java (NOB TREX), Advances in Intelligent Computing (Mandal et al.),
-Advances in Cloud Computing (Ranjan et al.).*
+Advances in Cloud Computing (Ranjan et al.),
+Learning JavaScript Design Patterns 2nd Ed (Addy Osmani),
+Build a Backend REST API with Python & Django (Asadullah Alam),
+Mastering PowerShell and XML (Laszlo Bocso),
+Mastering Async Network Programming with Python (Andrew M. Jones),
+99 Claude Secret Commands (Abdelbasset Daly).*
