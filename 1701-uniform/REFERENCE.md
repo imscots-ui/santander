@@ -24,7 +24,9 @@ and cloud computing. Intended for AI coding agents to prevent recurring mistakes
 14. [REST API Conventions](#rest-api-conventions)
 15. [Alembic & Schema Migrations](#alembic--schema-migrations)
 16. [Python Async in FastAPI](#python-async-in-fastapi)
-17. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
+17. [Python Testing with pytest](#python-testing-with-pytest)
+18. [Docker & Containerisation](#docker--containerisation)
+19. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
 
 ---
 
@@ -416,6 +418,104 @@ def verify_password(plain: str, hashed: str) -> bool:
         return hmac.compare_digest(key.hex(), stored)  # constant-time comparison
     except Exception:
         return False
+```
+
+### SQL Antipatterns (Karwin) — What Not To Do
+
+**1. Jaywalking** — storing multiple values in one column as a comma-separated string:
+```sql
+-- WRONG: can't index, can't join, can't enforce FK
+SELECT * FROM items WHERE tags LIKE '%uniform%';
+
+-- RIGHT: intersection table
+CREATE TABLE item_tags (item_id INT, tag_id INT, PRIMARY KEY (item_id, tag_id));
+```
+
+**2. Naive Trees** — adjacency list (parent_id column) breaks on deep queries:
+```sql
+-- WRONG: requires recursive CTE or app-side recursion for depth > 1
+SELECT * FROM categories WHERE parent_id = 5;
+
+-- RIGHT: closure table stores all ancestor/descendant pairs
+CREATE TABLE category_paths (ancestor INT, descendant INT, depth INT);
+-- Query all descendants: SELECT descendant FROM category_paths WHERE ancestor = 5
+```
+
+**3. Entity-Attribute-Value (EAV)** — generic attribute table avoids schema but breaks everything:
+```sql
+-- WRONG: can't type-check, can't index, can't enforce NOT NULL, nightmarish joins
+CREATE TABLE attributes (entity_id INT, attr_name VARCHAR, attr_value VARCHAR);
+
+-- RIGHT: model subtypes with their own tables or use JSONB (Postgres) / JSON (MySQL 5.7+)
+```
+
+**4. Polymorphic Associations** — one FK column that points to different tables based on a type column:
+```sql
+-- WRONG: can't enforce referential integrity
+CREATE TABLE comments (id INT, entity_type VARCHAR, entity_id INT, body TEXT);
+-- entity_type = 'issue' | 'cadet' | 'item' — no FK possible
+
+-- RIGHT: explicit FK per parent type, or a shared parent supertype table
+CREATE TABLE commentable (id INT PRIMARY KEY);  -- issues, cadets, items all get a row here
+ALTER TABLE comments ADD FOREIGN KEY (entity_id) REFERENCES commentable(id);
+```
+
+**5. Multicolumn Attributes** — `tag1`, `tag2`, `tag3` columns instead of a dependent table:
+```sql
+-- WRONG: fixed limit, sparse, can't query easily
+ALTER TABLE items ADD COLUMN tag1 VARCHAR, ADD COLUMN tag2 VARCHAR, ADD COLUMN tag3 VARCHAR;
+
+-- RIGHT: dependent table (same fix as Jaywalking)
+```
+
+**6. SELECT \*** — implicit column list breaks when schema changes:
+```sql
+-- WRONG: fragile, fetches unnecessary data, breaks INSERT INTO ... SELECT
+SELECT * FROM items;
+
+-- RIGHT: always name columns explicitly
+SELECT id, name, short_name, size_id, quantity FROM items;
+```
+
+**7. Poor Man's Search Engine** — LIKE with leading wildcard disables indexes:
+```sql
+-- WRONG: full table scan every time, slow on large tables
+SELECT * FROM items WHERE name LIKE '%jacket%';
+
+-- RIGHT options: full-text index (MySQL FULLTEXT / SQLite FTS5), or dedicated search (Elasticsearch)
+-- MySQL: CREATE FULLTEXT INDEX idx_name ON items(name); MATCH(name) AGAINST('jacket')
+-- SQLite FTS5: CREATE VIRTUAL TABLE items_fts USING fts5(name, content='items');
+```
+
+**8. Index Shotgun** — either no indexes or indexes on every column:
+- Use the MENTOR guide: **M**easure first (EXPLAIN / EXPLAIN ANALYZE), **E**xplain the query
+  plan, **N**ominate candidate columns (WHERE, JOIN, ORDER BY), **T**est with realistic data,
+  **O**ptimize and repeat, **R**ebuild/reorganise periodically
+- Index columns used in WHERE, JOIN ON, ORDER BY, GROUP BY
+- Don't index columns with low cardinality (boolean, status with 3 values)
+- Composite index column order matters: put the most selective column first
+
+**9. Readable Passwords** — never store plaintext:
+```sql
+-- WRONG: storing plaintext or fast hashes (MD5, SHA1)
+INSERT INTO users (password) VALUES ('mypassword');
+
+-- RIGHT: slow hash in application layer (pbkdf2_hmac, bcrypt, argon2)
+-- Store only the hash; never store the original
+```
+
+**10. NULL handling traps:**
+```sql
+-- NULL comparisons always return NULL (not TRUE/FALSE)
+SELECT * FROM items WHERE notes = NULL;    -- WRONG: returns nothing
+SELECT * FROM items WHERE notes IS NULL;   -- RIGHT
+
+-- NULL in aggregates: COUNT(*) counts rows, COUNT(col) skips NULLs
+SELECT COUNT(*) FROM items;          -- total rows
+SELECT COUNT(notes) FROM items;      -- rows where notes IS NOT NULL
+
+-- COALESCE returns first non-NULL value
+SELECT COALESCE(notes, 'No notes') FROM items;
 ```
 
 ---
@@ -2253,6 +2353,435 @@ async def get_json(url: str) -> dict:
 
 ---
 
+## Python Testing with pytest
+
+### Test Discovery Rules
+
+pytest finds tests automatically — no registration needed:
+- Files matching `test_*.py` or `*_test.py`
+- Functions named `test_*` inside those files
+- Classes named `Test*` (no `__init__`) with methods named `test_*`
+
+```bash
+pytest                        # run all tests in current directory tree
+pytest tests/test_items.py    # run one file
+pytest tests/test_items.py::test_issue   # run one function
+pytest -v                     # verbose: show each test name
+pytest -x                     # stop on first failure
+pytest -k "issue or return"   # run tests whose name matches expression
+pytest --tb=short             # shorter tracebacks (default is long)
+```
+
+### Basic Test Structure
+
+```python
+# test_items.py
+def test_issue_decrements_stock():
+    # Arrange
+    initial_qty = 10
+    # Act
+    result = deduct_stock(initial_qty, qty=1)
+    # Assert
+    assert result == 9
+
+def test_issue_raises_on_insufficient_stock():
+    with pytest.raises(ValueError, match="Insufficient stock"):
+        deduct_stock(current_qty=0, qty=1)
+```
+
+**assert** — use plain assert; pytest rewrites it to show meaningful diffs on failure:
+```python
+assert result == expected          # equality
+assert item in collection          # membership
+assert response.status_code == 201 # any expression
+assert "error" not in response.json()
+```
+
+### Fixtures
+
+Fixtures replace setup/teardown. They are injected by name into test functions:
+
+```python
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database import Base
+
+@pytest.fixture()
+def db_session():
+    """Fresh in-memory SQLite DB per test."""
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    yield session          # test runs here
+    session.close()        # teardown after yield
+    Base.metadata.drop_all(engine)
+
+def test_create_cadet(db_session):
+    cadet = Cadet(forename="James", surname="Kirk")
+    db_session.add(cadet)
+    db_session.commit()
+    assert db_session.query(Cadet).count() == 1
+```
+
+**Fixture scope** — controls how often the fixture is created:
+
+| Scope | Created once per... |
+|-------|-------------------|
+| `function` (default) | each test function |
+| `class` | each test class |
+| `module` | each test file |
+| `session` | entire test run |
+
+```python
+@pytest.fixture(scope="module")
+def shared_db():
+    # expensive setup runs once per file
+    ...
+```
+
+**conftest.py** — fixtures defined here are available to all tests in the same directory and below without importing:
+```
+tests/
+├── conftest.py       ← fixtures here are shared automatically
+├── test_items.py
+└── test_cadets.py
+```
+
+**autouse** — runs a fixture for every test without explicit request:
+```python
+@pytest.fixture(autouse=True)
+def reset_db(db_session):
+    yield
+    db_session.rollback()   # auto-cleanup after every test
+```
+
+### Built-in Fixtures
+
+```python
+def test_writes_file(tmp_path):
+    # tmp_path is a pathlib.Path to a unique temp dir per test
+    f = tmp_path / "output.txt"
+    f.write_text("hello")
+    assert f.read_text() == "hello"
+
+def test_prints(capsys):
+    print("hello")
+    captured = capsys.readouterr()
+    assert captured.out == "hello\n"
+
+def test_env_var(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+    # monkeypatch.setattr(module, "function_name", mock_fn)
+    # monkeypatch.delenv("SECRET_KEY", raising=False)
+```
+
+### Parametrize — One Test, Many Inputs
+
+```python
+@pytest.mark.parametrize("qty, expected", [
+    (1, 9),
+    (5, 5),
+    (10, 0),
+])
+def test_deduct_stock(qty, expected):
+    assert deduct_stock(initial_qty=10, qty=qty) == expected
+# Generates 3 separate test cases shown individually in output
+```
+
+### Markers
+
+```python
+@pytest.mark.skip(reason="not implemented yet")
+def test_future_feature(): ...
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Linux only")
+def test_linux_path(): ...
+
+@pytest.mark.xfail(reason="known bug #123")
+def test_known_failure(): ...   # counted as xfail, not failure
+```
+
+### FastAPI TestClient
+
+```python
+from fastapi.testclient import TestClient
+from main import app
+
+client = TestClient(app)
+
+def test_list_items_requires_auth():
+    response = client.get("/items")
+    assert response.status_code == 401
+
+def test_issue_item(db_session, auth_headers):
+    response = client.post(
+        "/transactions/issue",
+        json={"cadet_id": 1, "item_id": 1, "size_id": 1, "quantity": 1},
+        headers=auth_headers,
+    )
+    assert response.status_code == 201
+    assert response.json()["quantity"] == 1
+```
+
+Override a dependency for testing (e.g. use test DB instead of real DB):
+```python
+from database import get_db
+
+def override_get_db():
+    yield test_session   # inject test DB session
+
+app.dependency_overrides[get_db] = override_get_db
+```
+
+### Coverage
+
+```bash
+pip install pytest-cov
+
+pytest --cov=backend --cov-report=term-missing   # show uncovered lines
+pytest --cov=backend --cov-report=html            # open htmlcov/index.html
+```
+
+Add to `pyproject.toml` or `pytest.ini` to always run coverage:
+```toml
+[tool.pytest.ini_options]
+addopts = "--cov=backend --cov-report=term-missing"
+```
+
+### Configuration (pyproject.toml)
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]            # where to find tests
+addopts = "-v --tb=short"       # default flags
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks integration tests",
+]
+```
+
+---
+
+## Docker & Containerisation
+
+### Core Concepts
+
+- **Image** — read-only template built from a Dockerfile. Stored in a registry.
+- **Container** — running instance of an image. Ephemeral by default (data lost on stop).
+- **Layer** — each Dockerfile instruction creates a cached layer. Unchanged layers are reused on rebuild.
+- **Registry** — image store. Docker Hub is the default. Self-hosted: `registry:2`.
+
+### Dockerfile Reference
+
+```dockerfile
+# Base image — always pin a specific version, never use :latest in production
+FROM python:3.13-slim
+
+# Build-time variable (not available at runtime unless also set with ENV)
+ARG APP_VERSION=1.0.0
+
+# Metadata
+LABEL maintainer="ops@example.com" version=$APP_VERSION
+
+# Runtime environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    APP_HOME=/app
+
+# Set working directory — creates it if it doesn't exist
+WORKDIR $APP_HOME
+
+# Copy dependency files first (layer cache: only reinstalls if these change)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code (after deps — cache-friendly)
+COPY . .
+
+# Run as non-root user (security best practice)
+RUN adduser --disabled-password --gecos '' appuser
+USER appuser
+
+# Document which port the app listens on (informational — doesn't publish it)
+EXPOSE 8000
+
+# CMD = default command, overridable at runtime
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ENTRYPOINT = fixed executable; CMD becomes its default arguments
+# ENTRYPOINT ["uvicorn"]
+# CMD ["main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Multi-Stage Builds — Keep Images Small
+
+```dockerfile
+# Stage 1: builder (has all build tools)
+FROM python:3.13 AS builder
+WORKDIR /build
+COPY requirements.txt .
+RUN pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+# Stage 2: runtime (minimal image, only copies installed packages)
+FROM python:3.13-slim
+COPY --from=builder /install /usr/local
+WORKDIR /app
+COPY . .
+USER nobody
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Result: much smaller image — build tools not included
+```
+
+### .dockerignore
+
+Always create `.dockerignore` alongside `Dockerfile` to exclude files from the build context:
+```
+.git
+__pycache__
+*.pyc
+*.egg-info
+.env
+.venv
+venv/
+*.db           # don't copy demo.db into image
+node_modules/
+dist/
+.pytest_cache/
+htmlcov/
+```
+
+### Essential Commands
+
+```bash
+# Build
+docker build -t myapp:1.0 .                  # build image, tag as myapp:1.0
+docker build -t myapp:1.0 --no-cache .        # force rebuild all layers
+
+# Run
+docker run --rm myapp:1.0                     # run and delete container on exit
+docker run -d -p 8000:8000 myapp:1.0          # detached, publish port
+docker run -d -p 8000:8000 \
+  -e DATABASE_URL=sqlite:///./data/demo.db \  # pass env vars
+  -v $(pwd)/data:/app/data \                  # mount volume for persistence
+  myapp:1.0
+
+# Inspect
+docker ps                                     # running containers
+docker ps -a                                  # all containers including stopped
+docker logs <container_id>                    # stdout/stderr
+docker exec -it <container_id> /bin/sh        # shell into running container
+docker inspect <container_id>                 # full metadata as JSON
+
+# Images
+docker images                                 # list local images
+docker rmi myapp:1.0                          # remove image
+docker pull python:3.13-slim                  # pull from registry
+docker push myregistry.io/myapp:1.0           # push to registry
+
+# Cleanup
+docker system prune                           # remove stopped containers, unused images
+docker volume prune                           # remove unused volumes
+```
+
+### Docker Compose — Multi-Container Apps
+
+```yaml
+# docker-compose.yml
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/demo.db
+      - SECRET_KEY=${SECRET_KEY}   # reads from .env file or shell env
+    volumes:
+      - db_data:/app/data
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: uniform_inventory
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  db_data:
+  mysql_data:
+```
+
+```bash
+docker compose up -d          # start all services in background
+docker compose down           # stop and remove containers
+docker compose down -v        # also remove volumes (destroys data)
+docker compose logs -f api    # follow logs for one service
+docker compose exec api /bin/sh  # shell into running service
+docker compose build          # rebuild images
+```
+
+### Volumes — Persisting Data
+
+Containers are ephemeral — everything written inside is lost when the container stops.
+Use volumes for any data that must survive restarts:
+
+```bash
+# Named volume (managed by Docker — survives container deletion)
+docker run -v db_data:/app/data myapp:1.0
+
+# Bind mount (maps a host directory — useful for development)
+docker run -v $(pwd)/data:/app/data myapp:1.0
+
+# Read-only bind mount (prevents container writing to host path)
+docker run -v $(pwd)/config:/app/config:ro myapp:1.0
+```
+
+### Security Best Practices
+
+- **Never run as root** — add `USER appuser` in Dockerfile (see example above)
+- **Never put secrets in ENV** — they appear in `docker inspect` and image layers.
+  Use Docker secrets, environment injection at runtime, or a secrets manager.
+- **Pin base image versions** — `FROM python:3.13.0-slim` not `FROM python:latest`
+- **Scan images** — `docker scout cves myapp:1.0` or `trivy image myapp:1.0`
+- **Read-only filesystem** — `docker run --read-only` with tmpfs for writable paths:
+  ```bash
+  docker run --read-only --tmpfs /tmp myapp:1.0
+  ```
+- **No new privileges** — `docker run --security-opt=no-new-privileges myapp:1.0`
+- **.dockerignore** — always exclude `.env`, credentials, and `.git`
+
+### FastAPI + SQLite Dockerfile (This Project)
+
+```dockerfile
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY 1701-uniform/backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY 1701-uniform/backend/ .
+
+RUN adduser --disabled-password appuser
+USER appuser
+
+# Volume for SQLite database file persistence
+VOLUME ["/app/data"]
+
+ENV DATABASE_URL=sqlite:///./data/demo.db
+
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Note: SQLite + multiple workers = write conflicts. Keep workers=1 with SQLite.
+```
+
+---
+
 ## Claude AI Prompting Patterns
 
 ### Why XML Structure Works
@@ -2490,7 +3019,7 @@ def call_with_retry(messages, max_retries=3):
 
 ---
 
-*Generated from 26 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+*Generated from 29 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -2505,4 +3034,7 @@ Mastering Async Network Programming with Python (Andrew M. Jones),
 99 Claude Secret Commands (Abdelbasset Daly),
 Mastering Claude 4 (Riadh Daly),
 AI Strategy 2025 for Marketing Teams (Henrik Roth),
-Claude AI for Beginners (Marcus Archer).*
+Claude AI for Beginners (Marcus Archer),
+Python Testing with pytest (Brian Okken),
+SQL Antipatterns (Bill Karwin),
+Docker: Up and Running (Sean P. Kane & Karl Matthias).*
