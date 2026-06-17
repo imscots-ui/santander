@@ -1967,7 +1967,245 @@ def get_audit_user_id(
   - `401` = not authenticated (no token / bad token)
   - `403` = authenticated but not authorised (wrong role/ownership)
 
+### OAuth 2.0 — Delegated Authorisation (Richer & Sanso)
+
+OAuth 2.0 lets a user grant a third-party application limited access to their resources
+**without sharing their password**. The user authorises the client; the client gets a token;
+the token is used at the resource server.
+
+**Four actors:**
+
+| Actor | Role |
+|-------|------|
+| **Resource Owner** | The user who owns the data |
+| **Client** | The application that wants access |
+| **Authorization Server** | Issues tokens after the user consents |
+| **Resource Server** | Hosts the protected API; validates tokens |
+
+**Two channels:**
+- **Back channel** — direct HTTPS between client and authorization server (no browser). Secure.
+- **Front channel** — via browser redirects. Tokens/codes pass through the URL. Less secure.
+
 ---
+
+#### Grant Type 1: Authorization Code (Web Apps — use this)
+
+The only grant type that should be used for web apps and most scenarios.
+Code travels via browser redirect; token exchange happens back-channel.
+
+```
+1. Client → Browser → Authorization Server:
+   GET /authorize?response_type=code
+                  &client_id=my-app
+                  &redirect_uri=https://app.example.com/callback
+                  &scope=read:items
+                  &state=RANDOM_STRING     ← CSRF protection
+
+2. User logs in and consents at Authorization Server
+
+3. Authorization Server → Browser → Client:
+   GET https://app.example.com/callback?code=AUTH_CODE&state=RANDOM_STRING
+
+4. Client verifies state matches, then back-channel:
+   POST /token
+   Authorization: Basic base64(client_id:client_secret)
+   grant_type=authorization_code
+   &code=AUTH_CODE
+   &redirect_uri=https://app.example.com/callback
+
+5. Authorization Server returns:
+   { "access_token": "...", "token_type": "Bearer",
+     "expires_in": 3600, "refresh_token": "..." }
+```
+
+**The `state` parameter is mandatory** — verify it matches on callback or reject the request.
+Without it, an attacker can CSRF the authorization flow and bind their code to your session.
+
+---
+
+#### Grant Type 2: Authorization Code + PKCE (Mobile/SPA — always use this)
+
+PKCE (Proof Key for Code Exchange) protects public clients that cannot store a `client_secret`.
+Required for mobile apps, single-page apps, and any client where the secret would be exposed.
+
+```python
+import hashlib, base64, os, re
+
+# Step 1: Generate code_verifier (43-128 random chars)
+code_verifier = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b'=').decode()
+
+# Step 2: Compute code_challenge = BASE64URL(SHA256(code_verifier))
+digest = hashlib.sha256(code_verifier.encode()).digest()
+code_challenge = base64.urlsafe_b64encode(digest).rstrip(b'=').decode()
+
+# Step 3: Authorization request includes:
+# &code_challenge=<code_challenge>
+# &code_challenge_method=S256    ← always use S256, never plain
+
+# Step 4: Token exchange includes:
+# &code_verifier=<code_verifier>
+# Authorization server re-derives the challenge and verifies it matches
+# An attacker who intercepts the code cannot exchange it without the verifier
+```
+
+---
+
+#### Grant Type 3: Client Credentials (Machine-to-Machine — no user involved)
+
+Service-to-service calls where there is no human user. Client authenticates with its own
+credentials and gets a token scoped to its own permissions.
+
+```
+POST /token
+Authorization: Basic base64(client_id:client_secret)
+grant_type=client_credentials
+&scope=internal:read
+
+Response: { "access_token": "...", "expires_in": 3600 }
+# No refresh_token — just re-request when expired
+```
+
+---
+
+#### Grant Type 4: Resource Owner Password Credentials (Legacy — avoid)
+
+Client collects username + password directly and exchanges them for a token.
+**Defeats the purpose of OAuth** — the client sees the password. Only acceptable when
+the client is owned by the same organisation as the authorization server (first-party app).
+Deprecated in OAuth 2.1.
+
+---
+
+#### Refresh Tokens
+
+```
+POST /token
+Authorization: Basic base64(client_id:client_secret)
+grant_type=refresh_token
+&refresh_token=<refresh_token>
+
+Response: new access_token (and often a new refresh_token — rotate on use)
+```
+
+- Access tokens: short-lived (15 min – 1 hr). Sent on every API call.
+- Refresh tokens: long-lived. Stored securely. Used only to get new access tokens.
+- **Rotate refresh tokens** on every use — if a stolen refresh token is used, the
+  legitimate client's next use will fail, alerting to the compromise.
+
+---
+
+#### OpenID Connect (OIDC) — Authentication on Top of OAuth 2
+
+OAuth 2.0 is **authorisation** (what can the client do?).
+OIDC adds **authentication** (who is the user?).
+
+```
+GET /authorize?response_type=code
+              &scope=openid profile email   ← 'openid' scope triggers OIDC
+              &nonce=RANDOM_STRING          ← replay attack prevention
+
+Token endpoint response adds:
+{
+  "access_token": "...",
+  "id_token": "eyJhbG..."    ← JWT containing user identity claims
+}
+```
+
+**ID token claims:**
+
+| Claim | Meaning |
+|-------|---------|
+| `sub` | Subject — unique user identifier (stable, use this as your user ID) |
+| `iss` | Issuer — URL of the authorization server |
+| `aud` | Audience — must equal your `client_id` |
+| `exp` | Expiry — Unix timestamp; reject if in the past |
+| `iat` | Issued at — Unix timestamp |
+| `nonce` | Must match what you sent; prevents replay attacks |
+| `email` | User's email (if requested) |
+| `name` | User's full name (if requested) |
+
+**UserInfo endpoint** — fetch additional user claims with the access token:
+```
+GET /userinfo
+Authorization: Bearer <access_token>
+
+Response: { "sub": "12345", "email": "user@example.com", "name": "James Kirk" }
+```
+
+**OIDC Discovery** — authorization servers publish their configuration at:
+`https://auth.example.com/.well-known/openid-configuration`
+This returns all endpoint URLs, supported scopes, and the JWKS URI for token validation.
+
+---
+
+#### JWT Signing: HS256 vs RS256
+
+| | HS256 (symmetric) | RS256 (asymmetric) |
+|-|-------------------|--------------------|
+| Algorithm | HMAC-SHA256 | RSA-SHA256 |
+| Key | Single shared secret | Private key signs, public key verifies |
+| Who can verify | Only parties with the secret | Anyone with the public key (published at JWKS URI) |
+| Use when | Auth server and resource server are the same service | Microservices, third-party APIs |
+| Risk | Secret compromise → forge any token | Private key compromise only |
+
+**Validating a JWT (resource server must do all of these):**
+1. Decode and verify signature (using secret/public key)
+2. Check `exp` — reject if expired
+3. Check `iss` — must match your known issuer
+4. Check `aud` — must include your client_id / service identifier
+5. Check `nonce` (OIDC) — must match what was sent
+
+---
+
+#### Token Security Rules
+
+**Storage:**
+- **Web apps** — `httpOnly` cookie (inaccessible to JavaScript → XSS-safe)
+- **Never** `localStorage` or `sessionStorage` — XSS attack reads it trivially
+- **Mobile** — platform secure storage (iOS Keychain, Android Keystore)
+- **Backend/CLI** — environment variable or secrets manager; never hardcode
+
+**Transmission:**
+- Always HTTPS — tokens in transit must be TLS-protected
+- Bearer token in `Authorization` header: `Authorization: Bearer <token>`
+- Never in URL query parameters — logged in server logs, referrer headers, browser history
+
+**Common vulnerabilities (Richer & Sanso, chapters 7-9):**
+
+| Attack | Defence |
+|--------|---------|
+| CSRF on authorization flow | `state` parameter — verify on callback |
+| Authorization code interception | PKCE |
+| Redirect URI hijacking | Exact-match URI validation — no open redirectors |
+| Token theft via XSS | `httpOnly` cookie, strict CSP |
+| Token replay | Short expiry + token introspection to check revocation |
+| Client impersonation | `client_secret` or PKCE; don't accept `client_id` alone |
+| Open redirector | Never redirect to arbitrary URLs after login |
+
+---
+
+#### Token Introspection and Revocation
+
+**Introspection** — resource server asks authorization server if a token is still valid:
+```
+POST /introspect
+Authorization: Basic base64(resource_server_id:resource_server_secret)
+token=<access_token>
+
+Response: { "active": true, "scope": "read:items", "sub": "12345", "exp": 1735000000 }
+# active: false if expired, revoked, or unknown
+```
+
+**Revocation** — client tells authorization server to invalidate a token:
+```
+POST /revoke
+Authorization: Basic base64(client_id:client_secret)
+token=<refresh_token>
+# Use on logout — revoke the refresh token to prevent further access token issuance
+```
+
+---
+
 
 ## REST API Conventions
 
@@ -3287,7 +3525,7 @@ def call_with_retry(messages, max_retries=3):
 
 ---
 
-*Generated from 30 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+*Generated from 31 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -3306,4 +3544,5 @@ Claude AI for Beginners (Marcus Archer),
 Python Testing with pytest (Brian Okken),
 SQL Antipatterns (Bill Karwin),
 Docker: Up and Running (Sean P. Kane & Karl Matthias),
-Pro Git (Scott Chacon & Ben Straub).*
+Pro Git (Scott Chacon & Ben Straub),
+OAuth 2 in Action (Justin Richer & Antonio Sanso).*
