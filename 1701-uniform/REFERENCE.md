@@ -26,7 +26,8 @@ and cloud computing. Intended for AI coding agents to prevent recurring mistakes
 16. [Python Async in FastAPI](#python-async-in-fastapi)
 17. [Python Testing with pytest](#python-testing-with-pytest)
 18. [Docker & Containerisation](#docker--containerisation)
-19. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
+19. [Git — Version Control](#git--version-control)
+20. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
 
 ---
 
@@ -2782,6 +2783,273 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", 
 
 ---
 
+## Git — Version Control (Pro Git)
+
+### The Three Areas
+
+```
+Working Directory  →  git add  →  Staging Area (Index)  →  git commit  →  Repository (.git)
+                   ←  git restore            ←  git restore --staged
+```
+
+- **Working Directory** — files on disk you can see and edit
+- **Staging Area (Index)** — snapshot prepared for the next commit; `git add` moves changes here
+- **Repository** — permanent history of all commits; stored in `.git/`
+
+### Daily Workflow
+
+```bash
+git status                         # what's changed / staged / untracked
+git status -s                      # short format: M=modified A=added ?=untracked
+
+git diff                           # unstaged changes (working dir vs index)
+git diff --staged                  # staged changes (index vs last commit)
+
+git add file.py                    # stage one file
+git add .                          # stage all changes in current dir (use with care)
+git add -p                         # interactive: stage specific hunks, not whole files
+
+git commit -m "message"            # commit what's staged
+git commit -am "message"           # stage all tracked files and commit (skips git add)
+git commit --amend                 # redo last commit (message or add forgotten file)
+                                   # NEVER amend a commit that has been pushed
+```
+
+### Branching
+
+```bash
+git branch                         # list local branches
+git branch -a                      # list local + remote branches
+git branch feature/login           # create branch (stays on current branch)
+git checkout -b feature/login      # create AND switch (classic)
+git switch -c feature/login        # create AND switch (modern, Git 2.23+)
+git switch main                    # switch branches
+git branch -d feature/login        # delete merged branch
+git branch -D feature/login        # force delete (even if unmerged)
+git branch -m old-name new-name    # rename branch
+```
+
+### Merging
+
+```bash
+git checkout main
+git merge feature/login            # merge feature into main
+
+# Fast-forward: if main has no new commits, pointer just advances — no merge commit
+# Three-way merge: if main has diverged, creates a merge commit
+
+git merge --no-ff feature/login    # always create merge commit (shows branch history)
+git merge --abort                  # abandon a merge with conflicts
+```
+
+**Resolving conflicts** — git marks them in the file:
+```
+<<<<<<< HEAD
+code from current branch
+=======
+code from branch being merged
+>>>>>>> feature/login
+```
+Edit the file to the desired final state, remove the markers, then:
+```bash
+git add conflicted_file.py
+git commit                         # complete the merge
+```
+
+### Rebasing
+
+```bash
+# Replay feature branch commits on top of main (linear history)
+git checkout feature/login
+git rebase main
+
+# Interactive rebase — rewrite last N commits
+git rebase -i HEAD~3               # opens editor with last 3 commits
+# pick   = keep as-is
+# squash = combine with previous commit
+# reword = keep changes, edit message
+# drop   = remove commit entirely
+
+# RULE: Never rebase commits that have been pushed to a shared branch
+# Rebasing rewrites history — force-push would be needed, breaking teammates
+```
+
+### Undoing Things
+
+| Situation | Command | Safe? |
+|-----------|---------|-------|
+| Unstage a file | `git restore --staged file.py` | Yes |
+| Discard working dir changes | `git restore file.py` | Yes (destructive locally) |
+| Undo last commit, keep changes staged | `git reset --soft HEAD~1` | Yes (local only) |
+| Undo last commit, keep changes unstaged | `git reset HEAD~1` | Yes (local only) |
+| Undo last commit, discard changes | `git reset --hard HEAD~1` | Destructive |
+| Undo a pushed commit (safe) | `git revert <hash>` | Yes — creates new commit |
+| Amend last commit | `git commit --amend` | Yes (local only) |
+
+**`git reset` modes:**
+```bash
+git reset --soft HEAD~1    # moves HEAD back; staged area keeps changes ready to re-commit
+git reset HEAD~1           # (default --mixed) unstages changes; working dir unchanged
+git reset --hard HEAD~1    # discards everything — working dir matches the commit
+```
+
+**`git revert`** — the safe way to undo a pushed commit:
+```bash
+git revert abc1234         # creates a new commit that inverts abc1234
+git revert HEAD            # revert the last commit
+# Never use reset --hard on shared branches
+```
+
+### Stashing
+
+```bash
+git stash                          # save dirty working dir, restore clean state
+git stash push -m "wip: login form"  # stash with a label
+git stash list                     # show all stashes
+git stash pop                      # apply most recent stash and delete it
+git stash apply stash@{2}          # apply a specific stash (keep it in list)
+git stash drop stash@{0}           # delete a stash
+git stash branch feature/wip       # create branch from stash (cleanest recovery)
+```
+
+### Remote Operations
+
+```bash
+git remote -v                      # list remotes (name + URL)
+git remote add origin <url>        # add a remote
+git remote set-url origin <url>    # change URL
+
+git fetch origin                   # download remote changes, don't merge
+git fetch origin main              # fetch specific branch only
+
+git pull origin main               # fetch + merge (equivalent to fetch then merge)
+git pull --rebase origin main      # fetch + rebase (cleaner history, preferred)
+
+git push -u origin feature/login   # push and set upstream tracking
+git push                           # push to tracked remote branch
+git push --force-with-lease        # safer force push: fails if remote has new commits
+                                   # (prefer this over git push --force)
+```
+
+### Log and History
+
+```bash
+git log                            # full commit history
+git log --oneline                  # one line per commit
+git log --oneline --graph --all    # visual branch graph
+git log --oneline -10              # last 10 commits
+git log --author="James"           # filter by author
+git log --since="2 weeks ago"      # filter by date
+git log --grep="fix"               # search commit messages
+git log -- path/to/file.py         # commits that touched a specific file
+git log main..feature              # commits in feature not yet in main
+
+git show abc1234                   # show a specific commit's diff
+git show HEAD~2                    # show 2 commits ago
+git diff main..feature             # diff between branches
+git diff HEAD~3 HEAD               # diff over last 3 commits
+
+git blame file.py                  # who wrote each line, and in which commit
+git log -S "function_name"         # find when a string was added/removed (pickaxe)
+```
+
+### Tags
+
+```bash
+git tag v1.0.0                     # lightweight tag (just a pointer)
+git tag -a v1.0.0 -m "Release"    # annotated tag (has metadata — use this for releases)
+git tag                            # list all tags
+git push origin v1.0.0             # tags are NOT pushed automatically
+git push origin --tags             # push all tags
+git checkout v1.0.0                # check out tag (puts you in detached HEAD)
+```
+
+### Recovery with Reflog
+
+`reflog` records every time HEAD moves — your safety net when things go wrong:
+
+```bash
+git reflog                         # show HEAD movement history
+# Output:
+# abc1234 HEAD@{0}: commit: add login endpoint
+# def5678 HEAD@{1}: reset: moving to HEAD~1
+# ghi9012 HEAD@{2}: commit: initial auth setup
+
+git checkout HEAD@{2}             # recover to any previous state
+git branch recovered HEAD@{2}     # create branch at a lost commit
+# Even commits deleted with reset --hard survive in reflog for ~90 days
+```
+
+### Debugging
+
+```bash
+git bisect start                   # begin binary search for a bug
+git bisect bad                     # current commit is broken
+git bisect good v1.0.0             # last known good commit
+# git checks out the midpoint — test it, then:
+git bisect good                    # or: git bisect bad
+# repeat until git identifies the first bad commit
+git bisect reset                   # done, return to original branch
+
+git cherry-pick abc1234            # apply a single commit from another branch
+git cherry-pick abc1234..def5678   # apply a range of commits
+```
+
+### .gitignore Patterns
+
+```gitignore
+# Ignore by extension
+*.pyc
+*.log
+
+# Ignore directory
+__pycache__/
+.venv/
+node_modules/
+
+# Ignore specific file
+.env
+
+# Negate (track even if parent pattern ignores it)
+!important.log
+
+# Only ignore at root level (not subdirectories)
+/TODO
+
+# Ignore in any subdirectory
+**/temp/
+```
+
+**Check why a file is ignored:**
+```bash
+git check-ignore -v path/to/file.py
+```
+
+### Configuration
+
+```bash
+git config --global user.name "James Kirk"
+git config --global user.email "jkirk@example.com"
+git config --global core.editor "vim"
+git config --global init.defaultBranch main
+
+git config --list                  # show all config
+git config user.name               # show one value
+```
+
+Config precedence (highest wins): `.git/config` → `~/.gitconfig` → `/etc/gitconfig`
+
+### This Project's Git Rules
+
+- **Branch:** always develop on `claude/add-claude-documentation-eaPc5`
+- **Push:** `git push -u origin <branch-name>` — always set upstream
+- **No force push** to main/master — ever
+- **No `--no-verify`** — hooks exist for a reason; fix the underlying issue
+- **New commits, not amends** — after a hook failure, fix + stage + new commit
+- **Commit messages:** concise summary line (≤72 chars), blank line, then detail paragraph
+
+---
+
 ## Claude AI Prompting Patterns
 
 ### Why XML Structure Works
@@ -3019,7 +3287,7 @@ def call_with_retry(messages, max_retries=3):
 
 ---
 
-*Generated from 29 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+*Generated from 30 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -3037,4 +3305,5 @@ AI Strategy 2025 for Marketing Teams (Henrik Roth),
 Claude AI for Beginners (Marcus Archer),
 Python Testing with pytest (Brian Okken),
 SQL Antipatterns (Bill Karwin),
-Docker: Up and Running (Sean P. Kane & Karl Matthias).*
+Docker: Up and Running (Sean P. Kane & Karl Matthias),
+Pro Git (Scott Chacon & Ben Straub).*
