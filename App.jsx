@@ -593,6 +593,23 @@ export default function App() {
       background-size: 200% 100%;
       animation: shimmer 2s ease-in-out infinite;
     }
+
+    /* Skeleton loading state */
+    .skeleton {
+      background: linear-gradient(90deg, #e7e5e4 25%, #d6d3d1 50%, #e7e5e4 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 0.5rem;
+    }
+
+    /* Focus-visible ring — keyboard navigation only */
+    .focus-ring:focus { outline: none; }
+    .focus-ring:focus-visible { outline: 2px solid #c8102e; outline-offset: 2px; }
+
+    /* Text on coloured backgrounds (Grey-on-Colour Law) */
+    .on-dark   { color: rgba(255,255,255,0.65); }
+    .on-dark-2 { color: #d6d3d1; } /* stone-300 */
+    .on-red    { color: #fecaca; } /* red-200 */
   `;
 
   // === PRIMITIVES (functional components — no state inside) ===
@@ -608,9 +625,9 @@ export default function App() {
     <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
       <div className="flex-shrink-0 border-b border-stone-200 bg-white">
         <div className="px-5 pt-4 pb-3 flex items-center justify-between">
-          <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center"><ArrowLeft className="w-5 h-5" /></button>
+          <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
           <ProgressDots total={total} current={current} />
-          <button onClick={closeWorkflow} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center"><X className="w-5 h-5" /></button>
+          <button onClick={closeWorkflow} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
         </div>
         <div className="px-5 pb-4">
           <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
@@ -643,7 +660,7 @@ export default function App() {
 
   const Input = ({ value, onChange, placeholder, type = 'text' }) => (
     <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:border-stone-900 focus:outline-none text-sm" />
+      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors" />
   );
 
   const Field = ({ label, hint, children }) => (
@@ -655,7 +672,7 @@ export default function App() {
   );
 
   const Toggle = ({ label, value, onChange, sub }) => (
-    <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left">
+    <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
       <div>
         <div className="text-sm">{label}</div>
         {sub && <div className="text-[11px] text-stone-500">{sub}</div>}

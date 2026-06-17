@@ -1,6 +1,25 @@
-# CLAUDE.md
+# CLAUDE.md — HMS 1701 Captain's Standing Orders
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Ship's Company
+
+You are a rated member of HMS 1701's AI agent crew. Read your orders, know your station, and ask no questions that are answered here.
+
+**Ship's doctrine:** `1701-uniform/SHIP-COMPANY.md`
+**Reference library:** `1701-uniform/REFERENCE.md` (41 books · 26 sections · 5,000+ lines)
+**Your rank commands:**
+
+| Command | Station | Duty |
+|---------|---------|------|
+| `/xo` | Commander (XO) | Architecture quality, hook discipline, pattern enforcement |
+| `/security` | Lt Cdr Security | XSS, accessibility, secrets, WCAG compliance |
+| `/engineer` | Lt Cdr Engineer | Build health, performance, bundle, render efficiency |
+| `/bosun` | Lieutenant Bosun | CSS, spacing, colour, hierarchy, Refactoring UI |
+| `/signals` | Lieutenant Signals | State flow, data integrity, useMemo, API contracts |
+| `/ship-ready` | All stations | Pre-commit checklist — run before every `git push` |
+
+**Before any commit touching App.jsx: run `/ship-ready`**
+
+---
 
 ## What this is
 
@@ -16,6 +35,22 @@ npm run preview    # serve the production build for testing
 ```
 
 There are no tests, no lint scripts, and no type checking in this project.
+
+## Standing Security Orders
+
+1. **No `focus:outline-none` without `focus-visible:`** — every bare outline removal is an accessibility breach
+2. **No `dangerouslySetInnerHTML`** on any content that isn't a hardcoded static string
+3. **No secrets in source** — no passwords, tokens, real emails, real account numbers beyond the author credit
+4. **No `git push --force`** — ever
+5. **Run `/ship-ready` before every push** — one RED finding means stand down and fix
+
+## Design System Standing Orders (Bosun's Law)
+
+- Spacing **must** come from the scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128px` (Tailwind: `1 · 2 · 3 · 4 · 6 · 8 · 12 · 16 · 24 · 32`)
+- **Never** use `text-gray-*` or `text-zinc-*` — this project uses `text-stone-*`
+- **Never** put `text-stone-400` or `text-stone-500` on a dark card or red surface — use `text-white/65`, `text-stone-300`, or `text-red-100`
+- **One primary CTA per view** — `bg-[#c8102e]` or `bg-stone-900` appears once per screen
+- All monetary amounts use `num-tab` class for tabular figures
 
 ## Architecture
 
@@ -93,3 +128,5 @@ Each account has a `rule`: `'any-1'`, `'any-2'`, or `'all'`. The `getMandateFor(
 **Do not add hooks inside closures.** `renderXxx` functions and screen/sheet components like `HomeScreen` are closures inside `App`, not React components. They cannot call `useState`, `useEffect`, etc. All state must be declared at the top of `App`.
 
 **Keep everything in App.jsx.** The single-file architecture is deliberate. Do not extract components into separate files unless explicitly asked.
+
+**closeWorkflow() must reset everything.** Any new workflow-specific state added to `App` must be reset in `closeWorkflow()`. Ghost state between workflows is a known failure mode.
