@@ -89,6 +89,13 @@ def red_bar(slide, height=0.08):
 def slide_number(slide, n):
     add_text(slide, str(n), 12.6, 7.1, 0.5, 0.3, size=9, color=STONE5, align=PP_ALIGN.RIGHT)
 
+def advisor_footer(slide, dark_bg=False):
+    """Running footer — Business Banking Advisor credit, all slides."""
+    txt_col = STONE5 if not dark_bg else RGBColor(0x4A,0x44,0x40)
+    add_text(slide,
+        "Business Banking Advisor  ·  Self-initiated  ·  Completed out of hours in own time",
+        0.5, 7.22, 11.5, 0.24, size=7.5, italic=True, color=txt_col, align=PP_ALIGN.LEFT)
+
 def bullet_block(slide, items, l, t, w, dot_color=RED, size=12, color=DARK):
     txb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(6))
     txb.word_wrap = True
@@ -156,6 +163,12 @@ add_text(s, "Alan Davidson  ·  Santander Business Banking  ·  June 2026",
          1.2, 4.9, 10.93, 0.35, size=11, color=STONE5, align=PP_ALIGN.CENTER)
 add_text(s, "Prototype live at  imscots-ui.github.io/santander",
          1.2, 5.25, 10.93, 0.35, size=10, italic=True, color=STONE5, align=PP_ALIGN.CENTER)
+# Advisor stamp
+add_rect(s, 3.5, 5.72, 6.33, 0.72, fill=RED)
+add_text(s, "BUSINESS BANKING ADVISOR", 3.5, 5.76, 6.33, 0.3,
+         size=11, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+add_text(s, "Self-initiated  ·  Completed out of hours  ·  Own time", 3.5, 6.07, 6.33, 0.3,
+         size=9, italic=True, color=LIGHTRED, align=PP_ALIGN.CENTER)
 slide_number(s, 1)
 
 
@@ -204,6 +217,7 @@ for i, (val, lbl) in enumerate([
 ]):
     x = 0.55 + i * 2.05
     stat_card(s, x, 5.5, 1.9, 1.5, val, lbl)
+advisor_footer(s)
 slide_number(s, 2)
 
 
@@ -247,6 +261,7 @@ for i, (title, badge, desc) in enumerate(pain_points):
 
 add_text(s, "Every one of these problems is solved in the prototype.",
          0.5, 6.85, 12.33, 0.45, size=13, bold=True, color=RED, align=PP_ALIGN.CENTER)
+advisor_footer(s)
 slide_number(s, 3)
 
 
@@ -288,6 +303,7 @@ for i, (name, desc) in enumerate(features):
     add_text(s, name, x+0.22, y+0.06, 5.5, 0.28, size=11, bold=True, color=DARK)
     add_text(s, desc, x+0.22, y+0.34, 5.6, 0.48, size=10, color=STONE5)
 
+advisor_footer(s)
 slide_number(s, 4)
 
 
@@ -361,6 +377,7 @@ add_text(s,
     "CA04 (Mandate Change)   ·   CA07 (Account Closure)   ·   CA11 (Business Details)   "
     "·   P17 (New Signatory)   ·   D18 (Dormancy Reactivation)",
     0.65, 5.82, 12.0, 0.52, size=11, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+advisor_footer(s)
 slide_number(s, 5)
 
 
@@ -422,6 +439,7 @@ for i, (title, desc) in enumerate(mtd_steps):
     if i < 3:
         add_text(s, "→", x+3.02, 5.52, 0.22, 0.28, size=14, bold=True, color=RED)
 
+advisor_footer(s)
 slide_number(s, 6)
 
 
@@ -477,6 +495,7 @@ for i, (title, pts) in enumerate(sec_sections):
     add_text(s, title, x+0.18, y+0.14, 5.7, 0.3, size=10, bold=True, color=DARK)
     bullet_block(s, pts, x+0.18, y+0.5, 5.7, dot_color=RED, size=10, color=STONE5)
 
+advisor_footer(s)
 slide_number(s, 7)
 
 
@@ -537,6 +556,7 @@ for i, (val, lbl) in enumerate(ytd):
 
 add_text(s, "Real-time tax liability estimate — £41,614 set-aside nudge built into the MTD insights panel.",
          0.55, 6.7, 12.23, 0.55, size=11, italic=True, color=STONE5)
+advisor_footer(s)
 slide_number(s, 8)
 
 
@@ -586,6 +606,7 @@ for i, (layer, desc) in enumerate(prod):
              size=9, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
     add_text(s, desc, 8.38, y+0.08, 4.5, 0.42, size=9, color=DARK)
 
+advisor_footer(s)
 slide_number(s, 9)
 
 
@@ -635,6 +656,7 @@ add_text(s,
     "Total addressable saving: £4.9M per 10,000 customers in year one.\n"
     "With 280,000 Santander business customers, the annualised opportunity exceeds £137M.",
     0.65, 6.3, 12.0, 0.78, size=13, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+advisor_footer(s)
 slide_number(s, 10)
 
 
@@ -695,6 +717,7 @@ for i, (phase, title, pts, active) in enumerate(phases):
 
 add_text(s, "Phase 1 is already complete — the prototype is live and ready for user research today.",
          0.55, 7.08, 12.23, 0.3, size=11, italic=True, color=STONE5, align=PP_ALIGN.CENTER)
+advisor_footer(s)
 slide_number(s, 11)
 
 
@@ -769,6 +792,7 @@ for i, (name, desc) in enumerate(shadows):
     add_text(s, name, x+0.12, 6.1, 1.8, 0.28, size=9, bold=True, color=RED)
     add_text(s, desc, x+0.12, 6.34, 1.9, 0.28, size=8, color=STONE5)
 
+advisor_footer(s)
 slide_number(s, 12)
 
 
@@ -813,9 +837,12 @@ for i, (num, title, body) in enumerate(actions):
 # CTA
 add_rect(s, 0.8, 6.6, 11.73, 0.65, fill=RED)
 add_text(s,
-    "Prototype live now:  imscots-ui.github.io/santander   ·   "
-    "No install, no login, any device   ·   Alan Davidson · Alan.Davidson@santander.co.uk",
-    0.9, 6.68, 11.5, 0.5, size=11, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    "Prototype live now:  imscots-ui.github.io/santander   ·   No install, no login, any device   ·   "
+    "Alan Davidson · Alan.Davidson@santander.co.uk",
+    0.9, 6.3, 11.5, 0.35, size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+add_text(s,
+    "Business Banking Advisor  ·  Self-initiated  ·  Completed entirely out of hours in own time",
+    0.9, 6.65, 11.5, 0.3, size=9, italic=True, color=LIGHTRED, align=PP_ALIGN.CENTER)
 slide_number(s, 13)
 
 

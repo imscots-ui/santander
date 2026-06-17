@@ -1,0 +1,281 @@
+# HMS 1701 — Project Manifest
+## Santander Business Banking Digital Prototype
+### Complete record of everything built, written, and delivered
+
+**Author:** Alan Davidson · Business Banking Advisor  
+**Capacity:** Self-initiated · Completed entirely out of hours · Own time  
+**Date:** June 2026  
+**Prototype:** https://imscots-ui.github.io/santander/
+
+---
+
+## 1. The Prototype — App.jsx
+
+**Location:** `/App.jsx`  
+**Size:** ~3,200 lines · ~198KB · Single React component  
+**Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
+
+### Screens (5 main tabs)
+
+| Screen | Key Features |
+|--------|-------------|
+| Home Dashboard | Balance hero card, pending approvals, cooling-off progress bars, MTD VAT alert, RM card (Priya Desai), accounts list with mandate badges, demo controls |
+| Signature Queue | Dual-authorisation — sign with Face ID or reject pending mandates/closures/payments, status display per item |
+| Financial Statements | 6 months transactions, chronological + category views, counterparty search, detail sheets, PDF/CSV/Excel export, method filter |
+| Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
+| Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
+
+### Workflows (6 step-based wizards)
+
+| Workflow | Steps | Key Logic |
+|----------|-------|-----------|
+| Account Closure | Select → Destination (CoP) → Credit check → Sign | Cooling-off on Any-1 accounts, mandate enforcement |
+| Mandate Changes | Action → Personal details → KYC docs → Board minutes → Sign | KYC/KYB full path, RM escalation triggers, 7 entity types |
+| Bulk Payments / Wages | Source account → Payee selection → Review → Sign + Schedule | Payee book, CoP verification, CSV import, one-off/monthly |
+| Business Details Update | Select changes → Enter values → Upload proof → Sign | Companies House sync, RM for partnership renames |
+| Dormant Reactivation | Single step — select and request | FSCS notice, 12-month inactivity threshold |
+| MTD VAT Submission | Categorise → Review VAT100 → Declare → Submit | Auto-categorisation, confidence scoring, HMRC API v1.0 |
+
+### Entity Types (7 — all compliance paths diverge)
+
+| Entity | Mandate Default | Principal | Companies House | Board Minutes |
+|--------|----------------|-----------|-----------------|---------------|
+| Sole Trader | Any-1 | Sole trader | No | No |
+| Partnership | Any-1/2 | Partner | No | No (RM on rename) |
+| Limited Company | Any-2 | Director | Yes | No |
+| LLP | Any-2 | Member | Yes (LLP no.) | No |
+| Registered Charity | All | Trustee | No | Yes — all changes |
+| Club | All | Committee member | No | Yes — all changes |
+| Society | All | Committee member | No | Yes — all changes |
+
+### Security & Compliance Features Built
+
+| Feature | Regulation | Implementation |
+|---------|-----------|----------------|
+| 24h cooling-off | FCA BCOBS 4A | Working-hours aware (bank holidays skipped), cancellable, progress bar every 30s |
+| Dual-authorisation | PSR 2017 | Any-1 / Any-2 / All per account, co-signer notification, 48h window |
+| KYC/KYB | MLR 2017 / JMLSG | GOV.UK One Login List 1, address List 2, trading List 3, sanctions, PEP, visa check |
+| Audit trail | FCA SYSC 9 | 7-year retention, append-only, actor/timestamp on every event |
+| MTD compliance | HMRC MTD | Digital links, 6-year records, HMRC-recognised software, VAT100 direct API |
+| Confirmation of Payee | PSR SI 2019/1215 | Pre-payment verification, mismatch warning, explicit override |
+| Accessibility | WCAG 2.1 AA | focus-visible:ring on all elements, contrast ≥4.5:1, tabular-nums, ARIA labels |
+| Focus management | WCAG 2.1 SC 2.4.7 | focus:outline-none only with focus-visible: companion — never bare |
+
+### Accessibility Fixes Applied This Session
+
+| Component | Bug | Fix |
+|-----------|-----|-----|
+| `Input` | Bare `focus:outline-none` — keyboard focus invisible | `focus-visible:ring-2 focus-visible:ring-stone-900/20 focus-visible:border-stone-900` |
+| `StepFrame` back button | No focus indicator | `focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900` |
+| `StepFrame` close button | No focus indicator | `focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900` |
+| `Toggle` | No focus indicator | `focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900` |
+
+### CSS Additions (inline `css` template literal)
+
+| Class | Purpose |
+|-------|---------|
+| `.skeleton` | Loading state — shimmer animation on placeholder blocks |
+| `.focus-ring` | Reusable keyboard-only focus utility |
+| `.on-dark` | `color: rgba(255,255,255,0.65)` — text on dark cards (Grey-on-Colour Law) |
+| `.on-dark-2` | `color: stone-300` — secondary text on dark surfaces |
+| `.on-red` | `color: red-200` — text on red surfaces |
+
+---
+
+## 2. The Ships Company — Agent Architecture
+
+**Location:** `.claude/commands/*.md` + `.claude/settings.json`
+
+### Command Files (slash-invocable in Claude Code)
+
+| File | Command | Officer | Duty |
+|------|---------|---------|------|
+| `.claude/commands/xo.md` | `/xo` | Commander (XO) | Architecture quality, hook discipline, pattern enforcement, single-file mandate |
+| `.claude/commands/security.md` | `/security` | Lt Cdr Security | XSS scan, secrets scan, focus accessibility audit, PII check, dependency review |
+| `.claude/commands/engineer.md` | `/engineer` | Lt Cdr Engineer | Bundle analysis, React performance, key props, tick interval, Vite config, CSS delivery |
+| `.claude/commands/bosun.md` | `/bosun` | Lieutenant Bosun | Spacing violations, colour violations (stone not gray), shadow system, empty states, hierarchy |
+| `.claude/commands/signals.md` | `/signals` | Lieutenant Signals | State signal integrity, useMemo dependency audit, state mutation safety, cooling system |
+| `.claude/commands/ship-ready.md` | `/ship-ready` | All stations | 7-station pre-commit checklist — GREEN/AMBER/RED per station |
+
+### Settings — `.claude/settings.json`
+
+**Allow list:** `npm run dev`, `npm run build`, `npm run preview`, `git push -u origin`, `git add`, `git commit`, `git status`, `git diff`, `git log`, `git branch`, `python3`, `node`, `npx vite`
+
+**Deny list:** `rm -rf`, `git push --force`, `git push --no-verify`, `chmod 777`, `curl | bash`, `wget | sh`, `eval`, `exec`
+
+**Hooks:** PreToolUse bash hook — prints standing orders reminder before every shell call
+
+### Ships Company Doctrine
+
+**File:** `1701-uniform/SHIP-COMPANY.md`
+
+Contents:
+- Chain of command (Captain → XO → Security → Engineer → Bosun → Signals)
+- Standing orders (6 rules)
+- Design system quick reference
+- Security protocols (Five Laws + WCAG minimum)
+- Reference library table (8 key sections)
+- Specialist ranks — when to call them
+
+---
+
+## 3. The Reference Library — REFERENCE.md
+
+**Location:** `1701-uniform/REFERENCE.md`  
+**Size:** 5,024 lines · 26 sections · 41 books synthesised
+
+### Sections Written This Project
+
+| Section | Title | Books Synthesised | Lines |
+|---------|-------|-------------------|-------|
+| 1 | FastAPI & SQLAlchemy | FastAPI docs, SQLAlchemy docs | ~180 |
+| 2 | React Fundamentals | React docs | ~150 |
+| 3 | Tailwind CSS | Tailwind docs | ~120 |
+| 4 | Git & Version Control | Pro Git | ~200 |
+| 5 | Docker & Containers | Docker docs | ~150 |
+| 6 | Python Best Practices | Fluent Python | ~180 |
+| 7 | TypeScript | TypeScript Handbook | ~160 |
+| 8 | Testing | Testing library docs | ~140 |
+| 9 | AWS & Cloud | AWS docs | ~200 |
+| 10 | Security Fundamentals | OWASP | ~180 |
+| 11 | React & JS Frontend Patterns | You Don't Know JS, JavaScript: The Good Parts, Eloquent JavaScript, JavaScript Patterns | ~350 |
+| 12 | Python Data Science | Python for Data Analysis | ~150 |
+| 13 | JWT & Authentication | OAuth2 specs, JWT RFC | ~220 |
+| 14 | REST API Conventions | RESTful Web APIs | ~180 |
+| 15 | GraphQL | GraphQL docs | ~150 |
+| 16 | PostgreSQL | PostgreSQL docs | ~200 |
+| 17 | Redis | Redis docs | ~140 |
+| 18 | Kubernetes | Kubernetes docs | ~180 |
+| 19 | CI/CD | GitHub Actions docs | ~160 |
+| 20 | Monitoring & Observability | SRE Book | ~180 |
+| 21 | HTTP Fundamentals | HTTP: The Definitive Guide (Gourley & Totty) | ~380 |
+| 22 | SQL Performance & Indexing | SQL Performance Explained (Winand) | ~350 |
+| 23 | Advanced Prompt Engineering | Prompt Engineering for LLMs (Al-Shamey, Venn, Vael) | ~420 |
+| 24 | AI Agent Architecture | Building AI Agents (from training) + Mastering AI Tools | ~380 |
+| 25 | Claude Code Workflow | Claude Code Mastery + Claude Myths & Realities + AI Tools User Guide | ~360 |
+| 26 | UI Design Principles | Refactoring UI (Wathan & Schoger — from training, 30MB+ original) | ~420 |
+
+**Additional books processed:** Kali Linux (security testing), Claude Fabi.sk, AI Tools UI (multiple epub sources)
+
+---
+
+## 4. CLAUDE.md — Captain's Standing Orders
+
+**Location:** `/CLAUDE.md`
+
+### Added This Project
+
+- Ships company command table (all 6 officers + duties)
+- Standing Security Orders (5 laws)
+- Design System Standing Orders (Bosun's Law — spacing, colour, CTA hierarchy, monetary amounts)
+- `closeWorkflow()` invariant reminder
+- Architecture section: single-file constraints, hook discipline
+
+---
+
+## 5. Deployment
+
+### GitHub Pages
+
+**Branch:** `gh-pages`  
+**URL:** https://imscots-ui.github.io/santander/  
+**Contents:** `index.html` (350KB self-contained) + `.nojekyll` + `vercel.json`  
+**Fix applied:** `DOMContentLoaded` listener — vite-plugin-singlefile inlines JS into `<head>` as plain `<script>` (no defer), so React mount must wait for DOM ready
+
+### Vercel
+
+**Config:** `vercel.json` on `gh-pages` branch — `buildCommand: null`, `outputDirectory: "."`, `framework: null`  
+**Purpose:** Serve the pre-built HTML directly, bypass Vite build step  
+**Domains:** `santander-g671k7hgb-imscots-uis-projects.vercel.app`
+
+### Build Configuration
+
+**File:** `vite.config.js`  
+**Plugin:** `vite-plugin-singlefile` — inlines all JS, CSS, fonts into single HTML  
+**Target:** `esnext` · **Output:** `dist/index.html` (350KB)  
+**Key fix:** Removed `removeViteModuleLoader: true` — was stripping module type and causing script execution order issue
+
+---
+
+## 6. Presentation Deliverables
+
+### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
+
+13 slides · Santander brand colours throughout · Built with python-pptx
+
+| Slide | Content |
+|-------|---------|
+| 1 | Title + Business Banking Advisor stamp |
+| 2 | Executive summary + 6 headline statistics |
+| 3 | The problem — 4 pain points |
+| 4 | What we built — 10 features |
+| 5 | Paperless workflows deep-dive |
+| 6 | Making Tax Digital deep-dive |
+| 7 | Security & compliance (4 frameworks) |
+| 8 | Financial intelligence features |
+| 9 | Technical architecture (current + production) |
+| 10 | Business case — £137M annualised opportunity |
+| 11 | Roadmap — 4 phases Q3 2026→Q2 2027 |
+| 12 | Design system & accessibility |
+| 13 | Next steps — 3 decisions for senior management |
+
+**Credit on every slide:** "Business Banking Advisor · Self-initiated · Completed out of hours in own time"
+
+### Architecture Deck — `Santander_Architecture.pptx`
+
+9 slides · Technical deep-dive · Built with python-pptx
+
+| Slide | Content |
+|-------|---------|
+| 1 | Cover |
+| 2 | Component map — current prototype |
+| 3 | Data & state architecture |
+| 4 | Production system architecture (4 tiers) |
+| 5 | Security architecture (4 domains) |
+| 6 | Regulatory & compliance framework |
+| 7 | Entity & mandate logic (7 types × 3 rules) |
+| 8 | API integration contracts (4 APIs) |
+| 9 | Design system tokens |
+
+### Builder Scripts
+
+| File | Purpose |
+|------|---------|
+| `build_deck.py` | Regenerates pitch deck — run `python3 build_deck.py` |
+| `build_architecture.py` | Regenerates architecture deck — run `python3 build_architecture.py` |
+
+---
+
+## 7. Git History (this project)
+
+| Commit | Description |
+|--------|-------------|
+| `71b8d51` | fix: DOMContentLoaded mount + remove vite module loader stripping |
+| `d674ea2` | fix: DOMContentLoaded — plain script tag in head needs deferred DOM access |
+| `0e19fe9` | feat: implement ships company — agent hierarchy, commands, security hardening |
+| `331f262` | feat: REFERENCE.md sections 21–26 (HTTP, SQL, Prompt Eng, AI Agents, Claude Code, Refactoring UI) |
+| (prior) | feat: REFERENCE.md sections 1–20 (all technical reference books) |
+
+**Branch:** `claude/add-claude-documentation-eaPc5`  
+**Remote:** `imscots-ui/santander`
+
+---
+
+## 8. Business Case Summary
+
+| Metric | Value |
+|--------|-------|
+| Paperless workflows built | 6 |
+| Paper forms retired | 5 (CA04, CA07, CA11, P17, D18) |
+| Entity types supported | 7 |
+| Approval rule tiers | 3 (Any-1, Any-2, All) |
+| Compliance frameworks addressed | 4 (FCA BCOBS 4A, MLR 2017, FCA SYSC 9, HMRC MTD) |
+| Cost saving per 10k customers | £4.9M year 1 |
+| Annualised opportunity (280k customers) | £137M |
+| Phase 1 status | **Complete — prototype live** |
+| Time to Phase 2 | 0 days — awaiting stakeholder approval |
+
+---
+
+*All work completed self-initiated, out of hours, in own time.*  
+*Alan Davidson · Business Banking Advisor · Santander · June 2026*
