@@ -1,7 +1,7 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 40 books across Python, JavaScript, SQL, HTTP, security, Docker,
-Git, authentication, AI prompting, prompt engineering, and AI agent architecture.
+Synthesised from 41 books across Python, JavaScript, SQL, HTTP, security, Docker,
+Git, authentication, AI prompting, prompt engineering, AI agent architecture, and UI design.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -33,6 +33,7 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 23. [Advanced Prompt Engineering](#advanced-prompt-engineering)
 24. [AI Agent Architecture Patterns](#ai-agent-architecture-patterns)
 25. [Claude Code Workflow](#claude-code-workflow)
+26. [UI Design Principles — Refactoring UI](#ui-design-principles--refactoring-ui)
 
 ---
 
@@ -4731,7 +4732,266 @@ Always optimise **last** — correctness and security first, performance only on
 
 ---
 
-*Generated from 40 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+## UI Design Principles — Refactoring UI
+
+*Source: Refactoring UI (Adam Wathan & Steve Schoger)*
+
+### Start with Too Much Space — Then Remove It
+
+The most common beginner mistake is not enough whitespace. Start with more than feels comfortable and reduce only where it helps. Cramped UIs feel stressful; spacious UIs feel calm and professional.
+
+**Use a spacing scale and stick to it.** Don't pick arbitrary pixel values. Use a fixed multiplier (base 4px or 8px):
+
+```
+4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512 px
+```
+
+These values have a harmonious mathematical relationship. Spacing chosen from this set will always look intentional.
+
+### Hierarchy Over HTML Structure
+
+Resist reaching for heading elements (`<h1>`–`<h6>`) to create visual weight. Use **size, weight, and colour** instead.
+
+**The three tools of hierarchy:**
+1. **Font size** — primary label vs. secondary info
+2. **Font weight** — bold draws the eye first
+3. **Colour** — primary text vs. muted/secondary text
+
+```css
+/* Primary content — high contrast */
+.primary   { color: #111827; font-weight: 600; font-size: 1rem; }
+
+/* Secondary labels — de-emphasised */
+.secondary { color: #6B7280; font-weight: 400; font-size: 0.875rem; }
+
+/* Tertiary / metadata — very muted */
+.tertiary  { color: #9CA3AF; font-weight: 400; font-size: 0.75rem; }
+```
+
+**Never use grey text on a coloured background.** On a red card, grey reads as a dirty pink. Instead pick a lighter or desaturated shade of the background colour.
+
+```css
+/* BAD — grey on red background: */
+.card-red   { background: #dc2626; }
+.card-label { color: #9ca3af; }  /* looks pinkish-grey */
+
+/* GOOD — lighter red, same hue family: */
+.card-label { color: #fca5a5; }  /* still clearly secondary, matches bg */
+```
+
+### Font Sizes on a Scale
+
+Choose font sizes from a modular scale, not arbitrary values. Common type scale:
+
+```
+12, 14, 16, 18, 20, 24, 30, 36, 48, 60, 72 px
+```
+
+**Limit your typeface choices to 2 maximum.** One display/heading font, one body font. For UI work, a single well-chosen sans-serif (Inter, Geist, DM Sans) is often better than mixing.
+
+**Line height scales with font size inversely:**
+
+```css
+/* Small text needs more line-height to breathe */
+.text-sm   { font-size: 0.875rem; line-height: 1.6; }
+/* Large headings need less — too much looks like double-spacing */
+.text-4xl  { font-size: 2.25rem;  line-height: 1.1; }
+```
+
+**Line length (measure):** 45–75 characters per line is the comfortable reading range. Use `max-width: 65ch` on body paragraphs.
+
+### Colour — Build a Palette, Not a Collection
+
+**Use HSL, not hex.** HSL lets you manipulate colours intelligently — adjust lightness for shades, saturation for vibrancy.
+
+**Every colour needs a full shade range (50–900):**
+
+```
+50   — near white, very light tint (backgrounds)
+100  — light tint (hover backgrounds)
+200  — light
+300  — medium light
+400  — medium
+500  — base / brand colour
+600  — slightly darker (hover states on buttons)
+700  — dark
+800  — very dark
+900  — near black (text on light backgrounds)
+```
+
+**Never use true black** (`#000000`). Use a very dark, slightly saturated colour instead (`#111827`). Pure black next to colour looks harsh.
+
+**Colour roles — define these explicitly:**
+- **Brand / primary** — CTAs, active states, links
+- **Neutral / grey** — text, borders, backgrounds, dividers
+- **Semantic colours** — green (success), red (danger/error), yellow (warning), blue (info)
+
+Use only 1–2 accent colours. Every additional colour costs cognitive load.
+
+**Accessible contrast:** WCAG AA requires 4.5:1 for normal text, 3:1 for large text (18px+ or 14px+ bold). Test with real tools — don't eyeball it.
+
+### Shadows and Depth
+
+Use shadows to communicate elevation, not decoration.
+
+**Two rules:**
+1. Use a small blur with slight offset — not a symmetric glow
+2. Shadows should have very slight colour — not pure grey/black
+
+```css
+/* DON'T: symmetric, harsh, grey */
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+/* DO: offset, soft, slightly warm */
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+
+/* Elevated card */
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+/* Modal / overlay */
+box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+```
+
+Use 3–4 shadow levels. Assign them to elevation roles: flat (no shadow), raised (cards), floating (dropdowns), modal. **Never mix shadow levels arbitrarily.**
+
+### Borders and Radius
+
+**Border radius conveys personality:**
+- No radius → formal, corporate, rigid
+- Small radius (2–4px) → neutral, professional
+- Medium radius (6–8px) → friendly, modern
+- Large radius (12–16px+) → playful, consumer-facing
+- Full pill → badge/tag/button emphasis
+
+**Use one consistent radius value** throughout (or small/medium/large variants). Mixing random values looks accidental.
+
+**Borders vs shadows for separation:** Use borders when elements need crisp definition. Use shadows when elements float above. Never use both on the same element — it looks confused.
+
+```css
+/* Use border for table rows, list items: */
+border-bottom: 1px solid #E5E7EB;
+
+/* Use shadow for cards that sit above content: */
+box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+```
+
+### Empty States Design First
+
+The most overlooked screen is the empty state — the first thing a new user sees. Design it intentionally:
+
+1. A clear illustration or icon (not just white space)
+2. A headline stating what this section is for
+3. A sub-label explaining what will appear here
+4. A primary CTA to create the first item
+
+```jsx
+<EmptyState>
+  <Icon name="document" size={48} className="text-gray-300" />
+  <h3>No invoices yet</h3>
+  <p>Create your first invoice to get started.</p>
+  <Button variant="primary">Create invoice</Button>
+</EmptyState>
+```
+
+### Designing Actions
+
+**Primary / Secondary / Tertiary hierarchy:**
+
+| Level | Use | Styling |
+|-------|-----|---------|
+| Primary | One per page max — the main action | Filled, brand colour, bold |
+| Secondary | Supporting actions | Outlined or lightly tinted |
+| Tertiary | Destructive or low-priority | Ghost / text link |
+
+**Never have two primary buttons** in the same view. If two actions are equally important, one of them is wrong.
+
+**Destructive actions (delete, cancel):** Use red only at the final confirmation step, not on every delete button — users become button-blind to red if it appears everywhere.
+
+### Loading and Skeleton States
+
+Never show a spinner alone for content loads. Use **skeleton screens** — placeholder shapes matching the real content layout.
+
+```jsx
+/* Skeleton card example (Tailwind) */
+<div className="animate-pulse">
+  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
+  <div className="h-32 bg-gray-200 rounded" />
+</div>
+```
+
+Skeletons feel faster than spinners because the user sees the layout immediately and understands what is loading.
+
+### Form Design
+
+**Every input needs a visible label** — never rely on placeholder text alone. Placeholder disappears on input; label never does.
+
+```jsx
+/* BAD */
+<input placeholder="Email address" />
+
+/* GOOD */
+<label>Email address</label>
+<input placeholder="you@example.com" />
+```
+
+**Label position:**
+- Above the field → standard, always accessible, preferred for most forms
+- Inline/floating → modern, but requires more implementation care
+- Side-by-side → only for very short forms with few fields
+
+**Input sizing:** Make inputs wide enough to show the expected content. A postcode field should not be as wide as a free-text field.
+
+**Validation — inline, on blur, not on submit:**
+
+```jsx
+// Validate email when user leaves the field (onBlur), not as they type
+const handleBlur = () => {
+  if (!isValidEmail(value)) setError("Please enter a valid email address");
+};
+```
+
+**Error messages must say how to fix it,** not just that something is wrong:
+
+```
+✗ "Invalid input"           ← useless
+✓ "Enter a valid email address like name@example.com"  ← actionable
+```
+
+### Colour in UI Components (Santander Context)
+
+The prototype uses Santander brand conventions — these rules apply:
+
+```css
+/* Brand red — active states, CTAs, top bar */
+--color-brand:      #c8102e;
+--color-brand-dark: #a00d24;  /* hover/pressed states */
+
+/* Background */
+--color-bg:         #faf6ef;  /* warm off-white */
+
+/* Never use pure black for text — use dark warm neutral */
+--color-text:       #1a1008;
+```
+
+**Santander-specific hierarchy:** The red bar at the top establishes brand. Don't fight it with red CTAs everywhere — use red sparingly for primary actions only. Secondary content uses grey-scale against the warm background.
+
+### Quick Checklist — Before Shipping Any UI
+
+- [ ] Does every element have at least 16px of breathing room from its nearest neighbour?
+- [ ] Is there a clear visual hierarchy (one thing dominates each section)?
+- [ ] Are colours from a defined palette, not picked ad hoc?
+- [ ] Is grey text checked for contrast against its background (not just white)?
+- [ ] Do shadows feel natural (offset, not symmetric)?
+- [ ] Is there a designed empty state for every list or data view?
+- [ ] Is there only one primary CTA per view?
+- [ ] Do form inputs have visible labels (not just placeholders)?
+- [ ] Are error messages actionable (say how to fix, not just what's wrong)?
+- [ ] Is the loading state a skeleton, not just a spinner?
+
+---
+
+*Generated from 41 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -4760,4 +5020,5 @@ AI Tools Unleashed (Adrian Vael),
 Prompt Engineering Mastery (Mohamed Al-Shamey),
 Claude Code Mastery (Eslam Wahba),
 AI AGENT MASTERY with Claude AI (Kevlin Henney),
-Claude Mythos 5 Development Mastery (Niall R. Heatherwick).*
+Claude Mythos 5 Development Mastery (Niall R. Heatherwick),
+Refactoring UI (Adam Wathan & Steve Schoger).*
