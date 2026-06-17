@@ -1,8 +1,8 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 17 books across Python programming, cybersecurity (Kali Linux),
-network security (Linux Firewalls, IPCop, PF, Windows), intelligent computing,
-and cloud computing. Intended for AI coding agents to prevent recurring mistakes.
+Synthesised from 33 books across Python, JavaScript, SQL, HTTP, security, Docker,
+Git, authentication, and AI prompting. Intended for AI coding agents to prevent
+recurring mistakes and encode hard-won patterns.
 
 ---
 
@@ -28,6 +28,8 @@ and cloud computing. Intended for AI coding agents to prevent recurring mistakes
 18. [Docker & Containerisation](#docker--containerisation)
 19. [Git — Version Control](#git--version-control)
 20. [Claude AI Prompting Patterns](#claude-ai-prompting-patterns)
+21. [HTTP Fundamentals](#http-fundamentals)
+22. [SQL Performance & Indexing](#sql-performance--indexing)
 
 ---
 
@@ -3525,7 +3527,548 @@ def call_with_retry(messages, max_retries=3):
 
 ---
 
-*Generated from 31 books: Python Crash Course (James Deep), Python Made Simple (James Young),
+## HTTP Fundamentals
+
+*Source: HTTP: The Definitive Guide (David Gourley & Brian Totty, O'Reilly)*
+
+### The HTTP Request/Response Model
+
+HTTP is a stateless request/response protocol layered over TCP/IP. Every transaction:
+
+```
+Client → TCP connection → Server
+Client sends:  METHOD /path HTTP/1.1\r\nHeaders\r\n\r\n[body]
+Server sends:  HTTP/1.1 STATUS Reason\r\nHeaders\r\n\r\n[body]
+```
+
+**HTTP versions:**
+- HTTP/1.0 — new TCP connection per request
+- HTTP/1.1 — persistent connections (keep-alive) by default, pipelining
+- HTTP/2 — multiplexed streams over a single TCP connection, header compression
+- HTTPS — HTTP over TLS (TLS/SSL layer sits between HTTP and TCP)
+
+### Methods
+
+| Method | Safe | Idempotent | Body | Purpose |
+|--------|------|-----------|------|---------|
+| GET | Yes | Yes | No | Retrieve resource |
+| HEAD | Yes | Yes | No | GET without body (check existence/headers) |
+| POST | No | No | Yes | Create resource, submit data |
+| PUT | No | Yes | Yes | Replace resource entirely |
+| PATCH | No | No | Yes | Partial update |
+| DELETE | No | Yes | No | Delete resource |
+| OPTIONS | Yes | Yes | No | Discover allowed methods (used for CORS preflight) |
+| TRACE | Yes | Yes | No | Echo request (diagnostic) |
+
+**Safe** = does not modify server state.
+**Idempotent** = calling N times has same effect as calling once.
+
+### Status Codes
+
+| Range | Class | Common codes |
+|-------|-------|-------------|
+| 1xx | Informational | 100 Continue |
+| 2xx | Success | 200 OK, 201 Created, 204 No Content, 206 Partial Content |
+| 3xx | Redirect | 301 Moved Permanently, 302 Found, 303 See Other, 304 Not Modified, 307 Temporary Redirect |
+| 4xx | Client error | 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 405 Method Not Allowed, 409 Conflict, 410 Gone, 413 Payload Too Large, 429 Too Many Requests |
+| 5xx | Server error | 500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout |
+
+**301 vs 302 vs 307:**
+- 301 — permanent redirect; browser and search engines update the URL
+- 302 — temporary redirect (browser may change POST to GET on redirect — old behaviour)
+- 307 — temporary redirect; method and body are preserved (POST stays POST)
+- 303 — redirect after POST; browser changes to GET for the new URL (Post/Redirect/Get pattern)
+
+**401 vs 403:**
+- 401 Unauthorized — unauthenticated (no credentials provided or invalid credentials)
+- 403 Forbidden — authenticated but not authorised (correct credentials, wrong permissions)
+
+### Key Headers
+
+**Request headers:**
+
+```http
+Host: api.example.com                    # Required in HTTP/1.1
+Authorization: Bearer <token>            # Auth credential
+Content-Type: application/json           # Body format (POST/PUT/PATCH)
+Content-Length: 245                      # Body byte count
+Accept: application/json, text/html      # Acceptable response types
+Accept-Encoding: gzip, deflate, br       # Acceptable content encodings
+Accept-Language: en-GB, en;q=0.9        # Language preference
+If-None-Match: "abc123"                  # Conditional GET (ETag)
+If-Modified-Since: Mon, 01 Jan 2024 ... # Conditional GET (date)
+Cookie: session=xyz; user_id=42          # Cookies sent to server
+User-Agent: Mozilla/5.0 ...              # Client identifier
+Referer: https://example.com/page       # Previous page URL
+Origin: https://app.example.com         # CORS: request origin
+```
+
+**Response headers:**
+
+```http
+Content-Type: application/json; charset=utf-8
+Content-Length: 512
+Content-Encoding: gzip                   # Body is compressed
+Cache-Control: max-age=3600, public      # Caching directives
+ETag: "abc123def"                        # Resource version identifier
+Last-Modified: Fri, 01 Jan 2025 12:00:00 GMT
+Location: /api/resources/42             # Redirect target or new resource URL
+Set-Cookie: session=xyz; HttpOnly; Secure; SameSite=Strict
+WWW-Authenticate: Bearer realm="api"    # Challenges client for credentials (401)
+Vary: Accept, Accept-Encoding           # Cache key varies by these request headers
+Allow: GET, POST, OPTIONS               # Methods allowed on resource (405 response)
+Retry-After: 30                         # Seconds until retry (429/503)
+```
+
+### Caching
+
+HTTP caching reduces latency and server load by storing responses.
+
+**Cache-Control directives (response):**
+
+```http
+Cache-Control: max-age=3600              # Cache for 3600 seconds
+Cache-Control: no-cache                 # Must revalidate before using cached copy
+Cache-Control: no-store                 # Never cache (sensitive data)
+Cache-Control: public                   # Any cache (CDN, browser) can store
+Cache-Control: private                  # Only the user's browser may cache
+Cache-Control: must-revalidate          # Must check origin once stale
+Cache-Control: s-maxage=86400           # Overrides max-age for shared (CDN) caches
+Cache-Control: immutable                # Resource will never change (use with hashed filenames)
+```
+
+**ETag-based validation (conditional requests):**
+
+```
+Server sends:  ETag: "v1.0-abc123"
+Client sends:  If-None-Match: "v1.0-abc123"
+Server reply:  304 Not Modified  (if unchanged) — no body, saves bandwidth
+               200 OK + new body (if changed, with new ETag)
+```
+
+**Last-Modified-based validation:**
+
+```
+Server sends:  Last-Modified: Mon, 01 Jan 2024 12:00:00 GMT
+Client sends:  If-Modified-Since: Mon, 01 Jan 2024 12:00:00 GMT
+Server reply:  304 Not Modified  (if unchanged)
+               200 OK            (if modified)
+```
+
+**Cache hierarchy:** Browser cache → Shared proxy cache / CDN → Origin server
+
+**For API responses:** Use `Cache-Control: no-store` on auth endpoints. Use `Cache-Control: private, max-age=0, must-revalidate` for personalised data.
+
+### Cookies
+
+Cookies are server-set name/value pairs stored by the browser and sent back on matching requests.
+
+```http
+# Server sets cookie:
+Set-Cookie: session_id=abc123; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+Set-Cookie: prefs=dark_mode; Path=/; SameSite=Strict; Max-Age=31536000
+
+# Browser sends back:
+Cookie: session_id=abc123; prefs=dark_mode
+```
+
+**Cookie attributes:**
+
+| Attribute | Effect |
+|-----------|--------|
+| `HttpOnly` | Cookie invisible to JavaScript (`document.cookie`) — prevents XSS theft |
+| `Secure` | Only sent over HTTPS connections |
+| `SameSite=Strict` | Never sent on cross-site requests (strongest CSRF protection) |
+| `SameSite=Lax` | Sent on top-level navigations (clicks) but not subresource requests |
+| `SameSite=None; Secure` | Sent on all cross-site requests (required for cross-site integrations) |
+| `Domain=example.com` | Cookie available to subdomains |
+| `Path=/api` | Cookie only sent for URLs under `/api` |
+| `Max-Age=3600` | Expires in 3600 seconds (preferred over `Expires`) |
+| `Expires=...` | Absolute expiry date (session cookie if omitted) |
+
+**Security rule:** Always set `HttpOnly; Secure; SameSite=Lax` on session cookies as a minimum.
+
+### CORS (Cross-Origin Resource Sharing)
+
+The browser blocks cross-origin requests by default. CORS headers allow the server to grant permission.
+
+**Simple request** (GET/POST with simple content types): browser sends `Origin` header; server must reply with `Access-Control-Allow-Origin`.
+
+**Preflight** (OPTIONS request): sent automatically for non-simple methods (PUT, DELETE, PATCH) or custom headers. Server must respond to OPTIONS before the real request proceeds.
+
+```http
+# Browser preflight request:
+OPTIONS /api/users HTTP/1.1
+Origin: https://app.example.com
+Access-Control-Request-Method: DELETE
+Access-Control-Request-Headers: Authorization, Content-Type
+
+# Server must respond:
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: Authorization, Content-Type
+Access-Control-Max-Age: 86400              # Cache preflight for 24h
+Access-Control-Allow-Credentials: true    # Required if sending cookies
+```
+
+```python
+# FastAPI CORS middleware:
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://app.example.com"],  # never "*" with credentials
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+**Never use `Access-Control-Allow-Origin: *` with `Access-Control-Allow-Credentials: true`** — browsers reject this combination.
+
+### Connection Management
+
+**HTTP/1.1 persistent connections (keep-alive):**
+
+```http
+Connection: keep-alive     # Reuse TCP connection for multiple requests
+Connection: close          # Close after this response
+```
+
+TCP connection setup (SYN → SYN-ACK → ACK) costs a round-trip time. Persistent connections eliminate this overhead for subsequent requests. Use connection pooling in production applications.
+
+**Chunked transfer encoding:**
+
+```http
+Transfer-Encoding: chunked
+```
+
+Allows response body to be sent in pieces without knowing the total `Content-Length` upfront. Used for streaming responses and server-sent events.
+
+**Content negotiation:**
+
+```http
+Accept: application/json, text/xml;q=0.9, */*;q=0.8
+Content-Type: application/json; charset=utf-8
+```
+
+Server picks the best representation and echoes back `Content-Type`. `q` values (0–1) indicate preference; default is 1.0.
+
+### Authentication Headers
+
+```http
+# Challenge (401 response):
+WWW-Authenticate: Bearer realm="api", error="invalid_token"
+WWW-Authenticate: Basic realm="Admin Area"
+
+# Client credential (subsequent request):
+Authorization: Bearer eyJhbGc...                    # JWT / OAuth token
+Authorization: Basic dXNlcjpwYXNz                   # base64(user:password)
+Authorization: Digest username="...", ...            # Digest auth
+```
+
+### Proxies and Forwarding
+
+```http
+X-Forwarded-For: 203.0.113.1, 10.0.0.1    # Real client IP (added by proxy)
+X-Forwarded-Proto: https                    # Original protocol before proxy
+X-Real-IP: 203.0.113.1                     # Single real IP (nginx)
+Forwarded: for=203.0.113.1; proto=https    # RFC 7239 standardised version
+```
+
+**Trust `X-Forwarded-For` only from known trusted proxies** — clients can spoof it.
+
+In FastAPI behind a reverse proxy, configure trusted hosts:
+
+```python
+from fastapi import Request
+
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host
+```
+
+### HTTPS / TLS
+
+HTTPS inserts TLS between HTTP and TCP:
+
+```
+Client → TLS Handshake → Server
+         (certificate exchange, cipher negotiation, session key)
+         ↓
+         Encrypted HTTP over the established TLS channel
+```
+
+**TLS handshake steps (simplified TLS 1.3):**
+1. Client Hello — supported cipher suites, TLS version
+2. Server Hello — chosen cipher, certificate (contains public key)
+3. Client verifies certificate against trusted CA
+4. Key exchange — session key derived; all further traffic encrypted
+
+**In production:** HTTPS is non-negotiable. Use `Strict-Transport-Security` (HSTS) to force HTTPS:
+
+```http
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+```
+
+### Common HTTP Antipatterns to Avoid
+
+- Using GET for state-changing operations (not idempotent, cacheable)
+- Using POST instead of PUT/PATCH for updates (loses idempotency guarantee)
+- Returning 200 with `{"error": "..."}` instead of the correct 4xx/5xx code
+- Returning 401 when you mean 403 (confused about auth vs authz)
+- Caching sensitive data without `Cache-Control: private, no-store`
+- Forgetting `Content-Type` header on POST/PUT bodies
+- Using cookies without `HttpOnly` and `Secure` flags
+- Not handling CORS preflight (OPTIONS) requests in your API router
+
+---
+
+## SQL Performance & Indexing
+
+*Source: SQL Performance Explained (Markus Winand)*
+
+### The B-Tree Index — How It Works
+
+Every database index (unless otherwise specified) is a **B-tree** — a balanced search tree where all leaf nodes are at the same depth.
+
+**Two-layer structure:**
+
+1. **Leaf nodes** — ordered index entries (indexed column value + ROWID/pointer to table row), connected by a doubly linked list so the database can traverse forward or backward
+2. **Branch nodes / Root** — each branch stores the maximum value from a child node, enabling O(log n) tree traversal to find the right leaf page
+
+**Three-step index lookup:**
+1. **Tree traversal** — traverse root → branch → leaf (bounded by tree depth, typically 4–5 levels even for millions of rows)
+2. **Leaf node chain** — follow the doubly linked list to find all matching entries
+3. **Table access** — fetch actual row data via ROWID
+
+Steps 2 and 3 are where performance degrades — an INDEX RANGE SCAN accessing many rows means many random table reads.
+
+**Key insight:** A B-tree can answer range queries efficiently (e.g., `WHERE age BETWEEN 25 AND 35`) because matching entries are consecutive in the leaf node chain.
+
+### Execution Plan Basics
+
+Always check the execution plan (EXPLAIN) to verify index usage:
+
+```sql
+-- PostgreSQL
+EXPLAIN ANALYZE SELECT * FROM employees WHERE last_name = 'Smith';
+
+-- MySQL
+EXPLAIN SELECT * FROM employees WHERE last_name = 'Smith';
+
+-- Oracle
+EXPLAIN PLAN FOR SELECT ...;
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+```
+
+**Oracle operation types:**
+
+| Operation | Meaning |
+|-----------|---------|
+| `INDEX UNIQUE SCAN` | Tree traversal only; primary key or unique constraint — at most 1 row |
+| `INDEX RANGE SCAN` | Tree traversal + leaf chain — multiple rows possible; performance varies |
+| `TABLE ACCESS BY INDEX ROWID` | Row fetch from table after index lookup |
+| `TABLE ACCESS FULL` | Full table scan — reads every row; may be faster than index for large result sets |
+
+### Composite (Concatenated) Indexes
+
+A composite index on `(col_a, col_b)` is usable as an access predicate **only if the leftmost column is in the WHERE clause**.
+
+```sql
+CREATE INDEX emp_name ON employees (last_name, first_name);
+
+-- Uses index (access predicate on last_name):
+SELECT * FROM employees WHERE last_name = 'Smith';
+SELECT * FROM employees WHERE last_name = 'Smith' AND first_name = 'John';
+
+-- Does NOT use the index efficiently (first_name alone skips left column):
+SELECT * FROM employees WHERE first_name = 'John';
+```
+
+**Column order rule:** Put the equality column first, then the range column. For a query `WHERE status = ? AND created_at > ?`, create `(status, created_at)` — not `(created_at, status)`.
+
+### Function-Based Indexes
+
+When you wrap a column in a function in the WHERE clause, the plain column index is useless — the database treats the function as a black box.
+
+```sql
+-- This CANNOT use an index on last_name:
+SELECT * FROM employees WHERE UPPER(last_name) = 'SMITH';
+
+-- Solution: create a function-based index
+CREATE INDEX emp_upper_name ON employees (UPPER(last_name));
+
+-- Now this query uses the index:
+SELECT * FROM employees WHERE UPPER(last_name) = 'SMITH';
+```
+
+**ORM warning:** Hibernate uses `LOWER()` for case-insensitive queries. Without a function-based index on `LOWER(column)`, every such query does a full table scan.
+
+**Deterministic requirement:** Only deterministic functions (same output for same input, always) can be indexed. `UPPER()`, `LOWER()`, and expressions like `col_a + col_b` are deterministic. `NOW()`, `SYSDATE`, random functions, and functions reading external state are not.
+
+### Index Invalidation Antipatterns
+
+**Wrapping the column in a function (black box problem):**
+
+```sql
+-- BAD: index on sale_date is unusable
+WHERE TRUNC(sale_date) = TRUNC(SYSDATE - 1)
+
+-- GOOD: convert the search term instead; keep the column bare
+WHERE sale_date >= DATE '2024-01-01'
+  AND sale_date <  DATE '2024-01-02'
+```
+
+**Implicit type conversion:**
+
+```sql
+-- BAD: numeric_string column gets CAST to number (index lost)
+WHERE numeric_string = 42       -- missing quotes forces conversion on column
+
+-- GOOD: convert the literal instead
+WHERE numeric_string = '42'
+```
+
+**Applying arithmetic to the column:**
+
+```sql
+-- BAD: index on price is unusable
+WHERE price * 1.2 > 100
+
+-- GOOD: rearrange the maths to the literal side
+WHERE price > 100 / 1.2
+```
+
+**Rule:** Never apply functions or arithmetic to the indexed column in a WHERE clause. Always apply transformations to the literal/parameter side of the comparison.
+
+### Partial Indexes
+
+A partial index covers only rows satisfying a condition — smaller, faster, more selective:
+
+```sql
+-- PostgreSQL native partial index:
+CREATE INDEX idx_messages_unread
+ON messages (receiver_id)
+WHERE processed = FALSE;
+
+-- Only works for queries that include the same WHERE condition:
+SELECT * FROM messages WHERE receiver_id = 42 AND processed = FALSE;
+```
+
+PostgreSQL and SQL Server support native partial indexes. Oracle emulates them using function-based indexing with NULL returns.
+
+### Covering Indexes
+
+A **covering index** includes all columns needed by the query in the index itself, avoiding table row access entirely.
+
+```sql
+-- Query needs: first_name, last_name (WHERE on employee_id)
+-- Covering index:
+CREATE INDEX idx_emp_covering ON employees (employee_id, first_name, last_name);
+
+-- Execution plan shows no TABLE ACCESS — index only scan
+```
+
+Covering indexes trade write overhead (index must be maintained on every DML) for dramatically faster reads when the indexed columns satisfy the full SELECT column list.
+
+### The N+1 Query Problem
+
+**N+1** occurs when ORM code issues one query for parent records, then N separate queries for each parent's children — instead of a single JOIN.
+
+```python
+# BAD — N+1 with SQLAlchemy (lazy loading):
+employees = session.query(Employee).filter(...).all()
+for emp in employees:
+    sales = emp.sales  # triggers a SELECT per employee!
+
+# GOOD — eager load with JOIN:
+employees = (
+    session.query(Employee)
+    .options(joinedload(Employee.sales))
+    .filter(...)
+    .all()
+)
+```
+
+**Enable SQL logging during development** to spot N+1 patterns:
+
+```python
+# SQLAlchemy echo:
+engine = create_engine(DATABASE_URL, echo=True)
+```
+
+**Diagnosis:** If you see the same query repeated N times with different parameter values, you have an N+1 problem.
+
+### Index Strategy for Join Types
+
+**Nested loops join** (small driving result set):
+- Index the join predicate columns on the inner table
+- Index the independent WHERE predicates on the outer table
+
+```sql
+-- Nested loops: index join columns on inner table
+CREATE INDEX sales_emp ON sales (subsidiary_id, employee_id);
+
+-- Plus independent predicate index:
+CREATE INDEX emp_upper_name ON employees (UPPER(last_name));
+```
+
+**Hash join** (large result sets):
+- Joining columns do NOT need indexes — hash table eliminates the need
+- Only independent WHERE predicates benefit from indexing
+- Reduce hash table size: select fewer columns, add more filter conditions
+
+```sql
+-- Hash join: index the independent WHERE predicate only
+CREATE INDEX sales_date ON sales (sale_date);
+```
+
+### Query Planner and Bind Parameters
+
+**Use bind parameters** (parameterised queries) for two reasons:
+
+1. **SQL injection prevention** — values never become SQL syntax
+2. **Execution plan reuse** — the database caches and reuses the plan for identical SQL text
+
+```python
+# Good — bind parameter:
+cursor.execute("SELECT * FROM employees WHERE subsidiary_id = %s", (subsidiary_id,))
+
+# Bad — string interpolation defeats plan caching and risks injection:
+cursor.execute(f"SELECT * FROM employees WHERE subsidiary_id = {subsidiary_id}")
+```
+
+**Exception:** When the optimal execution plan genuinely varies by parameter value (e.g., a large subsidiary vs small one), the database may need a literal to generate the right plan. Histograms help the optimizer decide.
+
+### Slow Query Identification
+
+Steps to diagnose a slow query:
+
+1. **Enable slow query log** (MySQL: `slow_query_log`, PostgreSQL: `log_min_duration_statement`)
+2. **Run EXPLAIN ANALYZE** — look for `TABLE ACCESS FULL` on large tables, high estimated row counts
+3. **Check cardinality** — if `INDEX RANGE SCAN` returns thousands of rows all requiring table lookups, adding a covering index or refining the predicate may help
+4. **Look at statistics freshness** — stale statistics mislead the optimizer; run `ANALYZE TABLE` / `VACUUM ANALYZE` after bulk loads
+5. **Check for missing indexes** — `WHERE` columns not indexed, or function-wrapped columns with no FBI
+
+### Indexing Summary Checklist
+
+- [ ] Every foreign key column has an index (prevents table scans on joins)
+- [ ] Composite index columns are ordered: equality columns first, range column last
+- [ ] No function wrapped around indexed columns in WHERE clauses
+- [ ] Date range queries use explicit `>=` / `<` bounds, not `TRUNC(date)`
+- [ ] Case-insensitive searches use function-based indexes (`UPPER`/`LOWER`)
+- [ ] ORM queries use eager loading (joinedload) where N+1 is possible
+- [ ] Bind parameters used everywhere (no f-string SQL)
+- [ ] EXPLAIN checked for full table scans on production-scale queries
+- [ ] Table statistics up to date after bulk imports
+
+---
+
+*Generated from 33 books: Python Crash Course (James Deep), Python Made Simple (James Young),
 Hacking with Kali Linux (Darwin Growth), Learning Kali Linux (Ric Messier),
 Fundamentals/Malware Analysis/Advanced Functions/Ethical Hacking of KALI LINUX 2024 (Diego Rodrigues),
 Configuring IPCop Firewalls (Barrie Dempster), Linux Firewalls (Michael Rash),
@@ -3545,4 +4088,6 @@ Python Testing with pytest (Brian Okken),
 SQL Antipatterns (Bill Karwin),
 Docker: Up and Running (Sean P. Kane & Karl Matthias),
 Pro Git (Scott Chacon & Ben Straub),
-OAuth 2 in Action (Justin Richer & Antonio Sanso).*
+OAuth 2 in Action (Justin Richer & Antonio Sanso),
+HTTP: The Definitive Guide (David Gourley & Brian Totty),
+SQL Performance Explained (Markus Winand).*
