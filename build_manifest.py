@@ -498,8 +498,8 @@ compliance_2 = [
 ]
 
 pw3 = 5.9
-ph3 = 1.16
-for i, (name, reg, desc) in enumerate(compliance_2):
+ph3 = 1.12
+for i, (name, reg, desc) in enumerate(compliance_2[:8]):   # first 8 in 2-col grid
     col = i % 2
     row = i // 2
     x = 0.42 + col * (pw3 + 0.25)
@@ -508,17 +508,17 @@ for i, (name, reg, desc) in enumerate(compliance_2):
     R(s, x, y, pw3, 0.055, fill=RED)
     T(s, name, x+0.15, y+0.1, pw3*0.55, 0.3, size=9.5, bold=True, color=DARK)
     T(s, reg, x+pw3*0.58, y+0.12, pw3*0.4, 0.25, size=7, color=RED, bold=True)
-    ML(s, [desc], x+0.15, y+0.42, pw3-0.25, 0.68, size=8, color=STONE5, leading=3)
+    ML(s, [desc], x+0.15, y+0.42, pw3-0.25, 0.65, size=8, color=STONE5, leading=3)
 
-# 9th item centred
+# 9th item — centred below the 4-row grid
 name9, reg9, desc9 = compliance_2[8]
-cx9 = 0.42 + (pw3 + 0.25) * 0.5
+cx9 = (13.33 - pw3) / 2          # truly centred on the slide
 cy9 = 1.12 + 4 * (ph3 + 0.1)
 R(s, cx9, cy9, pw3, ph3, fill=WHITE, line=STONE2)
 R(s, cx9, cy9, pw3, 0.055, fill=RED)
 T(s, name9, cx9+0.15, cy9+0.1, pw3*0.55, 0.3, size=9.5, bold=True, color=DARK)
 T(s, reg9, cx9+pw3*0.58, cy9+0.12, pw3*0.4, 0.25, size=7, color=RED, bold=True)
-ML(s, [desc9], cx9+0.15, cy9+0.42, pw3-0.25, 0.68, size=8, color=STONE5, leading=3)
+ML(s, [desc9], cx9+0.15, cy9+0.42, pw3-0.25, 0.65, size=8, color=STONE5, leading=3)
 
 advisor_stamp(s)
 slide_num(s, 7)
@@ -683,67 +683,67 @@ R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Deployment & Build Configuration",
                "Single-file HTML distributed via GitHub Pages — no server, no CDN dependency, runs from a USB stick")
 
-# GitHub Pages box
-R(s, 0.42, 1.12, 7.8, 2.35, fill=WHITE, line=STONE3)
+# GitHub Pages box — height 3.1 to contain 6 data rows without overflow
+R(s, 0.42, 1.12, 7.8, 3.1, fill=WHITE, line=STONE3)
 R(s, 0.42, 1.12, 7.8, 0.06, fill=RED)
 T(s, "GitHub Pages", 0.62, 1.22, 4, 0.35, size=13, bold=True, color=DARK)
 T(s, "Live · imscots-ui.github.io/santander/", 0.62, 1.58, 7.4, 0.28, size=11, color=RED)
 pages_info = [
-    ("Branch", "gh-pages"),
-    ("Contents", "index.html (832KB) + .nojekyll + vercel.json"),
-    ("Build", "Vite 5 + vite-plugin-singlefile → all JS/CSS/fonts inlined"),
-    ("Gzip", "181.99 KB — fast first load even on 3G"),
-    ("Key fix", "DOMContentLoaded listener — vite-plugin-singlefile inlines JS into <head> as plain <script> (no defer)"),
-    ("Mirror", "Vercel — santander-g671k7hgb-imscots-uis-projects.vercel.app"),
+    ("Branch",    "gh-pages"),
+    ("Contents",  "index.html (832KB) + .nojekyll + vercel.json"),
+    ("Build",     "Vite 5 + vite-plugin-singlefile — all JS/CSS/fonts inlined"),
+    ("Gzip",      "181.99 KB — fast first load even on 3G"),
+    ("Key fix",   "DOMContentLoaded listener — singlefile inlines JS into <head> as plain <script> (no defer)"),
+    ("Mirror",    "Vercel — santander-g671k7hgb-imscots-uis-projects.vercel.app"),
 ]
-row_block(s, pages_info, 0.62, 1.92, [1.7, 5.8], row_h=0.36)
+row_block(s, pages_info, 0.62, 1.95, [1.7, 5.8], row_h=0.33)
 
-# Vite config box
-R(s, 8.42, 1.12, 4.5, 2.35, fill=WHITE, line=STONE3)
+# Vite config box — height 3.1 to match GitHub Pages
+R(s, 8.42, 1.12, 4.5, 3.1, fill=WHITE, line=STONE3)
 R(s, 8.42, 1.12, 4.5, 0.06, fill=RED)
 T(s, "vite.config.js", 8.62, 1.22, 4, 0.3, size=12, bold=True, color=DARK)
 vite_info = [
-    ("Plugin",  "vite-plugin-singlefile"),
-    ("Target",  "esnext"),
-    ("Output",  "dist/index.html"),
-    ("Size",    "832 KB · 182 KB gzip"),
-    ("Removed", "removeViteModuleLoader: true"),
-    ("Why",     "Was stripping module type → exec order bug"),
+    ("Plugin",   "vite-plugin-singlefile"),
+    ("Target",   "esnext"),
+    ("Output",   "dist/index.html"),
+    ("Size",     "832 KB · 182 KB gzip"),
+    ("Removed",  "removeViteModuleLoader: true"),
+    ("Why",      "Strips module type → script exec order bug"),
 ]
-row_block(s, vite_info, 8.62, 1.54, [1.35, 2.88], row_h=0.36)
+row_block(s, vite_info, 8.62, 1.57, [1.4, 2.83], row_h=0.33)
 
-# npm commands box
-R(s, 0.42, 3.65, 5.8, 2.6, fill=WHITE, line=STONE3)
-R(s, 0.42, 3.65, 5.8, 0.06, fill=RED)
-T(s, "npm Commands", 0.62, 3.75, 5.4, 0.3, size=12, bold=True, color=DARK)
+# npm commands box — starts at y=4.42 (after row 1 boxes end at 4.22 + 0.2 gap)
+R(s, 0.42, 4.42, 5.8, 2.58, fill=WHITE, line=STONE3)
+R(s, 0.42, 4.42, 5.8, 0.06, fill=RED)
+T(s, "npm Commands", 0.62, 4.52, 5.4, 0.3, size=12, bold=True, color=DARK)
 cmds = [
-    ("npm install", "Install dependencies — first time only"),
-    ("npm run dev", "Dev server at localhost:5173 with hot reload"),
-    ("npm run build", "Production build to dist/ — 832KB HTML"),
-    ("npm run preview", "Serve dist/ locally for final testing"),
-    ("python3 build_deck.py", "Regenerate pitch deck (16 slides)"),
+    ("npm install",              "Install dependencies — first time only"),
+    ("npm run dev",              "Dev server at localhost:5173 with hot reload"),
+    ("npm run build",            "Production build to dist/ — 832KB HTML"),
+    ("npm run preview",          "Serve dist/ locally for final testing"),
+    ("python3 build_deck.py",    "Regenerate pitch deck (16 slides)"),
     ("python3 build_architecture.py", "Regenerate architecture deck (10 slides)"),
-    ("python3 build_manifest.py", "Regenerate this project record deck (11 slides)"),
+    ("python3 build_manifest.py",     "Regenerate this project record (13 slides)"),
 ]
 for i2, (cmd, desc) in enumerate(cmds):
-    ry2 = 4.05 + i2 * 0.31
+    ry2 = 4.84 + i2 * 0.30
     bg2 = STONE1 if i2 % 2 == 0 else WHITE
-    R(s, 0.62, ry2, 5.4, 0.31, fill=bg2, line=STONE2)
-    T(s, cmd, 0.72, ry2+0.05, 2.1, 0.24, size=8, bold=True, color=DARK)
-    T(s, desc, 2.85, ry2+0.05, 3.1, 0.24, size=8, color=STONE5)
+    R(s, 0.62, ry2, 5.4, 0.30, fill=bg2, line=STONE2)
+    T(s, cmd, 0.72, ry2+0.04, 2.1, 0.23, size=8, bold=True, color=DARK)
+    T(s, desc, 2.85, ry2+0.04, 3.1, 0.23, size=8, color=STONE5)
 
-# CLAUDE.md box
-R(s, 6.42, 3.65, 6.5, 2.6, fill=WHITE, line=STONE3)
-R(s, 6.42, 3.65, 6.5, 0.06, fill=RED)
-T(s, "CLAUDE.md — Captain's Standing Orders", 6.62, 3.75, 6.1, 0.3, size=11, bold=True, color=DARK)
+# CLAUDE.md box — same y as npm Commands
+R(s, 6.42, 4.42, 6.5, 2.58, fill=WHITE, line=STONE3)
+R(s, 6.42, 4.42, 6.5, 0.06, fill=RED)
+T(s, "CLAUDE.md — Captain's Standing Orders", 6.62, 4.52, 6.1, 0.3, size=11, bold=True, color=DARK)
 claude_items = [
     "Ships company command table — 6 officers with duties",
-    "5 Standing Security Orders (never outline-none without focus-visible, no dangerouslySetInnerHTML on dynamic content, no secrets in source, no git push --force, run /ship-ready before every push)",
-    "Bosun's Law — spacing scale (4·8·12·16·24·32·48·64·96·128px), stone-* only (never gray-* or zinc-*), one primary CTA per view, num-tab on all monetary amounts",
+    "5 Standing Security Orders: no bare outline-none, no dangerouslySetInnerHTML on dynamic content, no secrets in source, no git push --force, run /ship-ready before every push",
+    "Bosun's Law — spacing scale (4·8·12·16·24·32·48·64·96·128px), stone-* only, one primary CTA per view, num-tab on all monetary amounts",
     "closeWorkflow() invariant — all new state must be reset here",
     "Architecture constraints — no hooks inside closures, keep everything in App.jsx, single-file is intentional",
 ]
-ML(s, ["· " + item for item in claude_items], 6.62, 4.1, 6.1, 2.0, size=8.5, color=DARK, leading=5)
+ML(s, ["· " + item for item in claude_items], 6.62, 4.88, 6.1, 1.95, size=8.5, color=DARK, leading=5)
 
 advisor_stamp(s)
 slide_num(s, 11)
