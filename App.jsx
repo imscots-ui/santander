@@ -51,6 +51,9 @@ export default function App() {
   const [closureEvidenceUp, setClosureEvidenceUp] = useState(false);
   const [closureVulnDecl, setClosureVulnDecl] = useState(false);
 
+  const [personalLinked, setPersonalLinked] = useState(true);
+  const [unlinkConfirm, setUnlinkConfirm] = useState(false);
+
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
   const [bizAddr, setBizAddr] = useState('');
@@ -175,6 +178,11 @@ export default function App() {
     'society': { label: 'Society', name: 'Whitfield Historical Society', principal: 'committee member', authorities: 'committee members', isTreasurer: true, isLimited: false, requiresCH: false, requiresCC: false, requiresPartnership: false, requiresMinutes: true },
   };
   const entity = ENTITY_INFO[entityType];
+
+  const PERSONAL_ACCOUNTS = [
+    { name: 'Personal Current Account', no: '····7291', balance: 4250.80, sortCode: '09-01-29' },
+    { name: 'Santander 1|2|3 Lite', no: '····3847', balance: 12400.00, sortCode: '09-01-29' },
+  ];
 
   const signatories = [
     { name: 'James Whitfield', role: 'Director', list1: 'Passport · Mar 2026', list2: 'Council tax · Mar 2026', list3: 'N/A · matches residential', status: 'verified', initials: 'JW' },
@@ -481,6 +489,7 @@ export default function App() {
     // Reset all workflow-specific state
     setClosureSel([]); setClosureDest(''); setClosureConfirm(false);
     setClosureUnreachable(null); setClosureContactLog(''); setClosureEvidenceUp(false); setClosureVulnDecl(false);
+    setUnlinkConfirm(false);
     setBizChanges({}); setBizName(''); setBizAddr(''); setBizPhone(''); setBizEmail(''); setBizProofUp(false);
     setMandateAction(null); setMandateSig(null);
     setNewPersonName(''); setNewPersonSurname(''); setNewPersonDob(''); setNewPersonEmail(''); setNewPersonAddr('');
@@ -1628,6 +1637,108 @@ export default function App() {
     </StepFrame>
   );
 
+  const renderUnlink = () => {
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const next = () => {
+      if (step === 2) {
+        setPersonalLinked(false);
+        fireToast('Personal accounts unlinked — removed from this business banking view');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    return (
+      <StepFrame
+        title={['Personal accounts', 'What changes', 'Confirm & unlink'][step]}
+        sub={[
+          'Currently visible to all users on this business banking profile',
+          'Permanent until you re-link via your personal banking app',
+          'Authenticate to complete the separation',
+        ][step]}
+        total={3} current={step}
+        onBack={back} onNext={next}
+        nextLabel={step === 2 ? 'Unlink permanently' : 'Continue'}
+        replaces={{ form: 'Branch visit or phone call', savings: 'In-app · immediate · full audit trail' }}
+        nextDisabled={step === 2 && !unlinkConfirm}
+      >
+        {step === 0 && (
+          <div className="space-y-3">
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-3">
+              <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>Visible to all business banking users.</strong> These personal account balances and details can currently be seen by every co-signatory on this business profile — not just you.
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100/80 overflow-hidden">
+              {PERSONAL_ACCOUNTS.map(a => (
+                <div key={a.no} className="p-4 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-[15px] text-stone-900">{a.name}</div>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</span>
+                      <span className="text-[9px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-full font-medium bg-stone-100 text-stone-600">Personal</span>
+                    </div>
+                  </div>
+                  <div className="font-display-tight text-xl num-tab font-medium text-stone-900">{fmt(a.balance)}</div>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
+              James Whitfield · Personal banking · linked since account opening
+            </div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-3">
+            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-0.5">After unlinking</div>
+              {[
+                { icon: ShieldCheck, text: 'Personal account balances and sort codes removed from this business view entirely — not hidden, removed', good: true },
+                { icon: Users, text: 'No co-signatory on this profile can see your personal account details through business banking', good: true },
+                { icon: Lock, text: 'Transfers between personal and business accounts must be made from your personal banking app', good: false },
+                { icon: RefreshCw, text: 'Re-linking requires authentication from your personal Santander app or a call to us — cannot be done here', good: false },
+              ].map((item, i) => {
+                const I = item.icon;
+                return (
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${item.good ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+                      <I className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="text-xs text-stone-700 leading-relaxed mt-0.5">{item.text}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed">
+                <strong>GDPR Article 5(1)(c) — data minimisation.</strong> Personal financial data should not be accessible beyond its original purpose. Unlinking brings your business profile into compliance with this principle.
+              </div>
+            </div>
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-stone-50 rounded-2xl p-4 space-y-2.5 border border-stone-200">
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Unlinking</span><span>2 personal accounts</span></div>
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Account holder</span><span>James Whitfield</span></div>
+              <div className="flex justify-between text-sm pt-2 border-t border-stone-200"><span className="text-stone-500">Logged to</span><span className="font-medium">Audit trail · FCA SYSC 9</span></div>
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-900 text-white">
+              <div className="flex items-center gap-2 mb-3"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Separation declaration</span></div>
+              <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile. I understand this cannot be reversed via the app."</div>
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <span className="text-xs text-stone-700 leading-relaxed">
+                I confirm I want to permanently remove personal account access from this business banking view. I understand re-linking requires authentication from my personal banking app.
+              </span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const renderIdCheck = () => (
     <StepFrame title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
       total={1} current={0} onBack={closeWorkflow} onNext={closeWorkflow} nextLabel="Done"
@@ -2057,6 +2168,7 @@ export default function App() {
           <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
           <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
+          {personalLinked && <ActionTile icon={Link2} title="Unlink personal" desc="Separate personal accounts" onClick={() => { setWorkflow('unlink'); setStep(0); }} />}
         </div>
       </div>
 
@@ -2088,6 +2200,41 @@ export default function App() {
           })}
         </div>
       </div>
+
+      {/* Personal linked accounts */}
+      {personalLinked && (
+        <div className="px-5 mb-7 anim-fade">
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">James Whitfield · personal</div>
+              <h2 className="font-display-tight text-2xl text-stone-900">Linked accounts</h2>
+            </div>
+            <button
+              onClick={() => { setWorkflow('unlink'); setStep(0); }}
+              className="text-[11px] text-[#c8102e] font-medium mb-1 flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded">
+              Unlink <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100/80 lift-1 overflow-hidden">
+            {PERSONAL_ACCOUNTS.map(a => (
+              <div key={a.no} className="p-4 flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-[15px] text-stone-900">{a.name}</div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</span>
+                    <span className="text-[9px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-full font-medium bg-stone-100 text-stone-600">Personal</span>
+                  </div>
+                </div>
+                <div className="font-display-tight text-xl num-tab font-medium text-stone-900">{fmt(a.balance)}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex items-start gap-1.5 px-0.5">
+            <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5" />
+            <p className="text-[11px] text-stone-500 leading-relaxed">Visible to all business banking users on this profile, including co-signatories.</p>
+          </div>
+        </div>
+      )}
 
       {/* Priya card */}
       <div className="px-5 mb-7 anim-fade">
@@ -3276,6 +3423,7 @@ export default function App() {
         {workflow === 'mandate' && renderMandate()}
         {workflow === 'wages' && renderWages()}
         {workflow === 'dormancy' && renderDormancy()}
+        {workflow === 'unlink' && renderUnlink()}
         {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
 
