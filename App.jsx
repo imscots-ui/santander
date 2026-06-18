@@ -18,7 +18,8 @@ import {
   Globe, Briefcase, Camera, MailX, ChevronDown, Heart, Headphones,
   Video, Flag, Building, AlertTriangle, ScrollText, BookOpen, Zap,
   Receipt, TrendingUp, PoundSterling, Calculator, Send, Tag, Link2,
-  CalendarDays, BarChart3, Sparkles, Award, Search
+  CalendarDays, BarChart3, Sparkles, Award, Search,
+  Eye, EyeOff, Fingerprint, Snowflake
 } from 'lucide-react';
 
 export default function App() {
@@ -63,6 +64,14 @@ export default function App() {
   // Credit decisioning ring-fence state
   const [creditRingfenced, setCreditRingfenced] = useState(false);
   const [ringfenceConfirm, setRingfenceConfirm] = useState(false);
+
+  // Card management / PIN state
+  const [showPinSheet, setShowPinSheet] = useState(false);
+  const [pinCardKey, setPinCardKey] = useState(0);
+  const [pinAuthDone, setPinAuthDone] = useState(false);
+  const [pinRevealed, setPinRevealed] = useState(false);
+  const [pinCountdown, setPinCountdown] = useState(30);
+  const [frozenCards, setFrozenCards] = useState(new Set());
 
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
@@ -175,6 +184,13 @@ export default function App() {
     return () => clearTimeout(t);
   }, [paymentPending]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!pinRevealed) return;
+    if (pinCountdown <= 0) { setPinRevealed(false); setPinCountdown(30); return; }
+    const t = setTimeout(() => setPinCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [pinRevealed, pinCountdown]);
+
   const fireToast = (msg) => setToast(msg);
 
   // === STATIC DATA ===
@@ -198,6 +214,12 @@ export default function App() {
     { id: 'xero', app: 'Xero', purpose: 'Accounting software', scope: 'Business accounts · read-only', expires: '14 Dec 2026', exposesPersonal: false },
     { id: 'dext', app: 'Dext', purpose: 'Receipt capture', scope: 'Business transactions · read-only', expires: '3 Sep 2026', exposesPersonal: false },
     { id: 'fc', app: 'Funding Circle', purpose: 'Business loan application', scope: 'Business + personal accounts · full read', expires: '18 Jun 2026', exposesPersonal: true },
+  ];
+
+  // Demo card data — PINs are prototype placeholder values only, not real
+  const BUSINESS_CARDS = [
+    { key: 0, name: 'Business Debit', last4: '····4821', acctNo: '····2841', expiry: '09/28', network: 'Visa Debit', pin: '2847' },
+    { key: 1, name: 'Payroll Card', last4: '····3927', acctNo: '····6633', expiry: '03/27', network: 'Visa Debit', pin: '6103' },
   ];
 
   const signatories = [
@@ -236,6 +258,13 @@ export default function App() {
       label: rule === 'any-1' ? 'Any 1 signature' : rule === 'any-2' ? `Any 2 of ${total}` : `All ${total}`,
       shortLabel: rule === 'any-1' ? '1 sig' : rule === 'any-2' ? '2 sigs' : 'All',
     };
+  };
+
+  const closePin = () => {
+    setShowPinSheet(false);
+    setPinAuthDone(false);
+    setPinRevealed(false);
+    setPinCountdown(30);
   };
 
   const getMandateFor = (accountNos) => {
@@ -2329,6 +2358,56 @@ export default function App() {
         </div>
       </div>
 
+      {/* Cards */}
+      <div className="px-5 mb-7 anim-fade">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Business debit</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">Cards</h2>
+          </div>
+        </div>
+        <div className="space-y-2.5">
+          {BUSINESS_CARDS.map((card) => {
+            const isFrozen = frozenCards.has(card.key);
+            return (
+              <div key={card.key} className={`p-4 rounded-2xl border lift-1 ${isFrozen ? 'border-blue-200 bg-blue-50/30' : 'border-stone-200 bg-white'}`}>
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isFrozen ? 'bg-blue-100 text-blue-600' : 'bg-stone-900 text-white'}`}>
+                      {isFrozen ? <Snowflake className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <div className="font-medium text-[15px] text-stone-900">{card.name}</div>
+                      <div className="font-mono text-[11px] text-stone-500">{card.last4} · {card.network} · Exp {card.expiry}</div>
+                    </div>
+                  </div>
+                  {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium flex-shrink-0">Frozen</span>}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setPinCardKey(card.key); setPinAuthDone(false); setPinRevealed(false); setPinCountdown(30); setShowPinSheet(true); }}
+                    className="flex-1 py-2.5 rounded-xl border border-stone-200 text-xs font-medium text-stone-700 flex items-center justify-center gap-1.5 hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    View PIN
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFrozenCards(prev => { const n = new Set(prev); isFrozen ? n.delete(card.key) : n.add(card.key); return n; });
+                      fireToast(isFrozen ? `${card.name} unfrozen — ready to use` : `${card.name} frozen — all transactions blocked`);
+                    }}
+                    className={`flex-1 py-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${isFrozen ? 'border-blue-200 text-blue-700 hover:bg-blue-50' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}
+                  >
+                    <Snowflake className="w-3.5 h-3.5" />
+                    {isFrozen ? 'Unfreeze' : 'Freeze'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Privacy controls */}
       <div className="px-5 mb-7 anim-fade">
         <div className="mb-3">
@@ -2835,6 +2914,146 @@ export default function App() {
   };
 
   // === OPEN BANKING CONSENT SHEET ===
+  const PinSheet = () => {
+    const card = BUSINESS_CARDS[pinCardKey];
+    const isFrozen = frozenCards.has(pinCardKey);
+    const r = 26;
+    const circ = 2 * Math.PI * r;
+    const pct = pinCountdown / 30;
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={closePin}>
+        <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[90vh] overflow-y-auto anim-slide">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-12 h-1 bg-stone-300 rounded-full" /></div>
+          <div className="px-5 pb-4 border-b border-stone-100 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">Card management</div>
+              <h2 className="font-display text-2xl mt-0.5">{card.name}</h2>
+            </div>
+            <button onClick={closePin} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+          <div className="px-5 py-5 space-y-4">
+            {/* Card visual */}
+            <div className="w-full h-44 rounded-3xl bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 text-white p-5 relative overflow-hidden">
+              <div className="absolute -top-14 -right-14 w-52 h-52 rounded-full bg-white/[0.03] pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-[#c8102e]/[0.12] pointer-events-none" />
+              <div className="absolute top-4 right-5 flex items-center">
+                <div className="w-8 h-8 rounded-full bg-[#c8102e]/80" />
+                <div className="w-8 h-8 rounded-full bg-[#c8102e] -ml-3.5 opacity-65" />
+              </div>
+              <div className="relative h-full flex flex-col justify-between">
+                <div className="w-12 h-8 rounded-md bg-gradient-to-br from-amber-300 to-amber-500 opacity-90" />
+                <div>
+                  <div className="font-mono text-[17px] tracking-[0.22em] mb-2">{card.last4}</div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-white/55 mb-0.5">Valid thru</div>
+                      <div className="text-sm font-mono">{card.expiry}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="text-[9px] uppercase tracking-wider text-white/55">{card.network}</div>
+                      {isFrozen && (
+                        <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/25 border border-blue-400/25 rounded-full">
+                          <Snowflake className="w-3 h-3 text-blue-300" />
+                          <span className="text-[9px] uppercase tracking-wider text-blue-300">Frozen</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Freeze toggle */}
+            <div className={`flex items-center justify-between p-4 rounded-2xl border ${isFrozen ? 'bg-blue-50/40 border-blue-200' : 'bg-stone-50 border-stone-200'}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isFrozen ? 'bg-blue-100 text-blue-600' : 'bg-stone-200 text-stone-600'}`}>
+                  <Snowflake className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="font-medium text-sm">{isFrozen ? 'Card frozen' : 'Freeze card'}</div>
+                  <div className={`text-[11px] ${isFrozen ? 'text-blue-700' : 'text-stone-500'}`}>{isFrozen ? 'All transactions blocked · unfreeze instantly' : 'Blocks all transactions — instant, reversible'}</div>
+                </div>
+              </div>
+              <Toggle value={isFrozen} onChange={(v) => {
+                setFrozenCards(prev => { const n = new Set(prev); v ? n.add(pinCardKey) : n.delete(pinCardKey); return n; });
+                fireToast(v ? `${card.name} frozen — all transactions blocked` : `${card.name} unfrozen — ready to use`);
+              }} />
+            </div>
+
+            {/* PIN section */}
+            {!pinAuthDone ? (
+              <div className="space-y-3">
+                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-stone-900 text-white flex items-center justify-center mx-auto mb-3 lift-2">
+                    <Fingerprint className="w-7 h-7" />
+                  </div>
+                  <div className="font-display text-lg text-stone-900 mb-1">View your PIN</div>
+                  <div className="text-[11px] text-stone-500 leading-relaxed mb-4 max-w-xs mx-auto">Retrieved from a secure HSM after biometric verification. Never stored in the app or transmitted in cleartext.</div>
+                  <button
+                    onClick={() => { setPinAuthDone(true); setPinRevealed(true); setPinCountdown(30); }}
+                    className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
+                  >
+                    <Fingerprint className="w-4 h-4" />
+                    Authenticate with Face ID
+                  </button>
+                </div>
+                <div className="text-[10px] text-stone-400 text-center">Viewing your PIN is logged in your security audit trail.</div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
+                  <div className="text-[10px] uppercase tracking-wider text-stone-500 mb-4">Your PIN</div>
+                  {pinRevealed ? (
+                    <div className="flex items-center justify-center gap-2.5 mb-5">
+                      {card.pin.split('').map((digit, i) => (
+                        <div key={i} className="w-14 h-16 rounded-2xl bg-white border border-stone-200 lift-1 flex items-center justify-center font-display text-3xl text-stone-900 font-medium">{digit}</div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2.5 mb-5">
+                      {[0,1,2,3].map(i => (
+                        <div key={i} className="w-14 h-16 rounded-2xl bg-stone-200 border border-stone-300 flex items-center justify-center">
+                          <div className="w-3.5 h-3.5 rounded-full bg-stone-400" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {pinRevealed && (
+                    <div className="flex flex-col items-center gap-1.5 mb-4">
+                      <div className="relative w-14 h-14">
+                        <svg className="w-14 h-14 -rotate-90" viewBox="0 0 60 60">
+                          <circle cx="30" cy="30" r={r} fill="none" stroke="#e7e5e4" strokeWidth="4" />
+                          <circle cx="30" cy="30" r={r} fill="none" stroke="#c8102e" strokeWidth="4"
+                            strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
+                            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-base font-bold text-stone-900 tabular-nums">{pinCountdown}</span>
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-stone-500">Hides in {pinCountdown}s</div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => { if (pinRevealed) { setPinRevealed(false); setPinCountdown(30); } else { setPinRevealed(true); setPinCountdown(30); } }}
+                    className={`w-full py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform ${pinRevealed ? 'bg-stone-900 text-white' : 'bg-white border border-stone-200 text-stone-900'}`}
+                  >
+                    {pinRevealed ? <><EyeOff className="w-4 h-4" /> Hide PIN</> : <><Eye className="w-4 h-4" /> Show PIN again</>}
+                  </button>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-amber-900 leading-relaxed"><strong>Never share your PIN.</strong> Santander will never ask for it. If you've shared it, call us immediately: <strong>0330 123 9860</strong>.</div>
+                </div>
+                <div className="text-[10px] text-stone-400 text-center">PIN viewed today · logged to security audit trail</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const OBSheet = () => (
     <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={() => setShowOBSheet(false)}>
       <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto anim-slide">
@@ -3661,6 +3880,7 @@ export default function App() {
         {showRMSheet && <RMSheet />}
         {showEntitySwitcher && <EntitySheet />}
         {pendingCancelId && <CancelSheet />}
+        {showPinSheet && <PinSheet />}
         {showOBSheet && <OBSheet />}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
