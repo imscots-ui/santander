@@ -110,6 +110,7 @@ export default function App() {
   const [counterpartyQuery, setCounterpartyQuery] = useState('');
   const [openCounterparty, setOpenCounterparty] = useState(null); // counterparty name being viewed
   const [methodFilter, setMethodFilter] = useState('all'); // 'all' | 'card' | 'dd' | 'so' | 'fp' | 'bacs'
+  const [paymentPending, setPaymentPending] = useState(null); // null | { kind, label, total, count, countdown }
 
   // Load fonts
   useEffect(() => {
@@ -136,6 +137,26 @@ export default function App() {
     const interval = setInterval(() => setTick(t => t + 1), 30_000);
     return () => clearInterval(interval);
   }, [cooling.length]);
+
+  // Payment / HMRC cool-off countdown — 1s ticks, executes at zero
+  useEffect(() => {
+    if (!paymentPending) return;
+    if (paymentPending.countdown <= 0) {
+      if (paymentPending.kind === 'hmrc') {
+        fireToast('Submitted to HMRC. Receipt #VAT2026Q3-9482 in your audit log.');
+        setMtdQuarterStep(0);
+        setMtdReviewedTransactions({});
+        setMtdConfirmDeclaration(false);
+      } else {
+        fireToast(`Payment sent — ${paymentPending.label}`);
+      }
+      setPaymentPending(null);
+      closeWorkflow();
+      return;
+    }
+    const t = setTimeout(() => setPaymentPending(p => p ? { ...p, countdown: p.countdown - 1 } : null), 1000);
+    return () => clearTimeout(t);
+  }, [paymentPending]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fireToast = (msg) => setToast(msg);
 
@@ -451,6 +472,7 @@ export default function App() {
 
   // === WORKFLOW HELPERS ===
   const closeWorkflow = () => {
+    setPaymentPending(null);
     setWorkflow(null); setStep(0);
     // Reset all workflow-specific state
     setClosureSel([]); setClosureDest(''); setClosureConfirm(false);
@@ -1168,8 +1190,13 @@ export default function App() {
 
     const next = () => {
       if (step === 3) {
-        fireToast("Sent for co-signature. They've got 48 hours.");
-        closeWorkflow();
+        setPaymentPending({
+          kind: 'payment',
+          label: `${selectedCount} ${selectedCount === 1 ? 'payee' : 'payees'} · from ${wagesSource}`,
+          total,
+          count: selectedCount,
+          countdown: 10,
+        });
       } else setStep(step + 1);
     };
     const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
@@ -1235,7 +1262,7 @@ export default function App() {
                 <input
                   type="text" value={payeeSearch} onChange={e => setPayeeSearch(e.target.value)}
                   placeholder="Search payees…"
-                  className="w-full px-4 py-2.5 pl-9 rounded-xl bg-stone-50 border border-stone-200 focus:border-stone-900 focus:outline-none text-sm"
+                  className="w-full px-4 py-2.5 pl-9 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors"
                 />
                 <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
               </div>
@@ -1310,7 +1337,7 @@ export default function App() {
                               type="number"
                               value={p.amount}
                               onChange={e => updateAmount(p.id, e.target.value)}
-                              className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-sm font-mono num-tab focus:border-stone-900 focus:outline-none"
+                              className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-sm font-mono num-tab focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 transition-colors"
                               placeholder="0.00"
                             />
                           </div>
@@ -2080,7 +2107,7 @@ export default function App() {
                 value={counterpartyQuery}
                 onChange={e => setCounterpartyQuery(e.target.value)}
                 placeholder="Try 'Adobe', 'BT', 'rates'…"
-                className="w-full pl-11 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:border-stone-900 focus:outline-none text-sm"
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors"
               />
             </div>
             {counterpartyQuery.trim() && (
@@ -2680,11 +2707,13 @@ export default function App() {
 
     const next = () => {
       if (mtdQuarterStep === 3) {
-        fireToast('Submitted to HMRC. Receipt #VAT2026Q3-9482 will arrive in your audit log.');
-        closeWorkflow();
-        setMtdQuarterStep(0);
-        setMtdReviewedTransactions({});
-        setMtdConfirmDeclaration(false);
+        setPaymentPending({
+          kind: 'hmrc',
+          label: 'VAT return · Q3 Jul–Sep 2026',
+          total: 4118,
+          count: 0,
+          countdown: 5,
+        });
       } else setMtdQuarterStep(mtdQuarterStep + 1);
     };
     const back = () => mtdQuarterStep === 0 ? closeWorkflow() : setMtdQuarterStep(mtdQuarterStep - 1);
@@ -3075,6 +3104,71 @@ export default function App() {
         {showRMSheet && <RMSheet />}
         {showEntitySwitcher && <EntitySheet />}
         {pendingCancelId && <CancelSheet />}
+
+        {/* ── Payment / HMRC cool-off overlay ── */}
+        {paymentPending && (() => {
+          const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
+          const pct = paymentPending.countdown / maxCountdown;
+          const r = 42;
+          const circ = 2 * Math.PI * r;
+          const isHmrc = paymentPending.kind === 'hmrc';
+          return (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/75 backdrop-blur-sm anim-fade">
+              <div className="bg-white rounded-3xl p-8 mx-5 max-w-xs w-full shadow-2xl text-center">
+                {/* Ring countdown */}
+                <div className="relative w-24 h-24 mx-auto mb-5">
+                  <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
+                    <circle cx="48" cy="48" r={r} fill="none" stroke="#e7e5e4" strokeWidth="7" />
+                    <circle cx="48" cy="48" r={r} fill="none" stroke="#c8102e" strokeWidth="7"
+                      strokeDasharray={circ}
+                      strokeDashoffset={circ * (1 - pct)}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-3xl font-bold text-stone-900 tabular-nums">{paymentPending.countdown}</span>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div className="text-xs uppercase tracking-widest text-stone-400 mb-1">
+                  {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
+                </div>
+                <div className="font-display text-2xl text-stone-900 leading-tight mb-1">
+                  {isHmrc ? 'One last chance to stop' : 'Check the details'}
+                </div>
+                <div className="text-sm text-stone-500 mb-1">{paymentPending.label}</div>
+                {paymentPending.total > 0 && (
+                  <div className="font-mono text-xl font-semibold text-stone-900 num-tab mb-5">
+                    {fmt(paymentPending.total)}
+                  </div>
+                )}
+
+                {/* Warning */}
+                <div className={`rounded-2xl p-3 mb-5 text-xs leading-relaxed ${isHmrc ? 'bg-amber-50 text-amber-800' : 'bg-stone-50 text-stone-600'}`}>
+                  {isHmrc
+                    ? 'Once submitted, this return is lodged with HMRC and cannot be amended through this app. Contact HMRC directly to correct a filed return.'
+                    : 'Money moves when the countdown ends. Cancel now if you have spotted a wrong account or amount.'}
+                </div>
+
+                {/* Cancel */}
+                <button
+                  onClick={() => {
+                    setPaymentPending(null);
+                    fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
+                  }}
+                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                >
+                  Cancel — go back
+                </button>
+                <div className="mt-3 text-[11px] text-stone-400">
+                  Sending automatically in {paymentPending.countdown}s
+                </div>
+              </div>
+            </div>
+          );
+        })()}
         {openCounterparty && <CounterpartySheet />}
 
         {toast && (
