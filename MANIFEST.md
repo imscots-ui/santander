@@ -222,7 +222,7 @@ Contents:
 
 **File:** `vite.config.js`  
 **Plugin:** `vite-plugin-singlefile` — inlines all JS, CSS, fonts into single HTML  
-**Target:** `esnext` · **Output:** `dist/index.html` (350KB)  
+**Target:** `esnext` · **Output:** `dist/index.html` (832KB · 182KB gzip)  
 **Key fix:** Removed `removeViteModuleLoader: true` — was stripping module type and causing script execution order issue
 
 ---
@@ -241,7 +241,7 @@ Contents:
 | 4 | What we built — 21 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
 | 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
-| 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo |
+| 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo, notification bell |
 | 8 | Paperless workflows deep-dive |
 | 9 | Making Tax Digital deep-dive |
 | 10 | Security & compliance (4 frameworks) |
