@@ -2494,11 +2494,11 @@ export default function App() {
         <div className="bg-white rounded-2xl border border-stone-200/80 p-5 lift-1">
           <div className="flex items-center gap-5">
             <svg width="100" height="100" viewBox="0 0 120 120" className="flex-shrink-0">
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#f3f4f6" strokeWidth="10" />
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#f5f5f4" strokeWidth="10" />
               <circle cx="60" cy="60" r="45" fill="none" stroke={healthScore.colour} strokeWidth="10"
                 strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
               <text x="60" y="55" textAnchor="middle" fontSize="26" fontWeight="700" fill={healthScore.colour}>{healthScore.total}</text>
-              <text x="60" y="71" textAnchor="middle" fontSize="11" fill="#9ca3af">out of 100</text>
+              <text x="60" y="71" textAnchor="middle" fontSize="11" fill="#a8a29e">out of 100</text>
             </svg>
             <div className="flex-1 space-y-2.5">
               {healthScore.factors.map(f => (
