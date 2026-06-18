@@ -208,7 +208,7 @@ state_groups = [
     ("STATEMENTS", ["statementMonth, statementView", "counterpartyQuery, methodFilter", "openCounterparty", "moneyView"]),
 ]
 for i, (grp, items) in enumerate(state_groups):
-    col = i % 3; row = i // 2
+    col = i % 3; row = i // 3
     x = 0.55 + col * 4.26
     y = 1.88 + row * 1.52
     R(s, x, y, 4.0, 1.38, fill=WHITE, line=STONE3)
@@ -641,8 +641,8 @@ for i, (name, val, use) in enumerate(shadows):
     T(s, val, 8.54, y+0.32, 2.5, 0.24, size=7.5, color=STONE5)
     T(s, use, 10.2, y+0.1, 2.5, 0.26, size=8.5, color=DARK)
 
-# Component patterns
-T(s, "KEY COMPONENT PATTERNS", 5.2, 4.62, 3, 0.28, size=10, bold=True, color=STONE5)
+# Component patterns — contained within middle column (x 5.2–8.05), descriptions below name box
+T(s, "KEY COMPONENT PATTERNS", 5.2, 4.32, 2.85, 0.28, size=10, bold=True, color=STONE5)
 patterns = [
     ("StepFrame", "Workflow wrapper — back/close/progress/next. No hooks inside."),
     ("Input", "focus-visible:ring-2 — WCAG keyboard visible, mouse unaffected"),
@@ -651,10 +651,10 @@ patterns = [
     ("ProgressDots", "Step indicator — red active, stone complete, stone-300 future"),
 ]
 for i, (name, desc) in enumerate(patterns):
-    y = 4.95 + i * 0.55
-    R(s, 5.2, y, 2.85, 0.46, fill=DARK)
-    T(s, name, 5.32, y+0.06, 2.62, 0.24, size=8.5, bold=True, color=WHITE)
-    T(s, desc, 8.15, y+0.1, 5.0, 0.36, size=8.5, color=STONE5)
+    y = 4.66 + i * 0.52
+    R(s, 5.2, y, 2.85, 0.28, fill=DARK)
+    T(s, name, 5.32, y+0.04, 2.62, 0.22, size=8.5, bold=True, color=WHITE)
+    T(s, desc, 5.22, y+0.30, 2.78, 0.18, size=7.5, color=STONE5)
 
 footer(s, 10)
 
