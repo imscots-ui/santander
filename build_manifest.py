@@ -261,28 +261,33 @@ screens = [
      ]),
 ]
 
-col_w = 6.35
-for ci, (name, state, pts) in enumerate(screens):
-    col = ci % 2
-    row = ci // 2
-    x = 0.45 + col * (col_w + 0.22)
-    y = 1.15 + row * 2.78
+# 3+2 layout: 3 panels in row 0, 2 centred in row 1
+col_w  = 4.04
+gap_x  = 0.19
+step_x = col_w + gap_x
+ph     = 2.68
+step_y = ph + 0.22
 
-    R(s, x, y, col_w, 2.6, fill=WHITE, line=STONE3)
+# Row 0 — first 3 screens
+for ci, (name, state, pts) in enumerate(screens[:3]):
+    x = 0.42 + ci * step_x
+    y = 1.15
+    R(s, x, y, col_w, ph, fill=WHITE, line=STONE3)
     R(s, x, y, col_w, 0.06, fill=RED)
-    T(s, name, x+0.18, y+0.1, col_w-0.4, 0.32, size=11, bold=True, color=DARK)
-    T(s, state, x+0.18, y+0.42, col_w-0.4, 0.22, size=8, color=STONE5, italic=True)
-    ML(s, ["· " + p for p in pts], x+0.18, y+0.65, col_w-0.32, 1.88, size=8.5, color=STONE7, leading=3)
+    T(s, name,  x+0.15, y+0.10, col_w-0.30, 0.30, size=11, bold=True,  color=DARK)
+    T(s, state, x+0.15, y+0.40, col_w-0.30, 0.20, size=8,  italic=True, color=STONE5)
+    ML(s, ["· " + p for p in pts], x+0.15, y+0.62, col_w-0.28, ph-0.70, size=8.5, color=STONE7, leading=3)
 
-# 5th screen centred
-name5, state5, pts5 = screens[4]
-x5 = 0.45 + (col_w + 0.22) * 0.5
-y5 = 1.15 + 2 * 2.78
-R(s, x5, y5, col_w, 2.6, fill=WHITE, line=STONE3)
-R(s, x5, y5, col_w, 0.06, fill=RED)
-T(s, name5, x5+0.18, y5+0.1, col_w-0.4, 0.32, size=11, bold=True, color=DARK)
-T(s, state5, x5+0.18, y5+0.42, col_w-0.4, 0.22, size=8, color=STONE5, italic=True)
-ML(s, ["· " + p for p in pts5], x5+0.18, y5+0.65, col_w-0.32, 1.88, size=8.5, color=STONE7, leading=3)
+# Row 1 — last 2 screens centred
+x_start = (13.33 - 2 * col_w - gap_x) / 2
+for ci, (name, state, pts) in enumerate(screens[3:]):
+    x = x_start + ci * step_x
+    y = 1.15 + step_y
+    R(s, x, y, col_w, ph, fill=WHITE, line=STONE3)
+    R(s, x, y, col_w, 0.06, fill=RED)
+    T(s, name,  x+0.15, y+0.10, col_w-0.30, 0.30, size=11, bold=True,  color=DARK)
+    T(s, state, x+0.15, y+0.40, col_w-0.30, 0.20, size=8,  italic=True, color=STONE5)
+    ML(s, ["· " + p for p in pts], x+0.15, y+0.62, col_w-0.28, ph-0.70, size=8.5, color=STONE7, leading=3)
 
 advisor_stamp(s)
 slide_num(s, 3)
