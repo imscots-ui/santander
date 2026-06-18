@@ -53,6 +53,7 @@ export default function App() {
 
   const [personalLinked, setPersonalLinked] = useState(true);
   const [unlinkConfirm, setUnlinkConfirm] = useState(false);
+  const [unlinkAllChannels, setUnlinkAllChannels] = useState(false);
 
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
@@ -489,7 +490,7 @@ export default function App() {
     // Reset all workflow-specific state
     setClosureSel([]); setClosureDest(''); setClosureConfirm(false);
     setClosureUnreachable(null); setClosureContactLog(''); setClosureEvidenceUp(false); setClosureVulnDecl(false);
-    setUnlinkConfirm(false);
+    setUnlinkConfirm(false); setUnlinkAllChannels(false);
     setBizChanges({}); setBizName(''); setBizAddr(''); setBizPhone(''); setBizEmail(''); setBizProofUp(false);
     setMandateAction(null); setMandateSig(null);
     setNewPersonName(''); setNewPersonSurname(''); setNewPersonDob(''); setNewPersonEmail(''); setNewPersonAddr('');
@@ -1642,7 +1643,11 @@ export default function App() {
     const next = () => {
       if (step === 2) {
         setPersonalLinked(false);
-        fireToast('Personal accounts unlinked — removed from this business banking view');
+        if (unlinkAllChannels) {
+          fireToast('App unlinked · Call centre separation raised — ref. REL-2026-0291 · confirmation letter within 2 working days');
+        } else {
+          fireToast('App unlinked · Note: when calling us, agents can still see both accounts');
+        }
         closeWorkflow();
       } else setStep(step + 1);
     };
@@ -1665,7 +1670,7 @@ export default function App() {
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-3">
               <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
               <div className="text-xs text-amber-900 leading-relaxed">
-                <strong>Visible to all business banking users.</strong> These personal account balances and details can currently be seen by every co-signatory on this business profile — not just you.
+                <strong>Two separate exposures.</strong> These balances are visible in the app to every co-signatory — and visible to our call centre agents whenever you call from your registered mobile. The app unlink and the call centre separation are different instructions.
               </div>
             </div>
             <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100/80 overflow-hidden">
@@ -1682,8 +1687,15 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
-              James Whitfield · Personal banking · linked since account opening
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200/50 text-center">
+                <div className="font-semibold text-red-800 mb-0.5">App</div>
+                <div className="text-red-700">All co-signatories</div>
+              </div>
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200/50 text-center">
+                <div className="font-semibold text-red-800 mb-0.5">Call centre</div>
+                <div className="text-red-700">Any inbound call</div>
+              </div>
             </div>
           </div>
         )}
@@ -1694,6 +1706,7 @@ export default function App() {
               {[
                 { icon: ShieldCheck, text: 'Personal account balances and sort codes removed from this business view entirely — not hidden, removed', good: true },
                 { icon: Users, text: 'No co-signatory on this profile can see your personal account details through business banking', good: true },
+                { icon: Phone, text: 'When you call us from your registered mobile, agents will still see both accounts — this unlink does not change that. Request full separation in step 3.', good: false },
                 { icon: Lock, text: 'Transfers between personal and business accounts must be made from your personal banking app', good: false },
                 { icon: RefreshCw, text: 'Re-linking requires authentication from your personal Santander app or a call to us — cannot be done here', good: false },
               ].map((item, i) => {
@@ -1721,16 +1734,29 @@ export default function App() {
             <div className="bg-stone-50 rounded-2xl p-4 space-y-2.5 border border-stone-200">
               <div className="flex justify-between text-sm"><span className="text-stone-500">Unlinking</span><span>2 personal accounts</span></div>
               <div className="flex justify-between text-sm"><span className="text-stone-500">Account holder</span><span>James Whitfield</span></div>
+              <div className="flex justify-between text-sm"><span className="text-stone-500">App separation</span><span className="text-emerald-700 font-medium">Immediate</span></div>
               <div className="flex justify-between text-sm pt-2 border-t border-stone-200"><span className="text-stone-500">Logged to</span><span className="font-medium">Audit trail · FCA SYSC 9</span></div>
             </div>
+            <Toggle
+              label="Also separate from call centre view"
+              sub="When you call us, agents won't see personal accounts · back-office CRM instruction · up to 2 working days · confirmed by letter"
+              value={unlinkAllChannels}
+              onChange={setUnlinkAllChannels}
+            />
+            {unlinkAllChannels && (
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between">
+                <span className="text-xs text-stone-500">Call centre case ref.</span>
+                <span className="font-mono text-sm font-medium tracking-wider">REL-2026-0291</span>
+              </div>
+            )}
             <div className="p-4 rounded-2xl bg-stone-900 text-white">
               <div className="flex items-center gap-2 mb-3"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Separation declaration</span></div>
-              <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile. I understand this cannot be reversed via the app."</div>
+              <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile{unlinkAllChannels ? ' and from our call centre view' : ''}. I understand this cannot be reversed via the app."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
               <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
               <span className="text-xs text-stone-700 leading-relaxed">
-                I confirm I want to permanently remove personal account access from this business banking view. I understand re-linking requires authentication from my personal banking app.
+                I confirm I want to permanently remove personal account access from this business banking view{unlinkAllChannels ? ' and request call centre separation' : ''}. I understand re-linking requires authentication from my personal banking app.
               </span>
             </label>
           </div>
