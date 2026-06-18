@@ -12,7 +12,7 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~3,400 lines · ~210KB · Single React component  
+**Size:** ~3,700 lines · ~210KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
@@ -25,7 +25,7 @@
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (8 step-based wizards)
+### Workflows (11 step-based wizards)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -38,6 +38,8 @@
 | MTD VAT Submission | Categorise → Review VAT100 → Declare → Submit | Auto-categorisation, confidence scoring, HMRC API v1.0 |
 | Personal/Business Unlink | Confirm scope → Data separation notice → All-channels + postal toggles → Declaration | Removes personal accounts from React render tree (not CSS hide). unlinkAllChannels triggers CRM back-office update (ref REL-2026-0291, 2 working days) |
 | Credit Ring-Fence | Risk overview + legal basis → Declaration | Formal instruction: personal account data excluded from business credit decisioning. GDPR Art.5(1)(c) purpose limitation. Persistent state — survives workflow close |
+| Pre-approved Business Lending | Offer/term selector → Terms & cooling-off rights → Confirm & draw down | CCA 1974 regulated. 3 term options 12/24/36 months with live monthly repayment calculator. lendingCompleted persists |
+| International FX Payment | Amount + currency + IBAN + beneficiary → Rate & FCA fee disclosure → Confirm & sign | 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref logged to audit trail |
 
 ### Entity Types (7 — all compliance paths diverge)
 
@@ -69,6 +71,14 @@
 | Postal statement separation | GDPR Art.5(1)(c) | unlinkPostal toggle — separate delivery preference per channel |
 | Credit ring-fence | GDPR Art.5(1)(c) / ICO LIA | Formal written instruction persisted in state. Personal account history excluded from business loan/overdraft underwriting |
 | Open banking PSD2 consent audit | PSD2 RTS Art.29 | OBSheet shows all third-party consents with scope and expiry. Flags personal data exposure (Funding Circle). Revocation within 90 seconds per RTS |
+| Receipt scan → MTD | HMRC MTD digital links | Simulated OCR: scan receipt → extract merchant/amount/VAT/category → categorise transaction. Updates audit trail. Closes the manual-entry gap in MTD |
+
+### Home Screen Intelligence
+
+| Feature | Implementation |
+|---------|---------------|
+| Pre-approved lending offer | Hero card showing £45,000 pre-approved offer. Disappears after draw-down, replaced by active loan summary chip |
+| 13-week cash flow forecast | SVG bar chart (forecastWeeks useMemo) — 13 weekly balance projections from known DDs, payroll, VAT, income patterns. Amber warning line at £80k with actionable nudge |
 
 ### Accessibility Fixes Applied This Session
 
@@ -210,24 +220,25 @@ Contents:
 
 ### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
 
-14 slides · Santander brand colours throughout · Built with python-pptx
+15 slides · Santander brand colours throughout · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Title + Business Banking Advisor stamp |
 | 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 12 features (3-col grid) |
+| 4 | What we built — 16 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
-| 6 | Paperless workflows deep-dive |
-| 7 | Making Tax Digital deep-dive |
-| 8 | Security & compliance (4 frameworks) |
-| 9 | Financial intelligence features |
-| 10 | Technical architecture (current + production) |
-| 11 | Business case — £137M annualised opportunity + 5 competitive differentiators |
-| 12 | Roadmap — 4 phases Q3 2026→Q2 2027 |
-| 13 | Design system & accessibility |
-| 14 | Next steps — 3 decisions for senior management |
+| 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
+| 7 | Paperless workflows deep-dive |
+| 8 | Making Tax Digital deep-dive |
+| 9 | Security & compliance (4 frameworks) |
+| 10 | Financial intelligence features |
+| 11 | Technical architecture (current + production) |
+| 12 | Business case — £137M annualised opportunity + 5 competitive differentiators |
+| 13 | Roadmap — 4 phases Q3 2026→Q2 2027 |
+| 14 | Design system & accessibility |
+| 15 | Next steps — 3 decisions for senior management |
 
 **Credit on every slide:** "Business Banking Advisor · Self-initiated · Completed out of hours in own time"
 
@@ -276,7 +287,8 @@ Contents:
 
 | Metric | Value |
 |--------|-------|
-| Paperless workflows built | 8 |
+| Paperless workflows built | 10 |
+| Home screen intelligence features | 2 (forecast, lending offer) |
 | Paper forms retired | 5 (CA04, CA07, CA11, P17, D18) |
 | Entity types supported | 7 |
 | Approval rule tiers | 3 (Any-1, Any-2, All) |

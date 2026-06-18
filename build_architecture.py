@@ -119,7 +119,7 @@ T(s, "index.html  ·  350KB  ·  Fully self-contained", 0.8, 1.38, 8, 0.28,
 
 # React App
 R(s, 0.85, 1.72, 11.63, 1.65, fill=RED)
-T(s, "React 18 — App.jsx  (~3,200 lines, single component)", 1.0, 1.77, 8, 0.28,
+T(s, "React 18 — App.jsx  (~3,700 lines, single component)", 1.0, 1.77, 8, 0.28,
   size=10, bold=True, color=WHITE)
 layers_react = [
     ("State Layer (60+ useState)", 1.0, 2.08, 3.3),
@@ -169,11 +169,11 @@ for i, name in enumerate(screen_names):
     T(s, name, x, 4.35, 2.2, 0.55, size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 # Workflows row
-wf_names = ["Closure", "Mandate", "Wages", "Biz Details", "Dormancy", "ID Check"]
+wf_names = ["Closure", "Mandate", "Wages", "Biz Details", "Dormancy", "ID Check", "Lending", "FX", "Receipt Scan"]
 for i, name in enumerate(wf_names):
-    x = 0.85 + i * 1.955
-    R(s, x, 5.02, 1.85, 0.48, fill=DARK)
-    T(s, name, x, 5.02, 1.85, 0.48, size=9, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    x = 0.85 + i * 1.293
+    R(s, x, 5.02, 1.22, 0.48, fill=DARK)
+    T(s, name, x, 5.02, 1.22, 0.48, size=8, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 # Build pipeline
 R(s, 0.85, 5.62, 11.63, 0.6, fill=STONE3)
@@ -203,8 +203,8 @@ state_groups = [
     ("NAVIGATION", ["tab — active screen", "workflow — active overlay", "step — wizard position", "viewMode — mobile/desktop"]),
     ("ENTITY & ACCOUNTS", ["entityType — 7 types", "accounts (useMemo, by entity)", "approvalState — sign/reject map", "entity — label/doc config"]),
     ("COOLING-OFF", ["cooling[] — active holds", "stalled[] — timed-out requests", "tick — 30s re-render timer", "pendingCancelId"]),
-    ("WORKFLOWS", ["closureSel, closureDest", "mandateAction, newPerson*", "payees[], wagesSource", "mtdReviewedTransactions"]),
-    ("UI / OVERLAYS", ["toast, showRMSheet", "showCompliance, showSavings", "showEntitySwitcher", "rmReason"]),
+    ("WORKFLOWS", ["closureSel, closureDest", "lendingTerm, lendingCompleted", "fxAmount, fxCurrency, fxIBAN", "receiptStep, scannedTxns"]),
+    ("UI / OVERLAYS", ["toast, showRMSheet", "showCompliance, showSavings", "showOBSheet, showPinSheet", "showReceiptSheet, frozenCards"]),
     ("STATEMENTS", ["statementMonth, statementView", "counterpartyQuery, methodFilter", "openCounterparty", "moneyView"]),
 ]
 for i, (grp, items) in enumerate(state_groups):

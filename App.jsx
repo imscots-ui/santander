@@ -73,6 +73,25 @@ export default function App() {
   const [pinCountdown, setPinCountdown] = useState(30);
   const [frozenCards, setFrozenCards] = useState(new Set());
 
+  // Pre-approved lending
+  const [lendingTerm, setLendingTerm] = useState(24);
+  const [lendingConfirm, setLendingConfirm] = useState(false);
+  const [lendingCompleted, setLendingCompleted] = useState(false);
+
+  // FX / international payments
+  const [fxAmount, setFxAmount] = useState('');
+  const [fxCurrency, setFxCurrency] = useState('EUR');
+  const [fxBeneficiary, setFxBeneficiary] = useState('');
+  const [fxIBAN, setFxIBAN] = useState('');
+  const [fxReference, setFxReference] = useState('');
+  const [fxConfirm, setFxConfirm] = useState(false);
+
+  // Receipt scan / MTD auto-categorise
+  const [showReceiptSheet, setShowReceiptSheet] = useState(false);
+  const [receiptStep, setReceiptStep] = useState(0);
+  const [receiptUploaded, setReceiptUploaded] = useState(false);
+  const [scannedTxns, setScannedTxns] = useState(new Set());
+
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
   const [bizAddr, setBizAddr] = useState('');
@@ -215,6 +234,16 @@ export default function App() {
     { id: 'dext', app: 'Dext', purpose: 'Receipt capture', scope: 'Business transactions · read-only', expires: '3 Sep 2026', exposesPersonal: false },
     { id: 'fc', app: 'Funding Circle', purpose: 'Business loan application', scope: 'Business + personal accounts · full read', expires: '18 Jun 2026', exposesPersonal: true },
   ];
+
+  const LENDING_OFFER = { amount: 45000, apr: 6.2, validUntil: '30 Sep 2026' };
+
+  const FX_RATES = {
+    EUR: { rate: 1.1742, fee: 0.50, name: 'Euro', symbol: '€' },
+    USD: { rate: 1.2681, fee: 0.50, name: 'US Dollar', symbol: '$' },
+    CHF: { rate: 1.1234, fee: 0.75, name: 'Swiss Franc', symbol: 'Fr' },
+    AUD: { rate: 1.9847, fee: 0.75, name: 'Australian Dollar', symbol: 'A$' },
+    CAD: { rate: 1.7234, fee: 0.50, name: 'Canadian Dollar', symbol: 'C$' },
+  };
 
   // Demo card data — PINs are prototype placeholder values only, not real
   const BUSINESS_CARDS = [
@@ -455,6 +484,21 @@ export default function App() {
     return Object.values(stats).sort((a, b) => (b.totalIn + b.totalOut) - (a.totalIn + a.totalOut));
   }, [statementsData]);
 
+  // 13-week cash flow forecast from current operating balance
+  const forecastWeeks = useMemo(() => {
+    let bal = accounts.filter(a => a.status === 'active').reduce((s, a) => s + a.balance, 0);
+    return Array.from({ length: 13 }, (_, w) => {
+      const d = new Date(2026, 5, 18 + w * 7);
+      const inflow  = 10800 + (w % 3 === 0 ? 28000 : 0);
+      const outflow = 7400
+        + (w === 3 ? 29650 : 0)   // payroll month-end
+        + (w === 1 ? 41614 : 0)   // VAT settlement
+        + (w % 4 === 2 ? 8400 : 0); // quarterly supplier
+      bal += inflow - outflow;
+      return { w, d, bal: Math.max(0, bal), inflow, outflow, warn: bal < 80000 };
+    });
+  }, [accounts]);
+
   // Search results across counterparties + transaction descriptions
   const searchResults = useMemo(() => {
     if (!counterpartyQuery.trim()) return [];
@@ -544,6 +588,10 @@ export default function App() {
     setWagesSource(null); setWagesFile(null); setWagesSchedule('now');
     setPayeeSearch(''); setShowAddPayee(false);
     setNewPayeeName(''); setNewPayeeSort(''); setNewPayeeAcct(''); setNewPayeeAmount(''); setNewPayeeRole('');
+    setLendingConfirm(false);
+    setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
+    setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
+    // lendingCompleted, scannedTxns intentionally NOT reset — persistent settings
   };
 
   const greeting = (() => {
@@ -1655,6 +1703,238 @@ export default function App() {
     );
   };
 
+  const renderLending = () => {
+    const { amount, apr } = LENDING_OFFER;
+    const n = lendingTerm;
+    const mr = apr / 100 / 12;
+    const monthly = Math.round(amount * mr * Math.pow(1 + mr, n) / (Math.pow(1 + mr, n) - 1));
+    const totalRepayable = monthly * n;
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const next = () => {
+      if (step === 2) {
+        setLendingCompleted(true);
+        fireToast('Facility active — £45,000 arriving in Operating account within 2 hours');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    return (
+      <StepFrame
+        title={['Your offer', 'Terms & rights', 'Confirm & draw down'][step]}
+        sub={['Pre-approved on your 6-month trading history', 'Read before you commit — 14-day cooling-off right applies', 'Authenticate to release funds'][step]}
+        total={3} current={step} onBack={back} onNext={next}
+        nextLabel={step === 2 ? 'Draw down funds' : 'Continue'}
+        nextDisabled={step === 2 && !lendingConfirm}
+        replaces={{ form: 'Branch appointment + paper application', savings: 'In-app · instant decision · pre-approved' }}
+      >
+        {step === 0 && (
+          <div className="space-y-4">
+            <div className="hero-card rounded-3xl p-6 text-white relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/[0.04] pointer-events-none" />
+              <div className="text-[10px] uppercase tracking-wider text-white/65 mb-1">Pre-approved offer · valid until {LENDING_OFFER.validUntil}</div>
+              <div className="font-display-tight text-5xl font-medium num-tab mb-1">£45,000</div>
+              <div className="text-sm text-white/80">Santander Business Loan · from {apr}% APR</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Select term</div>
+              <div className="grid grid-cols-3 gap-2">
+                {[12, 24, 36].map(t => (
+                  <button key={t} onClick={() => setLendingTerm(t)}
+                    className={`py-3 rounded-xl border text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${n === t ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}`}>
+                    {t} months
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-stone-200/80 p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-stone-600">Monthly repayment</span>
+                <span className="font-display-tight text-2xl num-tab">{fmt(monthly)}</span>
+              </div>
+              <div className="h-px bg-stone-100" />
+              {[['Total repayable', fmt(totalRepayable)], ['Total interest', fmt(totalRepayable - amount)], ['Representative APR', `${apr}%`]].map(([l, v]) => (
+                <div key={l} className="flex justify-between text-xs text-stone-500"><span>{l}</span><span className="font-medium text-stone-700 num-tab">{v}</span></div>
+              ))}
+            </div>
+            <div className="p-3 rounded-xl bg-blue-50 border border-blue-200/50 text-[11px] text-blue-800 leading-relaxed">
+              <strong>Why you're pre-approved:</strong> Consistent income over 6 months, healthy Reserve balance, and zero missed obligations.
+            </div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100">
+              {[['Loan amount', fmt(amount)], ['APR', `${apr}%`], ['Term', `${n} months`], ['Monthly repayment', fmt(monthly)], ['First payment', '1 Aug 2026'], ['Total repayable', fmt(totalRepayable)]].map(([l, v]) => (
+                <div key={l} className="flex justify-between items-center px-4 py-3">
+                  <span className="text-sm text-stone-600">{l}</span>
+                  <span className="text-sm font-medium num-tab">{v}</span>
+                </div>
+              ))}
+            </div>
+            {[
+              { icon: RefreshCw, title: '14-day cooling-off right', body: 'Withdraw from this agreement within 14 days with no penalty. Consumer Credit Act 1974 s.66A.' },
+              { icon: TrendingUp, title: 'Early repayment', body: 'Repay early at any time. Compensation capped at 1% of amount repaid early (CCA 2006).' },
+              { icon: ShieldCheck, title: 'FCA regulated', body: 'Regulated under the Consumer Credit Act. Santander UK plc FRN 106054.' },
+            ].map(({ icon: I, title, body }) => (
+              <div key={title} className="p-4 rounded-2xl bg-stone-50 border border-stone-200 flex gap-3">
+                <div className="w-8 h-8 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><I className="w-4 h-4" /></div>
+                <div><div className="font-medium text-sm mb-0.5">{title}</div><div className="text-[11px] text-stone-600 leading-relaxed">{body}</div></div>
+              </div>
+            ))}
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="hero-card rounded-3xl p-5 text-white">
+              <div className="text-[10px] uppercase tracking-wider text-white/65 mb-1">Drawing down</div>
+              <div className="font-display-tight text-4xl num-tab">{fmt(amount)}</div>
+              <div className="text-sm text-white/80 mt-1">→ Operating account ····2841 · within 2 hours</div>
+            </div>
+            <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100">
+              {[['Monthly repayment', fmt(monthly)], ['First payment', '1 Aug 2026'], ['Term', `${n} months`]].map(([l, v]) => (
+                <div key={l} className="flex justify-between items-center px-4 py-3">
+                  <span className="text-sm text-stone-600">{l}</span><span className="text-sm font-medium num-tab">{v}</span>
+                </div>
+              ))}
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
+              <input type="checkbox" checked={lendingConfirm} onChange={e => setLendingConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <span className="text-xs text-stone-700 leading-relaxed">I confirm I want to draw down {fmt(amount)} and agree to the loan terms. I have read and understood the pre-contractual information and my 14-day cooling-off right.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderFX = () => {
+    const selectedRate = FX_RATES[fxCurrency];
+    const amountNum = parseFloat(fxAmount) || 0;
+    const converted = amountNum * selectedRate.rate;
+    const fee = amountNum * selectedRate.fee / 100;
+    const totalDebit = amountNum + fee;
+    const step0Disabled = !fxAmount || amountNum < 1 || !fxBeneficiary || fxIBAN.replace(/\s/g,'').length < 15;
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const next = () => {
+      if (step === 2) {
+        fireToast(`${fmt(amountNum)} sent · ${selectedRate.symbol}${converted.toLocaleString('en-GB',{maximumFractionDigits:2})} · SWIFT ref SANT${Date.now().toString().slice(-7)}`);
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    return (
+      <StepFrame
+        title={['International payment', 'Rate & fees', 'Confirm & send'][step]}
+        sub={['Pay an overseas supplier in their currency', 'FCA transparency — no hidden charges', 'Authenticate to release funds'][step]}
+        total={3} current={step} onBack={back} onNext={next}
+        nextLabel={step === 2 ? 'Send payment' : 'Continue'}
+        nextDisabled={step === 0 ? step0Disabled : step === 2 ? !fxConfirm : false}
+        replaces={{ form: 'Branch SWIFT form + 2-day wait', savings: 'In-app · same-day SWIFT · transparent fees' }}
+      >
+        {step === 0 && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden">
+              <div className="p-4">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-2">You send (GBP)</div>
+                <input type="number" value={fxAmount} onChange={e => setFxAmount(e.target.value)} placeholder="0.00"
+                  className="w-full font-display-tight text-3xl text-stone-900 bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded num-tab" />
+              </div>
+              <div className="border-t border-stone-100 p-4">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-2">Currency</div>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(FX_RATES).map(([code]) => (
+                    <button key={code} onClick={() => setFxCurrency(code)}
+                      className={`px-3 py-1.5 rounded-xl text-sm font-medium border focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${fxCurrency === code ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}`}>
+                      {code}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {amountNum > 0 && (
+                <div className="border-t border-stone-100 p-4 bg-stone-50">
+                  <div className="text-[11px] text-stone-500">They receive approximately</div>
+                  <div className="font-display-tight text-2xl num-tab mt-0.5">{selectedRate.symbol}{converted.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+                </div>
+              )}
+            </div>
+            <Field label="Beneficiary name">
+              <Input value={fxBeneficiary} onChange={e => setFxBeneficiary(e.target.value)} placeholder="Company or individual name" />
+            </Field>
+            <Field label="IBAN" hint="Starts with 2-letter country code · e.g. DE89 3704 0044 0532 0130 00">
+              <Input value={fxIBAN} onChange={e => setFxIBAN(e.target.value)} placeholder="GB29 NWBK 6016 1331 9268 19" className="font-mono" />
+            </Field>
+            <Field label="Payment reference (optional)">
+              <Input value={fxReference} onChange={e => setFxReference(e.target.value)} placeholder="Invoice number or description" />
+            </Field>
+            {amountNum >= 50000 && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+                <div className="text-[11px] text-amber-900">Payments ≥ £50,000 subject to purpose-of-payment screening under MLR 2017. May add 1 business day.</div>
+              </div>
+            )}
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="hero-card rounded-3xl p-5 text-white relative overflow-hidden">
+              <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/[0.04] pointer-events-none" />
+              <div className="text-[10px] uppercase tracking-wider text-white/65 mb-3">Live rate</div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="font-display-tight text-4xl num-tab">1</span>
+                <span className="text-lg text-white/80">GBP</span>
+                <span className="text-white/50 mx-1">=</span>
+                <span className="font-display-tight text-4xl num-tab">{selectedRate.rate}</span>
+                <span className="text-lg text-white/80">{fxCurrency}</span>
+              </div>
+              <div className="text-[11px] text-white/55 mt-2">Rate valid for this session · live market rate</div>
+            </div>
+            <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100">
+              {[
+                { l: 'Transfer amount', v: fmt(amountNum) },
+                { l: `Exchange fee (${selectedRate.fee}%)`, v: fmt(fee) },
+                { l: 'Total debit from Operating', v: fmt(totalDebit), bold: true },
+                { l: `${fxBeneficiary || 'Beneficiary'} receives`, v: `${selectedRate.symbol}${converted.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}`, bold: true },
+              ].map(({ l, v, bold }) => (
+                <div key={l} className="flex justify-between items-center px-4 py-3">
+                  <span className={`text-sm ${bold ? 'font-medium text-stone-900' : 'text-stone-600'}`}>{l}</span>
+                  <span className={`text-sm num-tab ${bold ? 'font-semibold' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 rounded-xl bg-blue-50 border border-blue-200/50 text-[11px] text-blue-800 leading-relaxed flex gap-2">
+              <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-blue-600" />
+              <div>FCA-required disclosure: exchange rate includes a margin. No additional charges beyond the fee shown. Settlement 1–2 business days via SWIFT.</div>
+            </div>
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100">
+              {[
+                { l: 'To', v: fxBeneficiary },
+                { l: 'IBAN', v: fxIBAN.slice(0,4) + ' ···· ' + fxIBAN.slice(-4), mono: true },
+                { l: 'Amount', v: fmt(amountNum) },
+                { l: 'They receive', v: `${selectedRate.symbol}${converted.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}` },
+                { l: `Rate`, v: `1 GBP = ${selectedRate.rate} ${fxCurrency}` },
+                { l: 'Fee', v: fmt(fee) },
+                { l: 'Total debit', v: fmt(totalDebit), bold: true },
+                ...(fxReference ? [{ l: 'Reference', v: fxReference }] : []),
+              ].map(({ l, v, bold, mono }) => (
+                <div key={l} className="flex justify-between items-center px-4 py-3">
+                  <span className="text-sm text-stone-600">{l}</span>
+                  <span className={`text-sm num-tab ${bold ? 'font-semibold' : ''} ${mono ? 'font-mono text-xs' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
+              <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <span className="text-xs text-stone-700 leading-relaxed">I confirm this payment is for legitimate business purposes. I understand the exchange rate and fees as disclosed. I authorise {fmt(totalDebit)} to be debited from the Operating account.</span>
+            </label>
+            <div className="text-[11px] text-stone-400 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const renderDormancy = () => (
     <StepFrame title="Dormant accounts" sub="Reactivate or close accounts inactive 12+ months"
       total={1} current={0} onBack={closeWorkflow}
@@ -2161,6 +2441,39 @@ export default function App() {
         </button>
       </div>
 
+      {/* Pre-approved lending offer */}
+      {!lendingCompleted ? (
+        <div className="px-5 mb-6 anim-fade stagger-1">
+          <button onClick={() => { setWorkflow('lending'); setStep(0); }} className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-2xl">
+            <div className="hero-card rounded-2xl p-5 text-white relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/[0.04] pointer-events-none" />
+              <div className="absolute -bottom-8 left-0 w-40 h-40 rounded-full bg-black/[0.08] pointer-events-none" />
+              <div className="relative">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider text-white/65 mb-1">Pre-approved offer · valid until {LENDING_OFFER.validUntil}</div>
+                    <div className="font-display-tight text-4xl num-tab font-medium">£45,000</div>
+                  </div>
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-white/[0.15] border border-white/[0.12] uppercase tracking-wider flex-shrink-0">Business Loan</span>
+                </div>
+                <div className="text-sm text-white/75 mb-3">From {LENDING_OFFER.apr}% APR · Based on your 6-month trading history</div>
+                <div className="flex items-center gap-2 text-sm font-medium">View offer & draw down <ArrowRight className="w-4 h-4" /></div>
+              </div>
+            </div>
+          </button>
+        </div>
+      ) : (
+        <div className="px-5 mb-6 anim-fade">
+          <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0"><CircleCheck className="w-5 h-5" /></div>
+            <div>
+              <div className="font-medium text-sm text-emerald-900">Business loan active · £45,000 drawn</div>
+              <div className="text-[11px] text-emerald-700">First repayment 1 Aug 2026 · repaying over {lendingTerm} months</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Cooling-off */}
       {cooling.length > 0 && (
         <div className="px-5 mb-7 anim-fade">
@@ -2321,8 +2634,10 @@ export default function App() {
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           <ActionTile icon={Banknote} title="Bulk payments" desc="CSV · BACS, FP, CHAPS" onClick={() => { setWorkflow('wages'); setStep(0); }} highlight />
+          <ActionTile icon={Globe} title="International" desc="FX · SWIFT · SEPA" onClick={() => { setWorkflow('fx'); setStep(0); }} />
           <ActionTile icon={Users} title={entity.isTreasurer ? "Mandate & members" : "Change mandate"} desc="Add, remove, signing rule" onClick={() => { setWorkflow('mandate'); setStep(0); }} />
           <ActionTile icon={Briefcase} title={entity.isTreasurer ? "Org details" : "Business details"} desc="Name, address, contact" onClick={() => { setWorkflow('biz'); setStep(0); }} />
+          <ActionTile icon={Camera} title="Scan receipt" desc="Auto-categorise for MTD" onClick={() => setShowReceiptSheet(true)} />
           <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
           <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
@@ -2357,6 +2672,59 @@ export default function App() {
           })}
         </div>
       </div>
+
+      {/* 13-week cash flow forecast */}
+      {(() => {
+        const maxBal = Math.max(...forecastWeeks.map(w => w.bal));
+        const warnRatio = 80000 / maxBal;
+        const warnY = (76 - warnRatio * 72).toFixed(1);
+        const hasWarn = forecastWeeks.some(w => w.warn);
+        const minBal = Math.min(...forecastWeeks.map(w => w.bal));
+        return (
+          <div className="px-5 mb-7 anim-fade">
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Projected</div>
+                <h2 className="font-display-tight text-2xl text-stone-900">13-week forecast</h2>
+              </div>
+              {hasWarn && <span className="text-[10px] uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 mb-1">Risk ahead</span>}
+            </div>
+            <div className="bg-white rounded-2xl border border-stone-200/80 p-4 lift-1">
+              <svg viewBox="0 0 520 80" className="w-full mb-1" preserveAspectRatio="none">
+                <line x1="0" y1={warnY} x2="520" y2={warnY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.5" />
+                {forecastWeeks.map((wk, i) => {
+                  const barH = ((wk.bal / maxBal) * 72).toFixed(1);
+                  const y = (76 - barH).toFixed(1);
+                  return <rect key={i} x={i * 40 + 3} y={y} width={34} height={barH} fill={wk.warn ? '#f59e0b' : '#c8102e'} rx={3} opacity="0.82" />;
+                })}
+              </svg>
+              <div className="flex justify-between text-[9px] text-stone-400 mb-3 px-0.5">
+                {forecastWeeks.filter((_,i) => i % 3 === 0).map((wk,i) => (
+                  <span key={i}>{wk.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                  <div className="text-[10px] text-stone-500 mb-0.5">Min projected</div>
+                  <div className="font-display-tight text-base num-tab text-stone-900">{fmt(minBal)}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+                  <div className="text-[10px] text-stone-500 mb-0.5">Week 13</div>
+                  <div className="font-display-tight text-base num-tab text-stone-900">{fmt(forecastWeeks[12].bal)}</div>
+                </div>
+              </div>
+              {hasWarn && (
+                <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200/50 flex gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-amber-900 leading-relaxed">
+                    Projected dip below £80k in <strong>week {forecastWeeks.findIndex(w => w.warn) + 1}</strong> · consider transferring from Reserve account.
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Cards */}
       <div className="px-5 mb-7 anim-fade">
@@ -2914,6 +3282,91 @@ export default function App() {
   };
 
   // === OPEN BANKING CONSENT SHEET ===
+  const ReceiptSheet = () => {
+    const DEMO = { merchant: 'Amazon Web Services EMEA', amount: 240.00, vat: 40.00, net: 200.00, vatRate: '20%', date: '12 Jun 2026', category: 'IT & Technology', ref: 'INV-2026-AW-48291' };
+    const close = () => { setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false); };
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={close}>
+        <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto anim-slide">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-12 h-1 bg-stone-300 rounded-full" /></div>
+          <div className="px-5 pb-4 border-b border-stone-100 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">MTD auto-categorise</div>
+              <h2 className="font-display text-2xl mt-0.5">Scan receipt</h2>
+            </div>
+            <button onClick={close} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+          <div className="px-5 py-5 space-y-4">
+            {receiptStep === 0 && (
+              <>
+                <div
+                  onClick={() => { if (!receiptUploaded) { setReceiptUploaded(true); setTimeout(() => setReceiptStep(1), 1100); } }}
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${receiptUploaded ? 'border-emerald-400 bg-emerald-50/30' : 'border-stone-300 hover:border-[#c8102e] hover:bg-red-50/20'}`}
+                >
+                  {!receiptUploaded ? (
+                    <>
+                      <div className="w-14 h-14 rounded-2xl bg-stone-100 text-stone-600 flex items-center justify-center mx-auto mb-3"><Camera className="w-7 h-7" /></div>
+                      <div className="font-medium text-stone-900 mb-1">Tap to scan receipt or invoice</div>
+                      <div className="text-[11px] text-stone-500">Photo, PDF or image file · auto-extracts merchant, amount and VAT</div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><Check className="w-7 h-7" /></div>
+                      <div className="font-medium text-stone-900">Scanning…</div>
+                      <div className="text-[11px] text-stone-500">Extracting merchant, amount and VAT</div>
+                    </div>
+                  )}
+                </div>
+                <div className="text-[11px] text-stone-400 text-center">Processed by OCR engine · image not stored after extraction</div>
+              </>
+            )}
+            {receiptStep === 1 && (
+              <>
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/50 flex gap-2">
+                  <Check className="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-emerald-900 font-medium">Scanned — review extracted data below</div>
+                </div>
+                <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100">
+                  {[
+                    { l: 'Merchant', v: DEMO.merchant },
+                    { l: 'Date', v: DEMO.date },
+                    { l: 'Total', v: fmt(DEMO.amount) },
+                    { l: `VAT (${DEMO.vatRate})`, v: fmt(DEMO.vat) },
+                    { l: 'Net', v: fmt(DEMO.net) },
+                    { l: 'Invoice ref', v: DEMO.ref, mono: true },
+                    { l: 'Suggested category', v: DEMO.category, tag: true },
+                  ].map(({ l, v, mono, tag }) => (
+                    <div key={l} className="flex justify-between items-center px-4 py-3">
+                      <span className="text-sm text-stone-600">{l}</span>
+                      {tag
+                        ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                        : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : ''}`}>{v}</span>}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    setScannedTxns(prev => { const n = new Set(prev); n.add(DEMO.ref); return n; });
+                    fireToast('Receipt matched · AWS transaction → IT & Technology · VAT reclaim updated · logged to audit trail');
+                    close();
+                  }}
+                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
+                >
+                  <Check className="w-4 h-4" />
+                  Confirm & categorise for MTD
+                </button>
+                <button onClick={() => { setReceiptStep(0); setReceiptUploaded(false); }}
+                  className="w-full py-3.5 rounded-2xl border border-stone-200 text-sm text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+                  Scan again
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const PinSheet = () => {
     const card = BUSINESS_CARDS[pinCardKey];
     const isFrozen = frozenCards.has(pinCardKey);
@@ -3870,16 +4323,19 @@ export default function App() {
         {workflow === 'mandate' && renderMandate()}
         {workflow === 'wages' && renderWages()}
         {workflow === 'dormancy' && renderDormancy()}
+        {workflow === 'lending' && renderLending()}
+        {workflow === 'fx' && renderFX()}
         {workflow === 'unlink' && renderUnlink()}
         {workflow === 'ringfence' && renderRingfence()}
         {workflow === 'idcheck' && renderIdCheck()}
-      {workflow === 'mtd-submit' && renderMtdSubmit()}
+        {workflow === 'mtd-submit' && renderMtdSubmit()}
 
         {showCompliance && <ComplianceSheet />}
         {showSavings && <SavingsSheet />}
         {showRMSheet && <RMSheet />}
         {showEntitySwitcher && <EntitySheet />}
         {pendingCancelId && <CancelSheet />}
+        {showReceiptSheet && <ReceiptSheet />}
         {showPinSheet && <PinSheet />}
         {showOBSheet && <OBSheet />}
 
@@ -4032,6 +4488,8 @@ export default function App() {
       {workflow === 'mandate' && renderMandate()}
       {workflow === 'wages' && renderWages()}
       {workflow === 'dormancy' && renderDormancy()}
+      {workflow === 'lending' && renderLending()}
+      {workflow === 'fx' && renderFX()}
       {workflow === 'unlink' && renderUnlink()}
       {workflow === 'ringfence' && renderRingfence()}
       {workflow === 'idcheck' && renderIdCheck()}
@@ -4042,6 +4500,8 @@ export default function App() {
       {showRMSheet && <RMSheet />}
       {showEntitySwitcher && <EntitySheet />}
       {pendingCancelId && <CancelSheet />}
+      {showReceiptSheet && <ReceiptSheet />}
+      {showPinSheet && <PinSheet />}
       {showOBSheet && <OBSheet />}
       {openCounterparty && <CounterpartySheet />}
 
