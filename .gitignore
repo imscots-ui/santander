@@ -12,3 +12,6 @@ __pycache__/
 # SQLite demo database
 *.db
 *.sqlite
+
+# Claude Code agent worktrees (temporary isolation sandboxes)
+.claude/worktrees/
