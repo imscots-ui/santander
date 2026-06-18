@@ -271,12 +271,33 @@ Contents:
 | 9 | API integration contracts (4 APIs) |
 | 10 | Design system tokens |
 
+### Project Record — `Santander_Project_Record.pptx`
+
+13 slides · Full manifest as a presentation · Built with python-pptx
+
+| Slide | Content |
+|-------|---------|
+| 1 | Cover — title, author, prototype link, 4 headline stats |
+| 2 | Project overview — tech stack, deployment, live link |
+| 3 | Five screens — detailed feature breakdown per tab |
+| 4 | Eleven workflows — step counts, logic, regulatory basis |
+| 5 | Entity types — 7 types × mandate rules × compliance divergence |
+| 6 | Security & compliance part 1 — features 1–10 with regulation |
+| 7 | Security & compliance part 2 — features 11–19 + notification bell |
+| 8 | Home screen intelligence — all 8 proactive features |
+| 9 | Ships company agent architecture — 6 officers, settings, deny list |
+| 10 | Reference library — all 26 sections, 41 books, 5,024 lines |
+| 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
+| 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
+| 13 | Business case summary — £137M, metrics, differentiators, phase status |
+
 ### Builder Scripts
 
 | File | Purpose |
 |------|---------|
 | `build_deck.py` | Regenerates pitch deck — run `python3 build_deck.py` |
 | `build_architecture.py` | Regenerates architecture deck — run `python3 build_architecture.py` |
+| `build_manifest.py` | Regenerates this project record — run `python3 build_manifest.py` |
 
 ---
 
