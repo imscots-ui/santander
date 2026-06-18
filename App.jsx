@@ -111,6 +111,9 @@ export default function App() {
   const [showSequencer, setShowSequencer] = useState(false);
   const [sequencerOptimised, setSequencerOptimised] = useState(false);
 
+  // Notifications panel
+  const [showNotifications, setShowNotifications] = useState(false);
+
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
   const [bizAddr, setBizAddr] = useState('');
@@ -4170,6 +4173,159 @@ export default function App() {
     );
   };
 
+  // === NOTIFICATIONS SHEET ===
+  const NotificationsSheet = () => {
+    const unreadApprovals = pendingApprovals.filter(p => !approvalState[p.id]);
+    const hasAnomaly = sessionAnomaly;
+    const hasCooling = cooling.length > 0;
+    const hasStalled = stalled.length > 0;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/30 backdrop-blur-sm anim-fade" onClick={() => setShowNotifications(false)}>
+        <div onClick={e => e.stopPropagation()}
+          className="mt-14 mr-4 w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden anim-slide border border-stone-200">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+            <div>
+              <h3 className="font-semibold text-stone-900 text-base">Notifications</h3>
+              {unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) > 0 && (
+                <p className="text-[11px] text-stone-500 mt-0.5">{unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0)} unread</p>
+              )}
+            </div>
+            <button onClick={() => setShowNotifications(false)} className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
+              <X className="w-3.5 h-3.5 text-stone-600" />
+            </button>
+          </div>
+
+          <div className="overflow-y-auto max-h-[70vh]">
+            {/* Session anomaly alert */}
+            {hasAnomaly && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 py-4 flex items-start gap-3 bg-amber-50">
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <ShieldAlert className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-semibold text-stone-900">New device login</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500 text-white font-medium">Security</span>
+                    </div>
+                    <p className="text-[12px] text-stone-600 leading-relaxed">We detected a login from a new device — London, UK. If this was you, no action needed. If not, freeze your cards immediately.</p>
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={() => { setSessionAnomaly(false); setShowNotifications(false); fireToast('Session confirmed — no further action needed.'); }}
+                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-stone-900 text-white">That was me</button>
+                      <button onClick={() => { setTab('audit'); setShowNotifications(false); }}
+                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-[#c8102e] text-white">Review activity</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Pending approvals */}
+            {unreadApprovals.length > 0 && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 pt-4 pb-1">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Awaiting your signature</p>
+                </div>
+                {unreadApprovals.map(p => {
+                  const I = p.icon;
+                  return (
+                    <div key={p.id} className="px-5 py-3.5 flex items-start gap-3 hover:bg-stone-50 cursor-pointer"
+                      onClick={() => { setTab('approve'); setShowNotifications(false); }}>
+                      <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <I className="w-4 h-4 text-stone-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium text-stone-900 truncate">{p.type}</span>
+                          <span className="text-[11px] text-stone-400 flex-shrink-0">Expires {p.expires}</span>
+                        </div>
+                        <p className="text-[12px] text-stone-500 mt-0.5 truncate">{p.desc}</p>
+                        {p.amount && <p className="text-[12px] font-mono num-tab font-medium text-stone-800 mt-0.5">{p.amount}</p>}
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 flex-shrink-0 mt-1" />
+                    </div>
+                  );
+                })}
+                <div className="px-5 pb-3">
+                  <button onClick={() => { setTab('approve'); setShowNotifications(false); }}
+                    className="w-full py-2.5 rounded-xl bg-stone-900 text-white text-[12px] font-medium">
+                    Review {unreadApprovals.length} pending {unreadApprovals.length === 1 ? 'request' : 'requests'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Cooling-off in progress */}
+            {hasCooling && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 pt-4 pb-1">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Cooling-off in progress</p>
+                </div>
+                {cooling.map((c, i) => {
+                  const elapsed = (Date.now() - c.startedAt) / 1000;
+                  const total = 24 * 3600;
+                  const pct = Math.min(elapsed / total, 1);
+                  const hoursLeft = Math.max(0, Math.round((total - elapsed) / 3600));
+                  return (
+                    <div key={i} className="px-5 py-3.5 flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Clock className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-stone-900 mb-1">{c.desc || 'Payment pending execution'}</div>
+                        <div className="h-1.5 rounded-full bg-stone-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${pct * 100}%` }} />
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1">{hoursLeft}h remaining · executes automatically</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Stalled requests */}
+            {hasStalled && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 pt-4 pb-1">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Co-signer needed</p>
+                </div>
+                {stalled.map((s, i) => (
+                  <div key={i} className="px-5 py-3.5 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Users className="w-4 h-4 text-stone-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-stone-900">{s.desc || 'Awaiting co-signer'}</div>
+                      <p className="text-[11px] text-stone-500 mt-0.5">Priya Sharma has been notified and is reviewing</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && (
+              <div className="px-5 py-12 flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
+                  <Bell className="w-5 h-5 text-stone-400" />
+                </div>
+                <p className="text-sm text-stone-500 text-center">You're all caught up —<br />no new notifications</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="px-5 py-3 border-t border-stone-100 bg-stone-50">
+            <p className="text-[10px] text-stone-400 text-center">Tap outside to dismiss · Notifications are end-to-end encrypted</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // === COUNTERPARTY DETAIL SHEET ===
   const CounterpartySheet = () => {
     if (!openCounterparty) return null;
@@ -4751,7 +4907,7 @@ export default function App() {
               <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
                 {entity.label}
               </button>
-              <button className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
+              <button onClick={() => setShowNotifications(true)} className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
                 <Bell className="w-4 h-4" />
                 <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
               </button>
@@ -4936,6 +5092,7 @@ export default function App() {
         {showVoiceMemo && <VoiceMemoSheet />}
         {showSequencer && <SequencerSheet />}
         {showVoiceSetup && <VoiceIdSheet />}
+        {showNotifications && <NotificationsSheet />}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
         {paymentPending && (() => {
@@ -5101,6 +5258,10 @@ export default function App() {
       {showReceiptSheet && <ReceiptSheet />}
       {showPinSheet && <PinSheet />}
       {showOBSheet && <OBSheet />}
+      {showVoiceMemo && <VoiceMemoSheet />}
+      {showSequencer && <SequencerSheet />}
+      {showVoiceSetup && <VoiceIdSheet />}
+      {showNotifications && <NotificationsSheet />}
       {openCounterparty && <CounterpartySheet />}
 
       {toast && (
