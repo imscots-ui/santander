@@ -420,7 +420,57 @@ footer(s, 6)
 
 
 # ══════════════════════════════════════════════════════════════
-# SLIDE 7 — ENTITY & MANDATE LOGIC
+# SLIDE 7 — PRIVACY & ACCOUNT SEPARATION ARCHITECTURE
+# ══════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+R(s, 0, 0, 13.33, 7.5, fill=WARM)
+top_bar(s)
+T(s, "Privacy & Account Separation Architecture", 0.5, 0.25, 12, 0.45, size=20, bold=True, color=RED)
+R(s, 0.5, 0.78, 12.33, 0.02, fill=STONE3)
+
+# Left: Problem stack
+T(s, "THE GAP — TWO INDEPENDENT LOOKUP SYSTEMS", 0.55, 0.92, 6.0, 0.28, size=10, bold=True, color=STONE5)
+prob_items = [
+    ("App Layer", "personalLinked flag removes personal accounts from React render tree — JSX conditional, not CSS hide"),
+    ("Call Centre CLI", "Inbound call on customer mobile triggers CLI lookup — sees all linked accounts regardless of app flag"),
+    ("Credit Decisioning", "Business loan underwriting can pull personal transaction history by default — no firewall between data sets"),
+    ("Open Banking", "PSD2 consent granted to third parties (Funding Circle) may include personal + business accounts in same scope"),
+]
+for i, (label, desc) in enumerate(prob_items):
+    y = 1.25 + i * 1.22
+    R(s, 0.55, y, 6.0, 1.1, fill=WHITE, line=AMBER, line_w=1)
+    R(s, 0.55, y, 6.0, 0.06, fill=AMBER)
+    T(s, label, 0.7, y+0.1, 2.5, 0.28, size=9, bold=True, color=DARK)
+    T(s, desc, 0.7, y+0.4, 5.6, 0.62, size=8.5, color=STONE5)
+
+# Right: Solution architecture
+T(s, "ARCHITECTURE SOLUTION — THREE LAYERS", 6.8, 0.92, 6.0, 0.28, size=10, bold=True, color=STONE5)
+sol_items = [
+    ("App Separation", "GREEN", "React state: personalLinked=false removes section from DOM. unlinkConfirm + declaration with case ref stored server-side"),
+    ("CRM Separation", "GREEN", "unlinkAllChannels toggle triggers back-office CRM update (ref REL-2026-0291). CLI query excludes personal accounts within 2 working days"),
+    ("Credit Ring-Fence", "GREEN", "creditRingfenced flag writes formal instruction to credit system. Personal account data excluded from business scorecard. GDPR Art.5(1)(c) purpose limitation"),
+    ("PSD2 Consent Audit", "GREEN", "OB consent registry shows scope per app. Funding Circle 'full read' scope flagged. Revocation completes within 90s per PSD2 RTS Art.29"),
+]
+for i, (label, color, desc) in enumerate(sol_items):
+    y = 1.25 + i * 1.22
+    R(s, 6.8, y, 6.0, 1.1, fill=WHITE, line=GREEN, line_w=1)
+    R(s, 6.8, y, 6.0, 0.06, fill=GREEN)
+    T(s, label, 6.95, y+0.1, 2.5, 0.28, size=9, bold=True, color=DARK)
+    T(s, desc, 6.95, y+0.4, 5.6, 0.62, size=8.5, color=STONE5)
+
+# Footer regulatory basis
+R(s, 0.5, 6.35, 12.33, 0.88, fill=DARK)
+T(s, "Regulatory basis:  GDPR Art.5(1)(c) data minimisation  ·  PSD2 RTS Art.29 revocation  ·  "
+     "FCA PS22/9 Consumer Duty  ·  ICO Legitimate Interests Assessment",
+  0.65, 6.44, 12.0, 0.35, size=9, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+T(s, "Personal financial difficulty cannot affect business credit decisions · "
+     "Personal transactions excluded from all business analytics and underwriting",
+  0.65, 6.76, 12.0, 0.3, size=8.5, italic=True, color=STONE3, align=PP_ALIGN.CENTER)
+footer(s, 7)
+
+
+# ══════════════════════════════════════════════════════════════
+# SLIDE 8 — ENTITY & MANDATE LOGIC
 # ══════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
@@ -469,11 +519,11 @@ for i, (rule, desc, example) in enumerate(rules):
     T(s, desc, x+0.15, 5.72, 3.65, 0.58, size=9, color=STONE5)
     T(s, f"→ {example}", x+0.15, 6.28, 3.65, 0.65, size=8.5, italic=True, color=RED)
 
-footer(s, 7)
+footer(s, 8)
 
 
 # ══════════════════════════════════════════════════════════════
-# SLIDE 8 — API INTEGRATION CONTRACTS
+# SLIDE 9 — API INTEGRATION CONTRACTS
 # ══════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
@@ -521,11 +571,11 @@ for i, (title, sub, pts) in enumerate(apis):
     T(s, sub, x+0.15, y+0.36, 5.7, 0.24, size=9, italic=True, color=STONE5)
     BL(s, pts, x+0.15, y+0.62, 5.7, size=9, color=STONE5)
 
-footer(s, 8)
+footer(s, 9)
 
 
 # ══════════════════════════════════════════════════════════════
-# SLIDE 9 — DESIGN SYSTEM TOKENS
+# SLIDE 10 — DESIGN SYSTEM TOKENS
 # ══════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
@@ -606,7 +656,7 @@ for i, (name, desc) in enumerate(patterns):
     T(s, name, 5.32, y+0.06, 2.62, 0.24, size=8.5, bold=True, color=WHITE)
     T(s, desc, 8.15, y+0.1, 5.0, 0.36, size=8.5, color=STONE5)
 
-footer(s, 9)
+footer(s, 10)
 
 
 # ══════════════════════════════════════════════════════════════

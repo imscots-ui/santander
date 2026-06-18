@@ -54,6 +54,15 @@ export default function App() {
   const [personalLinked, setPersonalLinked] = useState(true);
   const [unlinkConfirm, setUnlinkConfirm] = useState(false);
   const [unlinkAllChannels, setUnlinkAllChannels] = useState(false);
+  const [unlinkPostal, setUnlinkPostal] = useState(false);
+
+  // Open banking / PSD2 consent state
+  const [showOBSheet, setShowOBSheet] = useState(false);
+  const [obFCRevoked, setObFCRevoked] = useState(false);
+
+  // Credit decisioning ring-fence state
+  const [creditRingfenced, setCreditRingfenced] = useState(false);
+  const [ringfenceConfirm, setRingfenceConfirm] = useState(false);
 
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
@@ -183,6 +192,12 @@ export default function App() {
   const PERSONAL_ACCOUNTS = [
     { name: 'Personal Current Account', no: '····7291', balance: 4250.80, sortCode: '09-01-29' },
     { name: 'Santander 1|2|3 Lite', no: '····3847', balance: 12400.00, sortCode: '09-01-29' },
+  ];
+
+  const OB_CONSENTS = [
+    { id: 'xero', app: 'Xero', purpose: 'Accounting software', scope: 'Business accounts · read-only', expires: '14 Dec 2026', exposesPersonal: false },
+    { id: 'dext', app: 'Dext', purpose: 'Receipt capture', scope: 'Business transactions · read-only', expires: '3 Sep 2026', exposesPersonal: false },
+    { id: 'fc', app: 'Funding Circle', purpose: 'Business loan application', scope: 'Business + personal accounts · full read', expires: '18 Jun 2026', exposesPersonal: true },
   ];
 
   const signatories = [
@@ -490,7 +505,8 @@ export default function App() {
     // Reset all workflow-specific state
     setClosureSel([]); setClosureDest(''); setClosureConfirm(false);
     setClosureUnreachable(null); setClosureContactLog(''); setClosureEvidenceUp(false); setClosureVulnDecl(false);
-    setUnlinkConfirm(false); setUnlinkAllChannels(false);
+    setUnlinkConfirm(false); setUnlinkAllChannels(false); setUnlinkPostal(false);
+    setRingfenceConfirm(false);
     setBizChanges({}); setBizName(''); setBizAddr(''); setBizPhone(''); setBizEmail(''); setBizProofUp(false);
     setMandateAction(null); setMandateSig(null);
     setNewPersonName(''); setNewPersonSurname(''); setNewPersonDob(''); setNewPersonEmail(''); setNewPersonAddr('');
@@ -1643,11 +1659,11 @@ export default function App() {
     const next = () => {
       if (step === 2) {
         setPersonalLinked(false);
-        if (unlinkAllChannels) {
-          fireToast('App unlinked · Call centre separation raised — ref. REL-2026-0291 · confirmation letter within 2 working days');
-        } else {
-          fireToast('App unlinked · Note: when calling us, agents can still see both accounts');
-        }
+        const parts = ['App unlinked'];
+        if (unlinkAllChannels) parts.push('call centre separation raised · ref. REL-2026-0291');
+        if (unlinkPostal) parts.push('statements separated');
+        if (!unlinkAllChannels) parts.push('Note: call centre agents can still see both');
+        fireToast(parts.join(' · '));
         closeWorkflow();
       } else setStep(step + 1);
     };
@@ -1749,14 +1765,100 @@ export default function App() {
                 <span className="font-mono text-sm font-medium tracking-wider">REL-2026-0291</span>
               </div>
             )}
+            <Toggle
+              label="Also separate from combined statements"
+              sub="Personal transactions removed from business statements and correspondence · immediate"
+              value={unlinkPostal}
+              onChange={setUnlinkPostal}
+            />
             <div className="p-4 rounded-2xl bg-stone-900 text-white">
               <div className="flex items-center gap-2 mb-3"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Separation declaration</span></div>
-              <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile{unlinkAllChannels ? ' and from our call centre view' : ''}. I understand this cannot be reversed via the app."</div>
+              <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile{unlinkAllChannels ? ' and from our call centre view' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand this cannot be reversed via the app."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
               <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
               <span className="text-xs text-stone-700 leading-relaxed">
-                I confirm I want to permanently remove personal account access from this business banking view{unlinkAllChannels ? ' and request call centre separation' : ''}. I understand re-linking requires authentication from my personal banking app.
+                I confirm I want to permanently remove personal account access from this business banking view{unlinkAllChannels ? ' and request call centre separation' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand re-linking requires authentication from my personal banking app.
+              </span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderRingfence = () => {
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const next = () => {
+      if (step === 1) {
+        setCreditRingfenced(true);
+        fireToast('Credit ring-fence applied — personal accounts excluded from all business credit assessments');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    return (
+      <StepFrame
+        title={['Credit decisioning', 'Confirm ring-fence'][step]}
+        sub={[
+          'Personal account data currently visible to our credit team',
+          'Review and confirm your ring-fence instruction',
+        ][step]}
+        total={2} current={step}
+        onBack={back} onNext={next}
+        nextLabel={step === 1 ? 'Apply ring-fence' : 'Continue'}
+        replaces={{ form: 'Phone request to credit team', savings: 'In-app · immediate · logged to FCA SYSC 9' }}
+        nextDisabled={step === 1 && !ringfenceConfirm}
+      >
+        {step === 0 && (
+          <div className="space-y-3">
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-3">
+              <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>Not ring-fenced.</strong> When your business applies for credit — overdraft renewal, loan, business card — our credit team can see personal account data. A personal financial difficulty could influence a business credit decision.
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-3">
+              {[
+                { icon: ShieldCheck, text: 'Personal account balances, transactions, and credit history excluded from all business credit assessments', good: true },
+                { icon: Building2, text: 'Business credit assessed on business accounts only — trading history, turnover, business cash flow', good: true },
+                { icon: Award, text: 'Logged to your customer record as a GDPR Article 5(1)(c) data minimisation instruction', good: true },
+                { icon: AlertCircle, text: 'If you apply for a joint personal-business product, you may need to consent to a combined view for that application only', good: false },
+              ].map((item, i) => {
+                const I = item.icon;
+                return (
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${item.good ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+                      <I className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="text-xs text-stone-700 leading-relaxed mt-0.5">{item.text}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed">
+                <strong>GDPR Article 5(1)(c) · ICO guidance · FCA PS22/9</strong> — purpose limitation means personal data collected for personal banking cannot be used for business credit decisions without a separate lawful basis.
+              </div>
+            </div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="bg-stone-50 rounded-2xl p-4 space-y-2.5 border border-stone-200">
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Unlinking</span><span>Business credit assessments</span></div>
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Excluded data</span><span>Personal accounts · history</span></div>
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Takes effect</span><span className="text-emerald-700 font-medium">Immediately</span></div>
+              <div className="flex justify-between text-sm pt-2 border-t border-stone-200"><span className="text-stone-500">Logged to</span><span className="font-medium">Audit trail · FCA SYSC 9</span></div>
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-900 text-white">
+              <div className="flex items-center gap-2 mb-3"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Ring-fence declaration</span></div>
+              <div className="text-sm leading-relaxed">"I instruct Santander to exclude my personal account data from all business credit assessments. I understand individual product applications may require separate consent."</div>
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={ringfenceConfirm} onChange={e => setRingfenceConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <span className="text-xs text-stone-700 leading-relaxed">
+                I confirm I want to ring-fence my personal account data from all business credit assessments. I understand individual product applications may require separate consent.
               </span>
             </label>
           </div>
@@ -2011,6 +2113,7 @@ export default function App() {
               <span className="text-[10px] uppercase tracking-wider bg-white/[0.08] backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/[0.06]">{entity.label}</span>
               <span className="text-[10px] uppercase tracking-wider bg-white/[0.08] backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/[0.06]">{accounts.every(a => a.rule === accounts[0].rule) ? formatMandate(accounts[0].rule, accounts[0].required).label : 'Mixed mandates'}</span>
               <span className="text-[10px] uppercase tracking-wider bg-white/[0.08] backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/[0.06]">FSCS protected</span>
+              {creditRingfenced && <span className="text-[10px] uppercase tracking-wider bg-emerald-500/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-emerald-400/30 text-emerald-200">Credit ring-fenced</span>}
             </div>
           </div>
         </div>
@@ -2194,7 +2297,6 @@ export default function App() {
           <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
           <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
-          {personalLinked && <ActionTile icon={Link2} title="Unlink personal" desc="Separate personal accounts" onClick={() => { setWorkflow('unlink'); setStep(0); }} />}
         </div>
       </div>
 
@@ -2227,40 +2329,71 @@ export default function App() {
         </div>
       </div>
 
-      {/* Personal linked accounts */}
-      {personalLinked && (
-        <div className="px-5 mb-7 anim-fade">
-          <div className="flex items-end justify-between mb-3">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">James Whitfield · personal</div>
-              <h2 className="font-display-tight text-2xl text-stone-900">Linked accounts</h2>
-            </div>
-            <button
-              onClick={() => { setWorkflow('unlink'); setStep(0); }}
-              className="text-[11px] text-[#c8102e] font-medium mb-1 flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded">
-              Unlink <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl border border-stone-200/80 divide-y divide-stone-100/80 lift-1 overflow-hidden">
-            {PERSONAL_ACCOUNTS.map(a => (
-              <div key={a.no} className="p-4 flex items-center justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-[15px] text-stone-900">{a.name}</div>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</span>
-                    <span className="text-[9px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-full font-medium bg-stone-100 text-stone-600">Personal</span>
-                  </div>
-                </div>
-                <div className="font-display-tight text-xl num-tab font-medium text-stone-900">{fmt(a.balance)}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-2 flex items-start gap-1.5 px-0.5">
-            <AlertTriangle className="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-[11px] text-stone-500 leading-relaxed">Visible to all business banking users on this profile, including co-signatories.</p>
-          </div>
+      {/* Privacy controls */}
+      <div className="px-5 mb-7 anim-fade">
+        <div className="mb-3">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">GDPR · PSD2 · Consumer Duty</div>
+          <h2 className="font-display-tight text-2xl text-stone-900">Privacy controls</h2>
         </div>
-      )}
+        <div className="space-y-2">
+          {/* Personal accounts status */}
+          {personalLinked ? (
+            <button onClick={() => { setWorkflow('unlink'); setStep(0); }}
+              className="w-full text-left p-4 rounded-2xl border border-amber-300 bg-amber-50/40 flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm">Personal accounts linked</div>
+                <div className="text-[11px] text-amber-800">Visible to co-signatories, call centre, and credit team</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-amber-700 flex-shrink-0" />
+            </button>
+          ) : (
+            <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm text-emerald-900">Personal accounts separated</div>
+                <div className="text-[11px] text-emerald-700">Removed from app{unlinkAllChannels ? ', call centre' : ''}{unlinkPostal ? ', statements' : ''}</div>
+              </div>
+            </div>
+          )}
+          {/* Open banking consents */}
+          <button onClick={() => setShowOBSheet(true)}
+            className={`w-full text-left p-4 rounded-2xl border flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${!obFCRevoked ? 'border-amber-300 bg-amber-50/40' : 'border-stone-200 bg-white'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${!obFCRevoked ? 'bg-amber-500 text-white' : 'bg-stone-100 text-stone-600'}`}>
+              <Link2 className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm">Open banking consents</div>
+              <div className={`text-[11px] ${!obFCRevoked ? 'text-amber-800' : 'text-stone-500'}`}>
+                {!obFCRevoked ? 'Funding Circle has access to personal data' : '3 consents · business data only'}
+              </div>
+            </div>
+            {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium flex-shrink-0">!</span>}
+            <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-400'}`} />
+          </button>
+          {/* Credit decisioning ring-fence */}
+          <button
+            onClick={() => { if (!creditRingfenced) { setWorkflow('ringfence'); setStep(0); } }}
+            className={`w-full text-left p-4 rounded-2xl border flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${creditRingfenced ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${creditRingfenced ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm">Credit decisioning</div>
+              <div className={`text-[11px] ${creditRingfenced ? 'text-emerald-700' : 'text-stone-500'}`}>
+                {creditRingfenced ? 'Ring-fenced — personal data excluded from business credit assessments' : 'Personal finances visible to credit team · not ring-fenced'}
+              </div>
+            </div>
+            {creditRingfenced
+              ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+          </button>
+        </div>
+      </div>
 
       {/* Priya card */}
       <div className="px-5 mb-7 anim-fade">
@@ -2700,6 +2833,75 @@ export default function App() {
       </div>
     );
   };
+
+  // === OPEN BANKING CONSENT SHEET ===
+  const OBSheet = () => (
+    <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={() => setShowOBSheet(false)}>
+      <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto anim-slide">
+        <div className="px-5 pt-3 pb-2 sticky top-0 bg-white border-b border-stone-100">
+          <div className="w-12 h-1 bg-stone-300 rounded-full mx-auto mb-3" />
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-2xl">Open banking consents</h2>
+              <p className="text-xs text-stone-500 mt-0.5">Third-party apps with access to your accounts · PSD2</p>
+            </div>
+            <button onClick={() => setShowOBSheet(false)} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+        </div>
+        <div className="px-5 py-5 space-y-4">
+          {!obFCRevoked && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-3">
+              <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>1 consent exposes personal account data</strong> — Funding Circle has active read access to both business and personal accounts.
+              </div>
+            </div>
+          )}
+          <div className="space-y-3">
+            {OB_CONSENTS.map(consent => {
+              const isRevoked = consent.id === 'fc' && obFCRevoked;
+              return (
+                <div key={consent.id} className={`p-4 rounded-2xl border ${consent.exposesPersonal && !isRevoked ? 'border-amber-300 bg-amber-50/30' : 'border-stone-200 bg-white'}`}>
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                      <div className="font-medium text-sm">{consent.app}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{consent.purpose}</div>
+                    </div>
+                    {consent.exposesPersonal && !isRevoked && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500 text-white font-medium flex-shrink-0">Personal exposed</span>
+                    )}
+                    {isRevoked && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500 text-white font-medium flex-shrink-0">Revoked</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-stone-600 mb-1">{consent.scope}</div>
+                  <div className="text-[11px] text-stone-400 mb-3">Expires {consent.expires}</div>
+                  {!isRevoked && (
+                    <button
+                      onClick={() => {
+                        if (consent.id === 'fc') {
+                          setObFCRevoked(true);
+                          fireToast('Funding Circle access revoked');
+                        }
+                      }}
+                      className="text-[11px] font-medium text-[#c8102e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded"
+                    >
+                      Revoke access
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+            <div className="text-[11px] text-stone-500 leading-relaxed">
+              <strong className="text-stone-700">PSD2 · Open Banking Standard.</strong> You can revoke any consent at any time. The third party must stop accessing your data within 90 seconds.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   // === COUNTERPARTY DETAIL SHEET ===
   const CounterpartySheet = () => {
@@ -3450,6 +3652,7 @@ export default function App() {
         {workflow === 'wages' && renderWages()}
         {workflow === 'dormancy' && renderDormancy()}
         {workflow === 'unlink' && renderUnlink()}
+        {workflow === 'ringfence' && renderRingfence()}
         {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
 
@@ -3458,6 +3661,7 @@ export default function App() {
         {showRMSheet && <RMSheet />}
         {showEntitySwitcher && <EntitySheet />}
         {pendingCancelId && <CancelSheet />}
+        {showOBSheet && <OBSheet />}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
         {paymentPending && (() => {
@@ -3608,6 +3812,8 @@ export default function App() {
       {workflow === 'mandate' && renderMandate()}
       {workflow === 'wages' && renderWages()}
       {workflow === 'dormancy' && renderDormancy()}
+      {workflow === 'unlink' && renderUnlink()}
+      {workflow === 'ringfence' && renderRingfence()}
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
 
@@ -3616,6 +3822,7 @@ export default function App() {
       {showRMSheet && <RMSheet />}
       {showEntitySwitcher && <EntitySheet />}
       {pendingCancelId && <CancelSheet />}
+      {showOBSheet && <OBSheet />}
       {openCounterparty && <CounterpartySheet />}
 
       {toast && (

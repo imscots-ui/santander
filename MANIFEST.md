@@ -12,7 +12,7 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~3,200 lines · ~198KB · Single React component  
+**Size:** ~3,400 lines · ~210KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
@@ -25,16 +25,19 @@
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (6 step-based wizards)
+### Workflows (8 step-based wizards)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
-| Account Closure | Select → Destination (CoP) → Credit check → Sign | Cooling-off on Any-1 accounts, mandate enforcement |
+| Account Closure | Select → Destination (CoP) → Credit check → Sign | Cooling-off on Any-1 accounts, mandate enforcement. Partnership Any-2: full partner-unreachable escalation path |
+| Partner Unreachable Escalation | Reason → Contact log + evidence → Restriction notice → Case ref | 4 regulatory branches: health/welfare, no contact, deceased/probate, dispute. FCA Consumer Duty PS22/9. Case ref SVC-2026-4471 |
 | Mandate Changes | Action → Personal details → KYC docs → Board minutes → Sign | KYC/KYB full path, RM escalation triggers, 7 entity types |
 | Bulk Payments / Wages | Source account → Payee selection → Review → Sign + Schedule | Payee book, CoP verification, CSV import, one-off/monthly |
 | Business Details Update | Select changes → Enter values → Upload proof → Sign | Companies House sync, RM for partnership renames |
 | Dormant Reactivation | Single step — select and request | FSCS notice, 12-month inactivity threshold |
 | MTD VAT Submission | Categorise → Review VAT100 → Declare → Submit | Auto-categorisation, confidence scoring, HMRC API v1.0 |
+| Personal/Business Unlink | Confirm scope → Data separation notice → All-channels + postal toggles → Declaration | Removes personal accounts from React render tree (not CSS hide). unlinkAllChannels triggers CRM back-office update (ref REL-2026-0291, 2 working days) |
+| Credit Ring-Fence | Risk overview + legal basis → Declaration | Formal instruction: personal account data excluded from business credit decisioning. GDPR Art.5(1)(c) purpose limitation. Persistent state — survives workflow close |
 
 ### Entity Types (7 — all compliance paths diverge)
 
@@ -60,6 +63,12 @@
 | Confirmation of Payee | PSR SI 2019/1215 | Pre-payment verification, mismatch warning, explicit override |
 | Accessibility | WCAG 2.1 AA | focus-visible:ring on all elements, contrast ≥4.5:1, tabular-nums, ARIA labels |
 | Focus management | WCAG 2.1 SC 2.4.7 | focus:outline-none only with focus-visible: companion — never bare |
+| Partner unreachable | FCA Consumer Duty PS22/9 / BCOBS | Documented contact attempts, evidence upload, specialist team referral, account restriction. 4-path regulatory branching |
+| Personal/business separation (app) | GDPR Art.5(1)(c) | personalLinked state removes personal section from JSX render tree — not CSS visibility, not display:none |
+| Personal/business separation (call centre) | GDPR Art.5(1)(c) | unlinkAllChannels toggle triggers CRM back-office update — CLI lookup excludes personal accounts. Explicit 2-working-day SLA |
+| Postal statement separation | GDPR Art.5(1)(c) | unlinkPostal toggle — separate delivery preference per channel |
+| Credit ring-fence | GDPR Art.5(1)(c) / ICO LIA | Formal written instruction persisted in state. Personal account history excluded from business loan/overdraft underwriting |
+| Open banking PSD2 consent audit | PSD2 RTS Art.29 | OBSheet shows all third-party consents with scope and expiry. Flags personal data exposure (Funding Circle). Revocation within 90 seconds per RTS |
 
 ### Accessibility Fixes Applied This Session
 
@@ -201,29 +210,30 @@ Contents:
 
 ### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
 
-13 slides · Santander brand colours throughout · Built with python-pptx
+14 slides · Santander brand colours throughout · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Title + Business Banking Advisor stamp |
-| 2 | Executive summary + 6 headline statistics |
+| 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 10 features |
-| 5 | Paperless workflows deep-dive |
-| 6 | Making Tax Digital deep-dive |
-| 7 | Security & compliance (4 frameworks) |
-| 8 | Financial intelligence features |
-| 9 | Technical architecture (current + production) |
-| 10 | Business case — £137M annualised opportunity |
-| 11 | Roadmap — 4 phases Q3 2026→Q2 2027 |
-| 12 | Design system & accessibility |
-| 13 | Next steps — 3 decisions for senior management |
+| 4 | What we built — 12 features (3-col grid) |
+| 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
+| 6 | Paperless workflows deep-dive |
+| 7 | Making Tax Digital deep-dive |
+| 8 | Security & compliance (4 frameworks) |
+| 9 | Financial intelligence features |
+| 10 | Technical architecture (current + production) |
+| 11 | Business case — £137M annualised opportunity + 5 competitive differentiators |
+| 12 | Roadmap — 4 phases Q3 2026→Q2 2027 |
+| 13 | Design system & accessibility |
+| 14 | Next steps — 3 decisions for senior management |
 
 **Credit on every slide:** "Business Banking Advisor · Self-initiated · Completed out of hours in own time"
 
 ### Architecture Deck — `Santander_Architecture.pptx`
 
-9 slides · Technical deep-dive · Built with python-pptx
+10 slides · Technical deep-dive · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
@@ -233,9 +243,10 @@ Contents:
 | 4 | Production system architecture (4 tiers) |
 | 5 | Security architecture (4 domains) |
 | 6 | Regulatory & compliance framework |
-| 7 | Entity & mandate logic (7 types × 3 rules) |
-| 8 | API integration contracts (4 APIs) |
-| 9 | Design system tokens |
+| 7 | Privacy & account separation architecture — app/CLI gap, credit ring-fence, PSD2 consent, GDPR basis |
+| 8 | Entity & mandate logic (7 types × 3 rules) |
+| 9 | API integration contracts (4 APIs) |
+| 10 | Design system tokens |
 
 ### Builder Scripts
 
@@ -265,11 +276,12 @@ Contents:
 
 | Metric | Value |
 |--------|-------|
-| Paperless workflows built | 6 |
+| Paperless workflows built | 8 |
 | Paper forms retired | 5 (CA04, CA07, CA11, P17, D18) |
 | Entity types supported | 7 |
 | Approval rule tiers | 3 (Any-1, Any-2, All) |
-| Compliance frameworks addressed | 4 (FCA BCOBS 4A, MLR 2017, FCA SYSC 9, HMRC MTD) |
+| Compliance frameworks addressed | 7 (FCA BCOBS 4A, MLR 2017, FCA SYSC 9, HMRC MTD, GDPR Art.5, PSD2 RTS, FCA PS22/9) |
+| Privacy controls built | 3 (personal/business separation, credit ring-fence, PSD2 consent audit) |
 | Cost saving per 10k customers | £4.9M year 1 |
 | Annualised opportunity (280k customers) | £137M |
 | Phase 1 status | **Complete — prototype live** |
