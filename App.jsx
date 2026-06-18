@@ -46,6 +46,10 @@ export default function App() {
   const [closureSel, setClosureSel] = useState([]);
   const [closureDest, setClosureDest] = useState('');
   const [closureConfirm, setClosureConfirm] = useState(false);
+  const [closureUnreachable, setClosureUnreachable] = useState(null); // null | 'pending' | 'health' | 'contact' | 'deceased' | 'dispute'
+  const [closureContactLog, setClosureContactLog] = useState('');
+  const [closureEvidenceUp, setClosureEvidenceUp] = useState(false);
+  const [closureVulnDecl, setClosureVulnDecl] = useState(false);
 
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
@@ -476,6 +480,7 @@ export default function App() {
     setWorkflow(null); setStep(0);
     // Reset all workflow-specific state
     setClosureSel([]); setClosureDest(''); setClosureConfirm(false);
+    setClosureUnreachable(null); setClosureContactLog(''); setClosureEvidenceUp(false); setClosureVulnDecl(false);
     setBizChanges({}); setBizName(''); setBizAddr(''); setBizPhone(''); setBizEmail(''); setBizProofUp(false);
     setMandateAction(null); setMandateSig(null);
     setNewPersonName(''); setNewPersonSurname(''); setNewPersonDob(''); setNewPersonEmail(''); setNewPersonAddr('');
@@ -709,41 +714,86 @@ export default function App() {
   const renderClosure = () => {
     const m = getMandateFor(closureSel);
     const allInCredit = closureSel.every(no => accounts.find(a => a.no === no)?.balance >= 0);
+    const isEsc = closureUnreachable !== null;
+    const isPartnership = entityType === 'partnership';
+
     const next = () => {
-      if (step === 3) {
-        if (m.isSingle) {
-          startCooling({ type: 'Account closure', desc: `${closureSel.length} account${closureSel.length > 1 ? 's' : ''}`, kind: 'closure' });
-          fireToast("All set. We'll do this tomorrow afternoon — cancel anytime before then.");
-        } else if (m.rule === 'all') {
-          fireToast(`Submitted. ${m.required - 1} more ${entity.principal}${m.required - 1 > 1 ? 's' : ''} need to sign.`);
-        } else {
-          fireToast(`Submitted. ${m.required - 1} more signature${m.required - 1 > 1 ? 's' : ''} needed.`);
-        }
-        closeWorkflow();
-      } else setStep(step + 1);
+      if (isEsc) {
+        if (step === 3) {
+          fireToast('Case raised · ref. SVC-2026-4471 · Specialist Vulnerable Customer Team notified · Priya calling today');
+          closeWorkflow();
+        } else setStep(step + 1);
+      } else {
+        if (step === 3) {
+          if (m.isSingle) {
+            startCooling({ type: 'Account closure', desc: `${closureSel.length} account${closureSel.length > 1 ? 's' : ''}`, kind: 'closure' });
+            fireToast("All set. We'll do this tomorrow afternoon — cancel anytime before then.");
+          } else if (m.rule === 'all') {
+            fireToast(`Submitted. ${m.required - 1} more ${entity.principal}${m.required - 1 > 1 ? 's' : ''} need to sign.`);
+          } else {
+            fireToast(`Submitted. ${m.required - 1} more signature${m.required - 1 > 1 ? 's' : ''} needed.`);
+          }
+          closeWorkflow();
+        } else setStep(step + 1);
+      }
     };
-    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
-    const titles = ['Which accounts?', 'Where should funds go?', 'In-credit check', 'Sign per mandate'];
-    const subs = [
+    const back = () => {
+      if (step === 0) { closeWorkflow(); return; }
+      if (step === 1 && isEsc) setClosureUnreachable(null);
+      setStep(step - 1);
+    };
+
+    const escReasons = [
+      { key: 'health', label: 'Health or disability', sub: 'Partner has a health condition, disability, or mental capacity concern', icon: Heart, badge: 'FCA Consumer Duty PS22/9' },
+      { key: 'contact', label: 'Unable to contact', sub: 'Multiple attempts made — no response over 5+ working days', icon: MailX, badge: 'BCOBS due diligence' },
+      { key: 'deceased', label: 'Partner has died', sub: 'Death certificate or grant of probate will be required', icon: ScrollText, badge: 'Legal — probate & dissolution' },
+      { key: 'dispute', label: 'Partnership dispute', sub: 'Active disagreement is preventing joint authorisation', icon: Scale, badge: 'RM escalation + legal' },
+    ];
+
+    const normalTitles = ['Which accounts?', 'Where should funds go?', 'In-credit check', 'Sign per mandate'];
+    const normalSubs = [
       'Tap one or more accounts to close',
       'Single destination',
-      'Form requires accounts to be in credit',
+      'Accounts must be in credit',
       m.isSingle ? 'Single signature — your signature alone' : `${m.label} — others get notified`,
     ];
+    const escTitles = ['Which account?', 'Reason for escalation', 'Contact attempts & evidence', 'Restrict & refer'];
+    const escSubs = [
+      'Select the account to close',
+      'Determines the correct regulatory and specialist path',
+      'Required under FCA Consumer Duty PS22/9 and BCOBS',
+      'Account restricted while Specialist Vulnerable Customer Team reviews',
+    ];
+
+    const titles = isEsc ? escTitles : normalTitles;
+    const subs = isEsc ? escSubs : normalSubs;
+    const nextLabel = isEsc
+      ? (step === 3 ? 'Restrict account & raise case' : 'Continue')
+      : (step === 3 ? (m.isSingle ? 'Sign & start' : 'Sign & send') : 'Continue');
+    const nextDisabled = isEsc ? (
+      (step === 0 && closureSel.length === 0) ||
+      (step === 1 && (!closureUnreachable || closureUnreachable === 'pending')) ||
+      (step === 2 && closureContactLog.trim().length < 10) ||
+      (step === 3 && !closureVulnDecl)
+    ) : (
+      (step === 0 && closureSel.length === 0) ||
+      (step === 1 && !closureDest) ||
+      (step === 2 && !allInCredit) ||
+      (step === 3 && !closureConfirm)
+    );
 
     return (
       <StepFrame
         title={titles[step]} sub={subs[step]} total={4} current={step}
         onBack={back} onNext={next}
-        nextLabel={step === 3 ? (m.isSingle ? 'Sign & start' : 'Sign & send') : 'Continue'}
-        replaces={{ form: 'Form ANB9 0370 · Close an account', savings: 'No more posting to Sunderland · 5 days → minutes' }}
-        nextDisabled={
-          (step === 0 && closureSel.length === 0) ||
-          (step === 1 && !closureDest) ||
-          (step === 2 && !allInCredit) ||
-          (step === 3 && !closureConfirm)
-        }
+        nextLabel={nextLabel}
+        replaces={{
+          form: isEsc ? 'Internal referral · Specialist Vulnerable Customer Team' : 'Form ANB9 0370 · Close an account',
+          savings: isEsc ? 'No phone trees or branch visits — full digital audit trail' : 'No more posting to Sunderland · 5 days → minutes',
+        }}
+        nextDisabled={nextDisabled}
       >
+        {/* ── Step 0 — account selection (shared by both paths) ─────────── */}
         {step === 0 && (
           <div className="space-y-2">
             {accounts.map(a => {
@@ -771,9 +821,135 @@ export default function App() {
                 </button>
               );
             })}
+            {isPartnership && (
+              <button
+                onClick={() => setClosureUnreachable(closureUnreachable === null ? 'pending' : null)}
+                className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${closureUnreachable !== null ? 'border-amber-500 bg-amber-50' : 'border-dashed border-amber-300/70 hover:border-amber-400'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${closureUnreachable !== null ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-600'}`}>
+                    <AlertTriangle className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium text-sm ${closureUnreachable !== null ? 'text-amber-900' : 'text-amber-800'}`}>A partner is unreachable</div>
+                    <div className="text-[11px] text-amber-700">Vulnerable customer · partner cannot be contacted · dispute</div>
+                  </div>
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${closureUnreachable !== null ? 'bg-amber-500 border-amber-500' : 'border-amber-400'}`}>
+                    {closureUnreachable !== null && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                </div>
+              </button>
+            )}
           </div>
         )}
-        {step === 1 && (
+
+        {/* ── Escalation step 1 — reason ────────────────────────────────── */}
+        {isEsc && step === 1 && (
+          <div className="space-y-2">
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-3 mb-1">
+              <ShieldAlert className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>Regulatory escalation.</strong> Selecting this path bypasses dual-authorisation. Your reason determines which specialist team handles the case and what evidence is required.
+              </div>
+            </div>
+            {escReasons.map(r => {
+              const I = r.icon;
+              const sel = closureUnreachable === r.key;
+              return (
+                <button key={r.key} onClick={() => setClosureUnreachable(r.key)}
+                  className={`w-full text-left p-4 rounded-2xl border transition-all ${sel ? 'border-stone-900 bg-stone-50' : 'border-stone-200 hover:border-stone-300'}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${sel ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                      <I className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">{r.label}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{r.sub}</div>
+                      <span className="inline-block mt-1.5 text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">{r.badge}</span>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${sel ? 'bg-stone-900 border-stone-900' : 'border-stone-300'}`}>
+                      {sel && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Escalation step 2 — contact log + evidence ────────────────── */}
+        {isEsc && step === 2 && (
+          <div className="space-y-3">
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed">
+                <strong>FCA Consumer Duty PS22/9.</strong> Document at least 3 contact attempts across different channels over a minimum of 5 working days before the Specialist Team will accept the referral.
+              </div>
+            </div>
+            <Field label="Contact attempts log" hint="Date · method · outcome — one attempt per line">
+              <textarea
+                value={closureContactLog}
+                onChange={e => setClosureContactLog(e.target.value)}
+                rows={5}
+                placeholder={"12 Jun — Phone call to mobile — no answer\n13 Jun — Email to partner address — no reply\n15 Jun — Recorded letter to home address — awaiting\n17 Jun — Branch visit requested — no attendance"}
+                className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors resize-none leading-relaxed"
+              />
+            </Field>
+            <button onClick={() => setClosureEvidenceUp(true)}
+              className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 transition-all ${closureEvidenceUp ? 'border-emerald-400 bg-emerald-50/50' : 'border-stone-300 hover:border-stone-400'}`}>
+              {closureEvidenceUp
+                ? <CircleCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                : <Upload className="w-5 h-5 text-stone-500 flex-shrink-0" />}
+              <div className="text-left">
+                <div className={`text-sm font-medium ${closureEvidenceUp ? 'text-emerald-700' : 'text-stone-700'}`}>
+                  {closureEvidenceUp ? 'Evidence uploaded' : 'Upload supporting evidence'}
+                </div>
+                <div className="text-[11px] text-stone-500">Emails, call logs, return receipts, medical letters</div>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {/* ── Escalation step 3 — declaration + restrict ────────────────── */}
+        {isEsc && step === 3 && (
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Lock className="w-4 h-4 text-amber-700" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-amber-900">Account restriction</span>
+              </div>
+              <div className="text-xs text-amber-900 leading-relaxed">
+                On submission, <strong>no new payment instructions</strong> will be accepted. Incoming credits are still received. The restriction lifts when the specialist team resolves the case.
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-2.5">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">What happens next</div>
+              {[
+                'Specialist Vulnerable Customer Team contacted within 2 hours',
+                'Priya Desai (RM) will call you today to confirm next steps',
+                'Case reference generated for all future correspondence',
+                'Account restriction confirmed by letter within 1 working day',
+              ].map((item, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <div className="w-5 h-5 rounded-full bg-stone-200 text-stone-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</div>
+                  <div className="text-xs text-stone-700 leading-relaxed">{item}</div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-stone-100 border border-stone-200">
+              <span className="text-xs text-stone-500">Case reference</span>
+              <span className="font-mono text-sm font-medium tracking-wider">SVC-2026-4471</span>
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={closureVulnDecl} onChange={e => setClosureVulnDecl(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <span className="text-xs text-stone-700 leading-relaxed">
+                I confirm the above information is accurate to the best of my knowledge. I understand the account will be restricted pending specialist review, and I consent to the bank contacting the partner directly as part of this process.
+              </span>
+            </label>
+          </div>
+        )}
+
+        {/* ── Normal path step 1 — destination ─────────────────────────── */}
+        {!isEsc && step === 1 && (
           <div className="space-y-2">
             {accounts.filter(a => !closureSel.includes(a.no) && a.status === 'active').map(a => (
               <button key={a.no} onClick={() => setClosureDest(a.no)}
@@ -789,7 +965,9 @@ export default function App() {
             </button>
           </div>
         )}
-        {step === 2 && (
+
+        {/* ── Normal path step 2 — credit check ────────────────────────── */}
+        {!isEsc && step === 2 && (
           <div className="space-y-3">
             {closureSel.map(no => {
               const a = accounts.find(acc => acc.no === no);
@@ -809,7 +987,9 @@ export default function App() {
             })}
           </div>
         )}
-        {step === 3 && (
+
+        {/* ── Normal path step 3 — sign ─────────────────────────────────── */}
+        {!isEsc && step === 3 && (
           <div className="space-y-4">
             <div className="bg-stone-50 rounded-2xl p-4 space-y-2.5 border border-stone-200">
               <div className="flex justify-between text-sm"><span className="text-stone-500">Closing</span><span>{closureSel.length} account{closureSel.length > 1 ? 's' : ''}</span></div>
