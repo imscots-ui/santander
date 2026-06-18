@@ -19,7 +19,8 @@ import {
   Video, Flag, Building, AlertTriangle, ScrollText, BookOpen, Zap,
   Receipt, TrendingUp, PoundSterling, Calculator, Send, Tag, Link2,
   CalendarDays, BarChart3, Sparkles, Award, Search,
-  Eye, EyeOff, Fingerprint, Snowflake
+  Eye, EyeOff, Fingerprint, Snowflake,
+  Mic, Activity, Gauge, Wand2, Volume2, Network
 } from 'lucide-react';
 
 export default function App() {
@@ -91,6 +92,24 @@ export default function App() {
   const [receiptStep, setReceiptStep] = useState(0);
   const [receiptUploaded, setReceiptUploaded] = useState(false);
   const [scannedTxns, setScannedTxns] = useState(new Set());
+
+  // Voice ID biometric authentication
+  const [voiceIdEnrolled, setVoiceIdEnrolled] = useState(false);
+  const [showVoiceSetup, setShowVoiceSetup] = useState(false);
+  const [voiceIdTab, setVoiceIdTab] = useState('enrol');
+  const [voicePhrasesDone, setVoicePhrasesDone] = useState(new Set());
+  const [voiceRecordingPhrase, setVoiceRecordingPhrase] = useState(null);
+  const [sessionAnomaly, setSessionAnomaly] = useState(true);
+
+  // Voice Memo → MTD expense
+  const [showVoiceMemo, setShowVoiceMemo] = useState(false);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceParsed, setVoiceParsed] = useState(null);
+  const [voiceMemoAdded, setVoiceMemoAdded] = useState(new Set());
+
+  // Smart Payment Sequencer
+  const [showSequencer, setShowSequencer] = useState(false);
+  const [sequencerOptimised, setSequencerOptimised] = useState(false);
 
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
@@ -251,6 +270,30 @@ export default function App() {
     { key: 1, name: 'Payroll Card', last4: '····3927', acctNo: '····6633', expiry: '03/27', network: 'Visa Debit', pin: '6103' },
   ];
 
+  const SUPPLIER_RISK = [
+    { id: 'sr1', name: 'Meridian Logistics',  reg: '07834521', lastFiled: '30 Sep 2024', daysOverdue: 261, risk: 'red',   spend: 34700 },
+    { id: 'sr2', name: 'CloudStack Ltd',      reg: '10293847', lastFiled: '15 Mar 2025', daysOverdue: 95,  risk: 'amber', spend: 8900  },
+    { id: 'sr3', name: 'Apex Print Services', reg: '08421956', lastFiled: '12 Nov 2025', daysOverdue: 0,   risk: 'green', spend: 12400 },
+    { id: 'sr4', name: 'TechLink Systems',    reg: '09182736', lastFiled: '22 Oct 2025', daysOverdue: 0,   risk: 'green', spend: 19600 },
+    { id: 'sr5', name: 'Office Base UK',      reg: '05647382', lastFiled: '1 Dec 2025',  daysOverdue: 0,   risk: 'green', spend: 4200  },
+  ];
+
+  const SCHEDULED_PAYMENTS = [
+    { id: 'sp1', payee: 'PAYE / NIC',         amount: 29650, date: new Date(2026, 5, 24), type: 'tax',      locked: true  },
+    { id: 'sp2', payee: 'Meridian Logistics',  amount: 8750,  date: new Date(2026, 5, 26), type: 'supplier', locked: false },
+    { id: 'sp3', payee: 'CloudStack Ltd',      amount: 2240,  date: new Date(2026, 5, 27), type: 'supplier', locked: false },
+    { id: 'sp4', payee: 'Office Lease',        amount: 6500,  date: new Date(2026, 6, 1),  type: 'fixed',    locked: true  },
+    { id: 'sp5', payee: 'Apex Print Services', amount: 3100,  date: new Date(2026, 6, 3),  type: 'supplier', locked: false },
+    { id: 'sp6', payee: 'HMRC VAT',            amount: 41614, date: new Date(2026, 6, 7),  type: 'tax',      locked: true  },
+    { id: 'sp7', payee: 'TechLink Systems',    amount: 4900,  date: new Date(2026, 6, 10), type: 'supplier', locked: false },
+  ];
+
+  const VOICE_PHRASES = [
+    'My voice is my passport',
+    'Authorise this Santander payment',
+    'Seven echo niner foxtrot',
+  ];
+
   const signatories = [
     { name: 'James Whitfield', role: 'Director', list1: 'Passport · Mar 2026', list2: 'Council tax · Mar 2026', list3: 'N/A · matches residential', status: 'verified', initials: 'JW' },
     { name: 'Sarah Chen', role: 'Finance Director', list1: 'UK photocard · Jan 2026', list2: 'Bank statement · Jan 2026', list3: 'Lease · 2024–2027', status: 'verified', initials: 'SC' },
@@ -294,6 +337,32 @@ export default function App() {
     setPinAuthDone(false);
     setPinRevealed(false);
     setPinCountdown(30);
+  };
+
+  const closeVoiceSetup = () => {
+    setShowVoiceSetup(false);
+    setVoiceIdTab('enrol');
+    setVoiceRecordingPhrase(null);
+  };
+
+  const doVoiceMemo = () => {
+    setVoiceRecording(true);
+    setTimeout(() => {
+      setVoiceParsed({ merchant: 'Caffè Nero', amount: 4.50, vat: 0.75, category: 'Meals & Entertainment', ref: 'VM' + Date.now().toString().slice(-6) });
+      setVoiceRecording(false);
+    }, 1800);
+  };
+
+  const doEnrolPhrase = (idx) => {
+    setVoiceRecordingPhrase(idx);
+    setTimeout(() => {
+      setVoicePhrasesDone(prev => {
+        const next = new Set([...prev, idx]);
+        if (next.size >= VOICE_PHRASES.length) setVoiceIdEnrolled(true);
+        return next;
+      });
+      setVoiceRecordingPhrase(null);
+    }, 1800);
   };
 
   const getMandateFor = (accountNos) => {
@@ -499,6 +568,36 @@ export default function App() {
     });
   }, [accounts]);
 
+  // Business health score — 5 factors × 20 pts = 100
+  const healthScore = useMemo(() => {
+    const activeAccts = accounts.filter(a => a.status === 'active');
+    const totalBal = activeAccts.reduce((s, a) => s + a.balance, 0);
+    const liqScore = Math.min(20, Math.round((Math.min(totalBal, 600000) / 600000) * 20));
+    const overdueObs = mtdData.obligations.filter(o => o.status === 'open' && new Date(o.deadline) < new Date()).length;
+    const mtdScore = overdueObs === 0 ? 20 : Math.max(0, 20 - overdueObs * 10);
+    const warnWks = forecastWeeks.filter(w => w.warn).length;
+    const cfScore = Math.max(0, 20 - warnWks * 3);
+    const annualPay = payees.filter(p => p.selected).reduce((s, p) => s + p.amount, 0) * 12;
+    const annualRev = mtdData.yearToDate.sales * (12 / 9);
+    const ratio = annualPay / annualRev;
+    const payScore = ratio < 0.30 ? 20 : ratio < 0.40 ? 14 : ratio < 0.50 ? 8 : 4;
+    const verCount = signatories.filter(s => s.status === 'verified').length;
+    const manScore = verCount === signatories.length ? 20 : verCount >= signatories.length - 1 ? 14 : 8;
+    const total = liqScore + mtdScore + cfScore + payScore + manScore;
+    return {
+      total,
+      grade: total >= 80 ? 'A' : total >= 65 ? 'B' : total >= 50 ? 'C' : 'D',
+      colour: total >= 80 ? '#22c55e' : total >= 65 ? '#f59e0b' : '#ef4444',
+      factors: [
+        { label: 'Liquidity',      score: liqScore,  max: 20, desc: totalBal >= 400000 ? 'Strong reserves'          : 'Below target' },
+        { label: 'Tax compliance', score: mtdScore,  max: 20, desc: overdueObs === 0    ? 'All submissions on time'  : `${overdueObs} overdue` },
+        { label: 'Cash flow',      score: cfScore,   max: 20, desc: warnWks === 0       ? 'No risk weeks in horizon' : `${warnWks} risk week${warnWks !== 1 ? 's' : ''} ahead` },
+        { label: 'Payroll ratio',  score: payScore,  max: 20, desc: `${Math.round(ratio * 100)}% of revenue` },
+        { label: 'Mandate health', score: manScore,  max: 20, desc: `${verCount}/${signatories.length} signatories verified` },
+      ],
+    };
+  }, [accounts, forecastWeeks, payees]);
+
   // Search results across counterparties + transaction descriptions
   const searchResults = useMemo(() => {
     if (!counterpartyQuery.trim()) return [];
@@ -591,7 +690,11 @@ export default function App() {
     setLendingConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
-    // lendingCompleted, scannedTxns intentionally NOT reset — persistent settings
+    setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
+    setShowSequencer(false); setSequencerOptimised(false);
+    setShowVoiceSetup(false); setVoiceIdTab('enrol'); setVoiceRecordingPhrase(null);
+    // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
+    // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
   };
 
   const greeting = (() => {
@@ -2372,6 +2475,125 @@ export default function App() {
     );
   };
 
+  // === INSIGHT CLOSURES ===
+  const HealthScoreCard = () => {
+    const circ = 2 * Math.PI * 45;
+    const dash = (healthScore.total / 100) * circ;
+    return (
+      <div className="px-5 mb-6 anim-fade">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Live · 5 factors</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">Business health</h2>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider font-medium mb-1 px-2.5 py-1 rounded-full border"
+            style={{ color: healthScore.colour, borderColor: healthScore.colour + '50', background: healthScore.colour + '15' }}>
+            Grade {healthScore.grade}
+          </span>
+        </div>
+        <div className="bg-white rounded-2xl border border-stone-200/80 p-5 lift-1">
+          <div className="flex items-center gap-5">
+            <svg width="100" height="100" viewBox="0 0 120 120" className="flex-shrink-0">
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#f3f4f6" strokeWidth="10" />
+              <circle cx="60" cy="60" r="45" fill="none" stroke={healthScore.colour} strokeWidth="10"
+                strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
+              <text x="60" y="55" textAnchor="middle" fontSize="26" fontWeight="700" fill={healthScore.colour}>{healthScore.total}</text>
+              <text x="60" y="71" textAnchor="middle" fontSize="11" fill="#9ca3af">out of 100</text>
+            </svg>
+            <div className="flex-1 space-y-2.5">
+              {healthScore.factors.map(f => (
+                <div key={f.label}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[11px] text-stone-600">{f.label}</span>
+                    <span className="text-[11px] font-medium" style={{ color: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }}>{f.score}/{f.max}</span>
+                  </div>
+                  <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${(f.score / f.max) * 100}%`, background: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const SupplierRadar = () => (
+    <div className="px-5 mb-7 anim-fade">
+      <div className="flex items-end justify-between mb-3">
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Companies House · live</div>
+          <h2 className="font-display-tight text-2xl text-stone-900">Supplier risk radar</h2>
+        </div>
+        {SUPPLIER_RISK.some(s => s.risk === 'red') && (
+          <span className="text-[10px] uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mb-1">1 critical</span>
+        )}
+      </div>
+      <div className="space-y-2">
+        {SUPPLIER_RISK.map(s => (
+          <div key={s.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border lift-1 ${s.risk === 'red' ? 'border-red-200 bg-red-50/30' : s.risk === 'amber' ? 'border-amber-200 bg-amber-50/20' : 'bg-white border-stone-200/80'}`}>
+            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${s.risk === 'red' ? 'bg-red-500' : s.risk === 'amber' ? 'bg-amber-400' : 'bg-emerald-500'}`} />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
+              <div className="text-[10px] text-stone-400 mt-0.5">
+                CH {s.reg} · Filed {s.lastFiled}{s.daysOverdue > 0 ? ` · ⚠ ${s.daysOverdue}d overdue` : ''}
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
+              <div className="text-[9px] text-stone-400">annual spend</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-stone-400 mt-2 px-1">Data sourced from Companies House API · refreshed daily</p>
+    </div>
+  );
+
+  const DirectorCentre = () => {
+    const LAST_ACTIVE = ['Today, 09:14', 'Today, 08:31', '2 days ago', 'Today, 07:55'];
+    const pendingByName = { 'Sarah Chen': 2, 'James Whitfield': 1, 'Tom Bridges': 0, 'Anita Roy': 1 };
+    return (
+      <div className="px-5 mb-7 anim-fade">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Corporate governance</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">Director command centre</h2>
+          </div>
+          <button onClick={() => setTab('approve')} className="text-[10px] uppercase tracking-wider text-[#c8102e] mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded">
+            View all
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {signatories.map((s, i) => {
+            const pending = pendingByName[s.name] || 0;
+            return (
+              <div key={s.name} className={`p-3.5 rounded-2xl border lift-1 ${s.status === 'review' ? 'border-amber-200 bg-amber-50/20' : 'bg-white border-stone-200/80'}`}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-semibold flex-shrink-0 ${s.status === 'review' ? 'bg-amber-100 text-amber-800' : 'bg-stone-900 text-white'}`}>
+                    {s.initials}
+                  </div>
+                  {pending > 0 && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium">{pending}</span>
+                  )}
+                </div>
+                <div className="font-medium text-[13px] text-stone-900 leading-tight">{s.name}</div>
+                <div className="text-[10px] text-stone-500 mt-0.5">{s.role}</div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[9px] text-stone-400">{LAST_ACTIVE[i]}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${s.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {s.status === 'verified' ? 'KYC ✓' : 'Review'}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   // === ACTION TILES & SCREENS ===
   const ActionTile = ({ icon: I, title, desc, onClick, highlight, badge }) => (
     <button onClick={onClick} className={`text-left p-4 rounded-2xl transition-all duration-200 active:scale-[0.97] btn-primary ${highlight ? 'tile-hero text-white' : 'bg-white border border-stone-200/80 hover:border-stone-300 lift-1 hover:lift-2'}`}>
@@ -2441,6 +2663,28 @@ export default function App() {
         </button>
       </div>
 
+      {/* Session anomaly alert */}
+      {sessionAnomaly && (
+        <div className="mx-5 mb-5 anim-fade">
+          <div className="p-4 rounded-2xl border border-amber-300 bg-amber-50/60">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm text-amber-900">New sign-in detected</div>
+                <div className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">Edinburgh · new device · 09:14 today. Identity confirmed by Voice ID.</div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button onClick={() => setSessionAnomaly(false)} className="flex-1 py-2 text-xs font-medium text-amber-700 bg-amber-100 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">This was me</button>
+              <button onClick={() => { setShowVoiceSetup(true); setVoiceIdTab('status'); setSessionAnomaly(false); }}
+                className="flex-1 py-2 text-xs font-medium text-white bg-amber-600 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Review sessions</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Pre-approved lending offer */}
       {!lendingCompleted ? (
         <div className="px-5 mb-6 anim-fade stagger-1">
@@ -2473,6 +2717,8 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <HealthScoreCard />
 
       {/* Cooling-off */}
       {cooling.length > 0 && (
@@ -2641,6 +2887,8 @@ export default function App() {
           <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
           <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
+          <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
+          <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
         </div>
       </div>
 
@@ -2672,6 +2920,8 @@ export default function App() {
           })}
         </div>
       </div>
+
+      <SupplierRadar />
 
       {/* 13-week cash flow forecast */}
       {(() => {
@@ -2725,6 +2975,8 @@ export default function App() {
           </div>
         );
       })()}
+
+      <DirectorCentre />
 
       {/* Cards */}
       <div className="px-5 mb-7 anim-fade">
@@ -2838,6 +3090,40 @@ export default function App() {
             {creditRingfenced
               ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
               : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Authentication & Voice ID */}
+      <div className="px-5 mb-7 anim-fade">
+        <div className="mb-3">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">PSD2 · FCA PS19/4 · NIST SP 800-63B</div>
+          <h2 className="font-display-tight text-2xl text-stone-900">Authentication & security</h2>
+        </div>
+        <div className="space-y-2">
+          <button onClick={() => setShowVoiceSetup(true)}
+            className={`w-full text-left p-4 rounded-2xl border flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${voiceIdEnrolled ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${voiceIdEnrolled ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+              <Volume2 className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm">Voice ID biometric</div>
+              <div className={`text-[11px] ${voiceIdEnrolled ? 'text-emerald-700' : 'text-stone-500'}`}>
+                {voiceIdEnrolled ? 'Active · app, phone banking & video call' : 'Not enrolled · tap to set up 3 voice phrases'}
+              </div>
+            </div>
+            {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+          </button>
+          <button onClick={() => { setShowVoiceSetup(true); setVoiceIdTab('sca'); }}
+            className="w-full text-left p-4 rounded-2xl border border-stone-200 bg-white flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+            <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center flex-shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm">SCA step-up matrix</div>
+              <div className="text-[11px] text-stone-500">6 tiers · PSD2 RTS Art.97 compliant</div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
           </button>
         </div>
       </div>
@@ -3574,6 +3860,315 @@ export default function App() {
       </div>
     </div>
   );
+
+  // === VOICE MEMO SHEET ===
+  const VoiceMemoSheet = () => {
+    const BARS = [6, 14, 9, 18, 12, 22, 8, 16, 20, 10, 15, 19, 7, 13, 21];
+    return (
+      <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center anim-fade" onClick={() => { setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null); }}>
+        <div className="bg-white w-full max-w-lg rounded-t-2xl p-6 pb-10 anim-slide" onClick={e => e.stopPropagation()}>
+          <div className="w-10 h-1 bg-stone-300 rounded mx-auto mb-5" />
+          <h3 className="font-display text-xl font-semibold text-stone-900 mb-1">Voice memo</h3>
+          <p className="text-sm text-stone-500 mb-6">Say your expense — we'll extract the details instantly</p>
+          {!voiceParsed ? (
+            <div className="flex flex-col items-center gap-5">
+              {!voiceRecording ? (
+                <>
+                  <button onClick={doVoiceMemo}
+                    className="w-24 h-24 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#c8102e]/30">
+                    <Mic size={36} className="text-white" />
+                  </button>
+                  <p className="text-sm text-stone-400 text-center max-w-xs">
+                    Tap and say something like<br/>
+                    <em className="text-stone-600 not-italic font-medium">"Coffee with client, four fifty, entertainment"</em>
+                  </p>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-[#c8102e]/15 animate-ping" style={{ animationDuration: '1.2s' }} />
+                    <div className="w-24 h-24 rounded-full bg-[#c8102e]/10 flex items-center justify-center relative">
+                      <Mic size={36} className="text-[#c8102e]" />
+                    </div>
+                  </div>
+                  <svg width="200" height="36" viewBox="0 0 200 36">
+                    {BARS.map((h, i) => (
+                      <rect key={i} x={i * 13 + 4} y={(36 - h) / 2} width="9" height={h} rx="4" fill="#c8102e" opacity={0.5 + (i % 4) * 0.12} />
+                    ))}
+                  </svg>
+                  <span className="text-sm text-stone-500">Listening…</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <Check size={11} className="text-white" />
+                  </div>
+                  <span className="text-sm font-medium text-stone-700">Parsed successfully</span>
+                </div>
+                <div className="space-y-2 text-sm">
+                  {[['Merchant', voiceParsed.merchant], ['Amount', `£${voiceParsed.amount.toFixed(2)}`], ['VAT', `£${voiceParsed.vat.toFixed(2)}`], ['Category', voiceParsed.category], ['Reference', voiceParsed.ref]].map(([k, v]) => (
+                    <div key={k} className="flex justify-between">
+                      <span className="text-stone-500">{k}</span>
+                      <span className="font-medium font-mono">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-2">
+                <Info size={14} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-800 leading-relaxed">This expense will appear in your MTD ledger for Q3. VAT reclaim subject to HMRC rules.</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => { setVoiceParsed(null); setVoiceRecording(false); }}
+                  className="flex-1 py-3 rounded-xl border border-stone-200 text-stone-700 text-sm font-medium hover:bg-stone-50">Re-record</button>
+                <button onClick={() => {
+                  setVoiceMemoAdded(prev => new Set([...prev, voiceParsed.ref]));
+                  fireToast('Expense added to MTD ledger · ' + voiceParsed.ref);
+                  setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
+                }} className="flex-1 py-3 rounded-xl bg-stone-900 text-white text-sm font-medium">Add to MTD</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // === PAYMENT SEQUENCER SHEET ===
+  const SequencerSheet = () => {
+    const base = accounts.filter(a => a.status === 'active').reduce((s, a) => s + a.balance, 0);
+    const sorted = (() => {
+      const payments = sequencerOptimised
+        ? SCHEDULED_PAYMENTS.map(p => {
+            if (p.id === 'sp3') return { ...p, date: new Date(2026, 6, 2) };
+            if (p.id === 'sp5') return { ...p, date: new Date(2026, 6, 8) };
+            if (p.id === 'sp7') return { ...p, date: new Date(2026, 6, 15) };
+            return p;
+          })
+        : SCHEDULED_PAYMENTS;
+      return [...payments].sort((a, b) => a.date - b.date);
+    })();
+    let bal = base;
+    const dailyBal = Array.from({ length: 31 }, (_, d) => {
+      const dayDate = new Date(2026, 5, 18 + d);
+      sorted.forEach(p => { if (p.date.toDateString() === dayDate.toDateString()) bal -= p.amount; });
+      return Math.max(0, bal);
+    });
+    const maxBal = Math.max(...dailyBal, 1);
+    const minBal = Math.min(...dailyBal);
+    const totalScheduled = SCHEDULED_PAYMENTS.reduce((s, p) => s + p.amount, 0);
+    return (
+      <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center anim-fade" onClick={() => setShowSequencer(false)}>
+        <div className="bg-white w-full max-w-lg rounded-t-2xl p-6 pb-10 anim-slide overflow-y-auto" style={{ maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
+          <div className="w-10 h-1 bg-stone-300 rounded mx-auto mb-5" />
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h3 className="font-display text-xl font-semibold text-stone-900">Payment sequencer</h3>
+              <p className="text-sm text-stone-500 mt-0.5">30 days · {sorted.length} payments · {fmt(totalScheduled)}</p>
+            </div>
+            <button onClick={() => setSequencerOptimised(o => !o)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${sequencerOptimised ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+              {sequencerOptimised ? '✓ Optimised' : 'Optimise'}
+            </button>
+          </div>
+          <div className="mb-4">
+            <svg viewBox="0 0 310 56" className="w-full" style={{ height: 56 }}>
+              {dailyBal.map((b, i) => {
+                const h = Math.max(2, (b / maxBal) * 48);
+                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#f59e0b' : '#c8102e'} opacity="0.75" />;
+              })}
+              <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#ef4444" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
+            </svg>
+            <div className="flex justify-between text-[9px] text-stone-400 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+              <div className="text-[10px] text-stone-500 mb-0.5">Min balance</div>
+              <div className={`font-display-tight text-sm num-tab ${minBal < 80000 ? 'text-amber-700' : 'text-stone-900'}`}>{fmt(minBal)}</div>
+            </div>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
+              <div className="text-[10px] text-stone-500 mb-0.5">Total outgoing</div>
+              <div className="font-display-tight text-sm num-tab text-stone-900">{fmt(totalScheduled)}</div>
+            </div>
+          </div>
+          <div className="space-y-1.5 mb-4">
+            {sorted.map(p => (
+              <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100">
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#c8102e]/60'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-stone-900 truncate">{p.payee}</div>
+                  <div className="text-[10px] text-stone-400">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
+                </div>
+                <span className="font-mono text-sm font-medium text-stone-800 flex-shrink-0 num-tab">{fmt(p.amount)}</span>
+              </div>
+            ))}
+          </div>
+          {sequencerOptimised && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+              <p className="text-sm text-emerald-800 leading-relaxed">
+                <span className="font-medium">Optimised.</span> CloudStack, Apex and TechLink rescheduled to smooth cash flow. Minimum balance improved — all locked payments unchanged.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // === VOICE ID SHEET ===
+  const VoiceIdSheet = () => {
+    const SCA_TIERS = [
+      { action: 'View balance & statements',    auth: 'Device passkey',                       level: 1 },
+      { action: 'Payments up to £500',          auth: 'Device + biometric fingerprint',       level: 2 },
+      { action: 'Payments £500 – £5,000',       auth: 'Device + Voice ID',                    level: 3 },
+      { action: 'Payments over £5,000',         auth: 'Device + Voice ID + co-signatory',     level: 4 },
+      { action: 'Mandate changes',              auth: 'Voice ID + co-sig + 24h cooling-off',  level: 4 },
+      { action: 'Account closure',              auth: 'Voice ID + co-sig + RM review',        level: 4 },
+    ];
+    return (
+      <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center anim-fade" onClick={closeVoiceSetup}>
+        <div className="bg-white w-full max-w-lg rounded-t-2xl pb-10 anim-slide overflow-y-auto" style={{ maxHeight: '90vh' }} onClick={e => e.stopPropagation()}>
+          <div className="px-6 pt-6 pb-4 border-b border-stone-100">
+            <div className="w-10 h-1 bg-stone-300 rounded mx-auto mb-5" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${voiceIdEnrolled ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+                <Volume2 size={22} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-display text-xl font-semibold text-stone-900">Voice ID</h3>
+                <p className="text-xs text-stone-500 mt-0.5">{voiceIdEnrolled ? 'Enrolled · Active across all channels' : 'Not yet enrolled'}</p>
+              </div>
+              {voiceIdEnrolled && <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium flex-shrink-0">Active</span>}
+            </div>
+            <div className="flex gap-1">
+              {[['enrol', 'Enrol'], ['status', 'Status'], ['sca', 'SCA matrix']].map(([key, label]) => (
+                <button key={key} onClick={() => setVoiceIdTab(key)}
+                  className={`flex-1 py-2 text-xs font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${voiceIdTab === key ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="px-6 pt-5">
+            {voiceIdTab === 'enrol' && (
+              <div className="space-y-4">
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 flex items-start gap-2">
+                  <Info size={14} className="text-amber-700 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-900 leading-relaxed">Your voice print is special-category biometric data (GDPR Art.9). Stored encrypted in the UK, never shared, used only to verify your identity. Delete anytime in settings.</p>
+                </div>
+                {VOICE_PHRASES.map((phrase, i) => {
+                  const done = voicePhrasesDone.has(i);
+                  const recording = voiceRecordingPhrase === i;
+                  return (
+                    <div key={i} className={`p-4 rounded-2xl border transition-colors ${done ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] text-stone-400 uppercase tracking-wider mb-1">Phrase {i + 1} of 3</div>
+                          <div className="font-medium text-sm text-stone-900">"{phrase}"</div>
+                        </div>
+                        {done ? (
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                            <Check size={18} className="text-emerald-600" />
+                          </div>
+                        ) : recording ? (
+                          <div className="w-10 h-10 rounded-full bg-[#c8102e]/10 flex items-center justify-center flex-shrink-0 relative">
+                            <div className="absolute inset-0 rounded-full bg-[#c8102e]/20 animate-ping" style={{ animationDuration: '0.9s' }} />
+                            <Mic size={18} className="text-[#c8102e] relative" />
+                          </div>
+                        ) : (
+                          <button onClick={() => doEnrolPhrase(i)} disabled={done}
+                            className="w-10 h-10 rounded-full bg-[#c8102e] flex items-center justify-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+                            <Mic size={18} className="text-white" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {voiceIdEnrolled && (
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                      <Check size={18} className="text-white" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm text-emerald-900">Voice ID enrolled</div>
+                      <div className="text-xs text-emerald-700 mt-0.5">Active on app, phone banking and video call</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {voiceIdTab === 'status' && (
+              <div className="space-y-4">
+                {voiceIdEnrolled ? (
+                  <>
+                    <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40">
+                      <div className="text-[10px] text-emerald-700 uppercase tracking-wider mb-3 font-medium">Cross-channel protection</div>
+                      {[
+                        { label: 'App login',           status: true,  note: 'Passkey + Voice ID step-up' },
+                        { label: 'Phone banking',       status: true,  note: 'Verified on every inbound call' },
+                        { label: 'Video call with RM',  status: true,  note: 'Identity confirmed in real time' },
+                        { label: 'Branch visit',        status: false, note: 'Photo ID still required at counter' },
+                      ].map(ch => (
+                        <div key={ch.label} className="flex items-center justify-between py-2.5 border-b border-emerald-100/80 last:border-0">
+                          <div>
+                            <div className="text-sm font-medium text-stone-900">{ch.label}</div>
+                            <div className="text-[10px] text-stone-500">{ch.note}</div>
+                          </div>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${ch.status ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'}`}>
+                            {ch.status ? 'Active' : 'N/A'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-3 rounded-xl bg-stone-50 border border-stone-100 flex items-start gap-2">
+                      <ShieldCheck size={14} className="text-stone-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-stone-600 leading-relaxed">Anti-spoofing active — voice clone and replay attacks blocked in real time. Liveness detection required on every verification (NIST SP 800-63B AAL3).</p>
+                    </div>
+                    <div className="flex gap-2 text-[10px] text-stone-400 pb-2">
+                      <span>Enrolled 14 Jun 2026</span><span>·</span><span>Last verified: today, 09:14</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-10">
+                    <Volume2 size={32} className="text-stone-300 mx-auto mb-3" />
+                    <p className="text-sm text-stone-500 mb-4">Voice ID not yet enrolled.</p>
+                    <button onClick={() => setVoiceIdTab('enrol')} className="px-5 py-2.5 rounded-xl bg-stone-900 text-white text-sm font-medium">Enrol now</button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {voiceIdTab === 'sca' && (
+              <div className="space-y-3 pb-2">
+                <p className="text-xs text-stone-500 leading-relaxed">PSD2 RTS requires Strong Customer Authentication with 2 of 3 factors: knowledge, possession, or inherence. We use dynamic step-up based on transaction risk.</p>
+                <div className="space-y-1.5">
+                  {SCA_TIERS.map((tier, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-stone-50 border border-stone-100">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-[9px] font-bold ${tier.level >= 4 ? 'bg-red-100 text-red-700' : tier.level === 3 ? 'bg-amber-100 text-amber-700' : tier.level === 2 ? 'bg-blue-100 text-blue-700' : 'bg-stone-200 text-stone-600'}`}>
+                        {tier.level}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-stone-900">{tier.action}</div>
+                        <div className="text-[10px] text-stone-500 mt-0.5">{tier.auth}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-stone-400 leading-relaxed pb-2">Voice ID qualifies as an inherence factor (PSD2 RTS Art.4(30)). Anti-spoofing protects against replay and deepfake voice attacks.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // === COUNTERPARTY DETAIL SHEET ===
   const CounterpartySheet = () => {
@@ -4338,6 +4933,9 @@ export default function App() {
         {showReceiptSheet && <ReceiptSheet />}
         {showPinSheet && <PinSheet />}
         {showOBSheet && <OBSheet />}
+        {showVoiceMemo && <VoiceMemoSheet />}
+        {showSequencer && <SequencerSheet />}
+        {showVoiceSetup && <VoiceIdSheet />}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
         {paymentPending && (() => {

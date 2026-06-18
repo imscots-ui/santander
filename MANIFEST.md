@@ -12,20 +12,20 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~3,700 lines · ~210KB · Single React component  
+**Size:** ~5,100 lines · ~290KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
 
 | Screen | Key Features |
 |--------|-------------|
-| Home Dashboard | Balance hero card, pending approvals, cooling-off progress bars, MTD VAT alert, RM card (Priya Desai), accounts list with mandate badges, demo controls |
+| Home Dashboard | Balance hero card, business health score gauge, session anomaly alert, supplier risk radar, director command centre, 13-week forecast, cards, pending approvals, cooling-off progress bars, MTD VAT alert, RM card (Priya Desai), accounts list with mandate badges, Voice ID security, demo controls |
 | Signature Queue | Dual-authorisation — sign with Face ID or reject pending mandates/closures/payments, status display per item |
 | Financial Statements | 6 months transactions, chronological + category views, counterparty search, detail sheets, PDF/CSV/Excel export, method filter |
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (11 step-based wizards)
+### Workflows (11 step-based wizards · 4 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -72,6 +72,10 @@
 | Credit ring-fence | GDPR Art.5(1)(c) / ICO LIA | Formal written instruction persisted in state. Personal account history excluded from business loan/overdraft underwriting |
 | Open banking PSD2 consent audit | PSD2 RTS Art.29 | OBSheet shows all third-party consents with scope and expiry. Flags personal data exposure (Funding Circle). Revocation within 90 seconds per RTS |
 | Receipt scan → MTD | HMRC MTD digital links | Simulated OCR: scan receipt → extract merchant/amount/VAT/category → categorise transaction. Updates audit trail. Closes the manual-entry gap in MTD |
+| Voice ID biometric | PSD2 RTS Art.4(30) · GDPR Art.9 · NIST SP 800-63B | 3-phrase voice enrolment with GDPR special-category consent gate. Active across app, phone banking, and video call. Anti-spoofing (liveness + replay detection). voiceIdEnrolled persists |
+| SCA step-up matrix | PSD2 RTS Art.97 · FCA PS19/4 | 6-tier dynamic authentication: device passkey → biometric → Voice ID → Voice ID + co-sig + cooling-off. Displayed as interactive info sheet within VoiceIdSheet |
+| Session anomaly detection | FCA SYSC 10A · PSD2 RTS Art.2 | Dismissible amber card on HomeScreen. New device/location alert with "This was me" or "Review sessions" paths. Dismissed banner links to Voice ID status sheet |
+| Supplier risk radar | Companies House filing obligations | 5 key suppliers shown with CH reg, last filed date, days overdue, annual spend, RAG risk badge. Red = >180d overdue, amber = 90–180d, green = current. Links to CH API |
 
 ### Home Screen Intelligence
 
@@ -79,6 +83,12 @@
 |---------|---------------|
 | Pre-approved lending offer | Hero card showing £45,000 pre-approved offer. Disappears after draw-down, replaced by active loan summary chip |
 | 13-week cash flow forecast | SVG bar chart (forecastWeeks useMemo) — 13 weekly balance projections from known DDs, payroll, VAT, income patterns. Amber warning line at £80k with actionable nudge |
+| Business health score | Circular SVG gauge (0–100) computed live from 5 factors: liquidity (0–20), tax compliance (0–20), cash flow headroom (0–20), payroll ratio (0–20), mandate health (0–20). Each factor shown as a progress bar with colour coding. healthScore useMemo refreshes on accounts/payees/forecast changes |
+| Supplier risk radar | 5 key counterparties with Companies House filing status. Red/amber/green risk badge per supplier. Annual spend displayed. Critical badge if any red. SUPPLIER_RISK static data |
+| Director command centre | 2×2 grid showing all 4 signatories. Per-director: initials avatar, role, KYC status, last-active timestamp, pending action count (red badge). Links to Approve tab |
+| Voice memo → MTD | Tap-to-record expense entry. 1.8s simulated transcription. Extracts merchant, amount, VAT rate, category, reference. One-tap confirm to MTD ledger. voiceMemoAdded Set persists entries |
+| Smart payment sequencer | 30-day balance outlook SVG chart (daily bars, red warning line). 7 scheduled payments with type colour coding (tax/fixed/supplier). Optimise button reschedules discretionary payments to maximise minimum balance. Locked payments (tax/rent) unaffected |
+| Voice ID biometric setup | 3-phrase enrolment, cross-channel status (app/phone/video), anti-spoofing badge, SCA tier table. GDPR Art.9 consent gate shown on first entry |
 
 ### Accessibility Fixes Applied This Session
 
@@ -220,25 +230,26 @@ Contents:
 
 ### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
 
-15 slides · Santander brand colours throughout · Built with python-pptx
+16 slides · Santander brand colours throughout · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Title + Business Banking Advisor stamp |
 | 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 16 features (4-col grid) |
+| 4 | What we built — 20 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
 | 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
-| 7 | Paperless workflows deep-dive |
-| 8 | Making Tax Digital deep-dive |
-| 9 | Security & compliance (4 frameworks) |
-| 10 | Financial intelligence features |
-| 11 | Technical architecture (current + production) |
-| 12 | Business case — £137M annualised opportunity + 5 competitive differentiators |
-| 13 | Roadmap — 4 phases Q3 2026→Q2 2027 |
-| 14 | Design system & accessibility |
-| 15 | Next steps — 3 decisions for senior management |
+| 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo |
+| 8 | Paperless workflows deep-dive |
+| 9 | Making Tax Digital deep-dive |
+| 10 | Security & compliance (4 frameworks) |
+| 11 | Financial intelligence features |
+| 12 | Technical architecture (current + production) |
+| 13 | Business case — £137M annualised opportunity + 5 competitive differentiators |
+| 14 | Roadmap — 4 phases Q3 2026→Q2 2027 |
+| 15 | Design system & accessibility |
+| 16 | Next steps — 3 decisions for senior management |
 
 **Credit on every slide:** "Business Banking Advisor · Self-initiated · Completed out of hours in own time"
 
