@@ -15,5 +15,5 @@ export default defineConfig({
       output: { inlineDynamicImports: true },
     },
   },
-  server: { host: true, port: 5174 },
+  server: { host: true, port: 5173 },
 });

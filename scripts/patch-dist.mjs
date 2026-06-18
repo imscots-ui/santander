@@ -11,8 +11,8 @@ html = html.replace(/<link rel="manifest"[^>]*>\s*/g, '');
 
 writeFileSync(file, html);
 
-// Also write a consistently-named copy for easy sharing
-writeFileSync('dist/RAFAC-1701.html', html);
+// Write a clearly-named copy for easy sharing
+writeFileSync('dist/Santander-Business-Banking.html', html);
 
 console.log('dist/index.html patched — ready to open as file://');
-console.log('dist/RAFAC-1701.html written — send this file to users');
+console.log('dist/Santander-Business-Banking.html written — send this file to colleagues');
