@@ -277,7 +277,7 @@ add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
 
 add_text(s,
     "A single-page React application — running live in any browser, no server, no backend — "
-    "demonstrating every critical business banking workflow end-to-end. 20 features across 4 areas.",
+    "demonstrating every critical business banking workflow end-to-end. 21 features across 4 areas.",
     0.55, 0.95, 12.23, 0.55, size=13, color=STONE5)
 
 features = [
@@ -301,6 +301,7 @@ features = [
     ("Supplier risk radar", "Companies House RAG status for top 5 counterparties"),
     ("Voice ID biometric", "3-phrase enrolment · cross-channel · SCA step-up matrix"),
     ("Payment sequencer", "30-day balance outlook · smart rescheduling · risk threshold"),
+    ("Live notifications", "Bell icon · security alerts · approvals · cooling-off · co-signer status"),
 ]
 
 for i, (name, desc) in enumerate(features):
@@ -457,8 +458,8 @@ s = prs.slides.add_slide(BLANK)
 add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
 red_bar(s)
 add_text(s, "Intelligence & Security", 0.5, 0.22, 10, 0.5, size=26, bold=True, color=DARK)
-add_text(s, "Six features that set us apart — intelligence built in, security by design",
-         0.5, 0.7, 10, 0.35, size=12, color=STONE5)
+add_text(s, "Seven features that set us apart — intelligence built in, security by design",
+         0.5, 0.7, 12, 0.35, size=12, color=STONE5)
 add_rect(s, 0.5, 1.05, 12.33, 0.025, fill=RED)
 
 panels_is = [
@@ -492,20 +493,29 @@ panels_is = [
       "1.8s simulated transcription extracts all fields",
       "Auto-fills merchant · amount · VAT · category",
       "One-tap confirm adds to MTD ledger + audit trail"]),
+    ("Live Notification Bell",
+     ["Security alerts: new device/location login",
+      "Pending approval queue — one tap to Sign tab",
+      "Cooling-off countdowns with live progress bar",
+      "Stalled co-signer escalations with RM status"]),
 ]
 
 EMERALD = RGBColor(0x05, 0x96, 0x69)
 AMBER   = RGBColor(0xD9, 0x77, 0x06)
 
-for i, (title, pts) in enumerate(panels_is):
-    col = i % 3
-    row = i // 2
-    x = 0.45 + col * 4.3
-    y = 1.2 + row * 2.72
-    add_rect(s, x, y, 4.1, 2.55, fill=WHITE, line=STONE3)
-    add_rect(s, x, y, 4.1, 0.07, fill=RED)
-    add_text(s, title, x+0.18, y+0.12, 3.8, 0.32, size=10.5, bold=True, color=DARK)
-    bullet_block(s, pts, x+0.18, y+0.5, 3.8, dot_color=RED, size=9, color=STONE5)
+# 7 panels: 3 in row 0, 4 in row 1 — using narrower panels to fit
+panel_rows = [[0, 1, 2], [3, 4, 5, 6]]
+for ri, row_items in enumerate(panel_rows):
+    n = len(row_items)
+    pw = (12.33 - (n - 1) * 0.18) / n  # panel width
+    y = 1.2 + ri * 2.85
+    for ci, idx in enumerate(row_items):
+        title, pts = panels_is[idx]
+        x = 0.45 + ci * (pw + 0.18)
+        add_rect(s, x, y, pw, 2.6, fill=WHITE, line=STONE3)
+        add_rect(s, x, y, pw, 0.07, fill=RED)
+        add_text(s, title, x+0.15, y+0.12, pw-0.2, 0.32, size=10, bold=True, color=DARK)
+        bullet_block(s, pts, x+0.15, y+0.5, pw-0.2, dot_color=RED, size=8.5, color=STONE5)
 
 advisor_footer(s)
 slide_number(s, 7)

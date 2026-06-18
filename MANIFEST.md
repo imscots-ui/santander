@@ -12,7 +12,7 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~5,100 lines · ~290KB · Single React component  
+**Size:** ~5,300 lines · ~300KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
@@ -25,7 +25,7 @@
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (11 step-based wizards · 4 sheet overlays)
+### Workflows (11 step-based wizards · 5 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -76,6 +76,7 @@
 | SCA step-up matrix | PSD2 RTS Art.97 · FCA PS19/4 | 6-tier dynamic authentication: device passkey → biometric → Voice ID → Voice ID + co-sig + cooling-off. Displayed as interactive info sheet within VoiceIdSheet |
 | Session anomaly detection | FCA SYSC 10A · PSD2 RTS Art.2 | Dismissible amber card on HomeScreen. New device/location alert with "This was me" or "Review sessions" paths. Dismissed banner links to Voice ID status sheet |
 | Supplier risk radar | Companies House filing obligations | 5 key suppliers shown with CH reg, last filed date, days overdue, annual spend, RAG risk badge. Red = >180d overdue, amber = 90–180d, green = current. Links to CH API |
+| Live notification bell | FCA SYSC 10A · PSD2 RTS Art.2 | Bell icon (desktop + mobile) opens NotificationsSheet. Shows: session anomaly alert with CTAs, all unsigned pending approvals with quick-navigate to Sign tab, cooling-off progress bars with hours remaining, stalled co-signer escalations. Empty state for clean days. Badge dot always visible while anomaly or approvals exist |
 
 ### Home Screen Intelligence
 
@@ -208,7 +209,7 @@ Contents:
 
 **Branch:** `gh-pages`  
 **URL:** https://imscots-ui.github.io/santander/  
-**Contents:** `index.html` (350KB self-contained) + `.nojekyll` + `vercel.json`  
+**Contents:** `index.html` (832KB self-contained, all JS/CSS/fonts inlined) + `.nojekyll` + `vercel.json`  
 **Fix applied:** `DOMContentLoaded` listener — vite-plugin-singlefile inlines JS into `<head>` as plain `<script>` (no defer), so React mount must wait for DOM ready
 
 ### Vercel
@@ -237,7 +238,7 @@ Contents:
 | 1 | Title + Business Banking Advisor stamp |
 | 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 20 features (4-col grid) |
+| 4 | What we built — 21 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
 | 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
 | 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo |
@@ -303,7 +304,7 @@ Contents:
 | Paper forms retired | 5 (CA04, CA07, CA11, P17, D18) |
 | Entity types supported | 7 |
 | Approval rule tiers | 3 (Any-1, Any-2, All) |
-| Compliance frameworks addressed | 7 (FCA BCOBS 4A, MLR 2017, FCA SYSC 9, HMRC MTD, GDPR Art.5, PSD2 RTS, FCA PS22/9) |
+| Compliance frameworks addressed | 8 (FCA BCOBS 4A, MLR 2017, FCA SYSC 9, HMRC MTD, GDPR Art.5, PSD2 RTS, FCA PS22/9, FCA SYSC 10A) |
 | Privacy controls built | 3 (personal/business separation, credit ring-fence, PSD2 consent audit) |
 | Cost saving per 10k customers | £4.9M year 1 |
 | Annualised opportunity (280k customers) | £137M |
