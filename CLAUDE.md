@@ -5,7 +5,7 @@
 You are a rated member of HMS 1701's AI agent crew. Read your orders, know your station, and ask no questions that are answered here.
 
 **Ship's doctrine:** `1701-uniform/SHIP-COMPANY.md`
-**Reference library:** `1701-uniform/REFERENCE.md` (41 books · 26 sections · 5,000+ lines)
+**Reference library:** `1701-uniform/REFERENCE.md` (48 books · 33 sections · 7,150+ lines)
 **Your rank commands:**
 
 | Command | Station | Duty |
@@ -54,13 +54,13 @@ There are no tests, no lint scripts, and no type checking in this project.
 
 ## Architecture
 
-The entire prototype lives in a single file: **`App.jsx`** (~3,200 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
+The entire prototype lives in a single file: **`App.jsx`** (~5,300 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
 
 ### Single-component structure
 
 `App` is one large React function component. Its internal structure follows this order:
 
-1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks
+1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks. As of June 2026 the file has 60+ state variables; hooks run from line ~27 to ~627. The `/ship-ready` awk check flags any hook past line 120 — this is a known false positive on this file size. The architectural rule to enforce is: **no hook may appear after line 664 (first closure)**. The awk threshold is stale; the boundary is not.
 2. **Static data** — `ENTITY_INFO`, `signatories`, `accounts` (via `useMemo`), `mtdData`, `statementsData` (via `useMemo`)
 3. **Inline CSS** — a `css` template literal variable holds brand-specific styles, animations, and glass effects. Injected via `<style>{css}</style>` in the render
 4. **Primitive components** — `ProgressDots`, `StepFrame`, `Input`, `Field`, `Toggle` — small JSX helpers defined as closures. **No hooks inside these.**
