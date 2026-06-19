@@ -894,9 +894,9 @@ export default function App() {
     </div>
   );
 
-  const Input = ({ value, onChange, placeholder, type = 'text' }) => (
+  const Input = ({ value, onChange, placeholder, type = 'text', className: cls = '' }) => (
     <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors" />
+      className={`w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors ${cls}`} />
   );
 
   const Field = ({ label, hint, children }) => (
@@ -1962,13 +1962,13 @@ export default function App() {
               )}
             </div>
             <Field label="Beneficiary name">
-              <Input value={fxBeneficiary} onChange={e => setFxBeneficiary(e.target.value)} placeholder="Company or individual name" />
+              <Input value={fxBeneficiary} onChange={setFxBeneficiary} placeholder="Company or individual name" />
             </Field>
             <Field label="IBAN" hint="Starts with 2-letter country code · e.g. DE89 3704 0044 0532 0130 00">
-              <Input value={fxIBAN} onChange={e => setFxIBAN(e.target.value)} placeholder="GB29 NWBK 6016 1331 9268 19" className="font-mono" />
+              <Input value={fxIBAN} onChange={setFxIBAN} placeholder="GB29 NWBK 6016 1331 9268 19" className="font-mono" />
             </Field>
             <Field label="Payment reference (optional)">
-              <Input value={fxReference} onChange={e => setFxReference(e.target.value)} placeholder="Invoice number or description" />
+              <Input value={fxReference} onChange={setFxReference} placeholder="Invoice number or description" />
             </Field>
             {amountNum >= 50000 && (
               <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/50 flex gap-2">
