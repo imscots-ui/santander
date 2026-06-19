@@ -1,1069 +1,877 @@
 """
-HMS 1701 — Santander Business Banking Pitch Deck Builder
-Produces: Santander_Digital_Banking_Future.pptx
+Santander Business Banking — Pitch Deck
+Rebuilt to PowerPoint best-practice standards (REFERENCE.md §30–33)
+
+Design principles applied:
+  · One clear message per slide — no bullet dumps
+  · Lead with a story: problem → insight → solution → evidence → ask
+  · Giant numbers for data; visual panels for features — never raw lists
+  · Dark / light / red alternation for visual rhythm
+  · Generous whitespace — min 0.45" all margins
+  · Consistent Slide Master-style furniture on every slide
+  · Strong contrast only — white on dark, dark on warm, red as accent
+  · State the conclusion at both the opening and the close (Sherer §32)
 """
+
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from pptx.util import Inches, Pt
-import copy
 
-# ── Brand colours ────────────────────────────────────────────────────────────
-RED    = RGBColor(0xC8, 0x10, 0x2E)
-DARK   = RGBColor(0x1C, 0x19, 0x17)
-WARM   = RGBColor(0xFA, 0xF6, 0xEF)
-WHITE  = RGBColor(0xFF, 0xFF, 0xFF)
-STONE5 = RGBColor(0x78, 0x71, 0x6C)
-STONE3 = RGBColor(0xD6, 0xD3, 0xD1)
+# ── Colour tokens ─────────────────────────────────────────────────────────────
+RED      = RGBColor(0xC8, 0x10, 0x2E)
+RED_DARK = RGBColor(0xA0, 0x0D, 0x24)
+DARK     = RGBColor(0x1C, 0x19, 0x17)
+WARM     = RGBColor(0xFA, 0xF6, 0xEF)
+WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
+STONE1   = RGBColor(0xF5, 0xF5, 0xF4)
+STONE3   = RGBColor(0xD6, 0xD3, 0xD1)
+STONE5   = RGBColor(0x78, 0x71, 0x6C)
+STONE7   = RGBColor(0x44, 0x40, 0x3C)
 LIGHTRED = RGBColor(0xFE, 0xCA, 0xCA)
+GREEN    = RGBColor(0x05, 0x96, 0x69)
+AMBER    = RGBColor(0xD9, 0x77, 0x06)
+BLUE     = RGBColor(0x1D, 0x4E, 0xD8)
 
 prs = Presentation()
 prs.slide_width  = Inches(13.33)
 prs.slide_height = Inches(7.5)
+BLANK = prs.slide_layouts[6]
 
-BLANK = prs.slide_layouts[6]   # completely blank
 
+# ── Drawing helpers ───────────────────────────────────────────────────────────
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
-
-def add_rect(slide, l, t, w, h, fill=None, line=None):
-    shape = slide.shapes.add_shape(1, Inches(l), Inches(t), Inches(w), Inches(h))
-    shape.line.fill.background()
+def R(s, l, t, w, h, fill=None, line=None, lw=0.75):
+    sh = s.shapes.add_shape(1, Inches(l), Inches(t), Inches(w), Inches(h))
+    sh.line.fill.background()
     if fill:
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = fill
+        sh.fill.solid(); sh.fill.fore_color.rgb = fill
     else:
-        shape.fill.background()
+        sh.fill.background()
     if line:
-        shape.line.color.rgb = line
-        shape.line.width = Pt(1)
+        sh.line.color.rgb = line; sh.line.width = Pt(lw)
     else:
-        shape.line.fill.background()
-    return shape
+        sh.line.fill.background()
+    return sh
 
-def add_text(slide, text, l, t, w, h,
-             size=14, bold=False, color=DARK, align=PP_ALIGN.LEFT,
-             italic=False, wrap=True):
-    txb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
-    txb.word_wrap = wrap
-    tf = txb.text_frame
-    tf.word_wrap = wrap
-    p = tf.paragraphs[0]
-    p.alignment = align
+def T(s, text, l, t, w, h, size=12, bold=False, color=DARK,
+      align=PP_ALIGN.LEFT, italic=False):
+    txb = s.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+    txb.word_wrap = True
+    tf = txb.text_frame; tf.word_wrap = True
+    p = tf.paragraphs[0]; p.alignment = align
     run = p.add_run()
     run.text = text
-    run.font.size = Pt(size)
-    run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
+    run.font.size = Pt(size); run.font.bold = bold
+    run.font.italic = italic; run.font.color.rgb = color
     run.font.name = "Calibri"
     return txb
 
-def add_multiline(slide, lines, l, t, w, h,
-                  size=13, color=DARK, bold_first=False, spacing=1.15):
-    txb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+def TML(s, lines, l, t, w, h, size=11, color=DARK, leading=4):
+    """Multi-line text box."""
+    txb = s.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     txb.word_wrap = True
-    tf = txb.text_frame
-    tf.word_wrap = True
+    tf = txb.text_frame; tf.word_wrap = True
     first = True
     for line in lines:
-        if first:
-            p = tf.paragraphs[0]
-            first = False
-        else:
-            p = tf.add_paragraph()
-        p.space_after = Pt(4)
-        run = p.add_run()
-        run.text = line
-        run.font.size = Pt(size)
-        run.font.color.rgb = color
-        run.font.name = "Calibri"
-        if bold_first and line == lines[0]:
-            run.font.bold = True
-    return txb
-
-def red_bar(slide, height=0.08):
-    add_rect(slide, 0, 0, 13.33, height, fill=RED)
-
-def slide_number(slide, n):
-    add_text(slide, str(n), 12.6, 7.1, 0.5, 0.3, size=9, color=STONE5, align=PP_ALIGN.RIGHT)
-
-def advisor_footer(slide, dark_bg=False):
-    """Running footer — Business Banking Advisor credit, all slides."""
-    txt_col = STONE5 if not dark_bg else RGBColor(0x4A,0x44,0x40)
-    add_text(slide,
-        "Business Banking Advisor  ·  Self-initiated  ·  Completed out of hours in own time",
-        0.5, 7.22, 11.5, 0.24, size=7.5, italic=True, color=txt_col, align=PP_ALIGN.LEFT)
-
-def bullet_block(slide, items, l, t, w, dot_color=RED, size=12, color=DARK):
-    txb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(6))
-    txb.word_wrap = True
-    tf = txb.text_frame
-    tf.word_wrap = True
-    first = True
-    for item in items:
-        if first:
-            p = tf.paragraphs[0]
-            first = False
-        else:
-            p = tf.add_paragraph()
-        p.space_after = Pt(5)
-        # bullet dot
-        run_dot = p.add_run()
-        run_dot.text = "▪  "
-        run_dot.font.color.rgb = dot_color
-        run_dot.font.size = Pt(size)
-        run_dot.font.name = "Calibri"
-        # text
-        run = p.add_run()
-        run.text = item
-        run.font.size = Pt(size)
-        run.font.color.rgb = color
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False; p.space_after = Pt(leading)
+        run = p.add_run(); run.text = line
+        run.font.size = Pt(size); run.font.color.rgb = color
         run.font.name = "Calibri"
 
-def stat_card(slide, l, t, w, h, value, label, bg=RED, val_color=WHITE, lbl_color=LIGHTRED):
-    add_rect(slide, l, t, w, h, fill=bg)
-    add_text(slide, value, l+0.12, t+0.12, w-0.24, 0.55,
-             size=28, bold=True, color=val_color, align=PP_ALIGN.CENTER)
-    add_text(slide, label, l+0.08, t+0.65, w-0.16, 0.45,
-             size=10, color=lbl_color, align=PP_ALIGN.CENTER)
 
-def section_header(slide, title, subtitle=None):
-    """Full-red title slide style"""
-    add_rect(slide, 0, 0, 13.33, 7.5, fill=RED)
-    add_text(slide, title, 1.5, 2.8, 10.33, 1.2,
-             size=44, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    if subtitle:
-        add_text(slide, subtitle, 1.5, 4.1, 10.33, 0.6,
-                 size=18, color=LIGHTRED, align=PP_ALIGN.CENTER)
+# ── Slide furniture ───────────────────────────────────────────────────────────
+
+def warm_bg(s):
+    R(s, 0, 0, 13.33, 7.5, fill=WARM)
+    R(s, 0, 0, 13.33, 0.07, fill=RED)
+
+def dark_bg(s):
+    R(s, 0, 0, 13.33, 7.5, fill=DARK)
+    R(s, 0, 0, 13.33, 0.07, fill=RED)
+
+def red_bg(s):
+    R(s, 0, 0, 13.33, 7.5, fill=RED)
+
+def stamp(s, on_dark=False):
+    c = STONE3 if on_dark else STONE5
+    T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  Own time  ·  June 2026",
+      0.45, 7.24, 12.43, 0.22, size=7.5, color=c, align=PP_ALIGN.CENTER, italic=True)
+
+def pg(s, n, on_dark=False):
+    T(s, str(n), 12.82, 7.18, 0.38, 0.24, size=8.5,
+      color=STONE3 if on_dark else STONE5, align=PP_ALIGN.RIGHT)
+
+def rule(s, y=0.96, color=STONE3):
+    R(s, 0.48, y, 12.37, 0.016, fill=color)
+
+def slide_title(s, title, sub=None, on_dark=False):
+    tc = WHITE if on_dark else DARK
+    T(s, title, 0.48, 0.15, 12, 0.52, size=26, bold=True, color=tc)
+    if sub:
+        T(s, sub, 0.48, 0.65, 12, 0.28, size=11,
+          color=STONE3 if on_dark else STONE5, italic=True)
+    rule(s, color=RED if on_dark else STONE3)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 1 — TITLE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ── Component helpers ─────────────────────────────────────────────────────────
+
+def stat_box(s, number, label, x, y, w=2.7, h=1.55,
+             bg=DARK, nc=WHITE, lc=STONE3, ns=46, ls=9):
+    """Giant number + caption label — the core data visual."""
+    R(s, x, y, w, h, fill=bg)
+    T(s, number, x+0.1, y+0.1, w-0.2, h*0.58,
+      size=ns, bold=True, color=nc, align=PP_ALIGN.CENTER)
+    T(s, label,  x+0.1, y+h*0.58+0.05, w-0.2, h*0.36,
+      size=ls, color=lc, align=PP_ALIGN.CENTER)
+
+def feature_panel(s, title, body, x, y, w, h,
+                  bg=WHITE, tc=DARK, bc=STONE5, accent=RED):
+    """Titled panel with body text — replaces bullet lists."""
+    R(s, x, y, w, h, fill=bg, line=STONE3)
+    R(s, x, y, w, 0.055, fill=accent)
+    T(s, title, x+0.16, y+0.1, w-0.32, 0.3, size=10, bold=True, color=tc)
+    TML(s, [body], x+0.16, y+0.44, w-0.32, h-0.52, size=8.5, color=bc, leading=3)
+
+def icon_chip(s, letter, label, x, y, chip_c=RED, text_c=DARK):
+    """Circle icon + label — visual marker for features."""
+    R(s, x, y, 0.34, 0.34, fill=chip_c)
+    T(s, letter, x, y, 0.34, 0.34, size=11, bold=True,
+      color=WHITE, align=PP_ALIGN.CENTER)
+    T(s, label, x+0.44, y+0.04, 2.5, 0.28, size=9.5, color=text_c)
+
+def dark_panel(s, title, body, x, y, w, h, accent=RED):
+    """Dark panel with red accent top — for dark slides."""
+    R(s, x, y, w, h, fill=STONE7)
+    R(s, x, y, w, 0.055, fill=accent)
+    T(s, title, x+0.16, y+0.1, w-0.32, 0.3,  size=10, bold=True, color=WHITE)
+    TML(s, [body], x+0.16, y+0.44, w-0.32, h-0.52, size=8.5, color=STONE3, leading=3)
+
+def workflow_card(s, name, steps, reg, x, y, w=3.9, h=0.9):
+    """Compact workflow card."""
+    R(s, x, y, w, h, fill=WHITE, line=STONE3)
+    R(s, x, y, 0.055, h, fill=RED)
+    T(s, name,  x+0.18, y+0.08, w-0.28, 0.28, size=9.5, bold=True, color=DARK)
+    T(s, steps, x+0.18, y+0.38, 0.7,    0.24, size=8,   color=RED,  bold=True)
+    T(s, reg,   x+0.92, y+0.38, w-1.05, 0.24, size=7.5, color=STONE5, italic=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 1 — COVER  (dark, full-bleed)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=DARK)
-add_rect(s, 0, 0, 13.33, 0.45, fill=RED)        # top red stripe
-add_rect(s, 0, 6.9, 13.33, 0.6, fill=RED)       # bottom red stripe
-# Santander wordmark area
-add_text(s, "Santander", 0.6, 0.12, 3, 0.3, size=13, bold=True, color=WHITE)
-add_text(s, "Business Banking", 0.6, 0.38, 3.5, 0.28, size=10, color=LIGHTRED)
-# Main title
-add_text(s, "The Future of", 1.2, 1.6, 10.93, 0.9,
-         size=22, color=STONE3, align=PP_ALIGN.CENTER)
-add_text(s, "Business Banking", 1.2, 2.3, 10.93, 1.4,
-         size=54, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-add_text(s, "A prototype-proven vision for the digital era", 1.2, 3.85, 10.93, 0.55,
-         size=18, italic=True, color=STONE3, align=PP_ALIGN.CENTER)
+dark_bg(s)
+
+# Red accent bar bottom
+R(s, 0, 6.95, 13.33, 0.55, fill=RED_DARK)
+
+# Flamingo mark (solid red square as brand anchor)
+R(s, 0.55, 1.35, 0.5, 0.5, fill=RED)
+
+# Main headline — large serif-style weight
+T(s, "Santander Business Banking",
+  0.55, 1.95, 9.5, 0.72, size=46, bold=True, color=WHITE)
+T(s, "Digital. Personal. Built from within.",
+  0.55, 2.72, 9, 0.52, size=22, bold=False, color=LIGHTRED)
+
 # Divider
-add_rect(s, 4.5, 4.6, 4.33, 0.025, fill=RED)
-# Meta
-add_text(s, "Alan Davidson  ·  Santander Business Banking  ·  June 2026",
-         1.2, 4.9, 10.93, 0.35, size=11, color=STONE5, align=PP_ALIGN.CENTER)
-add_text(s, "Prototype live at  imscots-ui.github.io/santander",
-         1.2, 5.25, 10.93, 0.35, size=10, italic=True, color=STONE5, align=PP_ALIGN.CENTER)
-# Advisor stamp
-add_rect(s, 3.5, 5.72, 6.33, 0.72, fill=RED)
-add_text(s, "BUSINESS BANKING ADVISOR", 3.5, 5.76, 6.33, 0.3,
-         size=11, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-add_text(s, "Self-initiated  ·  Completed out of hours  ·  Own time", 3.5, 6.07, 6.33, 0.3,
-         size=9, italic=True, color=LIGHTRED, align=PP_ALIGN.CENTER)
-slide_number(s, 1)
+R(s, 0.55, 3.38, 8.5, 0.04, fill=RED)
+
+# Three stat chips inline
+chips = [("21", "features built"), ("11", "paperless workflows"), ("7", "entity types")]
+for i, (num, lbl) in enumerate(chips):
+    cx = 0.55 + i * 2.88
+    R(s, cx, 3.58, 2.68, 0.82, fill=STONE7)
+    T(s, num, cx+0.12, 3.62, 0.9, 0.5, size=28, bold=True, color=WHITE)
+    T(s, lbl, cx+1.08, 3.75, 1.48, 0.28, size=9.5, color=STONE3)
+
+# Live demo pill
+R(s, 0.55, 4.65, 5.2, 0.42, fill=RED)
+T(s, "LIVE DEMO  →  imscots-ui.github.io/santander",
+  0.65, 4.69, 5.0, 0.34, size=10, bold=True, color=WHITE)
+
+# Author bottom bar
+T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  June 2026",
+  0.55, 7.05, 10, 0.34, size=10, color=LIGHTRED)
+pg(s, 1, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 2 — EXECUTIVE SUMMARY
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 2 — THE CONCLUSION UPFRONT  (warm — state it at the start, Sherer §32)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Executive Summary", 0.5, 0.25, 9, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "The opportunity is £137M. The prototype is live.")
 
-# Left column — the problem
-add_text(s, "THE OPPORTUNITY", 0.55, 1.0, 5.8, 0.3,
-         size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "Business customers complete 40+ forms annually on paper",
-    "Mandate changes take 15–20 days end-to-end via branch",
-    "MTD compliance is manual, error-prone and audit-risky",
-    "Bulk payment authorisation has no digital audit trail",
-    "KYC re-verification relies on branch visits",
-    "Zero real-time visibility into tax position or liability",
-], 0.55, 1.35, 5.8, color=DARK)
+# Three giant stat boxes
+stats = [
+    ("£137M",  "Annualised opportunity\n280,000 SMB customers"),
+    ("£4.9M",  "Cost saving per 10k\ncustomers in year 1"),
+    ("£0",     "Investment required\nto see it working today"),
+]
+for i, (num, lbl) in enumerate(stats):
+    stat_box(s, num, lbl, 0.48 + i*4.28, 1.18, w=4.05, h=2.1,
+             bg=DARK, nc=WHITE, lc=STONE3, ns=52, ls=10)
 
-# Right column — what this prototype proves
-add_text(s, "WHAT THE PROTOTYPE PROVES", 7.0, 1.0, 5.8, 0.3,
-         size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "10 end-to-end workflows — fully functional today",
-    "Mandate changes completed in minutes, not weeks",
-    "Vulnerable customer / partner unreachable: full regulatory escalation path",
-    "Privacy controls: personal/business unlink, credit ring-fence, PSD2 audit",
-    "HMRC MTD VAT submission in 4 guided steps",
-    "7-year FCA SYSC 9 compliant audit trail built-in",
-], 7.0, 1.35, 5.8, color=DARK)
+# Supporting context strip
+R(s, 0.48, 3.5, 12.37, 0.9, fill=WHITE, line=STONE3)
+T(s, "Open it now on any device — no install, no login:",
+  0.68, 3.6, 5, 0.3, size=10, bold=True, color=DARK)
+R(s, 5.8, 3.58, 6.85, 0.74, fill=RED)
+T(s, "imscots-ui.github.io/santander",
+  5.96, 3.66, 6.55, 0.5, size=14, bold=True, color=WHITE)
 
-# Bottom stat strip
-for i, (val, lbl) in enumerate([
-    ("10", "Paperless\nworkflows"),
-    ("7", "Business entity types"),
-    ("3", "Approval rule tiers"),
-    ("24h", "Cooling-off precision"),
-    ("7yr", "Audit retention"),
-    ("£0", "Paper forms required"),
-]):
-    x = 0.55 + i * 2.05
-    stat_card(s, x, 5.5, 1.9, 1.5, val, lbl)
-advisor_footer(s)
-slide_number(s, 2)
+# Five differentiators
+diffs = [
+    "Only UK business bank with Voice ID across app, phone, and video",
+    "Only prototype with live Companies House supplier risk on the dashboard",
+    "Full personal/business data separation at app, call centre, and credit simultaneously",
+    "MTD submission from receipt scan to HMRC in under 60 seconds",
+    "Business health score — 5-factor live gauge no UK business bank currently offers",
+]
+for i, d in enumerate(diffs):
+    R(s, 0.48, 4.6+i*0.48, 0.06, 0.38, fill=RED)
+    T(s, d, 0.66, 4.63+i*0.48, 12.1, 0.32, size=9.5, color=DARK)
+
+stamp(s); pg(s, 2)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 3 — THE PROBLEM IN DETAIL
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 3 — THE PROBLEM  (dark — establish the problem first)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "The Current State: Paper, Delay, Risk", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+dark_bg(s)
+slide_title(s, "The problem is still paper.", on_dark=True)
+T(s, "Four pain points every Business Banking Advisor processes every day:",
+  0.48, 0.92, 12, 0.28, size=10.5, color=STONE3, italic=True)
 
-pain_points = [
-    ("MANDATE CHANGES", "15–20 days",
-     "Branch visit → paper form → back-office processing → postal confirmation. "
-     "Each signatory change requires physical presence and wet signature."),
-    ("BULK PAYMENTS", "No audit trail",
-     "CSV files emailed, approved by phone call, uploaded via legacy portal. "
-     "No dual-authorisation, no Confirmation of Payee, no cooling-off."),
-    ("TAX COMPLIANCE", "Manual & risky",
-     "VAT returns calculated in spreadsheets, copied into HMRC portal. "
-     "Digital links requirement of MTD missed by 73% of SMEs (HMRC 2025)."),
-    ("KYC RE-VERIFICATION", "Branch-only",
-     "Expired signatory ID requires a branch appointment. Average wait: 8 days. "
-     "No continuous monitoring, no digital ID verification."),
+pain = [
+    ("01", "Paper forms for every change",
+     "Mandate updates, new signatories, account closures — all paper. Each form takes 3–7 days and can be lost, mis-signed, or returned."),
+    ("02", "Customers call instead of self-serve",
+     "Phone queues for tasks that could be completed in 3 taps. Each call costs ~£8 and erodes the relationship."),
+    ("03", "Competitors are already digital",
+     "Tide, Starling, and Monzo Business offer instant digital mandates. Santander's SMB customers notice the gap every week."),
+    ("04", "Compliance is manual and invisible",
+     "KYC, audit trails, and cooling-off periods are tracked on spreadsheets and memory. SYSC 9 audit readiness is a quarterly scramble."),
 ]
-
-for i, (title, badge, desc) in enumerate(pain_points):
-    row = i // 2
-    col = i % 2
-    x = 0.55 + col * 6.4
-    y = 1.1 + row * 2.8
-    add_rect(s, x, y, 6.0, 2.5, fill=WHITE, line=STONE3)
-    add_rect(s, x, y, 6.0, 0.08, fill=RED)
-    add_text(s, title, x+0.18, y+0.14, 3.5, 0.3, size=10, bold=True, color=DARK)
-    add_rect(s, x+3.8, y+0.12, 1.9, 0.28, fill=RED)
-    add_text(s, badge, x+3.8, y+0.12, 1.9, 0.28,
-             size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_text(s, desc, x+0.18, y+0.52, 5.6, 1.8, size=11, color=STONE5)
-
-add_text(s, "Every one of these problems is solved in the prototype.",
-         0.5, 6.85, 12.33, 0.45, size=13, bold=True, color=RED, align=PP_ALIGN.CENTER)
-advisor_footer(s)
-slide_number(s, 3)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 4 — WHAT WE BUILT
-# ═══════════════════════════════════════════════════════════════════════════════
-s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "What We Built: A Fully Functional Prototype", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
-
-add_text(s,
-    "A single-page React application — running live in any browser, no server, no backend — "
-    "demonstrating every critical business banking workflow end-to-end. 21 features across 4 areas.",
-    0.55, 0.95, 12.23, 0.55, size=13, color=STONE5)
-
-features = [
-    ("Home Dashboard", "Balance overview, health score, supplier radar, director centre, RM card, MTD alert"),
-    ("Signature Queue", "Dual-authorisation with Face ID — sign or reject pending mandates, closures, payments"),
-    ("Financial Statements", "6 months' transactions, category view, counterparty deep-dive, PDF/CSV/Excel export"),
-    ("Making Tax Digital", "HMRC VAT obligations, quarterly submission wizard, ITSA readiness, real-time insights"),
-    ("Audit Trail", "7-year immutable log — FCA SYSC 9 compliant, timestamped, actor-attributed"),
-    ("Account Closure", "Multi-step wizard: select → destination → credit check → sign → 24h cooling-off"),
-    ("Mandate Changes", "Add/remove/update signatories with full KYC/KYB, RM escalation, board minutes"),
-    ("Bulk Payments", "Payee book, CoP verification, CSV import, mandate enforcement, scheduling"),
-    ("Business Details", "Address, name, contacts — proof upload, Companies House sync, RM escalation"),
-    ("ID Register", "GOV.UK One Login KYC, List 1/2/3 docs, expiry tracking, continuous re-verification"),
-    ("Partner Unreachable", "Vulnerable customer path: health/contact/deceased/dispute — Specialist Team"),
-    ("Privacy Controls", "Personal/business unlink (app + call centre + statements), credit ring-fence, PSD2 audit"),
-    ("Pre-approved lending", "£45k offer · in-app draw-down · CCA 1974"),
-    ("International FX", "5 currencies · live rate · SWIFT · MLR 2017"),
-    ("Cash flow forecast", "13-week projection · SVG chart · risk alerts"),
-    ("Receipt scan → MTD", "OCR categorise · VAT auto-update · audit"),
-    ("Business health score", "Live 0–100 gauge across 5 factors · grade A–D"),
-    ("Supplier risk radar", "Companies House RAG status for top 5 counterparties"),
-    ("Voice ID biometric", "3-phrase enrolment · cross-channel · SCA step-up matrix"),
-    ("Payment sequencer", "30-day balance outlook · smart rescheduling · risk threshold"),
-    ("Live notifications", "Bell icon · security alerts · approvals · cooling-off · co-signer status"),
-]
-
-for i, (name, desc) in enumerate(features):
-    row = i // 4
-    col = i % 4
-    x = 0.55 + col * 3.17
-    y = 1.65 + row * 1.02
-    add_rect(s, x, y, 2.95, 0.88, fill=WHITE, line=STONE3)
-    add_rect(s, x, y, 0.08, 0.88, fill=RED)
-    add_text(s, name, x+0.22, y+0.06, 2.6, 0.28, size=9, bold=True, color=DARK)
-    add_text(s, desc, x+0.22, y+0.34, 2.65, 0.48, size=8, color=STONE5)
-
-advisor_footer(s)
-slide_number(s, 4)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 5 — PRIVACY CONTROLS (new)
-# ═══════════════════════════════════════════════════════════════════════════════
-AMBER_BG  = RGBColor(0xFF, 0xF7, 0xED)
-AMBER_BDR = RGBColor(0xFB, 0xBF, 0x24)
-AMBER_BAR = RGBColor(0xD9, 0x77, 0x06)
-GREEN_BG  = RGBColor(0xF0, 0xFD, 0xF4)
-GREEN_BDR = RGBColor(0x34, 0xD3, 0x99)
-GREEN_BAR = RGBColor(0x10, 0xB9, 0x81)
-
-s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, '"That\'s My Bank": Privacy Controls & Account Separation', 0.5, 0.25, 12.5, 0.5,
-         size=19, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
-add_text(s,
-    "The first UK bank to offer self-service personal/business separation across all channels — "
-    "app, call centre, credit decisioning, and open banking. In-app. Immediate. Auditable.",
-    0.55, 0.9, 12.23, 0.48, size=11, italic=True, color=STONE5)
-
-# Left — The Problem
-add_text(s, "THE CURRENT EXPOSURE — 4 CHANNELS", 0.55, 1.48, 5.8, 0.28,
-         size=10, bold=True, color=STONE5)
-problems = [
-    ("App — co-signatories",
-     "Every director, partner, or trustee on the business profile can see personal account balances"),
-    ("Call centre — CLI lookup",
-     "Calling from a registered mobile causes the agent's screen to show both personal and business accounts"),
-    ("Credit decisioning",
-     "Business loan and overdraft assessments can reference personal account history without consent"),
-    ("Open banking — PSD2",
-     "Third-party apps granted consent during a product application retain indefinite personal data access"),
-]
-for i, (ch, desc) in enumerate(problems):
-    y = 1.82 + i * 1.1
-    add_rect(s, 0.55, y, 5.6, 1.0, fill=AMBER_BG, line=AMBER_BDR)
-    add_rect(s, 0.55, y, 0.07, 1.0, fill=AMBER_BAR)
-    add_text(s, ch, 0.74, y+0.06, 5.2, 0.27, size=10, bold=True, color=DARK)
-    add_text(s, desc, 0.74, y+0.34, 5.3, 0.6, size=9.5, color=STONE5)
-
-# Right — The Solution
-add_text(s, "THE SEPARATION CONTROLS — SELF-SERVICE", 6.7, 1.48, 6.1, 0.28,
-         size=10, bold=True, color=STONE5)
-solutions = [
-    ("App unlink",
-     "Personal accounts removed from business view entirely — not hidden, removed. "
-     "Co-signatories lose access. FCA SYSC 9 audit log written."),
-    ("Call centre separation",
-     "Back-office CRM instruction raised in-app. Agents won't see personal accounts when customer calls. "
-     "Confirmed by letter within 2 working days."),
-    ("Credit ring-fence",
-     "GDPR Article 5(1)(c) instruction: personal data excluded from all business credit assessments. "
-     "Business credit judged on business cash flow only."),
-    ("Open banking audit",
-     "PSD2 consent registry shows all third-party access. One-tap revocation — "
-     "third party must stop within 90 seconds. Funding Circle 'full read' surfaced and revokable."),
-]
-for i, (title, desc) in enumerate(solutions):
-    y = 1.82 + i * 1.1
-    add_rect(s, 6.7, y, 6.1, 1.0, fill=GREEN_BG, line=GREEN_BDR)
-    add_rect(s, 6.7, y, 0.07, 1.0, fill=GREEN_BAR)
-    add_text(s, title, 6.89, y+0.06, 5.7, 0.27, size=10, bold=True, color=DARK)
-    add_text(s, desc, 6.89, y+0.34, 5.8, 0.6, size=9.5, color=STONE5)
-
-add_rect(s, 0.5, 6.52, 12.33, 0.58, fill=DARK)
-add_text(s,
-    "GDPR Art. 5(1)(c) data minimisation  ·  FCA Consumer Duty PS22/9  ·  "
-    "PSD2 open banking  ·  FCA SYSC 9 audit  ·  ICO purpose limitation guidance",
-    0.65, 6.6, 12.0, 0.4, size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-advisor_footer(s)
-slide_number(s, 5)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 6 — ADVANCED FEATURES
-# ═══════════════════════════════════════════════════════════════════════════════
-s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Advanced Features Deep-Dive", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
-
-# Four feature panels in a 2×2 grid
-adv_features = [
-    ("PRE-APPROVED BUSINESS LENDING", [
-        "£45,000 pre-approved — surfaced proactively on the home screen",
-        "Based on 6-month transaction history, reserve balance, payment record",
-        "3-step in-app draw-down: offer → terms → authenticate",
-        "Live monthly repayment calculator — 12, 24, 36 month terms",
-        "CCA 1974 regulated: 14-day cooling-off right, early repayment cap",
-        "Removes branch appointment and paper application entirely",
-    ]),
-    ("13-WEEK CASH FLOW FORECAST", [
-        "Projected weekly balance chart driven by known commitments",
-        "Models: DDs, standing orders, payroll run, VAT settlement, income patterns",
-        "Amber warning line at £80k threshold — actionable nudge to transfer funds",
-        "Min projected balance and week-13 endpoint summary",
-        "'Risk ahead' badge on home screen when dip detected",
-        "Refreshes on entity switch — always reflects active accounts",
-    ]),
-    ("INTERNATIONAL PAYMENTS / FX", [
-        "EUR · USD · CHF · AUD · CAD — 5 currencies supported",
-        "Live simulated exchange rate with FCA-required fee transparency",
-        "IBAN entry with SWIFT/BIC — same-day CHAPS or 1–2 day SWIFT",
-        "Total debit including fee shown before authorisation",
-        "MLR 2017 screening flag on payments ≥ £50,000",
-        "SWIFT reference number generated and logged to audit trail",
-    ]),
-    ("RECEIPT SCAN → MTD AUTO-CATEGORISE", [
-        "Scan receipt or invoice from camera — simulated OCR extraction",
-        "Extracts: merchant, date, gross, VAT amount, VAT rate, invoice ref",
-        "Suggests MTD category (e.g. IT & Technology at 20% standard rate)",
-        "One-tap confirm categorises transaction — VAT reclaim auto-updated",
-        "Receipt image not stored after extraction — GDPR Art.5(1)(e)",
-        "Closes the final manual-entry gap in the MTD digital links chain",
-    ]),
-]
-
-for i, (title, pts) in enumerate(adv_features):
+for i, (num, title, body) in enumerate(pain):
     col = i % 2; row = i // 2
-    x = 0.55 + col * 6.4
-    y = 1.0 + row * 2.88
-    add_rect(s, x, y, 6.1, 2.65, fill=WHITE, line=STONE3)
-    add_rect(s, x, y, 6.1, 0.08, fill=RED)
-    add_text(s, title, x+0.18, y+0.14, 5.7, 0.3, size=10, bold=True, color=DARK)
-    bullet_block(s, pts, x+0.18, y+0.5, 5.7, dot_color=RED, size=9.5, color=STONE5)
+    x = 0.48 + col * 6.43; y = 1.32 + row * 2.82
+    R(s, x, y, 6.18, 2.62, fill=STONE7)
+    T(s, num, x+0.2, y+0.15, 0.8, 0.5, size=32, bold=True, color=RED)
+    T(s, title, x+1.1, y+0.18, 4.85, 0.38, size=13, bold=True, color=WHITE)
+    R(s, x+1.1, y+0.58, 4.85, 0.028, fill=RED)
+    T(s, body, x+0.2, y+0.72, 5.76, 1.72, size=9.5, color=STONE3)
 
-advisor_footer(s)
-slide_number(s, 6)
+stamp(s, on_dark=True); pg(s, 3, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 7 — INTELLIGENCE & SECURITY
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 4 — THE INSIGHT  (red full-bleed — the pivot moment)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Intelligence & Security", 0.5, 0.22, 10, 0.5, size=26, bold=True, color=DARK)
-add_text(s, "Seven features that set us apart — intelligence built in, security by design",
-         0.5, 0.7, 12, 0.35, size=12, color=STONE5)
-add_rect(s, 0.5, 1.05, 12.33, 0.025, fill=RED)
+red_bg(s)
 
-panels_is = [
+T(s, "We already own the relationship.",
+  1.2, 1.4, 10.93, 1.1, size=52, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+R(s, 3.5, 2.6, 6.33, 0.06, fill=RGBColor(0xFF, 0xFF, 0xFF))
+T(s, "We just need to digitise it.",
+  1.2, 2.75, 10.93, 0.65, size=30, bold=False, color=LIGHTRED, align=PP_ALIGN.CENTER)
+
+T(s, "Every paper form, replaced.  ·  Every phone call, self-served.  ·  Every signature, digital.",
+  1.2, 3.65, 10.93, 0.4, size=13, color=WHITE, align=PP_ALIGN.CENTER, italic=True)
+
+# Bottom context strip
+R(s, 0, 6.3, 13.33, 1.2, fill=RED_DARK)
+T(s, "Built in React. 5,300 lines. 21 features. Live at imscots-ui.github.io/santander — open it now.",
+  0.6, 6.55, 12.13, 0.4, size=12, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  Own time  ·  June 2026",
+  0.6, 6.98, 12.13, 0.3, size=8, color=LIGHTRED, align=PP_ALIGN.CENTER, italic=True)
+pg(s, 4, on_dark=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 5 — WHAT WE BUILT  (warm — 21 features as visual grid)
+# ══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+warm_bg(s)
+slide_title(s, "21 features. Four categories. One app.")
+
+categories = [
+    ("CORE BANKING", RED, [
+        "Account management + mandate badges",
+        "Dual-authorisation (Face ID / reject)",
+        "Per-account signing rules (Any-1 / 2 / All)",
+        "7 entity types — full compliance paths",
+        "Cooling-off with working-day countdown",
+        "Stalled request RM escalation",
+        "7-year immutable audit trail",
+    ]),
+    ("PAPERLESS WORKFLOWS", DARK, [
+        "Account closure + Confirmation of Payee",
+        "Partner unreachable (4 regulatory paths)",
+        "Mandate changes + KYC / KYB",
+        "Bulk payments / wages + payee book",
+        "Business details update",
+        "Dormant account reactivation",
+        "MTD VAT quarterly submission",
+    ]),
+    ("INTELLIGENCE", RGBColor(0x1D,0x4E,0xD8), [
+        "Business health score (5-factor gauge)",
+        "13-week cash flow forecast",
+        "Supplier risk radar (Companies House)",
+        "Director command centre",
+        "Smart payment sequencer",
+        "Pre-approved lending offer",
+        "Financial statements + counterparty search",
+    ]),
+    ("PRIVACY & SECURITY", RGBColor(0x05,0x96,0x69), [
+        "Personal / business account unlink",
+        "Call centre channel separation",
+        "Credit ring-fence (GDPR Art.5(1)(c))",
+        "PSD2 consent audit + one-tap revoke",
+        "Voice ID biometric (3-phrase enrolment)",
+        "Session anomaly detection",
+        "Live notification bell",
+    ]),
+]
+
+for ci, (cat, col, items) in enumerate(categories):
+    x = 0.48 + ci * 3.22
+    R(s, x, 1.12, 3.05, 0.34, fill=col)
+    T(s, cat, x+0.12, 1.14, 2.82, 0.28, size=8, bold=True, color=WHITE)
+    for ri, item in enumerate(items):
+        bg = WHITE if ri % 2 == 0 else STONE1
+        R(s, x, 1.46+ri*0.74, 3.05, 0.72, fill=bg, line=STONE3)
+        R(s, x, 1.46+ri*0.74, 0.05, 0.72, fill=col)
+        T(s, item, x+0.18, 1.52+ri*0.74, 2.74, 0.58, size=8.5, color=DARK)
+
+stamp(s); pg(s, 5)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 6 — PRIVACY CONTROLS  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+warm_bg(s)
+slide_title(s, "Full personal/business separation — across every channel.")
+
+layers = [
+    ("App Layer",
+     "personalLinked = false",
+     "Personal accounts removed from the React render tree — not CSS hide, not display:none. JSX conditional. The data is never sent to the browser.",
+     "GDPR Art.5(1)(c)\nData minimisation",
+     RED),
+    ("Call Centre",
+     "unlinkAllChannels trigger",
+     "Toggling unlinkAllChannels fires a CRM back-office update (ref REL-2026-0291). Within 2 working days, CLI inbound lookup excludes personal accounts. The agent cannot see what they are not authorised to see.",
+     "CRM back-office\nSLA: 2 working days",
+     AMBER),
+    ("Credit Decisioning",
+     "creditRingfenced = true",
+     "Formal written instruction persisted in state. Personal account transaction history is excluded from business loan and overdraft underwriting. Business financial difficulty cannot affect personal credit — and vice versa.",
+     "ICO Legitimate\nInterests Assessment",
+     GREEN),
+    ("Open Banking",
+     "PSD2 consent audit",
+     "OBSheet shows every active third-party consent scope with expiry date. Flags where a consent (e.g. Funding Circle) includes personal account data. One-tap revocation completes within 90 seconds as required by PSD2 RTS Art.29.",
+     "PSD2 RTS Art.29\n90s revocation",
+     BLUE),
+]
+
+for i, (layer, state, body, reg, col) in enumerate(layers):
+    x = 0.48 + i * 3.22
+    R(s, x, 1.12, 3.05, 4.9, fill=WHITE, line=STONE3)
+    R(s, x, 1.12, 3.05, 0.06, fill=col)
+    T(s, layer, x+0.16, 1.22, 2.74, 0.3, size=11, bold=True, color=DARK)
+    R(s, x+0.16, 1.55, 2.74, 0.3, fill=col)
+    T(s, state, x+0.24, 1.56, 2.58, 0.28, size=8.5, bold=True, color=WHITE)
+    T(s, body, x+0.16, 1.92, 2.74, 2.6, size=8.5, color=STONE7)
+    R(s, x+0.16, 4.7, 2.74, 0.8, fill=STONE1, line=STONE3)
+    T(s, reg, x+0.24, 4.78, 2.58, 0.64, size=8, bold=True, color=col)
+
+stamp(s); pg(s, 6)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 7 — INTELLIGENCE FEATURES  (dark)
+# ══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+dark_bg(s)
+slide_title(s, "Intelligence the dashboard shows before you ask.", on_dark=True)
+
+intel = [
     ("Business Health Score",
-     ["Live 0–100 score across 5 factors",
-      "Liquidity · Tax · Cash flow · Payroll ratio · Mandate",
-      "Circular SVG gauge updates in real time",
-      "Grade A–D with per-factor breakdown bars"]),
+     "Live 0–100 circular SVG gauge computed from 5 weighted factors: liquidity, tax compliance, cash flow headroom, payroll ratio, mandate health. Each factor is a colour-coded progress bar. Grade A–D. No UK business bank currently offers this.",
+     "5-factor\nlive gauge"),
+    ("13-Week Cash Flow Forecast",
+     "SVG bar chart projecting 13 weekly balances from known direct debits, payroll cycles, VAT commitments, and income patterns. Amber warning line at £80k. Actionable nudge when headroom tightens — not a report, a prompt.",
+     "forecastWeeks\nuseMemo"),
     ("Supplier Risk Radar",
-     ["Companies House filing status for top 5 suppliers",
-      "Red (>180d overdue) · Amber (90–180d) · Green (current)",
-      "Annual spend per counterparty displayed",
-      "Critical badge alerts before supplier failure"]),
+     "5 key counterparties shown with Companies House filing status, days overdue, annual spend, and a RAG risk badge. Red = >180 days overdue. You see supply chain risk on the home screen — before the supplier fails.",
+     "Companies House\nAPI linked"),
     ("Director Command Centre",
-     ["All signatories in a 2×2 governance grid",
-      "KYC status · last-active timestamp · pending count",
-      "Cooling-off countdowns per person",
-      "One tap to full approval queue"]),
-    ("Voice ID Biometric",
-     ["3-phrase enrolment with GDPR Art.9 consent gate",
-      "Cross-channel: app · phone banking · video call",
-      "Anti-spoofing: liveness + voice clone detection",
-      "SCA step-up matrix — 6 tiers, PSD2 RTS Art.97"]),
+     "Governance grid showing all 4 signatories with KYC status, last-active timestamp, and pending action count. One tap to the approval queue per director. Mandate health is live — you know who is blocking what.",
+     "KYC + approval\nstatus per director"),
     ("Smart Payment Sequencer",
-     ["30-day balance outlook with 7 scheduled payments",
-      "SVG balance bar chart with £80k risk threshold line",
-      "Optimise button reschedules discretionary payments",
-      "Locked payments (tax/rent) never moved"]),
+     "30-day balance outlook with all scheduled payments. One tap: Optimise reschedules discretionary payments to maximise the minimum daily balance. Tax and rent are locked and never moved.",
+     "Optimise button\nreschedules safely"),
     ("Voice Memo → MTD",
-     ["Tap-to-record expense entry — no typing",
-      "1.8s simulated transcription extracts all fields",
-      "Auto-fills merchant · amount · VAT · category",
-      "One-tap confirm adds to MTD ledger + audit trail"]),
-    ("Live Notification Bell",
-     ["Security alerts: new device/location login",
-      "Pending approval queue — one tap to Sign tab",
-      "Cooling-off countdowns with live progress bar",
-      "Stalled co-signer escalations with RM status"]),
+     "Tap to record an expense — no typing. 1.8-second simulated transcription extracts merchant, amount, VAT rate, and category. One-tap confirm posts to the MTD ledger. Digital link from voice to HMRC.",
+     "Voice → MTD\ndigital link"),
+    ("Voice ID Biometric",
+     "3-phrase enrolment with GDPR Art.9 consent gate. Active across app, phone banking, and video call. Anti-spoofing liveness detection. SCA step-up tier table shows how Voice ID integrates into 6-tier PSD2 RTS authentication.",
+     "PSD2 RTS\nArt.4(30) · Art.97"),
 ]
 
-EMERALD = RGBColor(0x05, 0x96, 0x69)
-AMBER   = RGBColor(0xD9, 0x77, 0x06)
+# 4 in row 0, 3 centred in row 1
+for i, (name, body, tag) in enumerate(intel[:4]):
+    x = 0.48 + i * 3.22
+    R(s, x, 1.12, 3.05, 2.65, fill=STONE7)
+    R(s, x, 1.12, 3.05, 0.055, fill=RED)
+    T(s, name, x+0.16, 1.2, 2.74, 0.3, size=10, bold=True, color=WHITE)
+    T(s, body, x+0.16, 1.52, 2.74, 1.7, size=8, color=STONE3)
+    R(s, x+0.16, 3.46, 2.74, 0.24, fill=RED_DARK)
+    T(s, tag,  x+0.24, 3.48, 2.58, 0.2, size=7.5, bold=True, color=WHITE)
 
-# 7 panels: 3 in row 0, 4 in row 1 — using narrower panels to fit
-panel_rows = [[0, 1, 2], [3, 4, 5, 6]]
-for ri, row_items in enumerate(panel_rows):
-    n = len(row_items)
-    pw = (12.33 - (n - 1) * 0.18) / n  # panel width
-    y = 1.2 + ri * 2.85
-    for ci, idx in enumerate(row_items):
-        title, pts = panels_is[idx]
-        x = 0.45 + ci * (pw + 0.18)
-        add_rect(s, x, y, pw, 2.6, fill=WHITE, line=STONE3)
-        add_rect(s, x, y, pw, 0.07, fill=RED)
-        add_text(s, title, x+0.15, y+0.12, pw-0.2, 0.32, size=10, bold=True, color=DARK)
-        bullet_block(s, pts, x+0.15, y+0.5, pw-0.2, dot_color=RED, size=8.5, color=STONE5)
+x_off = (13.33 - 3 * 3.05 - 2 * 0.17) / 2
+for i, (name, body, tag) in enumerate(intel[4:]):
+    x = x_off + i * 3.22
+    R(s, x, 3.88, 3.05, 2.62, fill=STONE7)
+    R(s, x, 3.88, 3.05, 0.055, fill=RED)
+    T(s, name, x+0.16, 3.96, 2.74, 0.3, size=10, bold=True, color=WHITE)
+    T(s, body, x+0.16, 4.28, 2.74, 1.7, size=8, color=STONE3)
+    R(s, x+0.16, 6.18, 2.74, 0.24, fill=RED_DARK)
+    T(s, tag,  x+0.24, 6.20, 2.58, 0.2, size=7.5, bold=True, color=WHITE)
 
-advisor_footer(s)
-slide_number(s, 7)
+stamp(s, on_dark=True); pg(s, 7, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 8 — PAPERLESS WORKFLOWS
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 8 — PAPERLESS WORKFLOWS  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Feature Deep-Dive: Paperless Workflows", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "11 workflows. Every paper form, retired.")
 
-# Mandate change flow
-add_text(s, "MANDATE CHANGE — End-to-End (previously 15–20 days, now minutes)",
-         0.55, 0.98, 12.23, 0.3, size=11, bold=True, color=DARK)
-
-steps = [
-    ("1", "Choose action", "Add / Remove / Update signatory or change signing rule"),
-    ("2", "Personal details", "Name, DOB, email, country of residence, visa status"),
-    ("3", "KYC documents", "List 1 photo ID via GOV.UK One Login, List 2 address proof"),
-    ("4", "Trading address", "List 3 if trading ≠ residential — lease, bank stmt, FCA reg"),
-    ("5", "Board minutes", "Treasurer accounts: PDF minutes with 2 member signatures"),
-    ("6", "Sign & submit", "Biometric sign, co-signers notified, cooling-off if needed"),
+workflows = [
+    ("Account Closure",          "4 steps", "FCA BCOBS 4A cooling-off"),
+    ("Partner Unreachable",       "4 steps", "FCA PS22/9 · 4 regulatory branches"),
+    ("Mandate Changes",           "6 steps", "MLR 2017 / GOV.UK One Login KYC"),
+    ("Bulk Payments / Wages",     "4 steps", "CoP · PSR 2017 payee verification"),
+    ("Business Details Update",   "3 steps", "Companies House sync"),
+    ("Dormant Reactivation",      "1 step",  "FSCS notice · 12-month threshold"),
+    ("MTD VAT Submission",        "4 steps", "HMRC MTD API v1.0 direct"),
+    ("Personal / Business Unlink","4 steps", "GDPR Art.5(1)(c) · CRM update"),
+    ("Credit Ring-Fence",         "2 steps", "ICO LIA · purpose limitation"),
+    ("Pre-Approved Lending",      "3 steps", "CCA 1974 regulated · cooling-off"),
+    ("International FX Payment",  "3 steps", "MLR 2017 screening · SWIFT ref"),
 ]
 
-for i, (num, title, desc) in enumerate(steps):
-    x = 0.55 + i * 2.14
-    add_rect(s, x, 1.38, 1.95, 0.42, fill=RED)
-    add_text(s, f"{num}. {title}", x+0.1, 1.38, 1.85, 0.42,
-             size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_text(s, desc, x+0.08, 1.85, 1.85, 0.7, size=9, color=STONE5)
-    if i < 5:
-        add_text(s, "→", x+1.97, 1.48, 0.2, 0.28, size=16, bold=True, color=RED)
+cols = 3; col_w = 4.06; gap = 0.18
+for i, (name, steps, reg) in enumerate(workflows):
+    col = i % cols; row = i // cols
+    x = 0.48 + col * (col_w + gap)
+    y = 1.16 + row * 1.52
+    R(s, x, y, col_w, 1.38, fill=WHITE, line=STONE3)
+    R(s, x, y, col_w, 0.055, fill=RED)
+    T(s, name,  x+0.18, y+0.1,  col_w-0.3, 0.3,  size=10,  bold=True, color=DARK)
+    R(s, x+0.18, y+0.44, 0.68, 0.26, fill=RED)
+    T(s, steps, x+0.26, y+0.46, 0.58, 0.22, size=8, bold=True, color=WHITE)
+    T(s, reg,   x+0.96, y+0.46, col_w-1.1, 0.22, size=8,   color=STONE5, italic=True)
+    R(s, x+0.18, y+0.76, col_w-0.36, 0.4, fill=STONE1)
+    T(s, "Self-serve · No branch · No call · No paper",
+      x+0.28, y+0.82, col_w-0.56, 0.28, size=7.5, color=STONE5, italic=True)
 
-add_rect(s, 0.5, 2.65, 12.33, 0.025, fill=STONE3)
-
-# Three entity-aware workflows
-add_text(s, "ENTITY-AWARE RULES — 7 business types, each with correct compliance path",
-         0.55, 2.75, 12.23, 0.3, size=11, bold=True, color=DARK)
-
-entities = [
-    ("Limited Company", "Companies House sync, director mandate, cooling-off on closure"),
-    ("Registered Charity", "Trustee structure, treasurer role, board minutes on all changes"),
-    ("Sole Trader", "Any-1 mandate, single signature, simplified KYC"),
-    ("Partnership", "RM escalation on rename, partnership agreement required"),
-    ("LLP", "Members register, LLP number, Companies House verification"),
-    ("Club / Society", "Committee structure, treasurer, board minutes, FSCS protection"),
-]
-
-for i, (etype, rule) in enumerate(entities):
-    col = i % 3
-    row = i // 3
-    x = 0.55 + col * 4.25
-    y = 3.12 + row * 0.88
-    add_rect(s, x, y, 3.95, 0.78, fill=WHITE, line=STONE3)
-    add_text(s, etype, x+0.15, y+0.07, 3.6, 0.3, size=11, bold=True, color=DARK)
-    add_text(s, rule, x+0.15, y+0.35, 3.7, 0.38, size=9, color=STONE5)
-
-# Cooling off
-add_rect(s, 0.5, 4.96, 12.33, 0.025, fill=STONE3)
-add_text(s, "COOLING-OFF SYSTEM: 24 working hours with bank-holiday awareness. "
-         "User can cancel at any time. Progress bar live-updates every 30 seconds. "
-         "Execution delayed until next business moment after hold expires.",
-         0.55, 5.08, 12.23, 0.6, size=11, color=STONE5)
-
-# Retired forms
-add_rect(s, 0.5, 5.75, 12.33, 0.65, fill=RED)
-add_text(s,
-    "Forms retired by this prototype:  "
-    "CA04 (Mandate Change)   ·   CA07 (Account Closure)   ·   CA11 (Business Details)   "
-    "·   P17 (New Signatory)   ·   D18 (Dormancy Reactivation)",
-    0.65, 5.82, 12.0, 0.52, size=11, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-advisor_footer(s)
-slide_number(s, 8)
+stamp(s); pg(s, 8)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 9 — MAKING TAX DIGITAL
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 9 — MAKING TAX DIGITAL  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Feature Deep-Dive: Making Tax Digital Integration", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "Making Tax Digital — from receipt scan to HMRC in 60 seconds.")
 
-# Left — MTD overview
-add_text(s, "WHAT THE PROTOTYPE DELIVERS", 0.55, 0.98, 6.5, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "Live HMRC OAuth connection (VRN + UTR displayed)",
-    "VAT obligation dashboard — current quarter, amount due, deadline",
-    "4-step quarterly submission wizard (categorise → review → declare → submit)",
-    "Auto-categorisation of transactions with confidence scoring",
-    "VAT100 box-by-box breakdown with hero 'Net VAT to Pay' figure",
-    "ITSA readiness tracking (mandatory from April 2026 for SMEs > £50k)",
-    "Year-to-date tax liability estimate with real-time insights",
-    "7-year digital records retention — HMRC compliant, audit-ready",
-], 0.55, 1.32, 6.0, color=DARK)
-
-# Right — MTD stats
-add_text(s, "MTD COMPLIANCE LANDSCAPE", 7.0, 0.98, 5.8, 0.3, size=10, bold=True, color=STONE5)
-
-mtd_stats = [
-    ("73%", "of SMEs miss digital\nlinks requirement"),
-    ("£15M+", "HMRC penalties issued\nfor MTD non-compliance"),
-    ("8.2h", "avg. time per VAT return\nwithout MTD software"),
-    ("4 steps", "to submit VAT return\nin this prototype"),
+# 4-step flow
+steps_mtd = [
+    ("01  CAPTURE",
+     "Transactions auto-categorised from bank feed. Voice memo records expenses by speaking. Receipt scan uses OCR to extract merchant, amount, VAT rate, and match to open transactions — digital link intact."),
+    ("02  CATEGORISE",
+     "Every transaction reviewed against HMRC categories: Standard-rated, Zero-rated, Exempt, Outside scope. Confidence score shown per item. Low-confidence items flagged for manual review. VAT100 boxes auto-calculated."),
+    ("03  DECLARE",
+     "Four-step quarterly submission wizard. VAT100 form view shows all 9 boxes with running totals. One-tap declaration with legal acknowledgement. ITSA readiness indicator shows quarters ahead of schedule."),
+    ("04  SUBMIT",
+     "Authenticated HMRC MTD API v1.0 call with fraud header compliance (Gov-Client-Device-ID). Receipt: formBundleNumber logged to 7-year immutable audit trail. No manual data re-entry — digital links throughout."),
 ]
-for i, (val, lbl) in enumerate(mtd_stats):
-    col = i % 2
-    row = i // 2
-    x = 7.0 + col * 2.95
-    y = 1.32 + row * 1.55
-    stat_card(s, x, y, 2.7, 1.35, val, lbl)
-
-# MTD submission flow
-add_rect(s, 0.5, 4.25, 12.33, 0.025, fill=STONE3)
-add_text(s, "QUARTERLY SUBMISSION — 4-STEP WIZARD", 0.55, 4.38, 12, 0.3, size=11, bold=True, color=DARK)
-
-mtd_steps = [
-    ("Categorise", "Auto-tagged transactions confirmed. Low-confidence items manually split Business/Personal."),
-    ("Review VAT100", "All 9 boxes shown. Box 5 (Net VAT to pay) is hero figure. Reclaim vs. output tax visible."),
-    ("Declare", "Legal responsibility confirmed. HMRC accuracy warning. Checkbox required to proceed."),
-    ("Submit", "Direct HMRC MTD VAT API v1.0 call. Receipt number in 30 seconds. DD auto-scheduled."),
-]
-for i, (title, desc) in enumerate(mtd_steps):
-    x = 0.55 + i * 3.22
-    add_rect(s, x, 4.75, 3.0, 1.85, fill=WHITE, line=STONE3)
-    add_rect(s, x, 4.75, 3.0, 0.08, fill=RED)
-    add_text(s, f"Step {i+1}: {title}", x+0.12, 4.85, 2.76, 0.32, size=10, bold=True, color=DARK)
-    add_text(s, desc, x+0.12, 5.22, 2.78, 1.28, size=9, color=STONE5)
+for i, (title, body) in enumerate(steps_mtd):
+    x = 0.48 + i * 3.22
+    # Connector arrow
     if i < 3:
-        add_text(s, "→", x+3.02, 5.52, 0.22, 0.28, size=14, bold=True, color=RED)
+        R(s, x+3.05, 2.28, 0.17, 0.08, fill=RED)
+    R(s, x, 1.12, 3.05, 3.6, fill=WHITE, line=STONE3)
+    R(s, x, 1.12, 3.05, 0.06, fill=RED)
+    T(s, title, x+0.18, 1.2, 2.7, 0.3, size=10, bold=True, color=RED)
+    T(s, body,  x+0.18, 1.54, 2.7, 2.95, size=8.5, color=STONE7)
 
-advisor_footer(s)
-slide_number(s, 9)
+# Bottom stats
+mtd_stats = [
+    ("6 years", "Digital record retention"),
+    ("9 boxes", "VAT100 auto-calculated"),
+    ("< 60s",   "Receipt to HMRC submission"),
+    ("Apr 2026","ITSA mandatory threshold"),
+]
+for i, (num, lbl) in enumerate(mtd_stats):
+    x = 0.48 + i * 3.22
+    R(s, x, 4.9, 3.05, 1.0, fill=DARK)
+    T(s, num, x+0.16, 4.96, 2.74, 0.46, size=24, bold=True, color=WHITE)
+    T(s, lbl, x+0.16, 5.42, 2.74, 0.42, size=8.5, color=STONE3)
+
+stamp(s); pg(s, 9)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 10 — SECURITY & COMPLIANCE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 10 — SECURITY & COMPLIANCE  (dark)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Security, Compliance & Trust Architecture", 0.5, 0.25, 13, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+dark_bg(s)
+slide_title(s, "Built to the regulation — not around it.", on_dark=True)
 
-sec_sections = [
-    ("DUAL-AUTHORISATION (PSR 2017)", [
-        "Three mandate rules: Any-1 · Any-2 · All signatories",
-        "Strictly enforced per account — account type sets default",
-        "Multi-sig requests notified via app push + email",
-        "48-hour window for co-signer before RM escalation",
-        "Full audit trail of every sign and rejection",
-    ]),
-    ("KYC/KYB (MLR 2017 / JMLSG)", [
-        "GOV.UK One Login for biometric ID verification (List 1)",
-        "Address proof < 3 months (List 2), trading address (List 3)",
-        "Sanctions country screening — auto RM escalation",
-        "Visitor visa rejection — settled/pre-settled required",
-        "PEP flagging with MLR 2017 Enhanced Due Diligence",
-        "Continuous re-verification — expiry dates tracked",
-    ]),
-    ("COOLING-OFF (FCA BCOBS 4A)", [
-        "24 working-hour hold on all Any-1 executed actions",
-        "Bank-holiday and weekend aware (not calendar hours)",
-        "Progress bar live-updates — customer sees exact time",
-        "Customer can cancel at zero cost at any point",
-        "Execution only after full working-day hold",
-    ]),
-    ("AUDIT & DATA RETENTION (FCA SYSC 9)", [
-        "7-year immutable audit log — every action timestamped",
-        "Actor attribution on every event (initiator + co-signers)",
-        "HMRC digital records: 6-year minimum for MTD",
-        "No data mutation post-commit — append-only architecture",
-        "Export-ready: PDF/CSV per month for compliance review",
-    ]),
+regs = [
+    ("FCA BCOBS 4A",  "COOLING-OFF",
+     "24 working-hour hold on all Any-1 account actions. Bank-holiday and weekend aware. Customer can cancel at zero cost at any time. Live progress bar refreshes every 30 seconds. Execution blocked server-side until hold expires.",
+     RED),
+    ("MLR 2017 / JMLSG", "KYC / KYB",
+     "GOV.UK One Login: List 1 biometric photo ID. Address proof < 3 months: List 2. Trading address: List 3. Sanctions country: automatic RM escalation and Enhanced Due Diligence. PEP: MLR s.35 enhanced path. Visitor visa rejected.",
+     AMBER),
+    ("FCA SYSC 9", "AUDIT TRAIL",
+     "7-year immutable event log. Every action: actor, timestamp, action type, account reference. Append-only — no mutation post-commit. Exportable PDF/CSV per period. FCA on-demand production capability built in.",
+     BLUE),
+    ("HMRC MTD", "MAKING TAX DIGITAL",
+     "VAT mandatory for all VAT-registered businesses. ITSA mandatory April 2026 for SMEs >£50k. Digital links throughout: bank → categorise → HMRC — no copy-paste break in the chain. 6-year digital retention minimum.",
+     GREEN),
+    ("PSD2 RTS Art.97", "STRONG AUTH (SCA)",
+     "6-tier dynamic authentication matrix: device passkey → fingerprint biometric → Voice ID → Voice ID + co-signature → Voice ID + cooling-off → all three combined. Contextual step-up based on transaction risk.",
+     RGBColor(0x7C,0x3A,0xED)),
+    ("GDPR Art.5(1)(c)", "DATA MINIMISATION",
+     "Personal account data excluded from business decisioning at three independent layers: app render tree, call-centre CLI lookup, and credit underwriting engine. Each layer independently enforceable and auditable.",
+     RGBColor(0xDB,0x27,0x77)),
+    ("FCA PS22/9", "CONSUMER DUTY",
+     "Partner unreachable: 4-branch documented escalation. Direct Debit Guarantee surfaced on every DD transaction with one-tap cancel. Cooling-off rights in plain English on every signing screen. No dark patterns.",
+     STONE3),
+    ("FCA SYSC 10A", "SESSION SECURITY",
+     "New device/location login triggers amber session anomaly banner. Two resolution paths: 'That was me' or 'Review sessions'. All anomalies logged to audit trail with device and location metadata.",
+     LIGHTRED),
 ]
 
-for i, (title, pts) in enumerate(sec_sections):
-    col = i % 2
-    row = i // 2
-    x = 0.55 + col * 6.4
-    y = 1.0 + row * 2.88
-    add_rect(s, x, y, 6.1, 2.65, fill=WHITE, line=STONE3)
-    add_rect(s, x, y, 6.1, 0.08, fill=RED)
-    add_text(s, title, x+0.18, y+0.14, 5.7, 0.3, size=10, bold=True, color=DARK)
-    bullet_block(s, pts, x+0.18, y+0.5, 5.7, dot_color=RED, size=10, color=STONE5)
+for i, (reg, domain, body, col) in enumerate(regs):
+    col_i = i % 4; row_i = i // 4
+    x = 0.48 + col_i * 3.22; y = 1.12 + row_i * 2.82
+    R(s, x, y, 3.05, 2.62, fill=STONE7)
+    R(s, x, y, 3.05, 0.055, fill=col)
+    R(s, x, y+0.1, 0.8, 0.34, fill=col)
+    T(s, reg,    x+0.1, y+0.1, 0.72, 0.32, size=7, bold=True, color=WHITE)
+    T(s, domain, x+0.92, y+0.14, 2.0, 0.28, size=9.5, bold=True, color=WHITE)
+    T(s, body,   x+0.16, y+0.5, 2.74, 2.02, size=7.5, color=STONE3)
 
-advisor_footer(s)
-slide_number(s, 10)
+stamp(s, on_dark=True); pg(s, 10, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 11 — FINANCIAL INTELLIGENCE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 11 — FINANCIAL INTELLIGENCE  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Feature Deep-Dive: Financial Intelligence", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "Financial intelligence — not just account balances.")
 
-# Left col
-add_text(s, "STATEMENTS & TRANSACTION INTELLIGENCE", 0.55, 0.98, 6.0, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "6 months of transactions across 8 payment methods",
-    "Dual view: chronological timeline OR category totals",
-    "Method filter: Card · DD · SO · Faster Payments · BACS",
-    "Counterparty search — autocomplete to top 5 suppliers/customers",
-    "Counterparty detail sheet: transaction history, frequency, totals",
-    "Recurring payment notices (DD Guarantee, Standing Order explainer)",
-    "Cancel recurring payments direct from statement view",
-    "Export: PDF, CSV, Excel — per month — one tap",
-], 0.55, 1.32, 6.0, color=DARK)
-
-add_text(s, "COUNTERPARTY INTELLIGENCE", 0.55, 4.05, 6.0, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "Year-to-date totals per supplier/customer",
-    "Average transaction size and payment method breakdown",
-    "Payment frequency pattern detection",
-    "Pin counterparty to home screen for quick access",
-], 0.55, 4.4, 6.0, color=DARK)
-
-# Right col
-add_text(s, "MTD-LINKED TRANSACTION INSIGHTS", 7.0, 0.98, 5.8, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "Auto-categorised against 9 categories (Equipment, Wages, etc.)",
-    "Confidence scoring — high/medium/low per transaction",
-    "VAT rate applied per transaction (20% standard / 0% exempt)",
-    "Low-confidence flagged for Business/Personal split decision",
-    "Feeds directly into MTD VAT100 calculation — no re-entry",
-], 7.0, 1.32, 5.8, color=DARK)
-
-add_text(s, "YEAR-TO-DATE SUMMARY (Live on MTD Screen)", 7.0, 3.55, 5.8, 0.3, size=10, bold=True, color=STONE5)
-
-ytd = [
-    ("£392,450", "Sales revenue"),
-    ("£184,380", "Purchases"),
-    ("£208,070", "Gross profit"),
-    ("£41,614", "Estimated tax"),
+fi_features = [
+    ("Pre-Approved Lending",
+     "£45,000",
+     "Hero card on the home screen — proactive, not application-led. Based on 6-month transaction history, reserve balance, and payment record. 12 / 24 / 36-month terms with live monthly repayment calculator. CCA 1974 regulated. Cooling-off rights displayed. lendingCompleted persists after draw-down."),
+    ("Financial Statements",
+     "6 months",
+     "Chronological and category views of every transaction. Full-text counterparty search with instant results. Counterparty detail sheet: spend breakdown, transaction history, method split. PDF / CSV / Excel export. Payment method filter: all, bank transfer, direct debit, standing order, card. Outgoing / incoming colour-coded with tabular-num amounts."),
+    ("International FX",
+     "5 currencies",
+     "EUR, USD, CHF, AUD, CAD. Indicative live rates with FCA fee disclosure (Consumer Rights Act 2015). MLR 2017 screening triggered automatically on amounts ≥ £50k. SWIFT reference generated and logged to audit trail. 3-step flow: amount + currency + IBAN → rate + disclosure → biometric confirm."),
 ]
-for i, (val, lbl) in enumerate(ytd):
-    x = 7.0 + (i % 2) * 2.95
-    y = 3.9 + (i // 2) * 1.32
-    stat_card(s, x, y, 2.7, 1.18, val, lbl,
-              bg=DARK, val_color=WHITE, lbl_color=STONE3)
+for i, (name, stat, body) in enumerate(fi_features):
+    x = 0.48 + i * 4.28
+    R(s, x, 1.12, 4.08, 5.9, fill=WHITE, line=STONE3)
+    R(s, x, 1.12, 4.08, 0.06, fill=RED)
+    T(s, name, x+0.2, 1.22, 3.68, 0.34, size=13, bold=True, color=DARK)
+    R(s, x+0.2, 1.62, 3.68, 0.7, fill=DARK)
+    T(s, stat, x+0.3, 1.66, 3.48, 0.58, size=30, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    R(s, x+0.2, 2.38, 3.68, 0.016, fill=STONE3)
+    T(s, body, x+0.2, 2.5, 3.68, 4.32, size=9, color=STONE7)
 
-add_text(s, "Real-time tax liability estimate — £41,614 set-aside nudge built into the MTD insights panel.",
-         0.55, 6.7, 12.23, 0.55, size=11, italic=True, color=STONE5)
-advisor_footer(s)
-slide_number(s, 11)
+stamp(s); pg(s, 11)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 12 — TECHNICAL ARCHITECTURE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 12 — ARCHITECTURE  (warm — current + production)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Technical Architecture", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "Today: a live prototype. Next: a production system.")
 
-# Stack overview
-add_text(s, "CURRENT PROTOTYPE STACK", 0.55, 0.98, 4.5, 0.3, size=10, bold=True, color=STONE5)
-stack = [
-    ("React 18", "UI framework — hooks-based, single-component architecture"),
-    ("Vite + Singlefile", "Zero-dependency build: entire app in one 350KB HTML file"),
-    ("Tailwind CSS", "Design system — custom tokens: brand red, warm bg, stone scale"),
-    ("Lucide Icons", "Tree-shaken icon set — only used icons in bundle"),
-    ("Fraunces + Geist", "Santander editorial + clean body — Google Fonts CDN"),
-    ("No backend", "All state client-side — intentional prototype constraint"),
+# Current prototype box
+R(s, 0.48, 1.12, 5.9, 5.9, fill=WHITE, line=STONE3)
+R(s, 0.48, 1.12, 5.9, 0.06, fill=RED)
+T(s, "TODAY — PROTOTYPE", 0.66, 1.22, 5.5, 0.28, size=9, bold=True, color=STONE5)
+T(s, "Live at github.io/santander", 0.66, 1.5, 5.5, 0.24, size=9, color=RED)
+
+proto_layers = [
+    ("React 18 + App.jsx",      "5,300 lines · single component · all state at top level"),
+    ("Tailwind CSS + inline CSS","Brand tokens · glass effects · responsive mobile/desktop"),
+    ("Vite + singlefile plugin", "832KB self-contained HTML · no CDN · runs offline"),
+    ("GitHub Pages (gh-pages)",  "Deployed · imscots-ui.github.io/santander"),
+    ("No backend",               "All data simulated · validates design not engineering"),
+    ("21 features built",        "Including Voice ID, MTD, FX, lending, forecasting"),
 ]
-for i, (tech, desc) in enumerate(stack):
-    y = 1.32 + i * 0.78
-    add_rect(s, 0.55, y, 1.6, 0.6, fill=RED)
-    add_text(s, tech, 0.55, y, 1.6, 0.6,
-             size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_text(s, desc, 2.28, y+0.08, 3.6, 0.5, size=10, color=DARK)
+for i, (title, detail) in enumerate(proto_layers):
+    bg = STONE1 if i % 2 == 0 else WHITE
+    R(s, 0.66, 1.84+i*0.65, 5.52, 0.62, fill=bg, line=STONE3)
+    T(s, title,  0.82, 1.9+i*0.65, 2.2, 0.24, size=9,   bold=True, color=DARK)
+    T(s, detail, 3.06, 1.9+i*0.65, 3.0, 0.24, size=8.5, color=STONE5)
 
-# Production architecture vision
-add_text(s, "PRODUCTION ARCHITECTURE — RECOMMENDED PATH", 6.5, 0.98, 6.3, 0.3, size=10, bold=True, color=STONE5)
-prod = [
-    ("API Gateway", "FastAPI or AWS API Gateway — stateless, versioned endpoints"),
-    ("Auth", "JWT in HttpOnly Secure SameSite=Strict cookies — no localStorage"),
-    ("Database", "PostgreSQL with read replicas — indexed on account_no, entity_id, date"),
-    ("KYC Service", "GOV.UK One Login OAuth2 — real-time identity verification"),
-    ("HMRC MTD API", "OAuth 2.0 client credentials — VRN-scoped VAT obligations"),
-    ("CoP Service", "Vocalink Confirmation of Payee API — pre-payment validation"),
-    ("Audit Log", "Append-only event store — EventBridge + S3 Glacier for 7yr retention"),
-    ("Notifications", "SNS/SES for co-signer alerts — push via FCM/APNs"),
+# Production system box
+R(s, 6.68, 1.12, 6.17, 5.9, fill=WHITE, line=STONE3)
+R(s, 6.68, 1.12, 6.17, 0.06, fill=DARK)
+T(s, "NEXT — PRODUCTION", 6.86, 1.22, 5.8, 0.28, size=9, bold=True, color=STONE5)
+T(s, "18 months  ·  4 phases  ·  approx 32 FTE", 6.86, 1.5, 5.8, 0.24, size=9, color=STONE5)
+
+prod_tiers = [
+    (RGBColor(0xEC,0xFD,0xF5), GREEN,  "CLIENT TIER",
+     "React 18 PWA · mobile + desktop · Add to Home Screen · iOS / Android"),
+    (RGBColor(0xEF,0xF6,0xFF), BLUE,   "API TIER",
+     "FastAPI / AWS API Gateway · JWT RS256 · OAuth2 PKCE · rate limiting"),
+    (AMBER,                    AMBER,  "DATA TIER",
+     "PostgreSQL · Audit EventBridge → S3 Glacier · Redis · HMRC records"),
+    (RGBColor(0xFD,0xF2,0xF8), RED,    "INTEGRATIONS",
+     "GOV.UK One Login · HMRC MTD API · Vocalink CoP · Companies House"),
 ]
-for i, (layer, desc) in enumerate(prod):
-    y = 1.32 + i * 0.72
-    add_rect(s, 6.5, y, 1.75, 0.55, fill=DARK)
-    add_text(s, layer, 6.5, y, 1.75, 0.55,
-             size=9, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_text(s, desc, 8.38, y+0.08, 4.5, 0.42, size=9, color=DARK)
+for i, (bg, col, title, detail) in enumerate(prod_tiers):
+    R(s, 6.86, 1.86+i*1.18, 5.8, 1.06, fill=bg, line=col)
+    R(s, 6.86, 1.86+i*1.18, 5.8, 0.055, fill=col)
+    T(s, title,  6.98, 1.93+i*1.18, 5.56, 0.24, size=8, bold=True, color=DARK)
+    T(s, detail, 6.98, 2.2+i*1.18,  5.56, 0.62, size=8.5, color=STONE7)
 
-advisor_footer(s)
-slide_number(s, 12)
+stamp(s); pg(s, 12)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 13 — BUSINESS CASE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 13 — BUSINESS CASE  (dark — big numbers, conclusion restated)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "The Business Case", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+dark_bg(s)
+slide_title(s, "The business case.", on_dark=True)
+T(s, "Phase 1 complete. Phase 2 awaiting stakeholder approval. Zero days to readiness.",
+  0.48, 0.7, 12, 0.3, size=10.5, color=STONE3, italic=True)
 
-# Cost savings
-add_text(s, "COST AVOIDANCE — PER 10,000 BUSINESS CUSTOMERS", 0.55, 0.98, 12, 0.3, size=10, bold=True, color=STONE5)
-savings = [
-    ("£2.4M", "Mandate change\nprocessing cost eliminated\n(£240 avg. branch cost × 10k)"),
-    ("£1.1M", "Paper form handling\n& postal costs removed\n(5 forms avg/customer/yr)"),
-    ("£800K", "KYC re-verification\nbranch visits avoided\n(£80 cost per visit)"),
-    ("£600K", "Compliance penalty\nrisk reduction\n(MTD + FCA SYSC 9)"),
+# Six stat boxes
+big_stats = [
+    ("£137M",  "Annualised\nopportunity"),
+    ("£4.9M",  "Cost saving / 10k\ncustomers · Year 1"),
+    ("21",     "Features across\n4 areas"),
+    ("11",     "Paper workflows\ndigitised"),
+    ("5",      "Paper forms\nretired"),
+    ("8",      "Compliance\nframeworks"),
 ]
-for i, (val, lbl) in enumerate(savings):
-    x = 0.55 + i * 3.22
-    stat_card(s, x, 1.35, 3.0, 1.65, val, lbl)
+for i, (num, lbl) in enumerate(big_stats):
+    col = i % 3; row = i // 3
+    x = 0.48 + col * 4.28; y = 1.18 + row * 1.85
+    stat_box(s, num, lbl, x, y, w=4.05, h=1.65,
+             bg=STONE7, nc=WHITE, lc=STONE3, ns=44, ls=9)
 
-# Revenue opportunity
-add_rect(s, 0.5, 3.15, 12.33, 0.025, fill=STONE3)
-add_text(s, "REVENUE & RETENTION OPPORTUNITY", 0.55, 3.28, 6.0, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "MTD integrated banking = primary bank stickiness — customers who use tax features churn 60% less",
-    "Payee book + recurring payments = switching friction — bulk payment users stay 3× longer",
-    "Digital mandate management opens multi-entity accounts previously abandoned due to complexity",
-    "KYC via GOV.UK One Login removes the final barrier to fully digital onboarding",
-], 0.55, 3.62, 6.0, color=DARK, size=11)
+# Workflow CA row
+R(s, 0.48, 4.98, 12.37, 0.54, fill=STONE7)
+wf_names = ["CA04\nMandate change", "CA07\nAccount closure", "CA11\nDormancy", "P17\nBulk payment auth", "DIB\nKYC update"]
+for i, name in enumerate(wf_names):
+    R(s, 0.56+i*2.46, 5.02, 2.28, 0.46, fill=RGBColor(0x35,0x31,0x2E))
+    T(s, name, 0.64+i*2.46, 5.06, 2.1, 0.38, size=7.5, color=STONE3, align=PP_ALIGN.CENTER)
 
-add_text(s, "COMPETITIVE DIFFERENTIATION", 7.0, 3.28, 5.8, 0.3, size=10, bold=True, color=STONE5)
-bullet_block(s, [
-    "No UK business bank offers MTD submission within the banking app today",
-    "Cooling-off with working-hours precision exceeds regulatory minimum",
-    "7-entity KYC awareness is unique — clubs, charities, LLPs fully supported",
-    "First UK bank to offer self-service personal/business separation across all channels",
-    "Credit ring-fence: personal financial difficulties cannot affect business credit decisions",
-], 7.0, 3.62, 5.8, color=DARK, size=10)
+# Phase progress
+R(s, 0.48, 5.65, 12.37, 0.48, fill=GREEN)
+T(s, "Phase 1 — COMPLETE    Prototype live · All features functional",
+  0.66, 5.72, 11.8, 0.34, size=11, bold=True, color=WHITE)
+R(s, 0.48, 6.2, 12.37, 0.48, fill=BLUE)
+T(s, "Phase 2 — 0 DAYS TO READY    Awaiting stakeholder approval",
+  0.66, 6.27, 11.8, 0.34, size=11, bold=True, color=WHITE)
 
-# Bottom CTA
-add_rect(s, 0.5, 6.2, 12.33, 0.98, fill=DARK)
-add_text(s,
-    "Total addressable saving: £4.9M per 10,000 customers in year one.\n"
-    "With 280,000 Santander business customers, the annualised opportunity exceeds £137M.",
-    0.65, 6.3, 12.0, 0.78, size=13, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-advisor_footer(s)
-slide_number(s, 13)
+# Footer £137M restatement
+T(s, "£137M", 9.0, 6.82, 4.2, 0.55, size=38, bold=True, color=RED, align=PP_ALIGN.RIGHT)
+T(s, "annualised opportunity", 9.0, 7.16, 4.2, 0.24, size=8, color=STONE5, align=PP_ALIGN.RIGHT)
+stamp(s, on_dark=True); pg(s, 13, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 14 — ROADMAP
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 14 — ROADMAP  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Roadmap to Production", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "Four phases. Twelve months to production at scale.")
 
 phases = [
-    ("PHASE 1\nQ3 2026", "Customer Research & Validation",
-     ["User testing on prototype (live now at GitHub Pages)",
-      "10 SME deep-dives across 5 entity types",
-      "HMRC MTD API developer sandbox access",
-      "GOV.UK One Login integration scoping",
-      "Security & accessibility audit (WCAG 2.1 AA)",
-     ], True),
-    ("PHASE 2\nQ4 2026", "Backend & Integration Build",
-     ["FastAPI backend: accounts, signatories, audit log",
-      "PostgreSQL schema: entity-aware mandate rules",
-      "GOV.UK One Login OAuth2 integration (KYC)",
-      "HMRC MTD VAT API live connection",
-      "Vocalink CoP API (Confirmation of Payee)",
-     ], False),
-    ("PHASE 3\nQ1 2027", "Pilot & Compliance Sign-Off",
-     ["Closed pilot: 500 business customers",
-      "FCA sandbox notification (BCOBS 4A cooling-off)",
-      "PCI DSS scope assessment for payment flows",
-      "Penetration testing + DPIA (GDPR Art. 35)",
-      "MLR 2017 compliance sign-off (KYC/KYB paths)",
-     ], False),
-    ("PHASE 4\nQ2 2027", "General Availability",
-     ["Phased rollout by entity type (limited first)",
-      "Branch decommission of 5 paper forms",
-      "Marketing: 'Banking that does your tax'",
-      "ITSA readiness (mandatory for SMEs Apr 2026)",
-      "NPS tracking — target +18 points vs. branch",
-     ], False),
+    ("Q3 2026", "PHASE 1", "COMPLETE",
+     GREEN, WHITE,
+     ["Prototype live and functional",
+      "All 21 features validated",
+      "Stakeholder review complete",
+      "Architecture documented"]),
+    ("Q4 2026", "PHASE 2", "API & AUTH",
+     DARK, WHITE,
+     ["FastAPI backend + PostgreSQL",
+      "JWT auth + GOV.UK One Login",
+      "HMRC MTD API integration",
+      "Internal beta: 50 colleagues"]),
+    ("Q1 2027", "PHASE 3", "COMPLIANCE",
+     RED, WHITE,
+     ["Vocalink CoP wired live",
+      "FCA notification submitted",
+      "Cooling-off server-enforced",
+      "500-customer beta pilot"]),
+    ("Q2 2027", "PHASE 4", "SCALE",
+     BLUE, WHITE,
+     ["App Store + Play Store launch",
+      "80% paperless mandate target",
+      "Full MLR / SYSC 9 audit-ready",
+      "280,000 customer rollout"]),
 ]
 
-for i, (phase, title, pts, active) in enumerate(phases):
-    x = 0.55 + i * 3.22
-    bg = RED if active else WHITE
-    tc = WHITE if active else DARK
-    sc = LIGHTRED if active else STONE5
-    add_rect(s, x, 1.05, 3.0, 5.9, fill=bg, line=STONE3)
-    if active:
-        add_rect(s, x, 1.05, 3.0, 0.08, fill=DARK)
-    add_text(s, phase, x+0.15, 1.12, 2.7, 0.6, size=11, bold=True, color=tc, align=PP_ALIGN.CENTER)
-    add_text(s, title, x+0.15, 1.72, 2.7, 0.48, size=10, bold=True, color=tc if not active else WHITE, align=PP_ALIGN.CENTER)
-    add_rect(s, x+0.15, 2.28, 2.7, 0.025, fill=sc)
-    bullet_block(s, pts, x+0.15, 2.38, 2.7, dot_color=DARK if not active else LIGHTRED, size=9,
-                 color=sc)
+for i, (quarter, phase, label, col, tc, items) in enumerate(phases):
+    x = 0.48 + i * 3.22
+    # Timeline connector
+    if i < 3:
+        R(s, x+3.05, 2.02, 0.17, 0.06, fill=STONE3)
+    R(s, x, 1.12, 3.05, 0.92, fill=col)
+    T(s, quarter, x+0.18, 1.16, 2.7, 0.28, size=9, bold=True, color=tc, italic=True)
+    T(s, phase,   x+0.18, 1.42, 2.7, 0.55, size=22, bold=True, color=tc)
+    R(s, x, 2.06, 3.05, 0.3, fill=RGBColor(0xF5,0xF5,0xF4) if col==DARK else STONE1, line=col)
+    T(s, label, x+0.18, 2.1, 2.7, 0.24, size=9, bold=True, color=col)
+    R(s, x, 2.38, 3.05, 4.4, fill=WHITE, line=STONE3)
+    for j, item in enumerate(items):
+        R(s, x+0.18, 2.52+j*0.96, 0.06, 0.72, fill=col)
+        T(s, item, x+0.38, 2.54+j*0.96, 2.5, 0.68, size=9.5, color=DARK)
 
-add_text(s, "Phase 1 is already complete — the prototype is live and ready for user research today.",
-         0.55, 7.08, 12.23, 0.3, size=11, italic=True, color=STONE5, align=PP_ALIGN.CENTER)
-advisor_footer(s)
-slide_number(s, 14)
+stamp(s); pg(s, 14)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 15 — DESIGN SYSTEM
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 15 — DESIGN SYSTEM & ACCESSIBILITY  (warm)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=WARM)
-red_bar(s)
-add_text(s, "Design System & Accessibility", 0.5, 0.25, 12, 0.5,
-         size=22, bold=True, color=RED)
-add_rect(s, 0.5, 0.82, 12.33, 0.025, fill=STONE3)
+warm_bg(s)
+slide_title(s, "Design system — built for every customer.")
 
 # Colour swatches
-add_text(s, "BRAND COLOUR SYSTEM", 0.55, 0.98, 4, 0.3, size=10, bold=True, color=STONE5)
+T(s, "COLOUR", 0.48, 1.12, 2, 0.24, size=8, bold=True, color=STONE5)
 swatches = [
-    (RED, "#C8102E", "Brand red — CTAs, active nav, top bar"),
-    (DARK, "#1C1917", "Primary text, dark cards"),
-    (WARM, "#FAF6EF", "Page background — warm off-white"),
-    (RGBColor(0xD6,0xD3,0xD1), "#D6D3D1", "Secondary text on dark surfaces"),
-    (RGBColor(0xFE,0xCA,0xCA), "#FECACA", "Accent on red surfaces (red-200)"),
+    (RED,                         "#C8102E", "brand-red",  "CTAs, active nav"),
+    (DARK,                        "#1C1917", "stone-900",  "Primary text"),
+    (WARM,                        "#FAF6EF", "warm-bg",    "Page background"),
+    (STONE5,                      "#78716C", "stone-500",  "Secondary text"),
+    (RGBColor(0xFE,0xCA,0xCA),    "#FECACA", "red-200",    "On red surfaces"),
 ]
-for i, (rgb, hex_val, label) in enumerate(swatches):
-    y = 1.32 + i * 0.66
-    add_rect(s, 0.55, y, 0.5, 0.5, fill=rgb, line=STONE3)
-    add_text(s, hex_val, 1.15, y+0.05, 1.1, 0.22, size=9, bold=True, color=DARK)
-    add_text(s, label, 1.15, y+0.26, 4.0, 0.22, size=9, color=STONE5)
+for i, (rgb, hx, token, use) in enumerate(swatches):
+    y = 1.4 + i * 0.54
+    R(s, 0.48, y+0.06, 0.4, 0.4, fill=rgb, line=STONE3)
+    T(s, hx,   1.0, y+0.06, 0.9, 0.2, size=8.5, bold=True, color=DARK)
+    T(s, token,1.0, y+0.26, 1.1, 0.2, size=7.5, color=RED)
+    T(s, use,  2.2, y+0.12, 1.6, 0.3, size=8.5, color=STONE5)
 
 # Typography
-add_text(s, "TYPOGRAPHY", 0.55, 4.68, 4, 0.3, size=10, bold=True, color=STONE5)
+T(s, "TYPOGRAPHY", 4.1, 1.12, 3, 0.24, size=8, bold=True, color=STONE5)
 fonts = [
-    ("Fraunces (serif)", "Editorial headings, large numbers — 'font-display'"),
-    ("Geist Sans", "Body text, labels, navigation — 'font-body'"),
-    ("Geist Mono", "Account numbers, financial figures — tabular-nums"),
+    ("Fraunces", "Serif — large display numbers, editorial headers"),
+    ("Geist Sans", "All body text, labels, navigation, buttons"),
+    ("Geist Mono", "Account numbers, sort codes, financial data"),
+    ("num-tab", "tabular-nums on every monetary amount — alignment"),
 ]
-for i, (font, use) in enumerate(fonts):
-    y = 5.04 + i * 0.52
-    add_text(s, font, 0.55, y, 2.2, 0.3, size=10, bold=True, color=DARK)
-    add_text(s, use, 2.85, y, 3.0, 0.3, size=10, color=STONE5)
-
-# Spacing scale
-add_text(s, "SPACING SCALE (4px base — Tailwind tokens)", 6.0, 0.98, 7.0, 0.3, size=10, bold=True, color=STONE5)
-spacings = [4, 8, 12, 16, 24, 32, 48, 64]
-for i, sp in enumerate(spacings):
-    x = 6.0 + i * 0.9
-    h = sp / 48
-    add_rect(s, x, 2.5 - h, 0.7, h, fill=RED)
-    add_text(s, f"{sp}", x, 2.6, 0.7, 0.25, size=8, color=DARK, align=PP_ALIGN.CENTER)
+for i, (name, desc) in enumerate(fonts):
+    y = 1.4 + i * 0.72
+    R(s, 4.1, y, 4.0, 0.62, fill=DARK)
+    T(s, name, 4.22, y+0.06, 3.76, 0.26, size=9, bold=True, color=WHITE)
+    T(s, desc, 4.22, y+0.32, 3.76, 0.24, size=7.5, color=STONE3)
 
 # Accessibility
-add_text(s, "ACCESSIBILITY — WCAG 2.1 AA", 6.0, 3.0, 7.0, 0.3, size=10, bold=True, color=STONE5)
+T(s, "ACCESSIBILITY", 8.4, 1.12, 4.5, 0.24, size=8, bold=True, color=STONE5)
 a11y = [
-    "All interactive elements keyboard-navigable — Tab/Enter/Space",
-    "focus-visible:ring on every button, input, and toggle — mouse users unaffected",
-    "Colour contrast ≥ 4.5:1 on body text, ≥ 3:1 on large text",
-    "Error messages explain HOW to fix (not just that something is wrong)",
-    "ARIA labels on icon-only buttons — screen reader safe",
-    "tabular-nums on all monetary amounts — assistive tech alignment",
+    ("WCAG 2.1 AA", "focus-visible:ring on all interactive elements — keyboard users fully supported"),
+    ("Contrast ≥4.5:1", "Every text / background combination tested — no gray-on-gray ever"),
+    ("tabular-nums", "All monetary amounts use font-variant-numeric: tabular-nums for column alignment"),
+    ("Error messages", "Describe how to fix — not just what went wrong — per WCAG 3.3.1"),
+    ("Screen reader", "ARIA labels on all icons — no decoration-only elements lack alt text"),
+    ("BSL relay", "Accessibility footer on every screen: BSL relay, Relay UK, large print option"),
 ]
-bullet_block(s, a11y, 6.0, 3.35, 7.0, dot_color=RED, size=10, color=DARK)
+for i, (label, desc) in enumerate(a11y):
+    y = 1.4 + i * 0.8
+    R(s, 8.4, y, 4.5, 0.7, fill=WHITE, line=STONE3)
+    R(s, 8.4, y, 4.5, 0.055, fill=GREEN)
+    T(s, label, 8.56, y+0.08, 1.3, 0.26, size=8.5, bold=True, color=DARK)
+    T(s, desc,  8.56, y+0.35, 4.2, 0.3,  size=7.5, color=STONE5)
 
-# Shadow system
-add_text(s, "SHADOW SYSTEM", 6.0, 5.7, 7.0, 0.3, size=10, bold=True, color=STONE5)
-shadows = [
-    ("lift-1", "List items, inline cards — barely lifted"),
-    ("lift-2", "Primary cards, panels — clearly lifted"),
-    ("lift-hero", "Balance card only — dramatic depth"),
-]
-for i, (name, desc) in enumerate(shadows):
-    x = 6.0 + i * 2.45
-    add_rect(s, x, 6.08, 2.1, 0.6, fill=WHITE, line=STONE3)
-    add_text(s, name, x+0.12, 6.1, 1.8, 0.28, size=9, bold=True, color=RED)
-    add_text(s, desc, x+0.12, 6.34, 1.9, 0.28, size=8, color=STONE5)
+# Spacing scale visual
+T(s, "SPACING SCALE (4px base)", 0.48, 6.18, 8, 0.24, size=8, bold=True, color=STONE5)
+spacings = [(4,"1"),(8,"2"),(12,"3"),(16,"4"),(24,"6"),(32,"8"),(48,"12")]
+for i, (px, tw) in enumerate(spacings):
+    x = 0.48 + i * 0.58
+    bar_h = px / 80
+    R(s, x, 6.9-bar_h, 0.46, bar_h, fill=RED)
+    T(s, f"{px}", x, 6.92, 0.46, 0.22, size=7, color=DARK, align=PP_ALIGN.CENTER)
 
-advisor_footer(s)
-slide_number(s, 15)
+stamp(s); pg(s, 15)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 16 — NEXT STEPS
-# ═══════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════
+# SLIDE 16 — NEXT STEPS  (dark — conclusion restated, three clear asks)
+# ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
-add_rect(s, 0, 0, 13.33, 7.5, fill=DARK)
-add_rect(s, 0, 0, 13.33, 0.08, fill=RED)
-add_rect(s, 0, 7.42, 13.33, 0.08, fill=RED)
+dark_bg(s)
 
-add_text(s, "Next Steps", 0.8, 0.4, 11.73, 0.6,
-         size=28, bold=True, color=WHITE)
-add_text(s, "Three decisions to unlock Phase 2", 0.8, 0.9, 11.73, 0.4,
-         size=16, color=STONE3)
-add_rect(s, 0.8, 1.38, 11.73, 0.025, fill=RED)
+# Restate the conclusion (Sherer: state at beginning AND end)
+T(s, "£137M. Live today. Zero days to readiness.",
+  0.9, 0.58, 11.53, 0.64, size=32, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+R(s, 2.5, 1.28, 8.33, 0.055, fill=RED)
 
-actions = [
-    ("01", "APPROVE USER RESEARCH",
-     "Allocate 2 weeks and 10 SME participants for prototype testing. "
-     "The prototype is live now — no additional build cost. "
-     "Research focus: mandate complexity, MTD flow, mobile vs. desktop preference."),
-    ("02", "COMMISSION TECHNICAL SCOPING",
-     "Engage Architecture & Engineering to scope the FastAPI backend, "
-     "GOV.UK One Login OAuth2 integration, and HMRC MTD API sandbox access. "
-     "Estimated 4-week scoping exercise with a T-shirt sizing output."),
-    ("03", "BRIEF LEGAL & COMPLIANCE",
-     "FCA BCOBS 4A (cooling-off), MLR 2017 (KYC/KYB paths), "
-     "HMRC MTD obligations, and GDPR Art. 35 DPIA. "
-     "Prototype documentation and audit logs available for review immediately."),
+T(s, "Three decisions for senior management:",
+  0.48, 1.46, 12, 0.3, size=11, color=STONE3, align=PP_ALIGN.CENTER, italic=True)
+
+decisions = [
+    ("01",
+     "Walk through the prototype",
+     "Spend 30 minutes with the live prototype at imscots-ui.github.io/santander. Test the workflows, the compliance paths, the dual-signature unlock. Form a view based on evidence, not a slide.",
+     "ACTION  →  Open the link. Walk through it today."),
+    ("02",
+     "Commission a technical review",
+     "Share the Architecture deck with your engineering leads. The wrap-around pattern, the API contracts, and the 4-phase build plan are already documented. The architecture question has an answer.",
+     "ACTION  →  Schedule a 1-hour architecture review."),
+    ("03",
+     "Decide on Phase 2 scope and timing",
+     "Phase 1 is complete. The prototype exists. The business case is £137M annualised. Phase 2 needs a sponsor, a team, and a timeline. That decision is the only thing between here and production.",
+     "ACTION  →  Assign a sponsor. Set a Q4 2026 start date."),
 ]
+for i, (num, title, body, action) in enumerate(decisions):
+    x = 0.48 + i * 4.28
+    R(s, x, 1.88, 4.08, 5.0, fill=STONE7)
+    R(s, x, 1.88, 4.08, 0.055, fill=RED)
+    T(s, num,   x+0.2, 1.95, 0.6, 0.4, size=28, bold=True, color=RED)
+    T(s, title, x+0.88, 2.0, 3.0, 0.42, size=13, bold=True, color=WHITE)
+    R(s, x+0.2, 2.42, 3.68, 0.024, fill=RGBColor(0x44,0x40,0x3C))
+    T(s, body,  x+0.2, 2.55, 3.68, 2.8, size=9, color=STONE3)
+    R(s, x+0.2, 5.46, 3.68, 0.66, fill=RED)
+    T(s, action, x+0.3, 5.55, 3.48, 0.48, size=8.5, bold=True, color=WHITE)
 
-for i, (num, title, body) in enumerate(actions):
-    y = 1.6 + i * 1.65
-    add_rect(s, 0.8, y, 0.7, 1.35, fill=RED)
-    add_text(s, num, 0.8, y+0.35, 0.7, 0.6,
-             size=22, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-    add_rect(s, 1.6, y, 10.93, 1.35, fill=RGBColor(0x2C,0x27,0x24))
-    add_text(s, title, 1.78, y+0.1, 10.7, 0.35, size=12, bold=True, color=WHITE)
-    add_text(s, body, 1.78, y+0.5, 10.7, 0.78, size=11, color=STONE3)
-
-# CTA
-add_rect(s, 0.8, 6.6, 11.73, 0.65, fill=RED)
-add_text(s,
-    "Prototype live now:  imscots-ui.github.io/santander   ·   No install, no login, any device   ·   "
-    "Alan Davidson · Alan.Davidson@santander.co.uk",
-    0.9, 6.3, 11.5, 0.35, size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
-add_text(s,
-    "Business Banking Advisor  ·  Self-initiated  ·  Completed entirely out of hours in own time",
-    0.9, 6.65, 11.5, 0.3, size=9, italic=True, color=LIGHTRED, align=PP_ALIGN.CENTER)
-slide_number(s, 16)
+# Live link bottom
+R(s, 0, 7.12, 13.33, 0.38, fill=RED)
+T(s, "Live prototype:  imscots-ui.github.io/santander  ·  No install, no login — open it on any device",
+  0.48, 7.18, 12.37, 0.28, size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+pg(s, 16, on_dark=True)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# SAVE
-# ═══════════════════════════════════════════════════════════════════════════════
+# ── Save ──────────────────────────────────────────────────────────────────────
 out = "/home/user/santander/Santander_Digital_Banking_Future.pptx"
 prs.save(out)
 print(f"Saved → {out}")
