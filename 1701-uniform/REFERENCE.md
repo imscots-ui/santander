@@ -1,7 +1,8 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 41 books across Python, JavaScript, SQL, HTTP, security, Docker,
-Git, authentication, AI prompting, prompt engineering, AI agent architecture, and UI design.
+Synthesised from 46 books across Python, JavaScript, SQL, HTTP, security, Docker,
+Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
+virtual team leadership, Power BI, data analytics, PowerPoint, and SharePoint.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -34,6 +35,11 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 24. [AI Agent Architecture Patterns](#ai-agent-architecture-patterns)
 25. [Claude Code Workflow](#claude-code-workflow)
 26. [UI Design Principles — Refactoring UI](#ui-design-principles--refactoring-ui)
+27. [Power Teams & Virtual Leadership](#section-27--power-teams--virtual-leadership)
+28. [Power BI — Business Intelligence & Dashboards](#section-28--power-bi--business-intelligence--dashboards)
+29. [Data Analytics with Excel & Power BI](#section-29--data-analytics-with-excel--power-bi)
+30. [PowerPoint — Presentation Design & Delivery](#section-30--powerpoint--presentation-design--delivery)
+31. [Microsoft SharePoint 365](#section-31--microsoft-sharepoint-365)
 
 ---
 
@@ -5022,3 +5028,1266 @@ Claude Code Mastery (Eslam Wahba),
 AI AGENT MASTERY with Claude AI (Kevlin Henney),
 Claude Mythos 5 Development Mastery (Niall R. Heatherwick),
 Refactoring UI (Adam Wathan & Steve Schoger).*
+
+---
+
+## Section 27 · Power Teams & Virtual Leadership
+
+*Source: Power Teams Beyond Borders — Peter Ivanov*
+
+### What a Virtual Team Is
+
+Any team that communicates virtually at least part of the time counts as virtual — two offices in the same city, some members remote, any cross-timezone arrangement. Per Forrester (2016), 81% of teams are already virtual; 60% span more than one time zone.
+
+Virtual teams fail for four predictable reasons:
+- **Trust not built** — cannot bond at the coffee machine; trust must be engineered deliberately
+- **Communication barriers not overcome** — distance, technology, goal alignment, decision-making, conflict
+- **Individual and team goals misaligned** — hidden agendas or cascaded goals that people cannot identify with
+- **Vision lacks clarity** — cascaded vision is always weaker than co-created vision
+
+### The 10 Big Rocks Framework
+
+Ivanov's method: imagine the virtual team as a human body. Three parts — head, skeleton/muscles, heart — each containing rocks (critical success factors).
+
+**The Head (cognitive clarity)**
+
+| Rock | Purpose |
+|------|---------|
+| 1. Personality in focus | Build trust through personal connection before professional function |
+| 2. Strengths Matrix | Map every member's natural talents; allocate work to strengths |
+| 3. Interdependent goals | Each person has their own goal; goals are interdependent, not siloed |
+
+**The Skeleton & Muscles (operational dynamics)**
+
+| Rock | Purpose |
+|------|---------|
+| 4. Meetings & agenda | Structured, regular, purposeful; everyone contributes |
+| 5. Knowledge management | Define knowledge champions; share expertise systemically |
+| 6. Regular feedback | Institutionalise feedback; structured, not manager-centric |
+
+**The Heart (culture and spirit)**
+
+| Rock | Purpose |
+|------|---------|
+| 7. Recognition | Recognise progress despite distance — number one reason people leave is lack of recognition |
+| 8. Diversity | Manage leadership, decision-making, and conflict styles across cultures |
+| 9. Winning spirit | Create tangible prizes and shared victories |
+| 10. Next-generation leaders | Connect to all layers of the organisation; build pipeline |
+
+Per Google's Project Aristotle: the number one characteristic of high-performing teams is **psychological safety** — willingness to show vulnerability and ask for help.
+
+### Rock 1: Personality in Focus
+
+**The Lifeline Exercise:**
+Each team member creates a personal timeline of professional and personal highs and lows. Share with the team in 5–10 minutes. Brings people together faster than years of daily interaction.
+
+**The Four Magic Questions** (fast format for large teams):
+1. Do you have siblings? How many, and are they older or younger?
+2. What hobby were you most passionate about as a child?
+3. What are you most proud of?
+4. What else should other people know about you?
+
+Questions 3 and 4 are deliberately vulnerability-inducing. The oldest sibling tends toward leadership; youngest may be competitive; middle children are often adaptable; only children may struggle with sharing.
+
+**Rules for building trust over distance:**
+- Praise, praise, and then praise more — praise results, sub-milestones, and positive behaviour
+- Do not handle conflict by email; call a meeting, encourage debate, don't announce your view first
+- Empower: let people choose solutions, do not dictate them
+- Never underestimate the power of praise from the direct superior
+
+### Rock 2: The Strengths Matrix
+
+Three types of team members:
+
+| Type | Characteristic | Best role |
+|------|---------------|-----------|
+| Generalist | Big picture, broad overview | Client/stakeholder relationship management |
+| Specialist | Deep expertise in one domain | Knowledge champion; reviews deliverables in their field |
+| Empath | Reads team emotion; relates naturally to others | New member induction, team atmosphere, buddy system |
+
+**Uncovering natural strengths — the coaching pairs exercise:**
+Ask each person, as the "coachee":
+1. What do you find easy and fun to do in your job?
+2. What is your biggest success so far?
+3. What do people most often ask you for help with?
+4. If your best friend described your biggest strength, what would they say?
+5. From everything you've told me, what is your biggest strength?
+
+The coach then says: "From everything I heard, I think your biggest strength is…"
+
+Record both self-identified and externally-identified strengths in the Strengths Matrix (different colours). Each person then picks an avatar — superhero, celebrity, fictional character — who embodies their strengths.
+
+**Effect:** Every member feels special and seen. The team believes collectively it can achieve anything because the full Strengths Matrix is visible.
+
+**Why it works in practice:** In an online architecture MOOC, splitting 35,000 students into groups of five, running lifelines and strengths exercises in week one, increased course completion from near-zero to 20,000 completions — a $480,000 revenue uplift.
+
+### Rock 3: Interdependent Goals
+
+**The virtual team fails when goals are cascaded, not co-created.** "Hiding behind a virtual corner" — deliberately not responding — happens when goals feel irrelevant.
+
+**SMART goals framework for virtual teams:**
+- **Specific** — answer What, Who, Why, Why not?
+- **Measurable** — define symbols of success; what does victory look like?
+- **Agreed** — not delegated; team members choose their goal from their strengths
+- **Realistic** — feasible given constraints
+- **Time-bound** — milestones every two to three weeks, not just an end date
+
+**Creating interdependence:**
+- Derive three key topics (hottest issues) from the team vision
+- Build roadmaps from each topic
+- Each member's personal strategic goal comes from a roadmap
+- Because roadmaps interlock, individual performance directly affects colleagues — peer accountability replaces micromanagement
+
+**Silhouette Exercise** (identifying hottest issues):
+Draw an outline of your product/service territory. Each person writes their top three issues on sticky notes, places them on the silhouette. Vote on the top five. Those five become the backbone of the roadmap.
+
+**Naming the team:** Give the team a name and a gesture. Shared identity creates gravity. Amazon's "two-pizza team" rule — optimal team size for fast decision-making.
+
+### Rock 4: Meetings & Agenda
+
+**Meeting types and frequency:**
+
+| Format | Frequency | Purpose |
+|--------|-----------|---------|
+| Weekly update | Weekly | Personal update + individual strategic goal update — 3 min per person |
+| Extended leadership meeting | Monthly | Strategic goals status, cross-team issues, new initiatives |
+| Annual face-to-face | Yearly | Vision reset, team building, lifeline/strengths refresh |
+| Q&A sessions | Ad hoc | Debate, decision-making, product roadmap review |
+
+**Golden Hour rule:** Never schedule cross-timezone calls outside 09:00–17:00 for anyone unless there is no alternative. Rotating the sacrifice of unsociable hours is more equitable than always burdening one timezone.
+
+**Meeting agenda best practices:**
+- Start with personal updates — never skip; this is where trust compounds
+- Pre-reads circulated 48 hours before extended meetings
+- No manager monologue; structured Q&A with equal contribution time
+- One person facilitates; chair does not dominate
+- Chat function actively used alongside audio to capture questions without interrupting
+
+**Online meeting setup:**
+- Camera on — always; body language matters even at distance
+- Headset, not laptop mic; audio quality is non-negotiable
+- Background: neutral, professional, not distracting
+- Use virtual whiteboards for collaborative exercises
+- Share documents on screen, not via email during the call
+
+### Rock 5: Knowledge Management
+
+Three tool categories:
+
+| Category | Examples | Best for |
+|----------|---------|---------|
+| Static content | SharePoint, Confluence, Google Drive | Policies, documented expertise, process guides |
+| Dynamic tools | Slack, Teams channels, Dropbox | Ongoing collaboration, quick sharing |
+| Community tools | Yammer, internal forums | Cross-team knowledge exchange, regional hubs |
+
+**Defining knowledge champions:**
+- Every specialist becomes the champion for their domain
+- All deliverables in that domain pass through the champion for review before distribution
+- Champion's name is visible in the Strengths Matrix alongside their topic
+
+**Language barriers in multilingual teams:**
+- Slow down when speaking; do not try to speak faster to prove fluency
+- Use the chat function as a parallel channel — allows non-native speakers to follow in writing
+- After a spoken contribution, summarise it in three bullet points in chat
+- Never mock accents; accents are not intelligence indicators
+- Use visuals: diagrams, pictures, screenshots always reduce ambiguity
+
+**Urgent vs. non-urgent communication protocol:**
+- Urgent (time-sensitive, safety, client-critical): phone/voice message
+- Semi-urgent (same-day response needed): Slack/Teams direct message
+- Non-urgent (can wait 24 hours): email
+- Reference/process: always document in the static knowledge store, never only in chat
+
+### Rock 6: Regular Feedback
+
+**The failure mode:** feedback only flows downward or only happens at annual review. In virtual teams the absence of feedback is amplified — silence feels like abandonment.
+
+**Three types of feedback:**
+
+| Type | Format | Frequency |
+|------|--------|-----------|
+| Performance feedback | 1-to-1, structured | Quarterly minimum |
+| Team feedback | Group session, structured | After key milestones |
+| Developmental feedback | Coaching conversation | Ongoing |
+
+**The "Start–Stop–Continue Doing" model:**
+A non-threatening three-question framework:
+- What should we START doing that we're not doing?
+- What should we STOP doing?
+- What should we CONTINUE doing?
+
+Collect individual answers first (written, anonymously if needed), then discuss as a group. The manager contributes equally — not as evaluator, but as peer.
+
+**Generous listening:**
+When giving feedback, respond first with "Yes, and…" not "But…". This keeps the feedback loop open and avoids defensiveness. Open questions ("What did you find most difficult?") generate more useful data than closed ones.
+
+**Possibilities focus:**
+Frame feedback around what could be improved (the future) not what went wrong (the past). "If you had the chance to do this again, what would you change?" gets better answers than "Why did this go wrong?"
+
+### Rock 7: Recognition
+
+**The recognition equation:**
+Number one reason people leave a job = lack of recognition from direct superior. In virtual teams, invisibility amplifies this — out of sight becomes out of mind.
+
+**What to recognise (in order of impact):**
+1. Tangible results — celebrate when goals are hit
+2. Sub-milestones — do not wait for the final delivery
+3. Positive behaviour — effort, collaboration, sharing knowledge
+4. Personal milestones — birthdays, life events, personal achievements
+
+**Implementation ideas for remote teams:**
+- Personal update at the start of every meeting — normalises being seen as a whole person
+- "Product of the week" — one person shares something they built, learned, or solved
+- Team chat as a praise channel — thank-you messages visible to the whole team
+- Peer-to-peer recognition — does not all need to come from the manager
+- Photos posted to the team channel — showing your life, workspace, environment
+- Never praise in private what deserves public credit
+
+**Prize mechanics for outstanding performance:**
+- Set the prize at the start, not the end — it must be known in advance to motivate
+- The prize should be generous; budget appropriately (1–2% of project budget is a reference point)
+- Tangible tokens (travel, experiences, vouchers) beat cash — they create stories
+- Use a progress chart visible to the whole team — transparency drives competition
+- Announce the winner in a meeting, not by email; create a moment
+
+### Rock 8: Diversity & Optimal Culture
+
+Ivanov's three cultural scales — every team must consciously choose where it sits:
+
+**Scale 1: Leadership**
+
+| Hierarchical | ← continuum → | Egalitarian |
+|---|---|---|
+| Boss decides; team executes | | All voices equal; leader facilitates |
+| Efficient when speed matters | | Better creativity and buy-in |
+
+Virtual teams default toward egalitarian because micromanagement is impossible at distance. Make this explicit.
+
+**Scale 2: Decision-making**
+
+| Top-down | ← continuum → | Consensus |
+|---|---|---|
+| Fast; can feel imposed | | Slower; high ownership |
+| Use for reversible, time-critical decisions | | Use for strategy, culture, vision |
+
+**Scale 3: Conflict**
+
+| Confrontational | ← continuum → | Non-confrontational |
+|---|---|---|
+| Direct debate valued | | Harmony prioritised; disagreement is indirect |
+| Common: German, Dutch, US direct | | Common: Asian, many Middle Eastern contexts |
+
+Never assume the team's conflict style. Name it explicitly in onboarding.
+
+**The optimal culture definition exercise:**
+- Place three physical (or virtual) scales on a wall
+- Each team member marks their preference anonymously
+- Discuss the distribution; agree on team norms
+- Write the norms into a team charter; revisit at every new member onboarding
+
+**Cultural triggers to know:**
+- Chinese and Japanese teams may not disagree publicly — use anonymous voting in meetings
+- French and Southern European teams may debate vigorously — do not mistake passion for conflict
+- Asian teams often prefer written pre-reads over live debate — send the agenda and documents 48 hours ahead
+
+### Rock 9: Winning Spirit
+
+**The formula for winning spirit:**
+- Clear, measurable goal visible to everyone
+- A named prize known at the start
+- Regular scoreboard showing progress
+- A celebration that acknowledges the full team, not just the winner
+
+**Virtual hackathon** as a winning spirit tool:
+- 24–48 hour sprint with a specific challenge
+- Cross-functional teams formed across the usual org structure
+- Public judging; winners presented in a company-wide meeting
+- Works for product teams, NGOs, corporate teams equally
+
+**Champion of the Month:**
+- Named by peer vote, not management
+- Announced in the weekly meeting
+- Cumulative score posted on a shared board
+- No cash; experiences or recognition tokens only
+
+### Rock 10: Next-Generation Leaders
+
+- Strategic goals should be owned at the working level, not just leadership
+- Visibility: remote workers must be given opportunities to present to senior stakeholders directly — career progression depends on being seen
+- Development plans: every team member should have a written plan updated quarterly
+- Succession: every leadership role should have an identified internal successor being developed
+
+**Power community model (Ivanov's extended framework):**
+Beyond the team, build a community: a nucleus (the core team) surrounded by atoms (extended stakeholders, volunteers, allies). The nucleus drives; atoms amplify. This scales across NGOs, corporates, and startups equally.
+
+**Five principles for the closing summary:**
+1. Promote personality — lifeline first, expert second
+2. Empowerment — choose, don't delegate
+3. Interdependent goals — peer accountability replaces management
+4. Structured communications — everyone contributes, no one dominates
+5. Winning spirit — an appealing prize bridges the distance
+
+### Quick Checklist — Before Leading a Virtual Team
+
+- [ ] Has every member done the lifeline exercise and shared it?
+- [ ] Is there a visible Strengths Matrix with roles aligned to strengths?
+- [ ] Does each member have a personal strategic goal derived from a team roadmap?
+- [ ] Is there a weekly structured update meeting with a personal update component?
+- [ ] Are knowledge champions defined for each key domain?
+- [ ] Is the feedback cycle institutionalised (not just at annual review)?
+- [ ] Is recognition happening publicly, frequently, and for effort not just results?
+- [ ] Has the team named its cultural norms on the three scales?
+- [ ] Is there a visible prize for outstanding performance this quarter?
+- [ ] Are next-generation leaders being given visibility to senior stakeholders?
+
+---
+
+## Section 28 · Power BI — Business Intelligence & Dashboards
+
+*Source: Power BI Demystified — Elijah Falode*
+
+### What Power BI Is
+
+Power BI is a Microsoft business intelligence suite: a collection of services, apps, and connectors that pull data from disparate sources, transform it, and present it as interactive dashboards and reports. It replaces complex spreadsheets for non-technical users.
+
+Primary functions:
+- Extract data from 70+ source types (cloud, on-premise, Excel, SQL, CSV, social media, APIs)
+- Transform and model that data
+- Visualise as charts, maps, gauges, KPIs
+- Share across an organisation with role-level security
+
+### Power BI Versions
+
+| Version | Deployment | Best for | Cost |
+|---------|-----------|---------|------|
+| Power BI Desktop | Local Windows app | Report creation, modelling | Free |
+| Power BI Service (Pro) | Cloud SaaS | Sharing, collaboration, online editing | Paid per user |
+| Power BI Premium | Cloud, capacity-based | Large orgs; many consumers; embedded | Paid per capacity |
+| Power BI Report Server | On-premise | Orgs that cannot use cloud | Separate licence |
+| Power BI Mobile | iOS, Android, Windows | Consuming reports on devices | Free (needs service) |
+| Power BI Embedded | API/developer | Embedding reports in third-party apps | Consumption-based |
+
+**Choosing between versions:**
+- Small team building reports internally: Desktop + Pro (pay per report author)
+- Large org with 500+ consumers but few creators: Premium (capacity pricing is cheaper at scale)
+- Cannot move to cloud: Report Server
+- Data must stay on-premise and be refreshed on schedule: Report Server + Gateway
+
+### Power BI Components
+
+**Power Query** — the data transformation engine:
+- Extract-Transform-Load (ETL) pipeline with graphical no-code interface
+- Connects to SQL, MySQL, Oracle, Excel, CSV, text files, PDF, Azure, social media
+- Every transformation step is recorded as reusable M code
+- Results can be refreshed on a schedule (up to 8x/day on Desktop, unlimited on Premium)
+
+**Power Pivot** — the in-memory analytical database:
+- Processes datasets up to 2GB on disk; 4GB in memory
+- Stores a compressed columnar database inside the Excel/Power BI file
+- Uses DAX (Data Analysis Expressions) for calculated measures and columns
+- Relationships between tables defined in Diagram View (drag-and-drop)
+
+**Power View** — interactive visualisation layer:
+- Charts, maps, gauges, scatter plots, pie, waterfall, treemap, funnel, ribbon
+- Slicers dissect data; visuals cross-filter each other when clicked
+- Q&A natural language box — type "sales by region last month" and get a chart
+
+**Power Map** — 3D geographic visualisation connected to Bing Maps
+
+**Data Management Gateway** — bridges on-premise data sources to the cloud service; enables scheduled refresh without exposing the database directly
+
+**DAX (Data Analysis Expressions):**
+- ~200 predefined functions for analytics
+- Syntax mirrors Excel functions but operates on tables, not cells
+- Key functions: `SUM`, `CALCULATE`, `FILTER`, `ALL`, `RELATED`, `DISTINCTCOUNT`, `RANKX`
+- `CALCULATE` modifies filter context: `CALCULATE([Sales], FILTER(Table, Table[Year]="2024"))`
+- `ALL` removes all slicer/filter context: `ALL:= CALCULATE([Sales], ALL(Table[Category]))` — useful for "% of total" calculations
+
+### Getting Started with Power BI Service
+
+**Step-by-step workflow:**
+1. Sign in to Power BI at powerbi.microsoft.com
+2. Click "My Workspace" → New → Upload file (Excel, CSV, Power BI `.pbix`)
+3. Dataset appears in workspace; click "Create Report"
+4. Report editor opens in editing view (owners) or reading view (consumers)
+5. Drag fields from the Fields pane onto the canvas
+6. Pin visualisations to a Dashboard via the pin icon
+7. Save the report; give the dashboard a name
+8. Share with colleagues via workspace or "Share" button
+
+**Q&A exploration:**
+Click "Ask a question about your data" on the dashboard. The AI engine interprets natural language queries and returns a visualisation. Works best when field names are descriptive.
+
+**Repositioning tiles:**
+Drag and resize tiles on the dashboard canvas. Rename tiles via "More options → Edit details". Arrange by functional area, not by creation order.
+
+### Getting Started with Power BI Desktop
+
+**Install:** Download free from Microsoft; also available via the Power BI service's download menu.
+
+**Three views in Desktop:**
+
+| View | Purpose |
+|------|---------|
+| Report | Create and arrange visuals on pages |
+| Data | Inspect and transform table contents |
+| Model | Define relationships between tables (Diagram View) |
+
+**Core workflow:**
+1. Home ribbon → Get Data → select source (Excel, SQL, Web, etc.)
+2. Power Query Editor opens — apply transformations (filter, rename, merge, append)
+3. Close & Apply — data loads into the model
+4. Switch to Report view — drag fields onto canvas to create visuals
+5. Save as `.pbix` file
+6. Home ribbon → Publish — uploads to Power BI Service workspace
+
+**Report canvas components:**
+- Ribbon: common tasks — get data, visuals, publish
+- Canvas (centre): where visuals are placed
+- Pages tab (bottom): multiple report pages per file
+- Filters pane: drill into specific values
+- Fields pane: all tables and columns available
+- Visualisations pane: chart type selector + format options
+
+### Power BI Pro
+
+- User licence: pay-per-author
+- Allows sharing, collaboration, publishing to workspaces
+- Can distribute to colleagues who have at least a free licence (if content is in a Premium capacity) or also need Pro
+- 60-day free trial available
+- Integrates with SharePoint, PowerPoint (embed live reports), Teams
+- Row-level security (RLS): restrict rows visible to specific users based on their login
+
+### Power BI Premium
+
+- Capacity-based pricing: pay for a cloud node, not per user
+- Consumers can view content without a Pro licence (cost advantage above ~500 users)
+- Greater refresh frequency (not limited to 8/day)
+- Larger datasets allowed
+- Advanced features: DAX Studio, XMLA endpoint, AI insights, paginated reports
+- Combine with on-premise Report Server for hybrid environments
+
+### Power BI Report Server
+
+- On-premise deployment: runs inside the organisation's data centre
+- Reports created in Power BI Desktop (Report Server version) and uploaded
+- Limitations:
+  - No real-time streaming datasets
+  - No Power BI service cloud features (Q&A AI, auto-insights)
+  - Requires server infrastructure and IT management
+  - Must use matching version of Desktop (not the standard free Desktop)
+
+### Visualisation Types and When to Use Them
+
+| Chart | Best for |
+|-------|---------|
+| Clustered bar/column | Comparing categories at a point in time |
+| Stacked bar/column | Part-to-whole comparison across categories |
+| Line chart | Trends over time |
+| Area chart | Trend + magnitude over time |
+| Scatter chart | Correlation between two measures |
+| Map / Filled map | Geographic distribution |
+| Treemap | Hierarchical part-to-whole |
+| Waterfall | Sequential contribution to a total |
+| Funnel | Stage-by-stage conversion |
+| Gauge | KPI vs. target |
+| Card | Single metric callout |
+| Table / Matrix | Detailed data with drill-down |
+
+**Custom visuals:** Downloadable from AppSource (marketplace). Import via "Get More Visuals" in the Visualisations pane. Examples: Word Cloud, Timeline Slicer, Gantt Chart, Bullet Chart.
+
+### Security and Governance
+
+- **Row-Level Security (RLS):** define DAX filter rules per role; users only see rows matching their profile
+- **Sensitivity labels:** classify reports as Confidential, Public, etc. (requires Azure Information Protection)
+- **Workspaces:** control access with Admin, Member, Contributor, Viewer roles
+- **Sharing:** direct share sends a link; workspace membership is preferred for ongoing access
+- **Data Gateway:** never expose database credentials in the report; use gateway to manage credentials server-side
+
+### Quick Checklist — Before Publishing a Power BI Report
+
+- [ ] Is the data model relational (star schema preferred — fact tables linked to dimension tables)?
+- [ ] Are measures written in DAX rather than calculated columns where possible (better performance)?
+- [ ] Is row-level security configured if the report contains sensitive data?
+- [ ] Are all date columns linked to a proper date dimension table?
+- [ ] Has the report been tested on mobile view?
+- [ ] Are field names human-readable (not raw database column names)?
+- [ ] Is there a scheduled refresh configured so data stays current?
+- [ ] Has the report been published to a workspace, not just "My Workspace"?
+
+---
+
+## Section 29 · Data Analytics with Excel & Power BI
+
+*Source: Data Analytics with MS Excel & Power BI — Punit Prabhu*
+
+### The Analytics Stack
+
+Excel and Power BI together cover the full analytics pipeline:
+
+```
+Raw data (CSV, DB, web, folder)
+    ↓  Power Query  — ETL, cleaning, merging
+    ↓  Power Pivot  — data modelling, DAX measures
+    ↓  PivotTables / Power BI visuals — aggregation, drill-down
+    ↓  Charts / Dashboard — interactive presentation
+```
+
+Excel handles the modelling and analysis workbench; Power BI handles shareable interactive dashboards.
+
+### Excel Interface Essentials
+
+**Five screen areas to know:**
+1. **Quick Access Toolbar** — customise with Save, Undo, Redo, and any frequently used command
+2. **Ribbon** — tabbed menus: Home, Insert, Formulas, Page Layout, Data, Review, View, Developer
+3. **Formula Bar** — shows the content/formula of the active cell
+4. **Spreadsheet Grid** — rows × columns; navigate sheets with Ctrl+PageUp / Ctrl+PageDown
+5. **Status Bar** — shows calculation state; right-click to add Count, Sum, Average, Min, Max to the status display
+
+**Excel Options tabs to know:**
+- **Formulas** — calculation mode (automatic vs. manual), error checking rules
+- **Save** — AutoRecover interval, default format
+- **Advanced** — R1C1 reference style, number of undo levels, Large Address Aware
+- **Trust Center** — macro security settings; enable macros only from trusted locations
+
+### Key Formulas Reference
+
+**Financial:**
+```
+NPV(rate, value1, value2…)           Net present value at discount rate
+XNPV(rate, values, dates)            NPV with specific payment dates
+IRR(values, [guess])                 Internal rate of return
+XIRR(values, dates, [guess])         IRR with specific dates
+SLN(cost, salvage, life)             Straight-line depreciation
+```
+
+**Logical:**
+```
+IF(test, value_if_true, value_if_false)
+IFERROR(value, value_if_error)       Trap any error
+IFNA(value, value_if_na)             Trap only #N/A
+AND(logical1, logical2…)
+OR(logical1, logical2…)
+XOR(logical1, logical2…)             TRUE when odd number of conditions are true
+```
+
+**Text:**
+```
+LEFT(text, n)    RIGHT(text, n)    MID(text, start, n)
+LEN(text)        TRIM(text)        PROPER(text) / UPPER / LOWER
+SUBSTITUTE(text, old, new, [instance])
+CONCATENATE(text1, text2…)   or use  =A1&" "&B1
+```
+
+**Date & Time:**
+```
+TODAY()   NOW()   YEAR(date)   MONTH(date)   HOUR   MINUTE   SECOND
+NETWORKDAYS(start, end, [holidays])   — business days between two dates
+EOMONTH(start, months)               — last day of month N months from start
+```
+
+**Lookup & Reference:**
+```
+VLOOKUP(lookup_val, table, col_index, [FALSE])   — exact match: always FALSE
+HLOOKUP(lookup_val, table, row_index, [FALSE])
+INDEX(array, row, col)                           — return value at intersection
+MATCH(lookup_val, range, 0)                      — return position; 0 = exact
+INDEX+MATCH preferred over VLOOKUP: not limited to first column; faster on large tables
+OFFSET(ref, rows, cols, [height], [width])       — dynamic range reference
+INDIRECT(ref_as_text)                            — resolve a reference from text
+```
+
+**Statistical & Math:**
+```
+SUM / AVERAGE / COUNT / COUNTA / COUNTBLANK / ISBLANK
+MAX / MIN / LARGE(range, n) / SMALL(range, n)
+SUMIF(range, criteria, sum_range)
+COUNTIF(range, criteria)
+SUMPRODUCT(array1, array2)     — dot product; very fast for conditional sums
+ROUND(n, digits) / ROUNDUP / ROUNDDOWN
+PRODUCT(number1, number2…)
+```
+
+### PivotTables
+
+**Creating a PivotTable:**
+1. Click anywhere in data → Insert → PivotTable → New Worksheet → OK
+2. Fields pane appears: drag fields to Rows, Columns, Values, Filters
+3. Values area defaults to SUM for numbers, COUNT for text
+4. Right-click any value → Value Field Settings → change to Average, Count, Max, % of Grand Total, etc.
+
+**Key PivotTable operations:**
+
+| Technique | How |
+|-----------|-----|
+| Sort within pivot | Right-click a value cell → Sort → Largest to Smallest |
+| % of Grand Total | Value Field Settings → Show Values As → % of Grand Total |
+| % of Parent Row Total | Drag Category to Rows above sub-category; Show Values As → % of Parent Row Total |
+| Calculated field | Analyze tab → Fields, Items & Sets → Calculated Field; write formula using field names |
+| Two-dimensional pivot | Place fields in both Rows and Columns; drill down using +/- icons |
+| Show report filter pages | Design tab → Report Layout → Show Report Filter Pages → creates one sheet per filter value |
+| Defer layout update | Check "Defer Layout Update" for large datasets that take time to recalculate |
+
+**Slicers:**
+- Insert → Slicer → select fields → click to filter
+- Right-click slicer → Report Connections → connect multiple PivotTables from the same data source
+- Design tab → Slicer Settings: control sort order, hide items with no data
+- Ctrl+click or Multi-Select button for multiple values
+- Clear filter button (X icon) removes all slicer selections
+
+### Power Query
+
+**What it does:** Graphical ETL pipeline. Every transformation is recorded as M code; the query can be refreshed at any time to pull updated data.
+
+**Starting Power Query:**
+- Excel 2016+: Data tab → Get Data → From Table/Range (for in-sheet data) or From File / From Other Sources
+- Power Query Editor opens; left pane shows all queries in the workbook
+
+**Critical transformations:**
+
+| Task | Location in Editor |
+|------|-------------------|
+| Remove top N rows | Home → Remove Rows → Remove Top Rows |
+| Promote first row as headers | Home → Use First Row as Headers |
+| Change column data type | Click type icon (top-left of column) or Home → Data Type |
+| Split column by delimiter | Right-click column → Split Column → By Delimiter |
+| Merge two queries (JOIN) | Home → Merge Queries; pick join key columns and join type (Left Outer most common) |
+| Append queries (UNION) | Home → Append Queries → select queries to stack |
+| Group By (aggregate) | Home → Group By; Advanced mode for multiple aggregations |
+| Pivot column | Select column → Transform → Pivot Column; choose Values column |
+| Unpivot columns | Select columns to keep → Right-click → Unpivot Other Columns |
+| Replace values | Right-click column → Replace Values |
+| Fill down (populate nulls) | Right-click column → Fill → Down |
+| Rename column | Double-click column header |
+| Remove duplicates | Select columns → Home → Remove Rows → Remove Duplicates |
+| Custom column (formula) | Add Column → Custom Column; write M expression |
+| Column from examples | Add Column → Column from Examples → From Selection; type example value, Excel infers pattern |
+
+**Reference query vs. duplicate:**
+- **Reference:** downstream query; depends on the upstream query's steps; changes to the upstream propagate
+- **Duplicate:** independent copy; changes do not propagate
+
+**Importing from a folder:**
+- Data → Get Data → From File → From Folder → browse to folder
+- All files in the folder are combined; new files dropped in the folder appear on next refresh
+- Useful for monthly data files (Jan.xlsx, Feb.xlsx…) that accumulate over time
+
+**Organising queries:** Right-click a query → Move to Group → New Group. Create groups for Raw Data, Masters, Analysis to keep the workbook queries pane navigable.
+
+### Power Pivot & Data Models
+
+**Enabling Power Pivot:** Developer tab → COM Add-ins → tick Microsoft Power Pivot for Excel → OK. A Power Pivot tab appears in the ribbon.
+
+**Key concepts:**
+- **Data Model:** a set of tables with defined relationships, stored in a compressed columnar engine inside the workbook; handles 100M+ rows
+- **Relationships:** defined in Diagram View by dragging from a column in one table to a matching column in another
+- **Measures (DAX):** calculated aggregations stored in the model, not in cells; reusable across any PivotTable
+- **Hierarchies:** groupings of columns (e.g., Year → Quarter → Month → Date) that allow drill-down in PivotCharts
+
+**DAX measure patterns:**
+```
+Sale:=SUM(SalesCYPYData[Taxable Value])
+Profit Value:=[Sale]-[Costs]-[OHCost]-[Tax Value]-[Commission Value]
+Profit Ratio:=[Profit Value]/[Sale]
+
+-- CALCULATE modifies filter context
+Stationery:=CALCULATE([Sale], FILTER(SalesCYPYData, SalesCYPYData[Category]="Stationery"))
+
+-- ALL removes slicer/filter effects for % of total calculations
+All:=CALCULATE([Sale], ALL(SalesCYPYData[Category]))
+```
+
+**Relationship rules:**
+- One-to-many: the "one" side is usually the dimension table (Category, Date, SalesPerson)
+- The "many" side is the fact table (Sales, Transactions)
+- Star schema: one fact table connected to multiple dimension tables — the correct pattern
+- A date dimension table is essential for time intelligence functions (YTD, same period last year)
+
+**Creating a hierarchy:**
+1. Power Pivot → Diagram View
+2. Ctrl-click columns (e.g., Total, Year, Month, Week, BillDate)
+3. Right-click → Create Hierarchy
+4. Name the hierarchy; it appears as a single draggable item in PivotTable Fields
+
+### Charts & Dashboards in Excel
+
+**Chart creation workflow:**
+1. Build a PivotTable with required aggregations
+2. Click inside the PivotTable → Insert → select chart type
+3. Alt+F1 inserts a default chart in-place; or choose from the Charts group
+4. Right-click chart → Save as Template — reuse formatting across all charts in the workbook
+5. Design tab → Change Chart Type → Template to apply a saved template
+
+**Chart best practices:**
+- Remove gridlines, legends, icons that are not load-bearing — every element must earn its place
+- Give every chart a descriptive title (not "Chart 1")
+- Use consistent colour palette across all charts in a dashboard
+- Drill-down in PivotCharts: double-click a bar to drill into the hierarchy; Analyze tab → Drill Up to return
+
+**Interactive dashboard components:**
+- Multiple PivotTables from the same data source
+- Slicers connected to all PivotTables via Report Connections
+- Year, Month, Category, Place, SalesPerson slicers give full cross-filter control
+- Timeline Slicer (Insert → Slicer → date field) provides date range selection with a visual slider
+
+**Automating the dashboard with VBA macros:**
+- Developer tab → Record Macro → perform actions → Stop Recording
+- The Macro Recorder writes VBA code; view and edit in the VBA editor (Alt+F11)
+- Assign macros to shapes on the worksheet: right-click shape → Assign Macro
+- Common macros: `RefreshAll` (Data refresh), `HideRibbon` (presentation mode), `HideSheets` (clean view)
+- Files with macros must be saved as `.xlsm` (Macro-Enabled Workbook)
+
+**Adding a `MsgBox` confirmation:**
+After `Application.CalculateFull` or `ActiveWorkbook.RefreshAll`, add `MsgBox "Data Refreshed"` to confirm completion to the user.
+
+### Power BI Desktop Workflow (Practical)
+
+**Import and transform:**
+1. Home → Get Data → Excel → select file and sheet
+2. Data loads into Power Query; apply transformations
+3. Close & Apply; data enters the model
+
+**Creating visuals:**
+- Click Report icon (left sidebar) → click visual type in Visualisations pane → drag fields
+- Map visual: Place field → Location; Taxable Value → Legend
+- Donut chart: Category → Legend; Taxable Value → Values
+- Visuals cross-filter each other automatically — clicking one filters the others
+- Q&A visual: add to a page; type plain-English questions for AI-generated charts
+
+**Dashboard formatting:**
+- Click visual → Format icon (paint roller) → Title: change text, colour, alignment
+- Background: set fill colour in Format pane → Background
+- Border and Shadow: toggle on for visual separation
+- Focus Mode: click "…" on a visual → Focus mode (enlarged single view)
+- "Show as Table": click "…" → Show as Table for a combined chart+data view
+
+**Publishing and mobile:**
+- Home → Publish → select workspace
+- Mobile view: select visuals from visualisation pane to include in phone layout
+- Consumers with Microsoft IDs can view via Power BI Mobile app
+
+### Quick Checklist — Before Sharing an Excel/Power BI Analytics Report
+
+- [ ] Is the base data stored in a named Table (not a raw range) so Power Query can reference it by name?
+- [ ] Are all Power Query queries organised in named groups?
+- [ ] Are exception reports built to catch missing master data (e.g., sales persons not in the commission master)?
+- [ ] Are DAX measures used for calculated ratios rather than calculated columns?
+- [ ] Is the date dimension table connected to all fact tables?
+- [ ] Are slicers connected to all relevant PivotTables via Report Connections?
+- [ ] Is the workbook saved as `.xlsm` if it contains macros?
+- [ ] Is there a "Refresh All" macro / button visible to the end user?
+- [ ] Have the chart templates been saved and applied consistently?
+- [ ] Does the Power BI report publish to a shared workspace (not "My Workspace")?
+
+---
+
+## Section 30 · PowerPoint — Presentation Design & Delivery
+
+*Source: Introduction to PowerPoint — MBA Coursework Series (Hicham & Mohamed Ibnalkadi)*
+
+### Core Keyboard Shortcuts
+
+**Editing shortcuts:**
+
+| Action | Shortcut |
+|--------|---------|
+| New slide | Ctrl+Shift+M |
+| Duplicate current slide | Ctrl+Shift+D |
+| Select all text in a box | Ctrl+A |
+| Centre text | Ctrl+E |
+| Right-align text | Ctrl+R |
+| Left-align text | Ctrl+L |
+| Make text smaller | Ctrl+Shift+< |
+| Make text larger | Ctrl+Shift+> |
+| Copy formatting | Ctrl+Shift+C |
+| Paste formatting | Ctrl+Shift+V |
+| Copy & paste shape | Ctrl+Shift+Drag |
+| Duplicate shape (multi-step) | Ctrl+D |
+| Group items | Ctrl+G |
+| Ungroup items | Ctrl+Shift+G |
+| Start presentation from slide 1 | F5 |
+| Start presentation from current slide | Shift+F5 |
+| Jump to slide N in presentation mode | N + Enter |
+
+**Ribbon hotkeys (press Alt, then the letter):**
+
+| Ribbon tab | Key |
+|-----------|-----|
+| File | Alt+F |
+| Home | Alt+H |
+| Insert | Alt+N |
+| Design | Alt+G |
+| Transitions | Alt+K |
+| Animations | Alt+A |
+| Slideshow | Alt+S |
+| Review | Alt+R |
+| View | Alt+V |
+
+### Zoom Feature (Office 365)
+
+PowerPoint Zoom creates interactive, non-linear navigation within a presentation — like hyperlinks between slides with animated transitions.
+
+**Three Zoom types:**
+
+| Type | When to use | How to create |
+|------|------------|---------------|
+| Summary Zoom | Landing page showing all sections; jump to any section | Insert → Zoom → Summary Zoom; select slides that start each section |
+| Section Zoom | Jump to a specific section; return to origin slide | Insert → Zoom → Section Zoom; select section |
+| Slide Zoom | Jump to any individual slide non-linearly | Insert → Zoom → Slide Zoom; select slides |
+
+**Summary Zoom behaviour:**
+- Creates a grouped set of slide thumbnails with built-in navigation
+- Each selected slide becomes the start of a new section automatically
+- Navigate back to the summary slide between sections by clicking outside the zoomed area
+
+**Zooming in during a live presentation:**
+1. In Slide Show view, click the magnifying glass icon (lower-left corner)
+2. A bright rectangle appears; click the area to zoom
+3. Mouse becomes a hand — drag to pan around the zoomed view
+4. Press Esc or click the magnifying glass again to zoom back out
+
+### Morph Transition
+
+Morph creates seamless object animation between two slides without complex animation sequences.
+
+**Use cases:**
+- Animate text (word movement, anagram effects)
+- Grow, shrink, or move shapes across slides
+- Colour changes, size changes, rotation effects
+- Morph shapes into other shapes
+- Works on: shapes, pictures, icons, SmartArt, WordArt, tables, charts
+
+**Steps to apply Morph:**
+1. Create the base slide with all objects in starting positions
+2. Duplicate the slide (right-click slide thumbnail → Duplicate Slide)
+3. On the duplicate, move/resize/recolour objects to their final state
+4. Select the duplicate slide → Transitions tab → Morph
+5. Click Preview to verify the effect
+
+**No complex animation timeline required.** Morph infers the path between start and end states automatically.
+
+### Designer Feature (Microsoft 365)
+
+PowerPoint Designer automatically generates professional layout suggestions when content is added to a slide.
+
+**Activating Designer:**
+- Design tab → Design Ideas (far right of ribbon)
+- First use may prompt permission; select "Turn On"
+- Design Ideas pane appears on the right with layout thumbnails
+
+**How it works:**
+- Type text + add an image → Designer detects both elements and proposes layouts where both are visible
+- Select a suggestion to apply; Ctrl+Z to undo
+
+**When Designer is most useful:**
+- Transforming a bullet-point slide into a visual layout
+- Making image-heavy slides feel designed, not just placed
+- Getting fast variation ideas without hiring a designer
+
+### Infographics
+
+PowerPoint can build full infographics without third-party tools.
+
+**Setup:**
+1. Design → Slide Size → Custom Slide Size → set custom dimensions (e.g., A3 portrait for a tall infographic)
+2. Right-click blank area → Format Background → choose fill type (solid, gradient, picture, texture, pattern)
+
+**Building infographic elements:**
+- Insert → Shapes: basic shapes as building blocks; combine with the Subtract/Merge tools in the Drawing Tools Format tab
+- Insert → SmartArt: pre-built diagrammatic structures (process, hierarchy, cycle, relationship)
+- Format tab (when shape selected) → Shape Effects, Shadow, 3D Rotation, Glow for visual depth
+
+**Icon creation (custom):**
+1. Create a shape (e.g., rectangle for calendar base)
+2. Add sub-shapes on top
+3. Use Format → Merge Shapes → Subtract to cut the second shape out of the first
+4. Add text boxes for labels
+5. Group all elements: select all → Ctrl+G
+
+### Hyperlinks
+
+Hyperlinks in PowerPoint allow non-linear navigation and link to external resources without leaving presentation mode.
+
+**Types of hyperlink destination:**
+- Existing file or web page
+- A specific slide within the current presentation
+- A new PowerPoint document
+- An email address
+
+**Creating a hyperlink:**
+1. Select text, shape, picture, or chart element
+2. Right-click → Link → Insert Link panel opens
+3. Choose destination type; for "Place in This Document" pick the target slide
+4. Click OK
+
+**Practical uses:**
+- Click a section title on a contents slide → jump to that section
+- Click a footnote number → jump to the references slide
+- Click a company logo → open the company website in a browser
+- Embed in shapes: the entire shape becomes clickable
+
+### Exporting a Presentation as Video
+
+**Method 1 — Save as video file:**
+1. File → Save to save the latest `.pptx`
+2. File → Export → Create a Video
+3. Choose video quality (Ultra HD 4K, Full HD 1080p, HD 720p, Standard 480p)
+4. Choose whether to use recorded timings and narrations, or set a fixed seconds-per-slide
+5. Click Create Video → choose filename and format (MPEG-4 or Windows Media Video)
+
+**Method 2 — Save as PowerPoint Show:**
+- File → Save As → Save as type: PowerPoint Show (`.ppsx`)
+- Opens directly in full-screen Slide Show mode when double-clicked; no edit access visible to the viewer
+
+### Broadcasting a Presentation Live
+
+**Present Online (Office Presentation Service):**
+1. Slide Show → Present Online → Office Presentation Service
+2. Optional: tick "Enable remote viewers to download the presentation"
+3. Click Connect → a URL is generated
+4. Copy Link or Send in Email to attendees
+5. Click Start Presentation when ready
+6. To end: press Esc → Present Online tab → End Online Presentation
+
+Audience members follow in their web browser without installing PowerPoint.
+
+### Presentation Best Practices (MBA Lens)
+
+**Slide design hierarchy:**
+- One idea per slide — never try to communicate two equal things at once
+- Title states the conclusion or key message, not just the topic ("Sales declined 18% in Q3" not "Q3 Sales")
+- Supporting evidence sits beneath the headline, not the other way around
+
+**Choosing between text-heavy and image-heavy:**
+- Text-heavy: regulatory submissions, technical documentation left with the audience after
+- Image-heavy: live presentations, pitches, keynotes — the speaker carries the narrative
+- Mixed: most business use cases; Designer helps balance both
+
+**Colour discipline:**
+- Limit to three brand colours + white/black/grey
+- Use brand colour sparingly for emphasis — diluted use destroys the emphasis
+- Dark background + light text: works for keynote-style; hard to print
+- Light background + dark text: works for handouts and remote screens
+
+**Animation rules:**
+- Use animation only to reveal information sequentially — not for decoration
+- Morph and Zoom are structural transitions; apply them to navigation and section changes
+- Avoid Fly In, Bounce, Spin for content that does not need theatrics
+- One animation style throughout the deck; mixing styles looks accidental
+
+**Presenter view tips:**
+- Press Alt+F5 to enter Presenter View during rehearsal (shows notes, next slide, timer)
+- Notes pane: speaker notes visible to presenter only; do not put full paragraphs — bullets with triggers
+- Timer: use the built-in timer to pace yourself; 1 slide per 2 minutes is a common guide
+
+### Quick Checklist — Before Delivering a Presentation
+
+- [ ] Does each slide have one clear headline that states the conclusion?
+- [ ] Are all fonts consistent (max two: one for headings, one for body)?
+- [ ] Are images high resolution (not pixelated at full screen)?
+- [ ] Are hyperlinks tested in Slide Show mode (not just in Edit mode)?
+- [ ] If using Zoom navigation, is the Summary Zoom slide complete and ordered?
+- [ ] Is the video export tested if the presentation is to be distributed as a file?
+- [ ] Does the exported video have narration or timed slides configured?
+- [ ] Are animations checked at full screen on the target display size?
+- [ ] Is Presenter View enabled and notes populated for each slide?
+- [ ] Is the file saved as `.ppsx` if it will be sent to viewers who should not edit it?
+
+---
+
+## Section 31 · Microsoft SharePoint 365
+
+*Source: Microsoft SharePoint 365 for Beginners & Power Users — Tech Demystified*
+
+### What SharePoint Is
+
+SharePoint is a web-based collaboration platform from Microsoft, first launched in 2001. It provides:
+- Document storage and management (versioning, check-in/check-out, metadata)
+- Intranet site creation without writing code
+- Lists and databases for structured information
+- Workflow automation
+- Search across all content
+- Integration with Office 365: Exchange, OneDrive, Teams, Outlook, Planner
+
+SharePoint is three things simultaneously:
+1. **Collaboration platform** — project management, document co-authoring, task lists
+2. **Content management system** — publishing, page layouts, metadata, search
+3. **Development platform** — extensible via apps, custom lists, REST API, SharePoint Framework
+
+### The Three SharePoint Versions
+
+| Version | Description |
+|---------|-------------|
+| SharePoint Foundation | Free, basic; included with Windows Server; limited features |
+| SharePoint Server | On-premise; advanced features; requires licencing and server infrastructure |
+| SharePoint Online (Microsoft 365) | Cloud SaaS; integrated with Office 365; recommended for new deployments |
+
+SharePoint Online is the version covered here. Accessed via office.com → SharePoint icon.
+
+### Core Architecture: Sites and Site Collections
+
+**Site Collection:** the top-level container. Contains one root site and sub-sites. Each site collection has:
+- A single root URL (e.g., `https://company.sharepoint.com/sites/HR`)
+- Its own permission boundary
+- Its own storage quota
+
+**Site:** one website within a site collection. Contains pages, libraries, lists, and web parts.
+
+**Sub-sites:** sites nested beneath a root site. Now generally discouraged in SharePoint Online — use separate site collections with hub sites instead.
+
+**Two site types:**
+
+| Feature | Team Site | Communication Site |
+|---------|-----------|-------------------|
+| Purpose | Collaborate with a defined group | Broadcast information to a wide audience |
+| Editors | Many (all team members) | Few (content owners) |
+| Audience | Small, selected group | Large, organisation-wide |
+| Auto-creates | Office 365 Group, mailbox, Planner, OneNote | Just the site |
+| Examples | Project team, HR colleagues | Travel policy, company news, sales assets |
+
+### Navigation
+
+**Quick Launch (left-side navigation):**
+- Home, Documents, Notebook, Pages, Site Contents, Recent, Recycle Bin
+- Edit via the "Edit" link at the bottom of the pane
+- Add/remove links; reorder by drag
+- To add: Settings → Library/List Settings → List Name, Description, and Navigation → "Show in site navigation: Yes"
+
+**Site Collection Navigation (top navigation bar):**
+- Links to sub-sites and key sections
+- Add via Settings → Site Information → View all site settings → Edit Links → + link
+
+### Creating Sites
+
+**Create a Team Site:**
+1. SharePoint home → Create site → Team site
+2. Enter Site name, group email, privacy (Public / Private)
+3. Next → add owners and members → Finish
+
+**Create a Communication Site:**
+1. SharePoint home → Create site → Communication site
+2. Choose design: Topic (news + events), Showcase (image gallery), or Blank
+3. Enter site name, URL, classification → Finish
+
+**Communication site web parts (by design option):**
+- **Hero:** full-width banner; up to 5 tiles; included by default; highly visual
+- **News:** article-style posts with images; supports scheduled publishing
+- **Events:** calendar-style upcoming events display
+- **Highlighted Content:** surfaces documents or pages matching a defined filter
+- **Image Gallery:** grid of photos
+
+### Permissions Model
+
+**Default groups created per site:**
+
+| Group | Default permission level |
+|-------|------------------------|
+| Owners | Full Control (all permissions; cannot be customised) |
+| Members | Edit (add, update, delete lists and items) |
+| Visitors | Read (view only) |
+
+**Permission levels (site-level):**
+
+| Level | Key capabilities |
+|-------|----------------|
+| Full Control | Everything |
+| Design | View, update, delete, add, customise pages |
+| Edit | Manage lists |
+| Contribute | Manage personal views, edit items, user info |
+| Read | View pages and list items |
+| Limited Access | Access shared resources only; cannot be edited |
+| Approve | Edit + approve pages, list items, documents |
+| View Only | View application pages only |
+
+**Managing permissions:**
+- View: Settings → Library/List Settings → Permissions for this document library
+- Add user: click group → New → Add Users → enter email → optional message → Share
+- Remove user: select user → Actions → Remove Users from Group → OK
+- Create new group: Settings → Site permissions → Advanced permissions settings → Create Group
+- Break inheritance (unique permissions per library): Library Settings → Permissions → Stop Inheriting Permissions
+
+**Best practice:** use groups, never assign permissions to individual users directly. Makes permission auditing and changes far simpler.
+
+### Document Libraries
+
+**Creating a Document Library:**
+1. +New → Document library → enter name → Create
+2. Library appears in Quick Launch navigation if "Show in site navigation" is ticked
+
+**Working with files:**
+- Upload: drag files onto the library, or click Upload
+- Edit in browser: click filename → opens in Office Online
+- Check out/in: prevents others editing simultaneously; Versioning Settings → Require Check Out: Yes
+- Share a file: click "…" on the file → Share → enter email or copy link
+
+**Adding columns to a library:**
+1. Library Settings → Columns → Create column
+2. Choose column type: Single line of text, Number, Currency, Date, Choice, Lookup, Person, Yes/No, Managed Metadata
+3. Column appears in all list views
+
+**Editing the view:**
+- Library Settings → Views → Edit View
+- Choose which columns to show; set sort order, filter criteria, grouping
+- Create additional named views for different use cases (e.g., "By Author", "Recent", "Awaiting Approval")
+
+### Versioning
+
+Versioning is off by default (saves database space); enable it for any library containing important documents.
+
+**Versioning options:**
+- **No versioning:** last save overwrites previous content; no recovery
+- **Major versions only:** 1.0, 2.0, 3.0 — each save creates a new version
+- **Major + minor (draft) versions:** 1.0, 1.1, 1.2, 2.0 — minor versions visible only to editors; major versions visible to readers after publishing
+
+**Content Approval + Check Out together = full document control:**
+- Content Approval: items in draft not visible to Visitors until Approved
+- Check Out Required: ensures only one person edits at a time; others see the checked-out indicator
+
+**Viewing and restoring versions:**
+1. Click "…" on a file → Version history
+2. List of all versions with date, author, size
+3. Click a version → View to read it; Restore to roll back
+
+### SharePoint List Apps
+
+A **list** is a structured container of rows (items) and columns (fields) — a lightweight database living inside SharePoint.
+
+**Built-in list apps:**
+
+| App | Purpose |
+|-----|---------|
+| Custom List | Generic rows + columns; starting point for most custom apps |
+| Announcements | News items with body, expiry date |
+| Contacts | Name, company, phone, email |
+| Discussion Board | Threaded conversation |
+| Calendar | Events with start/end date, location, recurrence |
+| Task List | Tasks with assignee, due date, % complete, status |
+| Survey | Multi-question forms with response aggregation |
+
+**Creating an Announcements list:**
+1. +New → App → Announcements → name it → Create
+2. Appears in Site Contents; click to open
+3. +New → fill title, body, expiry → Save
+
+**Custom app planning checklist:**
+- Define all columns needed before creating the list
+- Plan for column types carefully: Choice columns avoid free-text errors; Lookup columns link to other lists
+- Validate data entry: Library/List Settings → Validation Settings → write a formula that must evaluate to TRUE
+- Title column: always present; rename it to match your data (e.g., "Invoice Number")
+
+### Wiki Pages and Web Part Pages
+
+**Wiki Content page** (modern default):
+- Free-form editing experience similar to Word
+- Text, tables, hyperlinks, images, and Web Parts in a single editable region
+- Create: Settings → Add a Page → Blank
+- Store in Site Pages library
+- HTML versioned if versioning is enabled on the library
+
+**Web Part page** (legacy but still useful):
+- Fixed layout of Web Part zones; drag Web Parts between zones
+- Less freeform; better for dashboards with multiple lists
+- Create: Site Pages library → Files tab → New Document → Web Part Page
+
+**When to use which:**
+- Mostly rich text + images: Wiki Content page
+- Multiple lists/apps displayed together in a fixed layout: Web Part page
+- Broadly consumed company-wide site: consider a publishing site (advanced; requires Publishing feature activated)
+
+**Creating a wiki page library:**
+1. +New → App → Wiki Page Library → name it → Create
+2. Click the library → +New → Wiki Page → name → Create
+3. Edit the page → add content → Save
+4. Create wiki links: type `[[Page Name]]` — auto-creates a hyperlink to another page; creates the target page if it does not exist
+
+### SharePoint Apps: Configuration
+
+**Accessing app settings:**
+1. Navigate to library or list
+2. Library or List tab in the Ribbon → Settings section → Library/List Settings
+
+**General Settings key areas:**
+- **Versioning:** approval, major/minor versions, check-out requirement
+- **Advanced:** content types, template, open-in-browser behaviour, folders on/off, search visibility, offline availability, Quick Edit
+- **Validation:** formulas comparing columns to enforce business rules (e.g., `End Date > Start Date`)
+- **Column Default Value:** pre-populate columns with default content to reduce data entry errors
+
+**Advanced settings recommendations:**
+
+| Setting | Recommended |
+|---------|------------|
+| Folders | Disable unless unique permissions per folder are required |
+| Quick Edit | Enable for bulk metadata editing in a grid interface |
+| Open Documents in Browser | Enable (uses Office Online for browser editing) |
+| Offline Client Availability | Enable (allows Outlook sync) |
+| Require Check Out | Enable for controlled document management |
+
+### SharePoint Forms with Microsoft Forms
+
+**Create a Form in SharePoint:**
+1. +New → App → search "Microsoft Forms" → select Forms → name it → Create
+2. Opens Microsoft Forms editor in a side panel
+3. Add questions: text, choice, rating, date, ranking, Likert, Net Promoter Score, file upload
+4. Design tab: add theme, header image, background colour
+5. Share: "…" → Share → copy link or embed in a SharePoint page
+
+**Managing responses:**
+- Responses tab in Forms shows real-time response count and individual answers
+- Click "Open in Excel" to export all responses to a spreadsheet for further analysis
+- Graphical summary: View → Graphical summary (pie/bar charts per question)
+
+### Frequently Used Shortcuts
+
+**General:**
+
+| Action | Shortcut |
+|--------|---------|
+| Save | Ctrl+S |
+| Undo | Ctrl+Z |
+| Redo | Ctrl+Y |
+| Select All | Ctrl+A |
+| Copy / Cut / Paste | Ctrl+C / X / V |
+| Find on page | Ctrl+F |
+| Open new tab | Ctrl+T |
+
+**Navigation (Modern SharePoint pages):**
+| Action | Shortcut |
+|--------|---------|
+| Skip to main content | Tab (then Enter on skip link) |
+| Page sections | Tab through focusable elements |
+| Return to top | Home key (when focus is on page) |
+
+**Editing text in a modern page:**
+| Action | Shortcut |
+|--------|---------|
+| Bold / Italic / Underline | Ctrl+B / I / U |
+| Create hyperlink | Ctrl+K |
+| Remove formatting | Ctrl+Space |
+
+**Lists and libraries:**
+| Action | Shortcut |
+|--------|---------|
+| Select all items | Ctrl+A (in list view) |
+| Open item | Enter (when item is selected) |
+| New item | Alt+N (when Ribbon is active) |
+
+### Quick Checklist — Before Deploying a SharePoint Site
+
+- [ ] Is the site a Team site (collaboration) or Communication site (broadcast)? Wrong type causes friction.
+- [ ] Are the three default permission groups (Owners, Members, Visitors) configured correctly?
+- [ ] Has inheritance been broken only where unique permissions are genuinely needed?
+- [ ] Is versioning enabled on all Document Libraries that hold important files?
+- [ ] Is Content Approval configured where documents must be reviewed before publishing?
+- [ ] Are columns named clearly and validation rules set to enforce data quality?
+- [ ] Are folders disabled in libraries (use metadata + views instead)?
+- [ ] Is Quick Launch navigation tidy — only links that are regularly used?
+- [ ] Is there a named Owners group, not just a single admin, to prevent orphaned sites?
+- [ ] Has the Recycle Bin retention period been communicated to users?
+
+---
+
+*Sections 27–31 generated from: Power Teams Beyond Borders (Peter Ivanov),
+Power BI Demystified (Elijah Falode),
+Data Analytics with MS Excel & Power BI (Punit Prabhu),
+Introduction to PowerPoint — MBA Coursework Series (Hicham & Mohamed Ibnalkadi),
+Microsoft SharePoint 365 for Beginners & Power Users (Tech Demystified).*
