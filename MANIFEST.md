@@ -152,7 +152,7 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 6,293 lines · 31 sections · 46 books synthesised
+**Size:** 7,150 lines · 33 sections · 48 books synthesised
 
 ### Sections Written This Project
 
@@ -286,7 +286,7 @@ Contents:
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — all 31 sections, 46 books, 6,293 lines |
+| 10 | Reference library — all 33 sections, 48 books, 7,150 lines |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
 | 13 | Business case summary — £137M, metrics, differentiators, phase status |

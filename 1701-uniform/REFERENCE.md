@@ -6286,8 +6286,865 @@ A **list** is a structured container of rows (items) and columns (fields) — a 
 
 ---
 
-*Sections 27–31 generated from: Power Teams Beyond Borders (Peter Ivanov),
+## Section 32 · Microsoft PowerPoint 2024 — Step-by-Step Guide
+
+*Source: Microsoft PowerPoint User Guide 2024: A Step-By-Step Guide (Charles Sherer)*
+
+### The PowerPoint Interface
+
+**Core terminology:**
+- **Slide** — the individual image/screen displayed to the audience during a presentation
+- **Notes** — printed pages the speaker writes for themselves; audience cannot see them; entered in the Notes pane below the slide window
+- **Handout** — printed page given to the audience; shows slide thumbnails (1, 2, 3, 4, or 9 per page)
+- **Presentation** — the complete slide show from first to last slide; also called a "slide show"
+
+**UI regions:**
+- **Quick Access Toolbar** — persistent toolbar with Save, Undo, Redo, Start from Beginning; fully customisable
+- **The Ribbon** — tabbed command area: File, Home, Insert, Design, Transitions, Animations, Slide Show, Review, View
+- **Slide window** — central canvas showing the active slide; scroll to navigate between slides
+- **Slides pane** — left-hand thumbnail panel showing all slides; reorder by dragging
+- **Notes pane** — below the slide window; collapsed by default; toggle via View tab → Notes or status bar Notes button
+- **View buttons** — status-bar icons: Normal, Slide Sorter, Reading View, Slide Show
+- **Zoom controls** — bottom-right slider; expands or shrinks the slide canvas view
+
+### Creating a Presentation
+
+**Template types:**
+- **Blank Presentation** — skeleton starting point; create via File → New → Blank, or press Ctrl+N
+- **Office templates** — professionally designed by Microsoft artists; browsable and searchable in the New window; click a template to preview slide layouts and colour schemes before committing
+- **Personal templates** — custom templates you or your organisation created; stored in your personal Templates folder; appear under the Personal tab in the New window
+
+**Steps to start a new presentation:**
+1. File tab → New
+2. Choose template type (Blank, Office, or Personal)
+3. For Office templates: review the preview window, then click Create
+4. For Personal templates: select Personal tab → choose template → Create
+
+**Presentation design principles:**
+- Write content in Word first — focus on words before visual design
+- Choose a slide design that sets the tone for your specific audience (bright/splashy for youth; quiet/muted for formal settings)
+- Follow the **one-slide-per-minute rule**: maximum slides = total minutes available
+- Keep it simple — animation used purposefully; avoid decoration-only effects
+- Avoid over-reliance on bullet points; consider tables, charts, or diagrams instead
+- Spend the first minute introducing yourself before touching the slide controls — eye contact builds credibility
+- State your conclusion at both the beginning and the end of the presentation
+- Personalise your presentation — share your specific stake in the subject matter
+- Tell stories — stories establish a problem and then present a solution
+- Use visuals alongside words; audiences retain more from combined picture-and-word content
+- Rehearse repeatedly until you know the material backward and forward
+
+### Building and Managing Slides
+
+**Inserting a new slide:**
+1. Select the slide you want the new slide to follow (in Slides pane or Slide Sorter view)
+2. Home or Insert tab → bottom half of the New Slide button (opens layout picker)
+3. Top half of New Slide button inserts a duplicate of the selected slide's layout immediately
+
+**Quick slide-insertion methods:**
+- **Duplicate slide** — Home/Insert → New Slide drop-down → Duplicate Selected Slides; also Ctrl+D
+- **Copy and paste** — Ctrl+click slides in Slides pane → Ctrl+C → click target position → Ctrl+V
+- **Reuse slides from another presentation** — Home/Insert → New Slide → Reuse Slides; Browse to a `.pptx`; click any thumbnail to insert; right-click → Insert All to insert every slide at once
+
+**Importing slides from a Word document:**
+- Word Heading 1 → slide title; Heading 2 → first-level bullets; Heading 3 → second-level bullets; body paragraph text is ignored
+- Click View → Outline View first (gives better preview of imported structure)
+- Insert/Home → New Slide → Slides from Outline → select the Word file → Insert
+
+**Changing a slide layout after insertion:**
+- Right-click the slide (not on an object) → Layout → choose from drop-down
+- Or: Home tab → Layout button → select layout
+
+### Views
+
+| View | Purpose |
+|------|---------|
+| Normal | Day-to-day editing; slide canvas centre, thumbnail pane left, notes pane bottom |
+| Outline | Text-focused editing; words appear in outline form on the left |
+| Slide Sorter | Move, delete, reorder; all slides visible as frames; zoom slider adjusts frame size |
+| Notes Page | See speaker notes beneath a slide thumbnail; good for final edits before presenting |
+| Reading View | Full-screen single slide with navigation buttons; use for proofreading |
+| Slide Master | Global formatting control for all slides; accessed via View → Slide Master |
+| Handout Master | Control handout layout: orientation, slides per page, header/footer |
+| Notes Master | Control notes page layout globally |
+
+**Displaying/hiding the Slides and Notes panes:**
+- Notes pane: View tab → Notes button, or click the Notes button on the status bar; drag border to resize
+- Slides pane: drag the border between pane and canvas to the left to collapse; click the Frames button to restore
+
+**Selecting, moving and deleting slides:**
+- Single slide: click it
+- Multiple non-adjacent slides: Ctrl+click each
+- Multiple adjacent slides: click first, Shift+click last
+- Select all: Home → Select → Select All
+- Block of slides: drag over them in Slide Sorter (do not start drag on a slide itself)
+- Move: drag-and-drop in Slide Sorter, or cut (Ctrl+X) then paste (Ctrl+V) after the target slide
+- Delete: select → Delete key, or right-click → Delete Slide
+
+### Photo Albums
+
+Photo Album is PowerPoint's batch photo-import feature — creates a new presentation with all chosen photos distributed across slides.
+
+**Creating a photo album:**
+1. Insert tab → Photo Album button
+2. In the Photo Album dialog: click File/Disk → select one or more images (Ctrl+click for multiples) → Insert
+3. Set Picture Layout: Fit to Slide (one per slide), 1 Picture, 2 Pictures, 1/2 Picture with Title
+4. Set Frame Shape: Rounded Rectangle, Soft Edge Rectangle, etc. (not available for Fit to Slide)
+5. Captions: tick "Caption Beneath All Pictures" — PowerPoint pre-fills the filename; replace with your own text
+6. Text box slides: in the Pictures in Album list, select a position → New Text Box to insert a text-only slide between photos
+7. Adjust order: select a photo → use Up/Down arrow buttons
+8. Photo adjustments (visible in Preview box): Contrast buttons, Brightness buttons, Rotate clockwise/anticlockwise, Black and White checkbox
+9. Browse for a theme (available when a "picture" layout is selected)
+10. Click Create — PowerPoint produces the new presentation with a title slide reading "Photo Album / [your name]"
+
+**Editing an existing photo album:**
+- Insert tab → Photo Album drop-down → Edit Photo Album — reopens the dialog with all current settings intact
+
+### Customising the Presentation Look
+
+**Themes:**
+- A "bottled" slide design created by graphic artists; includes background patterns, colours, fonts, and effects
+- Design tab → Themes gallery → hover to live-preview → click to apply
+- Theme variants: slight colour/style variations of the selected theme; visible to the right of the Themes gallery
+- Import theme from another file: Design tab → Themes gallery → Browse for Themes → select a `.pptx` or `.thmx`
+- Design Ideas button (Design tab, far right): AI-generated layout suggestions; click to apply, Ctrl+Z to undo
+
+**Format Background options:**
+- Design tab → Format Background button to open the Format Background pane
+- **Solid fill** — single colour; Transparency slider "bleaches out" the colour
+- **Gradient fill** — two or more colours blending; choose type (Linear, Radial, Rectangular, Path); add Gradient Stops on the slider (each stop = a colour at a position); set position, colour, brightness and transparency per stop
+- **Picture or Texture fill** — click Insert for a web/file image; drag Transparency slider; use Offset boxes to fill the slide edge-to-edge; investigate Picture Corrections and Picture Color options to make a photo work as a background
+- **Texture** — built-in patterns simulating marble, canvas, papyrus, parchment, etc.
+- **Pattern** — geometric repeating patterns (diamonds, stripes, etc.)
+- Click Apply to All to apply to every slide; do not click Apply to All if targeting only selected slides
+
+**Modifying the background of a single slide:**
+1. Slide Sorter view → select the target slide(s)
+2. Design tab → choose a theme from Themes gallery or open Format Background pane
+3. For themes: right-click the theme → Apply to Selected Slides (do not use Apply to All)
+4. For backgrounds: make the change without clicking Apply to All
+
+**Slide Size:**
+- Design tab → Slide Size → Standard (4:3), Widescreen (16:9), or Custom Slide Size
+- All slides in a presentation must be the same size; mixing sizes is not supported
+
+### Slide Master
+
+**The master-slide hierarchy:**
+- **Slide Master** — the top slide in Slide Master view (slightly larger); changes here affect every slide in the presentation
+- **Layouts** — one per slide layout type; editing a layout changes only slides built on that layout (e.g., editing the Title layout changes all Title slides)
+- **Master styles** — placeholder text areas ("Click to edit Master Title Style", etc.); reformatting here changes fonts, sizes, colours across all slides sharing that master
+
+**Working in Slide Master view:**
+1. View tab → Slide Master
+2. Select the Slide Master (top/largest slide) for global changes, or select a specific Layout slide
+3. Edit fonts, colours, backgrounds, logos — changes propagate to all corresponding slides
+4. To insert a picture on the master: Insert tab while in Slide Master view
+5. View tab → Close Master View (or click any view button) to return
+
+**Modifying master slide layout:**
+- Resize frames: select frame → drag corner/edge handle (double-headed arrow cursor)
+- Move frames: hover over frame border until four-headed arrow appears → drag
+- Add placeholder: select the Slide Master → Slide Master tab → Master Layout → tick desired placeholders → OK
+- Delete a placeholder: select it → Delete key (removes it from that layout only)
+
+### Text
+
+**Inserting text:**
+- Click any "Click to add text" placeholder and type
+- Alternative: Outline view (View → Outline) — type directly in the text outline panel
+
+**Font controls (Home tab):**
+- Font family: Font drop-down or mini-toolbar after selecting text
+- Size: Font Size drop-down, or Increase/Decrease Font Size buttons, or Ctrl+Shift+> / Ctrl+Shift+<
+- Colour: Font Color drop-down on Home tab, or Font dialog box (click Font group launcher)
+- Text effects (Format Shape pane → Text Options tab): Fill (gradient/texture/pattern text), Outline (colour/weight of letter strokes), Effects (shadow, glow, reflection, soft edge, 3D rotation)
+
+**Text alignment:**
+- Horizontal: Align Left (Ctrl+L), Centre (Ctrl+E), Align Right (Ctrl+R), Justify (Ctrl+J)
+- Vertical within frame: Home → Align Text → Top, Middle, or Bottom
+
+**Text boxes:**
+- Create: Insert → Text Box → click and drag on slide
+- Fill with colour: Shape Format tab → Shape Fill
+- Rotate: drag rotation handle (circle above box), or Shape Format → Rotate → choose option, or Format Shape pane → Size & Properties → Rotation
+- Change text direction: Home → Text Direction → Stacked or Rotate options
+- Convert a shape to a text box: draw a shape → click on it → start typing
+
+**AutoFit — managing overflow text:**
+- In **text placeholder frames**: PowerPoint first compresses line spacing, then shrinks text; AutoFit Options button appears beside the frame when text overflows
+  - Options: AutoFit Text to Placeholder (default), Stop Fitting Text to This Placeholder, Split Text Between Two Slides, Continue on New Slide
+  - Disable globally: File → Options → Proofing → AutoCorrect Options → AutoFormat As You Type → uncheck AutoFit Title Text / AutoFit Body Text
+- In **text boxes**: right-click → Format Shape → Size & Properties → Text Box → choose: Do Not AutoFit, Resize Shape to Fit Text, Shrink Text on Overflow
+- Manual workarounds: edit text down, extend frame, decrease font size, reduce line spacing After value, reduce internal margins in Format Shape → Size & Properties → Text Box
+
+### Lists
+
+**Standard lists:**
+- Bulleted: Home → Bullets button; or right-click → Bullets → choose character
+- Numbered: Home → Numbering button; or right-click → Numbered → choose style
+- Toggle between bullets and numbers: select list → click the other button
+
+**Custom bullets (Bullets and Numbering dialog):**
+- Home → Bullets drop-down → Bullets and Numbering
+- Customize button → Symbol dialog: choose any Unicode symbol as a bullet character
+- Picture button → Insert Pictures dialog: use any small image as a bullet
+- Color button: override the bullet colour independently of text colour
+- Size %: set bullet size relative to the text size (e.g., 200 = double the text size)
+
+**Custom numbering:**
+- Home → Numbering drop-down → Bullets and Numbering → Numbered tab
+- Seven numbering styles available; change Size % and Color independently of text
+- Start at: override the starting number (useful when a list is split across slides)
+
+### Headers and Footers
+
+**Standard footer (appears on all slides):**
+1. Insert tab → Header & Footer
+2. Tick any combination: Date and Time (Fixed or Update Automatically), Slide Number, Footer (enter custom text)
+3. Tick "Don't show on Title Slide" to suppress on the first slide
+4. Click Apply to All
+
+**Custom/repositioned footer:**
+1. Set up a standard footer first (if you need slide numbers or date)
+2. View → Slide Master → select the Slide Master (top slide)
+3. Move, resize, or reformat the three footer text boxes (date, footer text, slide number)
+4. Close Master View
+
+**Removing footer from one slide:**
+1. Normal view → select the slide
+2. Insert → Header & Footer → untick the elements to remove → Apply (not Apply to All)
+
+### Tables on Slides
+
+**Four ways to insert a table:**
+- Insert tab → Table button → drag over the grid to pick columns × rows
+- Insert tab → Table → Insert Table → type row/column counts → OK
+- Insert tab → Table → Draw Table → pencil pointer; draw borders freehand; Eraser button removes lines
+- Click the Table icon in a content placeholder frame → Insert Table dialog appears
+
+**Best slide template for tables:** "Title and Content" — provides a title area and the full slide body for the table.
+
+### Transitions
+
+**Applying transitions:**
+- Select slide(s) → Transitions tab → choose from the Transition to This Slide gallery
+- Apply to All button applies the same transition to every slide in the presentation
+
+**Transition controls on the Transitions tab:**
+- **Effect Options** — direction/style variation (e.g., From Top, From Left); not available for all transitions
+- **Sound** — attach a sound to the transition; Loop Until Next Sound plays it continuously until the next slide appears
+- **Duration** — time (in seconds) for the transition effect itself; shorter = faster
+- **On Mouse Click** — advance slide on click (default)
+- **After** — auto-advance after a set time (seconds); used for self-running presentations
+
+**Removing a transition:** Transitions tab → select None in the gallery.
+
+**Notable transition types:** Fade, Push, Wipe, Split, Reveal, Cover, Morph (object-level animation between slides), Zoom.
+
+### Animations
+
+**Pre-built animation schemes:**
+1. Animations tab → select an element on the slide (selection box appears around it)
+2. Click an effect in the Animation Styles gallery
+3. Effect Options button → adjust direction/sequence
+4. For multi-paragraph text frames: Effect Options → As One Object / All at Once, or By Paragraph (each paragraph animates separately)
+5. Preview button: see the animation play back immediately
+
+**Custom animations (Animation Pane):**
+1. Animations tab → Animation Pane button
+2. Select element → Add Animation button → pick an effect (Entrance, Emphasis, Exit, Motion Path)
+3. Start: On Click, With Previous (simultaneously), After Previous (sequentially)
+4. Duration: length of the animation in seconds
+5. Delay: pause (seconds) before this animation starts after the trigger
+6. Reorder: drag items in the Animation Pane to change sequence; or use Re-Order arrows
+
+**Removing an animation:** Animations tab → select None in the Animation Styles gallery; or select the animation in the Animation Pane → Delete key.
+
+### Audio
+
+**Inserting audio:**
+- Insert → Audio → Audio on My PC → select file → Insert
+- Audio icon appears on the slide; delete it to remove the audio
+- Transition-level audio: Transitions tab → Sound drop-down → select sound (plays as slide appears)
+
+**Playback tab controls (select Audio icon first):**
+- Volume: Low, Medium, High, Mute
+- Play in Background: plays automatically across all slides until stopped; icon hidden
+- Start: Automatically or When Clicked On
+- Play Across Slides: audio persists beyond the slide it is placed on
+- Loop Until Stopped: plays the audio file on repeat
+- Hide During Show: hides the icon; requires Automatically start setting
+- Rewind After Playing: resets to beginning after playback ends
+
+**Recording voice narration for a slide:**
+1. Select the slide
+2. Insert → Audio drop-down → Record Audio → Record Sound dialog
+3. Record button to start; Stop button to pause; Play button to preview; Record again to resume
+4. Click OK when done — Audio icon appears on the slide
+5. Select icon → Playback tab → configure start trigger, volume, and loop settings
+
+**Live audio control during a presentation:**
+- Hover over the Audio icon to reveal controls (Play/Pause and volume slider)
+- Alt+P: play/pause keyboard shortcut
+- Hover over Mute/Unmute icon to reveal volume slider; drag to adjust
+
+### Video
+
+**Inserting video:**
+- Insert → Video → This Device: file from local computer; opens Insert Video dialog
+- Insert → Video → Stock Videos: search Microsoft's media library
+- Insert → Video → Online Video: paste a YouTube or other URL
+
+**Playback tab controls (select video first):**
+- Start: Automatically or When Clicked On
+- Play Full Screen: video expands to fill the screen during playback
+- Hide While Not Playing: hides the video frame when not playing; requires Automatic start
+- Loop Until Stopped: repeats playback
+- Rewind After Playing: resets to frame 1 after playback ends
+- Volume: Low, Medium, High, Mute
+- Trim Video: drag green slider (start) and red slider (end) to cut unwanted portions from either end
+- Fade In / Fade Out: enter time values for smooth entrance/exit
+- Bookmarks: play video to target position → stop → Add Bookmark; click bookmark circle to jump to that point during playback; select bookmark → Remove Bookmark to delete
+
+**Format tab controls:**
+- Corrections: adjust brightness and contrast
+- Color / Recolor: apply colour filters or convert to greyscale/black-and-white
+- Video Styles: pre-built frame and border effects
+
+### Delivering a Presentation
+
+**Speaker notes:**
+- Enter in the Notes pane (Normal view); toggle with View → Notes or status bar Notes button
+- Edit in full: View → Notes Page; notes appear in a text frame below a slide thumbnail; zoom in to read
+- Print: File → Print → Settings → second drop-down → Notes Pages → Print
+
+**Rehearsal Coach:**
+1. Slide Show tab → Rehearse with Coach
+2. Click Start Rehearsing; deliver as if to a live audience
+3. Coach provides real-time feedback (pacing, filler words, repetition)
+4. Rehearsal report shows where improvement is needed
+
+**Rehearse Timings:**
+1. Slide Show tab → Rehearse Timings
+2. Recording toolbar appears; click Next to advance each slide at your rehearsal pace
+3. Pause Recording / Resume Recording buttons manage interruptions
+4. Repeat button to restart the current slide's timing
+5. At the end: dialog asks whether to save timings; click Yes to store per-slide durations
+6. Slide Sorter view then shows each slide's recorded duration
+
+**Starting and ending a presentation:**
+- From beginning: F5, or Quick Access Toolbar → Start from Beginning, or Slide Show tab → From Beginning
+- From current slide: Shift+F5, or click Slide Show button on the status bar
+- Start from middle: select a slide in Slides pane → Shift+F5
+- End early: Esc, or right-click → End Show, or Slide Control button (bottom-left) → End Show
+
+**Navigating during a presentation:**
+- Click anywhere on screen → next slide
+- Next/Previous buttons (bottom-left corner)
+- Right-click → navigation options
+- Jump to specific slide: press Ctrl+S → All Slides dialog → select slide → Go To
+- Slide thumbnails: click the Slides button (bottom-left) → click any thumbnail
+
+**Presentation mode tricks:**
+- Pen/Highlighter: click Pen button (bottom-left) → select colour → drag to draw or highlight; press Esc to exit pen mode
+- Eraser: Pen button → Eraser → click individual lines to erase; or press E to erase all ink on current slide
+- Hide/show ink: right-click → Screen → Show/Hide Ink
+- After presentation: Review tab → Hide Ink drop-down → Delete All Ink in This Presentation or Delete All Ink on This Slide
+- White screen: press W or comma key; click or press any key to restore slide
+- Black screen: press B or period key; click or press any key to restore slide
+- Zoom in: click Zoom button (bottom-left) → click area of interest → drag to pan; press Esc to zoom back out
+
+**Hidden slides:**
+- Best placed at the end of a presentation for contingency use
+- Slide Show tab → Hide Slide (or right-click slide → Hide Slide); slide number appears crossed-out in Slides pane/Slide Sorter
+- Unhide: click Hide Slide again
+- During a presentation: click Slides button (bottom-left) → hidden slides have bracketed numbers → click to display
+- Return from hidden slide: right-click → Last Viewed, or right-click → See All Slides → choose a slide
+
+### Delivering Without Being Present
+
+**Handouts:**
+- View → Handout Master → configure Slide Size, Orientation (Landscape/Portrait), Slides Per Page (1/2/3/4/6/9), Header, Footer, Page Number, Date, Background Styles
+- Print: File → Print → Settings → second drop-down → choose a Handouts option → Print
+
+**Kiosk (self-running) presentation:**
+1. Transitions tab → uncheck On Mouse Click → check After → set duration per slide (or per individual slide)
+2. Alternatively: Rehearse Timings → save the recorded timings
+3. Slide Show tab → Set Up Slide Show → Show Type: Browsed at a Kiosk (Full Screen) — automatically enables Loop Continuously Until Esc
+
+**Presenting online:**
+1. Slide Show → Present Online → Office Presentation Service
+2. Optionally enable remote download
+3. Click Connect → copy the generated URL → send to attendees
+4. Click Start Presentation to begin; audience follows in their browser
+5. End: present Online tab → End Online Presentation → confirm
+
+**Animated GIF export:**
+1. File → Export → Create an Animated GIF
+2. Choose file size (quality)
+3. Optionally tick Make Background Transparent
+4. Set seconds per slide (all slides share the same duration)
+5. Optionally restrict to a slide range
+6. Click Create GIF → Save As dialog → name and save
+
+**Video export (MPEG-4):**
+1. File → Export → Create a Video
+2. Drop-down 1: display resolution (Ultra HD 4K / Full HD 1080p / HD 720p / Standard 480p)
+3. Drop-down 2: Use Recorded Timings and Narrations, Don't Use Timings, Preview Timings
+4. Click Create Video → Save As dialog → name and save as `.mp4`
+
+### Keyboard Shortcuts — PowerPoint 2024
+
+| Action | Shortcut |
+|--------|---------|
+| New blank presentation | Ctrl+N |
+| New slide (same layout) | Ctrl+M |
+| Duplicate slide | Ctrl+D |
+| Start slide show from beginning | F5 |
+| Start slide show from current slide | Shift+F5 |
+| End slide show | Esc |
+| Bold | Ctrl+B |
+| Italic | Ctrl+I |
+| Underline | Ctrl+U |
+| Increase font size | Ctrl+Shift+> |
+| Decrease font size | Ctrl+Shift+< |
+| Centre align | Ctrl+E |
+| Left align | Ctrl+L |
+| Right align | Ctrl+R |
+| Justify | Ctrl+J |
+| Next slide (during show) | Click / N / Right Arrow / Page Down |
+| Previous slide (during show) | P / Left Arrow / Page Up |
+| Jump to slide N (during show) | Type N then Enter |
+| White screen | W or comma |
+| Black screen | B or period |
+| Erase all ink on slide | E |
+| Play/Pause audio | Alt+P |
+| Group objects | Ctrl+G |
+| Ungroup objects | Ctrl+Shift+G |
+| Copy | Ctrl+C |
+| Paste | Ctrl+V |
+| Cut | Ctrl+X |
+| Undo | Ctrl+Z |
+| Redo | Ctrl+Y |
+| Save | Ctrl+S |
+| Print | Ctrl+P |
+
+### Quick Checklist — Before Presenting (2024 Guide)
+
+- [ ] Is the presentation saved as `.pptx` (or `.ppsx` for view-only distribution)?
+- [ ] Have slide timings been rehearsed and saved (if using a kiosk/self-running format)?
+- [ ] Are hidden slides placed at the end and tested — do bracketed numbers appear in Slide Show?
+- [ ] Is the Rehearsal Coach report reviewed? Are pacing and filler words addressed?
+- [ ] Are speaker notes complete and accessible in Notes Page view?
+- [ ] Is the audio playback behaviour set correctly (Automatically vs When Clicked On)?
+- [ ] Are videos trimmed, and bookmarks placed at key moments?
+- [ ] If exporting as video: is the resolution correct and have slide durations been verified?
+- [ ] If presenting online: is the URL tested, and are attendees confirmed ready?
+- [ ] Is there at least one contingency hidden slide for anticipated audience questions?
+
+---
+
+## Section 33 · Microsoft PowerPoint 365 — Complete Guide
+
+*Source: Microsoft PowerPoint 365 (Charles Sherer)*
+
+### Getting Started with PowerPoint 365
+
+**Key features highlighted in the 365 edition:**
+- Paste Special
+- Security features
+- Find and Replace
+- Clipboard
+- Themes for professional-looking presentations
+- Hyperlinking
+- Autocorrect features
+- Synonym function
+- Spelling checking
+- Transition and animation effects
+- SmartArt and table support
+
+**The 365 interface matches 2024 in structure.** The same Quick Access Toolbar, Ribbon tabs, Slide window, Slides pane, Notes pane, View buttons, and Zoom controls apply. The 365 edition emphasises these as productivity tools: start from beginning (F5), undo (Ctrl+Z), save (Ctrl+S), email directly from the toolbar.
+
+**Starting a new presentation:**
+- Ctrl+N immediately creates a blank presentation without opening the New window
+- File → New → search box: type a keyword to find Office templates matching your topic
+- Personal templates visible under the Personal tab only if at least one has been created or copied locally
+
+### Slide Management in 365
+
+**The core workflow:**
+1. Create slides using the New Slide drop-down (bottom half of New Slide button for layout picker)
+2. Select the appropriate slide layout — layout can always be changed afterwards via Home → Layout or right-click → Layout
+3. Organise in Slide Sorter view (View → Slide Sorter); drag to reorder
+
+**Inserting slides from Word headings — 365 workflow:**
+1. View → Outline View first (improves visibility of imported structure)
+2. Insert/Home → New Slide → Slides from Outline → browse to the Word document → Insert
+3. Heading 1 = slide title; Heading 2 = first-level bullet; Heading 3 = second-level bullet; body text is excluded
+
+**Photo Album in 365:**
+- Insert → Photo Album → New Photo Album (or Edit Photo Album to revise)
+- Same dialog as 2024; key controls: File/Disk button, Picture Layout drop-down, Frame Shape drop-down, Caption Beneath All Pictures checkbox, picture order arrows, contrast/brightness/rotate controls, Preview box
+- After creation: edit the auto-generated title slide ("Photo Album / [name]") to something meaningful; replace filename captions with descriptive text
+
+**Hidden slides in 365:**
+- Slide Show tab → Hide Slide; crossed-out number confirms the slide is hidden
+- During the show: Slides button (bottom-left) → bracketed numbers are hidden slides → click to reveal
+- After viewing one hidden slide: right-click → Last Viewed to return to your previous position
+- After viewing several hidden slides: right-click → See All Slides → choose where to resume
+
+### Customising Appearance in 365
+
+**Theme selection:**
+- Design tab → Themes gallery → hover for live preview → click to apply
+- Theme variants: colour/style alternatives shown immediately to the right of the gallery
+- Obtain a theme from another presentation: Design → open Themes gallery → Browse for Themes → navigate to a `.pptx` → Apply
+- Design Ideas: Design tab → Design Ideas button (AI layout suggestions); select a suggestion to apply; Ctrl+Z to revert
+
+**Slide background — Format Background pane (Design → Format Background):**
+
+| Fill type | What it does | Key settings |
+|-----------|-------------|--------------|
+| Solid fill | Single opaque or semi-transparent colour | Color picker + Transparency slider (0% = solid, 100% = invisible) |
+| Gradient fill | Two or more colours blending | Type (Linear/Radial/Rectangular/Path), Gradient Stops slider, per-stop Colour/Position/Brightness/Transparency |
+| Picture or Texture fill | An image or built-in texture fills the slide | Insert button (from file/web), Texture drop-down, Transparency, Offset boxes to control crop |
+| Pattern fill | Geometric repeat patterns | Pattern picker, Foreground colour, Background colour |
+
+- Apply to All: pushes the background to every slide
+- Do not click Apply to All when targeting a subset of slides — just make the change and close the pane
+
+**Gradient stop management:**
+- Add: click Add Gradient Stop button → a new stop appears; drag it to the desired position
+- Colour: select a stop → Color button → pick from palette
+- Position: drag the stop on the slider, or type a percentage in the Position box
+- Brightness: brightness slider per stop
+- Transparency: transparency slider per stop (independent of the main fill transparency)
+- Remove: select a stop → Remove Gradient Stop button
+
+**Background on individual slides:**
+1. Slide Sorter view → Ctrl+click to select target slides
+2. Design tab → choose a theme (right-click → Apply to Selected Slides) or open Format Background and make changes without clicking Apply to All
+3. When multiple themes exist in one presentation, PowerPoint creates additional Slide Masters — the New Slide drop-down will offer multiple sets of layouts
+
+**Slide size:**
+- Design → Slide Size → Standard (4:3), Widescreen (16:9), or Custom Slide Size
+- Custom allows entering exact width and height in centimetres or inches
+- All slides in a presentation must be the same size
+
+### Slide Master in 365
+
+**The three-tier hierarchy:**
+- **Slide Master** (top/largest slide in Slide Master view) — global; changes affect all slides
+- **Layout slides** (indented below Slide Master) — per-layout; changes affect only slides using that layout
+- **Master styles** — placeholder text controls within each master/layout; fonts, sizes, and colours set here flow through to matching slides
+
+**Using Slide Master:**
+1. View → Slide Master
+2. Select the Slide Master for global changes (top slide in pane)
+3. Select a layout slide for layout-specific changes
+4. Edit master styles (click inside placeholder text areas and reformat)
+5. Insert images/logos: Insert tab while in Slide Master view — they appear on every slide using that master
+6. Slide Master tab → Master Layout button → tick desired placeholders (Title, Body, Date, Slide Number, Footer) → OK to add them back
+7. Close: View → Close Master View, or click any normal view button
+
+**Propagation rules:**
+- Change the Slide Master font → all slide titles and body text change
+- Change a Layout slide font → only slides built on that layout change
+- Manually overridden formatting on individual slides is not overridden by master changes
+
+### Text and Text Boxes in 365
+
+**Text insertion:**
+- Click placeholder → type; or View → Outline → type in the text outline panel
+- Mini-toolbar appears immediately on text selection — provides font, size, bold, italic, colour, alignment shortcuts without returning to the Ribbon
+
+**Font size keyboard shortcuts:**
+| Action | Shortcut |
+|--------|---------|
+| Increase font size | Ctrl+Shift+> |
+| Decrease font size | Ctrl+Shift+< |
+
+**Text effects (Format Shape pane → Text Options tab):**
+- **Fill** — solid, gradient, pattern, texture fills for the letter shapes themselves (not the box)
+- **Outline** — set the stroke around each letter: colour, weight, dash style; combine with No Fill for outline-only text
+- **Effects** — Shadow (outer/inner/perspective), Glow (colour + radius), Reflection (offset + blur), Soft Edges (feathering), 3D Format, 3D Rotation; use Presets first to understand what is achievable
+
+**Text box creation and manipulation:**
+- Insert → Text Box → drag to draw; or draw a Shape then click it and start typing to turn it into a text box
+- Fill: Shape Format tab → Shape Fill → choose colour, gradient, texture, picture, or No Fill
+- Outline: Shape Format → Shape Outline → colour, weight, dashes, or No Outline
+- Text direction: Home → Text Direction → Horizontal, Stacked (characters stacked vertically), Rotate 90°, Rotate 270°
+- Rotate the box: drag the circular rotation handle above the box; or Shape Format → Rotate → specific options; or Format Shape pane → Size & Properties → Rotation → enter degrees
+
+**AutoFit in 365 (same as 2024, confirmed):**
+- Placeholder frames: AutoFit Options button → Shrink Text on Overflow, Stop Fitting Text, Continue on New Slide, Split Text Between Two Slides
+- Text boxes: right-click → Format Shape → Size & Properties → Text Box → Do Not AutoFit / Resize Shape to Fit Text / Shrink Text on Overflow
+- Reduce internal margins: Format Shape → Size & Properties → Text Box → set Left/Right/Top/Bottom margin values smaller
+
+### Lists in 365
+
+**Bulleted list formatting:**
+- Home → Bullets drop-down → Bullets and Numbering → Bulleted tab
+- Customize: opens the Symbol dialog — any Unicode character can be a bullet (Wingdings, Webdings, and standard symbol fonts provide arrows, checkmarks, stars, circles, etc.)
+- Picture bullets: Picture button in the dialog → search Insert Pictures for small icons
+- Color: override bullet colour; use Theme Colors for palette-consistent results
+- Size %: bullet size as a percentage of the body text size; 100% = same as text, 150% = half again as large
+
+**Numbered list formatting:**
+- Home → Numbering drop-down → Bullets and Numbering → Numbered tab
+- Seven numbering styles: 1. 2. 3. | a. b. c. | A. B. C. | i. ii. iii. | I. II. III. | 1) 2) 3) | and one further variant
+- Start at: override the starting number (useful for lists split across slides)
+- Size % and Color: same control as bullets
+
+**Converting between list types:**
+- Select the list → click the opposite button (Bullets ↔ Numbering)
+- Remove all bullets/numbers: select list → open drop-down → None
+
+### Headers, Footers and Slide Numbers in 365
+
+**Inserting (Insert → Header & Footer → Slide tab):**
+- **Date and Time**
+  - Fixed: type a specific date; does not change when you open the file later
+  - Update Automatically: shows the current date/time; choose format from the drop-down
+- **Slide Number**: displays in the bottom-right placeholder of each slide
+- **Footer**: free-text field; displays in the bottom-centre placeholder
+- **Don't show on Title Slide**: suppresses all footer elements on the first (title) slide
+- Apply to All: applies to every slide; Apply: applies to the currently selected slide(s) only
+
+**Custom footer via Slide Master:**
+1. Insert → Header & Footer → configure and click Apply to All (creates the placeholders)
+2. View → Slide Master → Slide Master (top slide)
+3. Move, resize, reformat the Date, Footer, and Page Number text boxes as needed
+4. Close Master View
+
+**Removing footer from one slide:**
+- Insert → Header & Footer → uncheck the elements → Apply (not Apply to All)
+
+### Tables in 365
+
+**Insertion methods:**
+- Insert → Table → drag to grid to set columns × rows instantly
+- Insert → Table → Insert Table → type exact row and column counts → OK
+- Insert → Table → Draw Table → pencil pointer draws borders; Eraser removes cell dividers
+- Click Table icon in a content placeholder → Insert Table dialog
+
+**Table design (Table Design tab, visible when table is selected):**
+- Table Style gallery: pre-built colour combinations matching the slide theme
+- Header Row, Banded Rows, Banded Columns, Total Row, First Column, Last Column: toggle checkboxes to adjust which cells receive emphasis formatting
+- Draw Table and Eraser buttons: add or remove cell dividers post-creation
+- Borders: set which cell borders are visible and their style
+
+**Best layout for tables:** Title and Content slide — provides a dedicated title area and maximum slide body for the table grid.
+
+### Transitions in 365
+
+**Gallery categories:**
+- Subtle: Fade, Push, Wipe, Split, Reveal, Random Bars, Uncover
+- Exciting: Cover, Flash, Fall Over, Drape, Curtains, Wind, Prestige, Fracture, Crush, Peel Off, Page Curl, Airplane, Origami
+- Dynamic Content: Pan, Ferris Wheel, Conveyor, Rotate, Window, Orbit, Fly Through, Morph
+
+**Controls (Transitions tab):**
+- Effect Options: direction-specific variants; only available for certain transitions
+- Sound: sound effect accompanying the slide change; Loop Until Next Sound option for ambient audio
+- Duration: seconds for the transition animation; 0.5–2.0 seconds typical
+- On Mouse Click: advance on click (default for live presentations)
+- After: advance automatically after N seconds (used in kiosk/self-running presentations)
+- Apply to All: push current transition settings to every slide
+
+**Morph transition (365-specific emphasis):**
+- Applies animation between two slides based on matching objects (same name or identical content)
+- Create: duplicate a slide → on the copy, reposition/resize/recolour objects → select copy → Transitions → Morph
+- Works with shapes, pictures, icons, SmartArt, WordArt, tables, charts
+
+### Animations in 365
+
+**Four animation categories:**
+- **Entrance**: object appears (Fade, Fly In, Zoom, Bounce, Float In, etc.)
+- **Emphasis**: object already visible; draws attention (Pulse, Spin, Grow/Shrink, Flash, Colour Wave, etc.)
+- **Exit**: object disappears (Fade Out, Fly Out, Shrink & Turn, etc.)
+- **Motion Paths**: object moves along a path you draw or choose (Lines, Arcs, Turns, Loops, Custom Path)
+
+**Adding animations:**
+1. Animations tab → select the element on the slide
+2. Click an effect in the Animation gallery, or click Add Animation for a fuller list
+3. Effect Options button → choose direction, sequence (By Paragraph for text)
+4. Set Start (On Click / With Previous / After Previous), Duration, Delay
+
+**Animation Pane:**
+- Animations → Animation Pane button
+- Shows all animations on the slide in sequence order; each line = one animation event
+- Select a line → change its properties in the Start/Duration/Delay controls above
+- Drag lines to reorder; Delete to remove; click the play button in the pane to preview the full sequence
+- An animation numbered badge appears on animated elements on the slide
+
+**Sequence options:**
+- On Click: pauses the show; each click triggers the next animation
+- With Previous: starts simultaneously with the previous animation (effectively groups them)
+- After Previous: starts automatically when the previous animation ends
+- Combining With Previous and After Previous creates complex timed sequences without additional clicks
+
+**Removing animations:**
+- Select the element → Animations tab → click None in the gallery
+- Or open Animation Pane → select the animation entry → Delete
+
+### Audio and Video in 365
+
+**Audio insertion:**
+- Insert → Audio → Audio on My PC → browse to file → Insert
+- Transition audio: Transitions tab → Sound drop-down → select built-in sounds or browse for file
+
+**Audio Playback tab settings:**
+- Start: Automatically or When Clicked On
+- Volume: Low / Medium / High / Mute
+- Play Across Slides: audio continues past the slide it is placed on
+- Loop Until Stopped: repeats until manually paused or a new sound starts
+- Hide During Show: hides the speaker icon (must use Automatic start if hidden)
+- Rewind After Playing: resets to beginning after playback completes
+- Play in Background: shortcut enabling Automatically + Play Across Slides + Hide During Show simultaneously
+
+**Video insertion:**
+- Insert → Video → This Device (local file), Stock Videos (library), or Online Video (URL paste, including YouTube)
+- The Insert Video icon in a content placeholder also opens the Insert Video dialog
+
+**Video Playback tab settings (same controls as 2024 edition):**
+- Start, Full Screen, Hide While Not Playing, Loop, Rewind, Volume, Trim Video (green/red sliders), Fade In/Out, Bookmarks
+
+**Video Format tab:**
+- Corrections (brightness/contrast), Color/Recolor, Video Styles (borders, shadows, reflections)
+- Format Video pane: right-click video → Format Video; detailed controls for all visual adjustments
+
+**Recording voice narration (per-slide):**
+1. Select the slide → Insert → Audio → Record Audio
+2. Record Sound dialog: Record (red circle), Stop (square), Play (triangle)
+3. OK when done; Audio icon placed on slide
+4. Select icon → Playback tab → configure start, volume, loop
+
+### Delivering in 365
+
+**Presenter notes:**
+- Normal view → Notes pane (bottom of screen); toggle with View → Notes or status bar button
+- Notes Page view: View → Notes Page; edit in full; text frame below slide thumbnail
+- Print: File → Print → Settings → drop-down → Notes Pages
+
+**Rehearsal Coach (365 feature):**
+- Slide Show → Rehearse with Coach → Start Rehearsing
+- AI coach monitors: pacing (speaking too fast or slow), filler words ("um", "like", "you know"), repetitive language, reading directly from slides
+- Rehearsal report: summary of issues after the session; use to refine delivery before the real presentation
+
+**Rehearse Timings:**
+- Slide Show → Rehearse Timings → Recording toolbar appears
+- Next button advances slides; Pause Recording / Resume Recording for breaks; Repeat resets current slide's timer
+- After finishing: save timings (Yes); visit Slide Sorter to verify per-slide durations
+
+**Slide Show navigation during live delivery:**
+- Forward: click screen, N, Right Arrow, Page Down, space bar
+- Back: P, Left Arrow, Page Up, Backspace
+- Jump to slide: type the slide number + Enter
+- Slide thumbnails: Slides button (bottom-left) or right-click → See All Slides
+- Jump dialog: Ctrl+S → All Slides → select → Go To
+
+**Presentation mode annotation tools:**
+| Tool | Access | Keyboard |
+|------|--------|---------|
+| Pen (draw) | Pen button → Pen | — |
+| Highlighter | Pen button → Highlighter | — |
+| Eraser (one mark) | Pen button → Eraser | — |
+| Erase all marks on slide | — | E |
+| Show/Hide ink | Right-click → Screen → Show/Hide Ink | — |
+| Zoom in | Zoom button (bottom-left) | — |
+| White screen | — | W or comma |
+| Black screen | — | B or period |
+
+**Post-presentation ink management:**
+- Review tab → Hide Ink drop-down → Delete All Ink in This Presentation or Delete All Ink on This Slide
+
+**Delivering without being present:**
+
+| Method | Steps | Best for |
+|--------|-------|---------|
+| Handouts | View → Handout Master → configure; File → Print → Handouts option | Leaving material with the audience |
+| Kiosk (self-running) | Transitions → disable On Mouse Click → enable After; Set Up Slide Show → Browsed at a Kiosk | Trade shows, unattended screens |
+| Present Online | Slide Show → Present Online → Connect → share URL → Start Presentation | Remote audiences without PowerPoint |
+| Animated GIF | File → Export → Create an Animated GIF → set size, seconds per slide → Create GIF | Web embeds, email-safe loops |
+| MPEG-4 video | File → Export → Create a Video → set resolution + timings → Create Video | Distributed video files, social media |
+| PowerPoint Show | File → Save As → .ppsx | Email to viewers; opens straight into slide show, no edit access |
+
+### 365-Specific Shortcuts and Ribbon Keys
+
+**Ribbon access by keyboard (press Alt, then the letter shown):**
+
+| Tab | Key |
+|-----|-----|
+| File | Alt+F |
+| Home | Alt+H |
+| Insert | Alt+N |
+| Design | Alt+G |
+| Transitions | Alt+K |
+| Animations | Alt+A |
+| Slide Show | Alt+S |
+| Review | Alt+R |
+| View | Alt+V |
+
+**Additional keyboard shortcuts:**
+
+| Action | Shortcut |
+|--------|---------|
+| New blank presentation | Ctrl+N |
+| New slide | Ctrl+Shift+M |
+| Duplicate slide | Ctrl+D |
+| Undo | Ctrl+Z |
+| Redo | Ctrl+Y |
+| Copy | Ctrl+C |
+| Paste | Ctrl+V |
+| Cut | Ctrl+X |
+| Save | Ctrl+S |
+| Print | Ctrl+P |
+| Select all | Ctrl+A |
+| Bold | Ctrl+B |
+| Italic | Ctrl+I |
+| Underline | Ctrl+U |
+| Centre text | Ctrl+E |
+| Left-align text | Ctrl+L |
+| Right-align text | Ctrl+R |
+| Justify text | Ctrl+J |
+| Increase font size | Ctrl+Shift+> |
+| Decrease font size | Ctrl+Shift+< |
+| Group objects | Ctrl+G |
+| Ungroup objects | Ctrl+Shift+G |
+| Start show from beginning | F5 |
+| Start show from current slide | Shift+F5 |
+| End show | Esc |
+| Next slide (during show) | N / Right Arrow / Page Down / Space |
+| Previous slide (during show) | P / Left Arrow / Page Up / Backspace |
+| Jump to slide N (during show) | N then Enter |
+| White screen | W or comma |
+| Black screen | B or period |
+| Erase all ink | E |
+| Play/Pause audio | Alt+P |
+
+### Quick Checklist — Before Presenting in PowerPoint 365
+
+- [ ] Is the correct slide size (16:9 or 4:3) set before content is built — not retrofitted after?
+- [ ] Has the Slide Master been used for all consistent branding elements (logo, font, colour)?
+- [ ] Are all slide layouts built from the correct Layout slide in Slide Master view?
+- [ ] Are themes applied and a single visual style used throughout (no per-slide theme mixing unless intentional)?
+- [ ] Are footer, date, and slide number configured via Insert → Header & Footer (not manually typed on slides)?
+- [ ] Are all transitions set to a consistent style and duration — Apply to All used to enforce consistency?
+- [ ] Are animations reviewed in the Animation Pane — no orphan animations on deleted elements?
+- [ ] Are audio files set to Play in Background or configured with appropriate Start/Loop/Hide settings?
+- [ ] Are video files tested at full screen — resolution sufficient, trim points correct?
+- [ ] Has the Rehearsal Coach been run and the rehearsal report reviewed?
+- [ ] Are speaker notes populated with trigger phrases (not full paragraphs) for each slide?
+- [ ] Is the Handout Master configured if printed handouts will be distributed?
+- [ ] Is the file saved as `.ppsx` if it will be sent to viewers who should not edit it?
+- [ ] If distributing as video, has the MPEG-4 export been played back and verified at the target resolution?
+
+---
+
+*Sections 27–33 generated from: Power Teams Beyond Borders (Peter Ivanov),
 Power BI Demystified (Elijah Falode),
 Data Analytics with MS Excel & Power BI (Punit Prabhu),
 Introduction to PowerPoint — MBA Coursework Series (Hicham & Mohamed Ibnalkadi),
-Microsoft SharePoint 365 for Beginners & Power Users (Tech Demystified).*
+Microsoft SharePoint 365 for Beginners & Power Users (Tech Demystified),
+Microsoft PowerPoint User Guide 2024: A Step-By-Step Guide (Charles Sherer),
+Microsoft PowerPoint 365 (Charles Sherer).*
