@@ -8,7 +8,7 @@
  * data, no live system connections. Provided for internal discussion.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Home, ArrowLeft, ArrowRight, Check, Clock, Users, FileText,
   Upload, ShieldCheck, AlertCircle, ChevronRight, X, PenLine,
@@ -114,6 +114,16 @@ export default function App() {
 
   // Notifications panel
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // OTP / SCA step-up
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpDigits, setOtpDigits] = useState(['','','','','','']);
+  const [otpContext, setOtpContext] = useState('');
+  const [otpCallback, setOtpCallback] = useState(null);
+  const [otpError, setOtpError] = useState(false);
+  const [otpResend, setOtpResend] = useState(30);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const otpRefs = useRef([null,null,null,null,null,null]);
 
   // Accessibility / neurodiversity panel
   const [showA11ySheet, setShowA11ySheet] = useState(false);
@@ -241,6 +251,12 @@ export default function App() {
     const t = setTimeout(() => setPinCountdown(c => c - 1), 1000);
     return () => clearTimeout(t);
   }, [pinRevealed, pinCountdown]);
+
+  useEffect(() => {
+    if (!showOTP || otpResend <= 0) return;
+    const t = setTimeout(() => setOtpResend(r => r - 1), 1000);
+    return () => clearTimeout(t);
+  }, [showOTP, otpResend]);
 
   const fireToast = (msg) => setToast(msg);
 
@@ -673,6 +689,17 @@ export default function App() {
   };
   const triggerRM = (reason) => { setRMReason(reason); setShowRMSheet(true); };
 
+  const triggerOTP = (context, callback) => {
+    setOtpDigits(['','','','','','']);
+    setOtpError(false);
+    setOtpResend(30);
+    setOtpVerifying(false);
+    setOtpContext(context);
+    setOtpCallback(() => callback);
+    setShowOTP(true);
+    setTimeout(() => otpRefs.current[0]?.focus(), 100);
+  };
+
   const BIOMETRIC_OPTIONS = [
     { id: 'face-id',      label: 'Face ID',           sub: 'Apple · iOS',     Icon: ScanFace    },
     { id: 'fingerprint',  label: 'Fingerprint',        sub: 'Android · iOS',   Icon: Fingerprint },
@@ -713,6 +740,7 @@ export default function App() {
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
     setShowSequencer(false); setSequencerOptimised(false);
     setShowVoiceSetup(false); setVoiceIdTab('enrol'); setVoiceRecordingPhrase(null);
+    setShowOTP(false); setOtpDigits(['','','','','','']); setOtpCallback(null);
     // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
     // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
   };
@@ -1601,25 +1629,26 @@ export default function App() {
 
     const addNewPayee = () => {
       if (!newPayeeName || !newPayeeSort || !newPayeeAcct) return;
-      const newP = {
-        id: 'p' + Date.now(),
-        name: newPayeeName,
-        sortCode: newPayeeSort,
-        acct: newPayeeAcct,
-        amount: Number(newPayeeAmount) || 0,
-        role: newPayeeRole || '—',
-        selected: true,
-        copStatus: 'pending',
-      };
-      setPayees([...payees, newP]);
-      setShowAddPayee(false);
-      setNewPayeeName(''); setNewPayeeSort(''); setNewPayeeAcct(''); setNewPayeeAmount(''); setNewPayeeRole('');
-      fireToast('Payee added · Confirmation of Payee running…');
-      // Simulate CoP completing
-      setTimeout(() => {
-        setPayees(prev => prev.map(p => p.id === newP.id ? { ...p, copStatus: 'verified' } : p));
-        fireToast(`${newPayeeName} verified by Confirmation of Payee.`);
-      }, 1800);
+      triggerOTP(`Add new payee · ${newPayeeName} · ${newPayeeSort}`, () => {
+        const newP = {
+          id: 'p' + Date.now(),
+          name: newPayeeName,
+          sortCode: newPayeeSort,
+          acct: newPayeeAcct,
+          amount: Number(newPayeeAmount) || 0,
+          role: newPayeeRole || '—',
+          selected: true,
+          copStatus: 'pending',
+        };
+        setPayees([...payees, newP]);
+        setShowAddPayee(false);
+        setNewPayeeName(''); setNewPayeeSort(''); setNewPayeeAcct(''); setNewPayeeAmount(''); setNewPayeeRole('');
+        fireToast('Payee added · Confirmation of Payee running…');
+        setTimeout(() => {
+          setPayees(prev => prev.map(p => p.id === newP.id ? { ...p, copStatus: 'verified' } : p));
+          fireToast(`${newPayeeName} verified by Confirmation of Payee.`);
+        }, 1800);
+      });
     };
 
     const next = () => {
@@ -1971,8 +2000,10 @@ export default function App() {
     const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
     const next = () => {
       if (step === 2) {
-        fireToast(`${fmt(amountNum)} sent · ${selectedRate.symbol}${converted.toLocaleString('en-GB',{maximumFractionDigits:2})} · SWIFT ref SANT${Date.now().toString().slice(-7)}`);
-        closeWorkflow();
+        triggerOTP(`International payment · ${fmt(amountNum)} → ${fxCurrency} · ${fxBeneficiary}`, () => {
+          fireToast(`${fmt(amountNum)} sent · ${selectedRate.symbol}${converted.toLocaleString('en-GB',{maximumFractionDigits:2})} · SWIFT ref SANT${Date.now().toString().slice(-7)}`);
+          closeWorkflow();
+        });
       } else setStep(step + 1);
     };
     return (
@@ -2360,6 +2391,118 @@ export default function App() {
   );
 
   // === SHEETS ===
+
+  const OTPSheet = () => {
+    const filled = otpDigits.filter(d => d !== '').length;
+    const complete = filled === 6;
+
+    const handleInput = (index, raw) => {
+      const digits = raw.replace(/\D/g, '');
+      if (digits.length > 1) {
+        // Paste: fill from this box forward
+        const spread = digits.slice(0, 6 - index).split('');
+        const next = [...otpDigits];
+        spread.forEach((d, i) => { next[index + i] = d; });
+        setOtpDigits(next);
+        setOtpError(false);
+        const focusIdx = Math.min(index + spread.length, 5);
+        setTimeout(() => otpRefs.current[focusIdx]?.focus(), 0);
+        return;
+      }
+      const d = digits.slice(-1);
+      const next = [...otpDigits];
+      next[index] = d;
+      setOtpDigits(next);
+      setOtpError(false);
+      if (d && index < 5) setTimeout(() => otpRefs.current[index + 1]?.focus(), 0);
+    };
+
+    const handleKey = (index, e) => {
+      if (e.key === 'Backspace') {
+        if (!otpDigits[index] && index > 0) {
+          const next = [...otpDigits];
+          next[index - 1] = '';
+          setOtpDigits(next);
+          setTimeout(() => otpRefs.current[index - 1]?.focus(), 0);
+        }
+      }
+      if (e.key === 'Enter' && complete) verify();
+    };
+
+    const verify = () => {
+      if (!complete || otpVerifying) return;
+      setOtpVerifying(true);
+      setTimeout(() => {
+        setOtpVerifying(false);
+        setShowOTP(false);
+        otpCallback?.();
+      }, 1000);
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black/60 anim-fade flex items-end justify-center" onClick={() => setShowOTP(false)}>
+        <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 anim-slide" onClick={e => e.stopPropagation()}>
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
+              <h2 className="font-display-tight text-2xl text-stone-900">Verify it's you</h2>
+            </div>
+            <button onClick={() => setShowOTP(false)} className="p-1 text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
+            <Phone className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <span className="text-sm text-stone-600">Code sent to <span className="font-mono font-medium text-stone-900">+44 ···· ···· 821</span></span>
+          </div>
+          <p className="text-[10px] text-stone-400 mb-6 px-1">{otpContext}</p>
+
+          {/* 6-digit boxes */}
+          <div className="flex gap-2 justify-center mb-5">
+            {otpDigits.map((d, i) => (
+              <input key={i}
+                ref={el => { otpRefs.current[i] = el; }}
+                type="text" inputMode="numeric" maxLength={6}
+                value={d}
+                onChange={e => handleInput(i, e.target.value)}
+                onKeyDown={e => handleKey(i, e)}
+                onFocus={e => e.target.select()}
+                aria-label={`Digit ${i + 1}`}
+                className={`w-12 h-14 text-center text-xl font-bold rounded-2xl border-2 transition-colors focus:outline-none focus-visible:ring-0
+                  ${otpError
+                    ? 'border-red-400 bg-red-50 text-red-700'
+                    : d
+                    ? 'border-stone-900 bg-stone-50 text-stone-900'
+                    : 'border-stone-200 bg-white text-stone-900'}`}
+              />
+            ))}
+          </div>
+
+          {otpError && (
+            <p className="text-center text-xs text-red-600 mb-4">Incorrect code — check your messages and try again</p>
+          )}
+
+          <button onClick={verify} disabled={!complete || otpVerifying}
+            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-400 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            {otpVerifying
+              ? <><RefreshCw className="w-4 h-4 animate-spin" /> Verifying…</>
+              : complete ? 'Confirm' : `${filled} of 6 digits entered`}
+          </button>
+
+          <div className="text-center mt-4">
+            {otpResend > 0
+              ? <span className="text-[11px] text-stone-400">Resend available in {otpResend}s</span>
+              : <button onClick={() => { setOtpResend(30); fireToast('New code sent'); }}
+                  className="text-[11px] text-[#c8102e] font-medium focus:outline-none focus-visible:underline">
+                  Resend code
+                </button>}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const ComplianceSheet = () => (
     <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={() => setShowCompliance(false)}>
       <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto anim-slide">
@@ -3334,7 +3477,10 @@ export default function App() {
   );
 
   const ApproveScreen = () => {
-    const sign = (id) => { setApprovalState({ ...approvalState, [id]: 'signed' }); fireToast('Signed. Releasing now.'); };
+    const sign = (id) => triggerOTP(
+      `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`,
+      () => { setApprovalState({ ...approvalState, [id]: 'signed' }); fireToast('Signed. Releasing now.'); }
+    );
     const reject = (id) => { setApprovalState({ ...approvalState, [id]: 'rejected' }); fireToast("Rejected. We've let them know."); };
     return (
       <div className="pb-24">
@@ -5283,6 +5429,7 @@ export default function App() {
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
 
+        {showOTP && <OTPSheet />}
         {showCompliance && <ComplianceSheet />}
         {showSavings && <SavingsSheet />}
         {showRMSheet && <RMSheet />}
@@ -5453,6 +5600,7 @@ export default function App() {
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
 
+      {showOTP && <OTPSheet />}
       {showCompliance && <ComplianceSheet />}
       {showSavings && <SavingsSheet />}
       {showRMSheet && <RMSheet />}
