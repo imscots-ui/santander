@@ -2698,12 +2698,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* What's coming — proactive nudges (Predict → Explain → Act) */}
+      {/* Forecast — proactive nudges (Predict → Explain → Act) */}
       <div className="mb-5 anim-fade stagger-1">
         <div className="flex items-center justify-between px-5 mb-3">
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Proactive · 3 items</div>
-            <h2 className="font-display-tight text-2xl text-stone-900">What's coming</h2>
+            <h2 className="font-display-tight text-2xl text-stone-900">Forecast</h2>
           </div>
         </div>
         <div className="flex gap-3 px-5 overflow-x-auto no-scrollbar pb-1">
