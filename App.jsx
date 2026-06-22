@@ -114,6 +114,15 @@ export default function App() {
   // Notifications panel
   const [showNotifications, setShowNotifications] = useState(false);
 
+  // Accessibility / neurodiversity panel
+  const [showA11ySheet, setShowA11ySheet] = useState(false);
+  const [a11yDyslexia, setA11yDyslexia] = useState(false);
+  const [a11yReduceMotion, setA11yReduceMotion] = useState(false);
+  const [a11yHighContrast, setA11yHighContrast] = useState(false);
+  const [a11yLargeText, setA11yLargeText] = useState(false);
+  const [a11yFocus, setA11yFocus] = useState(false);
+  const [a11ySimplify, setA11ySimplify] = useState(false);
+
   const [bizChanges, setBizChanges] = useState({});
   const [bizName, setBizName] = useState('');
   const [bizAddr, setBizAddr] = useState('');
@@ -846,6 +855,32 @@ export default function App() {
     .on-dark   { color: rgba(255,255,255,0.65); }
     .on-dark-2 { color: #d6d3d1; } /* stone-300 */
     .on-red    { color: #fecaca; } /* red-200 */
+
+    /* === NEURODIVERSITY / ACCESSIBILITY MODES === */
+    @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/fonts/OpenDyslexic-Regular.otf') format('opentype');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+    .a11y-dyslexia, .a11y-dyslexia * {
+      font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+      letter-spacing: 0.03em !important; word-spacing: 0.1em !important; line-height: 1.6 !important;
+    }
+    .a11y-reduce-motion *, .a11y-reduce-motion *::before, .a11y-reduce-motion *::after {
+      animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .a11y-high-contrast { filter: contrast(1.3) brightness(1.02); }
+    .a11y-high-contrast .border-stone-200 { border-color: #a8a29e !important; }
+    .a11y-high-contrast input, .a11y-high-contrast button { border-width: 2px !important; }
+    .a11y-large-text { font-size: 112% !important; }
+    .a11y-large-text .text-\[11px\] { font-size: 0.76rem !important; }
+    .a11y-large-text .text-\[10px\] { font-size: 0.7rem !important; }
+    .a11y-large-text .text-\[9px\]  { font-size: 0.66rem !important; }
+    .a11y-focus .stagger-1,.a11y-focus .stagger-2,.a11y-focus .stagger-3,
+    .a11y-focus .stagger-4,.a11y-focus .stagger-5,.a11y-focus .stagger-6,
+    .a11y-focus .stagger-7 { animation: none !important; opacity: 1 !important; }
+    .a11y-focus .hero-card .absolute, .a11y-focus .cool-card .absolute { display: none !important; }
   `;
 
   // === PRIMITIVES (functional components — no state inside) ===
@@ -3170,10 +3205,16 @@ export default function App() {
 
       {/* Accessibility */}
       <div className="px-5 mb-3">
-        <div className="p-3 rounded-2xl bg-stone-50 text-[11px] text-stone-600 leading-relaxed flex gap-2">
-          <Heart className="w-4 h-4 text-[#c8102e] flex-shrink-0 mt-0.5" />
-          <div><strong className="text-stone-900">Need something different?</strong> Large print, braille, audio, BSL video relay, Relay UK — we offer them all.</div>
-        </div>
+        <button onClick={() => setShowA11ySheet(true)} className="w-full p-4 rounded-2xl bg-stone-50 border border-stone-200 text-left flex items-center gap-3 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+          <div className="w-9 h-9 rounded-xl bg-white border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <Heart className="w-4 h-4 text-[#c8102e]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-medium text-stone-900">Accessibility settings</div>
+            <div className="text-[11px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active — tap to adjust' : 'Dyslexia font · plain English · reduced motion · more'}</div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
+        </button>
       </div>
 
       {/* Compliance */}
@@ -4874,13 +4915,78 @@ export default function App() {
     );
   };
 
+  // === ACCESSIBILITY SHEET ===
+  const A11ySheet = () => {
+    const modes = [
+      { key: 'dyslexia',      label: 'Dyslexia-friendly text',  desc: 'Switches to OpenDyslexic — a font designed so letters are harder to mirror or confuse',          icon: BookOpen,   state: a11yDyslexia,     set: setA11yDyslexia },
+      { key: 'simplify',      label: 'Plain English mode',       desc: 'Replaces legal and banking jargon with everyday language throughout the app',                      icon: FileText,   state: a11ySimplify,     set: setA11ySimplify },
+      { key: 'reduceMotion',  label: 'Reduce motion',            desc: 'Turns off all animations and transitions — helpful for ADHD, autism, and motion sensitivity',      icon: Pause,      state: a11yReduceMotion, set: setA11yReduceMotion },
+      { key: 'highContrast',  label: 'High contrast',            desc: 'Strengthens borders and increases contrast between elements — helpful for visual processing',      icon: Eye,        state: a11yHighContrast, set: setA11yHighContrast },
+      { key: 'largeText',     label: 'Larger text',              desc: 'Increases the size of all text across the app by 12% — helpful for dyslexia and low vision',      icon: Zap,        state: a11yLargeText,    set: setA11yLargeText },
+      { key: 'focus',         label: 'Focus mode',               desc: 'Removes decorative elements and visual clutter — helpful for ADHD and autism spectrum conditions', icon: Gauge,      state: a11yFocus,        set: setA11yFocus },
+    ];
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={() => setShowA11ySheet(false)}>
+        <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[92vh] overflow-y-auto anim-slide">
+          <div className="px-5 pt-3 pb-3 sticky top-0 bg-white border-b border-stone-100">
+            <div className="w-12 h-1 bg-stone-300 rounded-full mx-auto mb-3" />
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-2xl">Accessibility</h2>
+                <p className="text-xs text-stone-500 mt-0.5">Adjust how the app looks and behaves for you</p>
+              </div>
+              <button onClick={() => setShowA11ySheet(false)} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+            </div>
+          </div>
+          <div className="px-5 py-4 space-y-2.5">
+            {modes.map(m => {
+              const I = m.icon;
+              return (
+                <button key={m.key} onClick={() => m.set(!m.state)}
+                  className={`w-full text-left p-4 rounded-2xl border flex items-center gap-3 transition-colors ${m.state ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${m.state ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                    <I className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-stone-900">{m.label}</div>
+                    <div className="text-[11px] text-stone-500 mt-0.5 leading-relaxed">{m.desc}</div>
+                  </div>
+                  <div className={`w-11 h-6 rounded-full flex items-center flex-shrink-0 transition-colors ${m.state ? 'bg-stone-900' : 'bg-stone-200'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white shadow-sm mx-0.5 transition-transform ${m.state ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
+                </button>
+              );
+            })}
+            <div className="pt-1 p-4 rounded-2xl bg-[#faf6ef] border border-stone-200">
+              <div className="flex gap-3 items-start">
+                <Heart className="w-4 h-4 text-[#c8102e] flex-shrink-0 mt-0.5" />
+                <div className="text-[11px] text-stone-600 leading-relaxed">
+                  <strong className="text-stone-900">More support available.</strong> Large print statements, braille, audio, BSL video relay, and Relay UK for text-to-speech calls. Ask in branch or call <span className="font-mono">0800 068 6899</span>.
+                </div>
+              </div>
+            </div>
+            <div className="pb-2" />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // === MAIN RENDER ===
   // Desktop wraps the same screens in sidebar + main + right rail.
   // Mobile keeps the bottom-nav layout. Same state, same workflows, two shells.
 
+  const a11yClass = [
+    a11yDyslexia     && 'a11y-dyslexia',
+    a11yReduceMotion && 'a11y-reduce-motion',
+    a11yHighContrast && 'a11y-high-contrast',
+    a11yLargeText    && 'a11y-large-text',
+    a11yFocus        && 'a11y-focus',
+  ].filter(Boolean).join(' ');
+
   if (viewMode === 'desktop') {
     return (
-      <div className="min-h-screen page-bg font-body text-stone-900" style={{ fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
         <style>{css}</style>
 
         <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
@@ -5046,10 +5152,14 @@ export default function App() {
               </div>
 
               {/* Accessibility */}
-              <div className="p-3 rounded-xl bg-stone-50 text-[10px] text-stone-600 leading-relaxed flex gap-2">
-                <Heart className="w-3.5 h-3.5 text-[#c8102e] flex-shrink-0 mt-0.5" />
-                <div>Large print, braille, audio, BSL video relay, Relay UK — we offer them all.</div>
-              </div>
+              <button onClick={() => setShowA11ySheet(true)} className="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 text-left flex items-center gap-2.5 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+                <Heart className="w-3.5 h-3.5 text-[#c8102e] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] font-medium text-stone-900">Accessibility settings</div>
+                  <div className="text-[9px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active' : 'Dyslexia · motion · contrast · more'}</div>
+                </div>
+                <ChevronRight className="w-3 h-3 text-stone-400 flex-shrink-0" />
+              </button>
 
               {/* Motto */}
               <div className="text-center pt-2">
@@ -5091,6 +5201,7 @@ export default function App() {
         {showOBSheet && <OBSheet />}
         {showVoiceMemo && <VoiceMemoSheet />}
         {showSequencer && <SequencerSheet />}
+        {showA11ySheet && <A11ySheet />}
         {showVoiceSetup && <VoiceIdSheet />}
         {showNotifications && <NotificationsSheet />}
 
@@ -5174,7 +5285,7 @@ export default function App() {
 
   // Mobile shell (default)
   return (
-    <div className="min-h-screen page-bg font-body text-stone-900" style={{ fontFamily: "'Geist', system-ui, sans-serif" }}>
+    <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
       <style>{css}</style>
 
       <header className="sticky top-0 z-30 bg-[#faf6ef]/85 backdrop-blur-xl border-b border-stone-200/60">
@@ -5259,6 +5370,7 @@ export default function App() {
       {showPinSheet && <PinSheet />}
       {showOBSheet && <OBSheet />}
       {showVoiceMemo && <VoiceMemoSheet />}
+      {showA11ySheet && <A11ySheet />}
       {showSequencer && <SequencerSheet />}
       {showVoiceSetup && <VoiceIdSheet />}
       {showNotifications && <NotificationsSheet />}
