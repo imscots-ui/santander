@@ -590,7 +590,7 @@ export default function App() {
     const mtdScore = overdueObs === 0 ? 20 : Math.max(0, 20 - overdueObs * 10);
     const warnWks = forecastWeeks.filter(w => w.warn).length;
     const cfScore = Math.max(0, 20 - warnWks * 3);
-    const annualPay = payees.filter(p => p.selected).reduce((s, p) => s + p.amount, 0) * 12;
+    const annualPay = payees.filter(p => p.selected).reduce((s, p) => s + (Number(p.amount) || 0), 0) * 12;
     const annualRev = mtdData.yearToDate.sales * (12 / 9);
     const ratio = annualPay / annualRev;
     const payScore = ratio < 0.30 ? 20 : ratio < 0.40 ? 14 : ratio < 0.50 ? 8 : 4;
@@ -1590,7 +1590,7 @@ export default function App() {
       setPayees(payees.map(p => p.id === id ? { ...p, selected: !p.selected } : p));
     };
     const updateAmount = (id, amount) => {
-      setPayees(payees.map(p => p.id === id ? { ...p, amount: amount === '' ? '' : Number(amount) } : p));
+      setPayees(payees.map(p => p.id === id ? { ...p, amount } : p));
     };
     const removePayee = (id) => {
       setPayees(payees.filter(p => p.id !== id));
@@ -1715,10 +1715,13 @@ export default function App() {
                 <Input value={newPayeeName} onChange={setNewPayeeName} placeholder="Full name" />
                 <Input value={newPayeeRole} onChange={setNewPayeeRole} placeholder="Role (optional)" />
                 <div className="grid grid-cols-2 gap-2">
-                  <Input value={newPayeeSort} onChange={setNewPayeeSort} placeholder="Sort code · 09-01-29" />
-                  <Input value={newPayeeAcct} onChange={setNewPayeeAcct} placeholder="Account no." />
+                  <Input value={newPayeeSort} onChange={v => {
+                    const d = v.replace(/\D/g, '').slice(0, 6);
+                    setNewPayeeSort(d.length <= 2 ? d : d.length <= 4 ? `${d.slice(0,2)}-${d.slice(2)}` : `${d.slice(0,2)}-${d.slice(2,4)}-${d.slice(4)}`);
+                  }} placeholder="Sort code · 09-01-29" />
+                  <Input value={newPayeeAcct} onChange={v => setNewPayeeAcct(v.replace(/\D/g, '').slice(0, 8))} placeholder="Account no." />
                 </div>
-                <Input value={newPayeeAmount} onChange={setNewPayeeAmount} placeholder="Amount £" type="number" />
+                <Input value={newPayeeAmount} onChange={setNewPayeeAmount} placeholder="Amount £" />
                 <div className="rounded-xl bg-blue-50 border border-blue-100 p-2.5 text-[11px] text-blue-900 leading-relaxed flex gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                   <div>We'll run a Confirmation of Payee check — usually under 5 seconds — to make sure the name matches before any money moves.</div>
@@ -1768,7 +1771,8 @@ export default function App() {
                           <div className="mt-2 flex items-center gap-2">
                             <span className="text-stone-500 text-sm">£</span>
                             <input
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               value={p.amount}
                               onChange={e => updateAmount(p.id, e.target.value)}
                               className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-sm font-mono num-tab focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 transition-colors"
@@ -1828,7 +1832,7 @@ export default function App() {
                     <div className="font-medium text-sm">{p.name}</div>
                     <div className="text-[11px] text-stone-500 font-mono">{p.sortCode} · {p.acct}</div>
                   </div>
-                  <div className="font-mono text-sm num-tab font-medium">{fmt(p.amount)}</div>
+                  <div className="font-mono text-sm num-tab font-medium">{fmt(Number(p.amount) || 0)}</div>
                 </div>
               ))}
             </div>
@@ -1985,7 +1989,7 @@ export default function App() {
             <div className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden">
               <div className="p-4">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-2">You send (GBP)</div>
-                <input type="number" value={fxAmount} onChange={e => setFxAmount(e.target.value)} placeholder="0.00"
+                <input type="text" inputMode="decimal" value={fxAmount} onChange={e => setFxAmount(e.target.value)} placeholder="0.00"
                   className="w-full font-display-tight text-3xl text-stone-900 bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded num-tab" />
               </div>
               <div className="border-t border-stone-100 p-4">
