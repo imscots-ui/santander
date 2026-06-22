@@ -375,11 +375,26 @@ export default function App() {
   };
 
   const VOICE_DEMO_EXPENSES = [
-    { merchant: 'Caffè Nero', amount: 4.50,   vat: 0.75,  category: 'Meals & Entertainment', example: '"Coffee with client, four fifty, entertainment"' },
-    { merchant: 'Shell Garage', amount: 62.40, vat: 10.40, category: 'Travel & Mileage',        example: '"Petrol, sixty-two forty, travel"' },
-    { merchant: 'Amazon Web Services', amount: 240.00, vat: 40.00, category: 'IT & Technology', example: '"AWS invoice, two forty, IT and software"' },
-    { merchant: 'Travelodge London', amount: 89.00, vat: 14.83, category: 'Accommodation',      example: '"Hotel in London, eighty-nine pounds, accommodation"' },
-    { merchant: 'Staples Office Supplies', amount: 34.99, vat: 5.83, category: 'Office Supplies', example: '"Staples, thirty-five pounds, office supplies"' },
+    { merchant: 'Caffè Nero',               amount:   4.50, vat:  0.75, category: 'Meals & Entertainment',  example: '"Coffee with client, four fifty, entertainment"' },
+    { merchant: 'Shell Garage',             amount:  62.40, vat: 10.40, category: 'Travel & Mileage',        example: '"Petrol, sixty-two forty, travel"' },
+    { merchant: 'Amazon Web Services',      amount: 240.00, vat: 40.00, category: 'IT & Technology',         example: '"AWS invoice, two forty, IT and software"' },
+    { merchant: 'Travelodge London',        amount:  89.00, vat: 14.83, category: 'Accommodation',           example: '"Hotel in London, eighty-nine pounds, accommodation"' },
+    { merchant: 'Staples Office Supplies',  amount:  34.99, vat:  5.83, category: 'Office Supplies',         example: '"Staples, thirty-five pounds, office supplies"' },
+    { merchant: 'Uber Business',            amount:  18.40, vat:  3.07, category: 'Travel & Mileage',        example: '"Uber to client site, eighteen forty, travel"' },
+    { merchant: 'LinkedIn Premium',         amount:  49.99, vat:  8.33, category: 'Subscriptions & Software',example: '"LinkedIn Premium, forty-nine ninety-nine, subscriptions"' },
+    { merchant: 'Microsoft 365 Business',   amount:  11.28, vat:  1.88, category: 'Subscriptions & Software',example: '"Microsoft three sixty-five, eleven twenty-eight, software"' },
+    { merchant: 'EE Business Mobile',       amount:  35.00, vat:  5.83, category: 'Telecoms',                example: '"EE mobile bill, thirty-five pounds, telecoms"' },
+    { merchant: 'National Rail',            amount:  87.50, vat:  0.00, category: 'Travel & Mileage',        example: '"Train to Manchester, eighty-seven fifty, travel"' },
+    { merchant: 'NCP Car Park London',      amount:  24.00, vat:  4.00, category: 'Travel & Mileage',        example: '"Parking in London, twenty-four pounds, travel"' },
+    { merchant: 'Pret A Manger',            amount:  11.25, vat:  1.88, category: 'Meals & Entertainment',  example: '"Pret lunch with team, eleven twenty-five, meals"' },
+    { merchant: 'Crowne Plaza Manchester',  amount: 145.00, vat: 24.17, category: 'Accommodation',           example: '"Hotel Manchester, one forty-five, accommodation"' },
+    { merchant: 'BT Business Broadband',    amount:  54.00, vat:  9.00, category: 'Telecoms',                example: '"BT broadband invoice, fifty-four pounds, telecoms"' },
+    { merchant: 'Google Workspace',         amount:  13.20, vat:  2.20, category: 'Subscriptions & Software',example: '"Google Workspace, thirteen twenty, software"' },
+    { merchant: 'Toolstation',              amount:  43.80, vat:  7.30, category: 'Repairs & Maintenance',   example: '"Toolstation, forty-three eighty, repairs and maintenance"' },
+    { merchant: 'Royal Mail Tracked',       amount:   6.95, vat:  0.00, category: 'Postage & Delivery',      example: '"Royal Mail parcel, six ninety-five, postage"' },
+    { merchant: 'Eventbrite — FinTech 2026',amount: 299.00, vat: 49.83, category: 'Training & Development', example: '"Conference ticket, two ninety-nine, training"' },
+    { merchant: 'Marks & Spencer',          amount:  67.40, vat: 11.23, category: 'Client Entertainment',    example: '"M&S client gift, sixty-seven forty, entertainment"' },
+    { merchant: 'FedEx International',      amount:  38.50, vat:  6.42, category: 'Postage & Delivery',      example: '"FedEx to Germany, thirty-eight fifty, postage"' },
   ];
   const doVoiceMemo = () => {
     setVoiceRecording(true);
