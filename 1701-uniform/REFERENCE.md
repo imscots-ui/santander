@@ -1,8 +1,8 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 49 books across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 49 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
-virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, and employment law.
+virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, and banking integration architecture.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -43,6 +43,7 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 32. [Microsoft PowerPoint 2024 — Step by Step (Sherer)](#section-32--microsoft-powerpoint-2024-step-by-step)
 33. [Microsoft PowerPoint 365 Complete Guide (Sherer)](#section-33--microsoft-powerpoint-365-complete-guide)
 34. [Equality Act 2010 — Employment & Accessibility Law](#section-34--equality-act-2010)
+35. [The Wrap-Around Architecture — Banking Integration Pattern](#section-35--the-wrap-around-architecture)
 
 ---
 
@@ -7324,3 +7325,204 @@ The EqA has direct operational relevance to financial services product design:
 ---
 
 *Section 34 synthesised from: Equality Act 2010 · Aileen McColgan · Institute of Employment Rights, October 2011 (34 pages)*
+
+---
+
+## Section 35 — The Wrap-Around Architecture
+
+*A pattern for adding capability to banking systems that are expensive or risky to change directly.*
+
+---
+
+### Overview
+
+**Document:** The Wrap-Around Architecture — Technical Follow-Up, Business Banking
+**Author:** Alan Davidson · Alan.Davidson@santander.co.uk
+**Date:** May 2026 (self-initiated, built outside core hours)
+**Status:** Concept exploration — pattern is generic to UK banking; specifics are illustrative
+**Audience:** Engineering leads, enterprise architects, product managers in regulated financial services
+
+**Context:** Written in response to three constraints raised by Santander stakeholder "David" on the original Business Banking paperless concept:
+1. Backend structure and Open Banking app-to-app limits
+2. HMRC/Companies House API connectivity constraints
+3. Team alignment and delivery timelines
+
+---
+
+### The Wrap-Around Pattern — Definition
+
+**Also known as:** Strangler, façade, anti-corruption layer, bounded context adapter.
+
+A wrap-around is a **thin orchestration layer** that:
+- Consumes existing system APIs without modification
+- Holds its own state for multi-step workflows the underlying systems don't natively support
+- Makes atomic, well-formed calls to underlying systems only when all conditions are fully satisfied
+- Exposes a modern, unified interface to the customer-facing layer
+- Absorbs the operational characteristics of underlying systems (rate limits, latency, downtime) so the upstream consumer never sees them
+
+**Core principle:** The wrap-around never asks existing teams to change anything. It reads from what exists and writes through existing endpoints.
+
+---
+
+### Why Banks Use This Pattern
+
+Core banking systems carry the highest regulatory, operational, and financial risk in the bank. Changing them is slow because slowing down is correct — mistakes propagate to the ledger, the regulator gets involved, and customers can lose money. Wrap-arounds let new behaviour ship faster without adding new risk surfaces to the core.
+
+**Proven precedents:**
+- **Goldman Sachs / Marcus** — Built as a wrap-around over their existing core; shipped a consumer banking product in 18 months that would have taken five years through core change
+- **Monzo (originally Mondo)** — Prototyped early on top of an RBS core before building their own; the wrap-around let them validate the product before committing to the engineering
+- **Lloyds / Mettle SME** — Runs as a wrap-around on a separate technology stack with bridges back to the main estate
+
+**Regulatory alignment:** The FCA's 2019 technology resilience expectations and 2023 Consumer Duty rules explicitly support modular architectures that decouple customer experience from legacy core constraints.
+
+---
+
+### Constraint 1: Backend Structure and Open Banking App-to-App Limits
+
+#### The constraint
+
+PSD2/Open Banking governs how **third parties** access bank data (AISPs and PISPs). These standards don't apply when a bank's own app talks to its own core systems — SCA still applies for payments over £30 and new device access, but the AISP/PISP regime doesn't.
+
+In practice, however, most UK banks have built their internal APIs to follow the same AISP/PISP conventions — atomic operations, no native multi-step transaction support, no built-in pending states. The API surface that the app can call doesn't support workflows like dual signature or cooling-off periods natively.
+
+Beyond API patterns, new core write paths require Architecture Review Board, Risk Committee, and BCP planning. These gates exist for good reasons and aren't going away.
+
+#### The wrap-around response
+
+**Workflow state lives outside the core.** Dual-signature coordination, cooling-off timers, pending mandate changes — any multi-step process is held in the wrap-around's own state store. The core never sees an in-progress state.
+
+Mandate change flow (6 steps):
+1. Wrap-around creates workflow record: `workflow_id`, `customer_id`, `requested_change`, `current_state = 'awaiting_second_signature'`
+2. Notifications go to the second signatory through existing notification infrastructure
+3. Second signature collected → updates workflow record state
+4. Cooling-off timer runs as a scheduled job against the workflow record
+5. Only when all conditions are met (both signatures, cooling-off elapsed, no cancellation) does the wrap-around make a single atomic call to the core's existing mandate-update API
+6. From the core's perspective: just another mandate update — the complexity is invisible
+
+**Compensating actions stay outside the core.** If a customer cancels mid-workflow, the wrap-around marks its workflow record as cancelled. No core call ever happened, so there's nothing to roll back. Audit events are written for both the initiation and cancellation, but the ledger remains untouched.
+
+**Atomicity preserved.** The two-phase commit problem (mandate write succeeds, audit write fails) is solved by writing audit events to the wrap-around's own ledger as part of the workflow record, and writing them to the core's audit substrate only when the core commit succeeds. If the core commit fails, the wrap-around's audit shows the attempt and the failure; the core's audit shows nothing. Both pictures remain consistent.
+
+**Why this works for Risk and BCP:**
+- No new write paths through the core — Risk Committee not invoked for new workflows
+- No new dependencies on core BCP — the wrap-around has its own BCP in a contained scope
+- No new data residency considerations — wrap-around state stays within UK/EEA boundary alongside the core
+- All core writes remain atomic and audited at the existing standard
+
+---
+
+### Constraint 2: HMRC and Companies House API Connectivity
+
+#### HMRC MTD specifics
+
+- Rate-limited per VRN; practical limits around quarter-end deadlines (7 May, 7 August, 7 November, 7 February for VAT)
+- Scheduled maintenance windows — typically Sunday early morning, occasionally announced with only days of notice
+- Returns 5xx errors during peak periods — retry logic is not optional
+- Contract changes approximately twice per year; breaking changes typically announced 90 days ahead but the transition is forced
+- OAuth 2.0 authentication; refresh tokens last 18 months but refresh handling must be robust against token expiring mid-submission
+
+#### Companies House specifics
+
+- Rate-limited to 600 requests per 5 minutes per API key
+- Free, but the rate limit prevents per-customer real-time monitoring across any portfolio of meaningful size
+- Data updates daily, not in real time
+- Occasional 5xx errors but generally reliable
+
+#### The wrap-around response
+
+**Treat external APIs as eventually consistent.** Don't pretend external data is real-time when it isn't. The wrap-around presents external data with explicit freshness indicators: *'verified at 06:14 today'*, *'last refreshed 9 minutes ago'*, *'submission queued, confirmation expected within 5 minutes.'*
+
+This aligns with Consumer Duty expectations — the FCA repeatedly flags that customers should be given accurate information about the state of their financial commitments, not optimistic approximations.
+
+**Companies House: nightly batch with on-demand refresh.** A nightly batch job queries Companies House for changes to all companies on the customer list. Results write to the wrap-around's KYB state store. The customer-facing app reads from the wrap-around's store, never directly from Companies House. On-demand refresh is available for specific high-priority cases (e.g., a customer initiating a mandate change triggers an immediate Companies House check for that one company — sub-second response, well within rate limits).
+
+**HMRC: queued submission with asynchronous confirmation.** MTD submissions are queued in the wrap-around. The customer experience:
+1. Customer reviews and confirms VAT submission
+2. Wrap-around accepts the submission and returns *'submission accepted, confirmation arriving shortly'* — instantly
+3. Wrap-around's submission worker processes the queue at a rate that respects HMRC's limits
+4. HMRC's response (success with correlation ID, or failure with error code) is written back to the wrap-around's submission record
+5. Customer is notified of the result through normal channels
+
+This decouples the customer experience from HMRC's response time. During quarter-end peak, submissions queue cleanly — the customer doesn't see a hung screen or a timeout.
+
+**API contract changes absorbed at the boundary.** When HMRC changes the MTD API, only the wrap-around's HMRC adapter needs to change. The customer-facing app's contract with the wrap-around stays the same. Core banking, payments, and audit systems don't need to know anything has changed.
+
+---
+
+### Constraint 3: Team Alignment and Delivery
+
+#### The constraint
+
+Large banks have multiple architecture teams with different priorities, different funding cycles, and different planning rhythms. Anything that requires sequenced delivery across three teams typically takes 18–24 months, often longer. This is the constraint that kills most internal proposals — even when the engineering is straightforward, getting four roadmaps aligned is hard.
+
+#### The wrap-around response
+
+**Single owning team, consumption-only interfaces.** The wrap-around is owned by one team. It consumes existing capabilities from other teams without asking them to change anything.
+
+| Team | What the wrap-around consumes (no changes requested) |
+|---|---|
+| Core banking | Existing read APIs (balances, mandates, transactions). Existing write APIs (mandate updates, account changes). No new endpoints, no new write paths. |
+| Payments hub | Existing Faster Payments, BACS, CHAPS, Confirmation of Payee endpoints. No new payment types. |
+| Data warehouse | Existing transaction categorisation feeds. Existing customer master record. No new data extractions, no new feeds. |
+| Identity / Auth | Existing authentication service, existing SCA flow. No new auth methods. |
+| RM operations | Existing Outlook, Bookings, RM CRM. Read-only API access to RM availability if not already exposed. |
+
+The only ask that crosses team boundaries is read-only access to RM availability — a small, well-defined integration request that most banks have either delivered or have on the immediate roadmap anyway.
+
+---
+
+### Land and Expand — Phased Delivery
+
+Rather than negotiating one large programme, sequence in three contained phases. Each phase ships on its own merits. The decision to proceed to Phase 2 is made after Phase 1 ships, based on actual results. No upfront commitment to the full programme.
+
+**Phase 1 — Prove the pattern (3–4 months)**
+- Ship one workflow end-to-end: mandate change for sole traders
+- Uses only existing core capabilities — no external APIs
+- Internal pilot with 50 employee accounts
+- Demonstrates that the wrap-around pattern is operationally viable in Santander's environment
+- Risk profile is minimal — sole trader mandates are simple and the workflow is short
+
+**Phase 2 — Dual-sig and partnership entities (3–4 months)**
+- Add dual-signature coordination for partnerships, limited companies, charities
+- Same wrap-around layer, same team, same dependencies
+- Beta with 500 external customers
+- Proves the harder workflow cases without inviting new dependencies
+
+**Phase 3 — External integrations (6 months)**
+- MTD VAT integration (3 months to HMRC certification, can run in parallel with build)
+- Companies House continuous monitoring
+- GOV.UK One Login for new signatory verification
+- By this point the wrap-around is proven, the team has the experience, and the external integrations land into known infrastructure
+
+---
+
+### Honest Limits of the Pattern
+
+Wrap-arounds are not a universal answer. Four classes of problem they do not solve:
+
+**Fundamental data model gaps.** If the core doesn't track per-account mandates at all — only at customer level — no wrap-around makes per-account behaviour possible. The wrap-around can only orchestrate state the core can hold. Where the core's data model is the limiting factor, core change is unavoidable.
+
+**Real-time requirements with eventually-consistent sources.** If a regulator requires real-time verification and Companies House updates daily, the wrap-around can't synthesise real-time. The honest answer is *'daily verified, here's the timestamp.'* Some regulators will accept that; some won't. Worth checking before building.
+
+**Scheme-level constraints.** Faster Payments has a £1m cap. CHAPS has a £35 minimum fee. BACS has a 3-day cycle. The wrap-around can route between schemes, surface fees to the customer, and absorb timing differences — but it cannot change the scheme rules themselves.
+
+**Regulatory licence boundaries.** If a new workflow requires Santander to hold a permission it doesn't currently hold (such as becoming an AISP for the customer's HMRC data), the wrap-around doesn't fix that. New permissions require regulatory engagement, which is its own timeline.
+
+---
+
+### Key Architectural Principles Summary
+
+| Principle | Implementation |
+|---|---|
+| Core is never aware of in-progress state | All workflow state held in wrap-around's own store |
+| Compensating actions never touch the core | Cancellation marks wrap-around record only |
+| Atomicity via two-phase record | Audit written to wrap-around first, then replicated to core audit on core commit success |
+| External APIs treated as eventually consistent | Freshness indicators surfaced to customer; never implied real-time |
+| Rate limits absorbed at boundary | Nightly batch (CH), queued submission (HMRC), sub-second on-demand where volume permits |
+| API contract changes absorbed at boundary | Adapter layer isolates customer app from upstream API churn |
+| Single owning team | No cross-team sequencing required — all dependencies are read-only consumption |
+| Land and expand | Three phases, each ships independently; no upfront programme commitment |
+
+---
+
+*Section 35 synthesised from: The Wrap-Around Architecture · Alan Davidson · Santander Business Banking · May 2026 (10 pages) · Concept follow-up, internal*
