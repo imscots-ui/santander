@@ -2468,7 +2468,8 @@ export default function App() {
                 onChange={e => handleInput(i, e.target.value)}
                 onKeyDown={e => handleKey(i, e)}
                 onFocus={e => e.target.select()}
-                aria-label={`Digit ${i + 1}`}
+                aria-label={`Digit ${i + 1} of 6`}
+                autoComplete={i === 0 ? 'one-time-code' : 'off'}
                 className={`w-12 h-14 text-center text-xl font-bold rounded-2xl border-2 transition-colors focus:outline-none focus-visible:ring-0
                   ${otpError
                     ? 'border-red-400 bg-red-50 text-red-700'

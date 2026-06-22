@@ -1,8 +1,9 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 49 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 52 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
-virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, and banking integration architecture.
+virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
+PSD2/SCA regulation, HMRC Making Tax Digital, and WCAG 2.1 accessibility.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -44,6 +45,9 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 33. [Microsoft PowerPoint 365 Complete Guide (Sherer)](#section-33--microsoft-powerpoint-365-complete-guide)
 34. [Equality Act 2010 — Employment & Accessibility Law](#section-34--equality-act-2010)
 35. [The Wrap-Around Architecture — Banking Integration Pattern](#section-35--the-wrap-around-architecture)
+36. [PSD2 / Strong Customer Authentication & Open Banking](#section-36--psd2--strong-customer-authentication--open-banking)
+37. [HMRC Making Tax Digital — VAT](#section-37--hmrc-making-tax-digital--vat)
+38. [WCAG 2.1 / ARIA Accessibility Patterns](#section-38--wcag-21--aria-accessibility-patterns)
 
 ---
 
@@ -7526,3 +7530,635 @@ Wrap-arounds are not a universal answer. Four classes of problem they do not sol
 ---
 
 *Section 35 synthesised from: The Wrap-Around Architecture · Alan Davidson · Santander Business Banking · May 2026 (10 pages) · Concept follow-up, internal*
+
+---
+
+## Section 36 — PSD2 / Strong Customer Authentication & Open Banking
+
+*Synthesised from: EU Delegated Regulation 2018/389 (RTS on SCA), FCA PS19/26, EBA Opinion EBA-Op-2019-06, Open Banking Implementation Entity (OBIE) standards, PSD2 Directive 2015/2366/EU.*
+
+---
+
+### What PSD2 Is
+
+The **Payment Services Directive 2** (2015/2366/EU) is the EU regulation — carried into UK law via the Payment Services Regulations 2017 (PSR 2017) — that:
+
+1. Requires banks to open their payment and account data to authorised third parties (Open Banking)
+2. Mandates **Strong Customer Authentication** for electronic payments and new device access
+3. Defines two new regulated firm types: **AISPs** (account information) and **PISPs** (payment initiation)
+4. Sets liability rules between banks, third parties, and customers
+
+Post-Brexit the UK version is governed by the FCA under PSR 2017; the EU version continues under PSD2 directly. They are substantively equivalent for SCA purposes.
+
+---
+
+### Strong Customer Authentication — The Core Rule
+
+**RTS Art. 4:** SCA requires at least **two** of three independent factors:
+
+| Factor | Category | Examples |
+|--------|----------|----------|
+| Something you **know** | Knowledge | PIN, password, security question |
+| Something you **have** | Possession | Phone receiving OTP, hardware token, push notification on enrolled device |
+| Something you **are** | Inherence | Fingerprint, Face ID, face recognition, voice |
+
+"Independent" means: compromise of one factor must not compromise another. A PIN + OTP to the same device satisfies the rule because the phone is possession and the PIN is knowledge, even though both go through the device.
+
+**Dynamic linking (RTS Art. 5):** For payment SCA, the authentication code must be dynamically linked to:
+- The **amount** of the transaction
+- The **payee** (beneficiary)
+
+If either changes after SCA completes, re-authentication is required. This is why the OTP context string in this app includes the amount and beneficiary name.
+
+```jsx
+// CORRECT — dynamic linking: amount and payee in context
+triggerOTP(`International payment · £${amount} → ${beneficiary}`, callback)
+
+// WRONG — no binding to transaction specifics
+triggerOTP('Confirm payment', callback)
+```
+
+---
+
+### SCA Exemptions (RTS Art. 10–18)
+
+Banks **may** (not must) apply exemptions. Each exemption is the bank's decision, not the customer's right.
+
+| Exemption | Threshold / Condition |
+|-----------|----------------------|
+| Low-value contactless | ≤ £100 cumulative or ≤ £45 per transaction |
+| Low-risk transaction | TRA (transaction risk analysis) — requires fraud rates below EBA thresholds |
+| Trusted beneficiary | Customer has whitelisted the payee |
+| Recurring transactions | Same amount, same payee, set up with SCA; subsequent payments exempt |
+| Corporate payments | Business-grade protocols (dedicated payment software, dedicated lines) |
+| Low-value remote payment | ≤ £30, cumulative ≤ £100 or last 5 transactions |
+
+**In prototype context:** The app always triggers SCA for payments. This is conservative (safer for a demo) but technically the low-value exemption would skip OTP for payments under £30.
+
+---
+
+### Open Banking — AISP vs PISP
+
+**AISP (Account Information Service Provider)** — read-only access to account data:
+- Requires PSU (payment service user) consent per connection
+- Access token typically valid 90 days; re-authentication required after
+- Can retrieve: balance, transactions, account details
+- Cannot initiate payments
+
+**PISP (Payment Initiation Service Provider)** — payment initiation:
+- Requires SCA for each payment initiation
+- Must not store PSU credentials
+- Must get explicit consent per payment
+- Redirects user to ASPSP (bank) for SCA, or uses embedded/decoupled flow
+
+**In this prototype:** All data is local (no real AISP/PISP calls). The third-party apps in Settings → Connected apps (Dext, Xero, Float) simulate AISP scopes. The FX and payee flows simulate PISP SCA requirements.
+
+---
+
+### Confirmation of Payee (CoP)
+
+Introduced by PSR 2020 (UK only). Required for UK Faster Payments and CHAPS above certain thresholds.
+
+**How it works:**
+1. Payer enters sort code + account number
+2. Payer's bank sends a name lookup request to the payee's bank
+3. Response: `MATCH` / `CLOSE_MATCH` / `NO_MATCH` / `UNAVAILABLE`
+4. `CLOSE_MATCH` means the name is similar but not identical — bank must display the actual registered name
+5. Payer must confirm or abort; the bank is not obligated to block but must inform
+
+**Implementation note:**
+```jsx
+// After sort code + account number entered, show status pill:
+// MATCH → green "Name matched"
+// CLOSE_MATCH → amber "Name similar: Acme Ltd — did you mean this?"
+// NO_MATCH → red "Name not matched — check details before proceeding"
+// UNAVAILABLE → neutral "CoP unavailable for this bank"
+```
+
+The `copStatus` field on payees in this app (`'verified'` / `'pending'`) simulates this.
+
+---
+
+### Consent & Scope — What Third Parties Can Access
+
+**PSD2 Article 67/68** specifies what AISPs may access. Banks may not deny access to data that is available to the customer, but may restrict access to data that isn't transaction-related (e.g. credit scoring data).
+
+**Scope tokens used in this app (aligned to OBIE scopes):**
+
+```
+openid                    — identity
+accounts                  — account list
+balances                  — current balances
+transactions              — transaction history
+beneficiaries             — saved payees
+direct-debits             — direct debit mandates
+standing-orders           — standing order list
+```
+
+---
+
+### SCA in This App — Implementation Map
+
+| Flow | SCA trigger | Authentication elements |
+|------|-------------|------------------------|
+| Approve mandate/payment | OTPSheet | Possession (device) + Knowledge (PIN entry on FaceID prompt) |
+| FX international payment | OTPSheet | Possession + Knowledge; context includes amount + beneficiary |
+| Add new payee | OTPSheet | Possession + Knowledge; prevents unauthorised payee creation |
+| Card PIN reveal | PinSheet | Possession + Inherence (biometric gate before PIN shown) |
+| Login / new device | PIN screen | Possession + Knowledge or Possession + Inherence |
+
+---
+
+### Key Regulatory References
+
+- **RTS Art. 4** — SCA requirements (two factors)
+- **RTS Art. 5** — Dynamic linking for payments
+- **RTS Art. 10** — Contactless exemption
+- **RTS Art. 17** — Trusted beneficiary whitelist
+- **RTS Art. 97** — SCA obligation trigger (this is the label shown in the OTP sheet)
+- **PSR 2017 Reg. 100** — SCA obligation for UK remote payments
+- **FCA PS19/26** — FCA's final policy statement on SCA migration
+- **Open Banking OBIE DCR** — Dynamic Client Registration for third-party access
+
+---
+
+## Section 37 — HMRC Making Tax Digital — VAT
+
+*Synthesised from: HMRC Notice 700/22 (Making Tax Digital for VAT), HMRC MTD VAT API documentation v1.0, Finance Act 2019 s.56, VAT Act 1994.*
+
+---
+
+### What MTD for VAT Is
+
+**Making Tax Digital (MTD)** requires VAT-registered businesses above the registration threshold (£90,000 from April 2024, previously £85,000) to:
+
+1. Keep **digital records** of their VAT transactions
+2. Submit VAT returns **directly from software** via HMRC's API — no manual portal entry
+3. Maintain a **digital audit trail** from source transaction to submitted figure
+
+MTD for VAT has been mandatory since:
+- **April 2019** — businesses above the VAT registration threshold
+- **April 2022** — all VAT-registered businesses including voluntarily registered
+
+---
+
+### Obligation Periods
+
+HMRC assigns each business an **obligation period** — the reporting quarter. There are three stagger groups:
+
+| Stagger | Quarters end |
+|---------|-------------|
+| Group 1 (default) | 31 Mar, 30 Jun, 30 Sep, 31 Dec |
+| Group 2 | 30 Apr, 31 Jul, 31 Oct, 31 Jan |
+| Group 3 | 31 May, 31 Aug, 30 Nov, 28/29 Feb |
+
+**Filing deadline:** 1 calendar month + 7 days after the quarter end. So for a 30 June quarter end, the deadline is 7 August.
+
+**Payment deadline:** Same as filing deadline for direct debit; otherwise 1 month + 7 days. HMRC automatically collects via direct debit 3 working days after the filing date.
+
+```js
+// Deadline calculation:
+const quarterEnd = new Date('2026-06-30');
+const filingDeadline = new Date(quarterEnd);
+filingDeadline.setMonth(filingDeadline.getMonth() + 1);
+filingDeadline.setDate(filingDeadline.getDate() + 7);
+// → 7 August 2026
+```
+
+---
+
+### The Nine VAT Return Boxes
+
+A standard VAT100 return has exactly nine boxes:
+
+| Box | Label | What it contains |
+|-----|-------|-----------------|
+| Box 1 | VAT due on sales | Output VAT charged to customers |
+| Box 2 | VAT due on acquisitions (EC) | VAT on goods from EU (post-Brexit: not applicable for most) |
+| Box 3 | Total VAT due | Box 1 + Box 2 |
+| Box 4 | VAT reclaimed | Input VAT on purchases (reclaimable) |
+| Box 5 | Net VAT | Box 3 minus Box 4 (amount to pay or reclaim) |
+| Box 6 | Total value of sales | Excluding VAT |
+| Box 7 | Total value of purchases | Excluding VAT |
+| Box 8 | Total value of EC supplies | Post-Brexit: £0 for most UK businesses |
+| Box 9 | Total value of EC acquisitions | Post-Brexit: £0 for most UK businesses |
+
+**Box 5 is always the payment/refund amount.** Positive = pay HMRC. Negative = HMRC owes you.
+
+---
+
+### Digital Records Required (Notice 700/22 Para 4)
+
+Digital records must include for each supply **received** (purchases):
+- Time of supply (tax point)
+- Value of supply (net)
+- Amount of input tax to be claimed (VAT amount)
+- Supplier name
+
+For each supply **made** (sales):
+- Time of supply
+- Value of supply
+- Rate of VAT charged
+- Amount of output tax
+
+**Bridging software:** If accounting software can't connect directly to HMRC, a bridging piece is allowed — but there must be a **digital link** at every step. Copy-paste is not a digital link. Spreadsheet formulas are. Macros are.
+
+---
+
+### HMRC MTD VAT API — Key Endpoints
+
+Base URL: `https://api.service.hmrc.gov.uk/`
+
+```
+GET  /organisations/vat/{vrn}/obligations          — list open/fulfilled periods
+GET  /organisations/vat/{vrn}/returns/{periodKey}  — retrieve submitted return
+POST /organisations/vat/{vrn}/returns              — submit a return
+GET  /organisations/vat/{vrn}/liabilities          — outstanding payments
+GET  /organisations/vat/{vrn}/payments             — payment history
+```
+
+**VRN** = VAT Registration Number (9 digits).
+
+**Obligation statuses:**
+- `O` = Open (due, not yet submitted)
+- `F` = Fulfilled (submitted)
+
+**Authentication:** OAuth 2.0 with HMRC's auth server. Scopes required:
+- `write:vat` — submit returns
+- `read:vat` — read obligations, liabilities, payments
+
+---
+
+### Submission Payload (POST /returns)
+
+```json
+{
+  "periodKey": "24A1",
+  "vatDueSales": 1025.50,
+  "vatDueAcquisitions": 0.00,
+  "totalVatDue": 1025.50,
+  "vatReclaimedCurrPeriod": 312.48,
+  "netVatDue": 713.02,
+  "totalValueSalesExVAT": 5127.50,
+  "totalValuePurchasesExVAT": 1562.40,
+  "totalValueGoodsSuppliedExVAT": 0,
+  "totalAcquisitionsExVAT": 0,
+  "finalised": true
+}
+```
+
+**`finalised: true`** is required for a live submission. `false` is used for test submissions in the sandbox.
+
+**Period key format:** `YYMM` pattern where MM is the last month of the quarter. `24A1` = Q1 2024 (Jan–Mar). HMRC provides the exact periodKey in the obligations response — always use that, never calculate it.
+
+---
+
+### Penalties (Post April 2023 Penalty Reform)
+
+Old default surcharge regime replaced by a points-based system:
+
+**Late filing:**
+- Each missed filing = 1 point
+- Points threshold: 4 points for quarterly filers → £200 penalty
+- Points expire after 24 months of clean filing
+
+**Late payment:**
+- 2% of unpaid VAT if outstanding after 15 days
+- 4% if outstanding after 30 days
+- Additional 4% per annum daily from day 31
+
+**Interest:** HMRC late payment interest = Bank of England base rate + 2.5%.
+
+---
+
+### MTD in This App — Implementation Map
+
+| Feature | HMRC alignment |
+|---------|---------------|
+| MTD screen transaction list | Simulates digital records requirement (Notice 700/22 §4) |
+| Business/personal categorisation | Simulates input tax apportionment for partial exemption |
+| Box totals (1, 4, 5, 6, 7) | Correct VAT100 box numbering |
+| Submission declaration | "I confirm the information is true and complete" — mirrors HMRC statutory declaration wording |
+| Receipt number on submission | HMRC returns a `formBundleNumber` on successful POST; shown as receipt number |
+| Obligation period display | 30 Jun 2026 quarter end, 7 Aug 2026 deadline — correct stagger Group 1 |
+
+---
+
+### Common Mistakes to Avoid
+
+- **Never submit Box 8 or Box 9 as non-zero for most post-Brexit UK businesses** — EC acquisitions and supplies are near-universally zero since January 2021
+- **Box 5 must equal Box 3 minus Box 4 exactly** — HMRC validation rejects submissions where these don't balance
+- **Period key must come from the obligations API** — don't derive it algorithmically; HMRC occasionally uses non-standard keys
+- **`finalised` must be `true`** for live submission — sandbox defaults to false; leaving it false in production means the return is ignored
+
+---
+
+## Section 38 — WCAG 2.1 / ARIA Accessibility Patterns
+
+*Synthesised from: W3C WCAG 2.1 (Web Content Accessibility Guidelines), WAI-ARIA 1.2 specification, ARIA Authoring Practices Guide (APG), MDN Accessibility docs.*
+
+---
+
+### The Four Principles (POUR)
+
+**Perceivable** — Information must be presentable in ways users can perceive.
+**Operable** — Interface components must be operable (keyboard navigable, no timing traps).
+**Understandable** — Information and UI operation must be understandable.
+**Robust** — Content must be interpretable by assistive technologies.
+
+---
+
+### Conformance Levels
+
+| Level | Requirement |
+|-------|-------------|
+| A | Minimum. Must pass. Includes alt text, keyboard access, no colour-only info. |
+| AA | Standard. Required by UK PSBAR, EN 301 549, most legal mandates. |
+| AAA | Enhanced. Not required but aspirational for critical flows. |
+
+**UK legal mandate:** PSBAR 2018 (Public Sector Bodies Accessibility Regulations) requires AA for public bodies. The Equality Act 2010 (§34 in this library) requires "reasonable adjustments" — in practice courts interpret this as WCAG 2.1 AA for digital services.
+
+---
+
+### Colour Contrast (WCAG 1.4.3 — Level AA)
+
+**Normal text** (< 18pt or < 14pt bold): minimum **4.5:1** contrast ratio against background.
+**Large text** (≥ 18pt or ≥ 14pt bold): minimum **3:1**.
+**UI components** (button borders, input borders, icons): minimum **3:1** against adjacent colour.
+
+```js
+// Santander brand colours — contrast check:
+// #c8102e (brand red) on #faf6ef (page bg):  ratio ≈ 5.2:1  ✓ AA
+// #c8102e on #ffffff (white card):            ratio ≈ 4.8:1  ✓ AA
+// text-stone-500 (#78716c) on white:          ratio ≈ 4.1:1  ✗ FAILS AA for normal text
+// text-stone-600 (#57534e) on white:          ratio ≈ 5.9:1  ✓ AA
+// text-white/65 on #c8102e:                   ratio ≈ 3.1:1  ✓ AA large text only
+```
+
+**Rule:** Never use `text-stone-500` or lighter for normal-weight body text on white/light backgrounds. Use `text-stone-600` minimum.
+
+---
+
+### Focus Management (WCAG 2.4.3, 2.4.7)
+
+**2.4.3 Focus Order** — Focus must follow a logical reading sequence. Don't reorder DOM elements with CSS flexbox `order` in a way that diverges from tab order.
+
+**2.4.7 Focus Visible** — Any keyboard-focusable element must have a visible focus indicator.
+
+```css
+/* WRONG — removes all focus indication */
+button { outline: none; }
+
+/* CORRECT — removes default outline but provides custom indicator */
+button:focus { outline: none; }
+button:focus-visible { outline: 2px solid #c8102e; outline-offset: 2px; }
+```
+
+**In Tailwind:**
+```jsx
+// WRONG
+className="focus:outline-none"
+
+// CORRECT — always pair with focus-visible
+className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]"
+```
+
+This is enforced by the standing security orders in CLAUDE.md.
+
+---
+
+### ARIA Landmark Roles
+
+Landmarks allow screen reader users to jump to regions without tabbing through everything.
+
+| Role | HTML equivalent | Use for |
+|------|----------------|---------|
+| `banner` | `<header>` | Site header, app top bar |
+| `navigation` | `<nav>` | Main nav, bottom tab bar |
+| `main` | `<main>` | Primary content area |
+| `complementary` | `<aside>` | Secondary content (sidebar) |
+| `contentinfo` | `<footer>` | Footer |
+| `region` | `<section>` with label | Named section requiring a label |
+| `form` | `<form>` with label | Forms requiring a label |
+| `search` | — | Search inputs |
+
+```jsx
+// Bottom tab nav — correct landmark
+<nav aria-label="Main navigation" role="navigation">
+  <button aria-current={tab === 'home' ? 'page' : undefined}>Home</button>
+</nav>
+
+// Main content area
+<main id="main-content" tabIndex={-1}>
+  {/* screen content */}
+</main>
+```
+
+---
+
+### ARIA Live Regions (Dynamic Content)
+
+Live regions announce dynamic updates to screen readers without focus changes.
+
+```jsx
+// Toast/notification — assertive interrupts immediately
+<div role="alert" aria-live="assertive" aria-atomic="true">
+  {toastMessage}
+</div>
+
+// Status update — polite waits for user to finish current action
+<div role="status" aria-live="polite" aria-atomic="true">
+  {statusMessage}
+</div>
+
+// OTP timer countdown — avoid announcing every second
+<div aria-live="off" aria-atomic="true" id="otp-timer">
+  {/* Announce only on meaningful changes, not every tick */}
+</div>
+```
+
+**`aria-atomic="true"`** means the entire region is announced as one unit, not piecemeal. Use for short status messages. Without it, screen readers may announce partial updates.
+
+---
+
+### Interactive Widget Patterns
+
+#### Modal / Bottom Sheet
+
+```jsx
+<div
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="sheet-title"
+  aria-describedby="sheet-desc"
+>
+  <h2 id="sheet-title">Verify it's you</h2>
+  <p id="sheet-desc">Enter the code sent to your phone</p>
+  {/* content */}
+</div>
+```
+
+**Focus trap:** When a modal opens, focus must move inside it. When it closes, focus returns to the triggering element.
+
+```jsx
+// On open — move focus to first focusable element
+useEffect(() => {
+  if (showOTP) setTimeout(() => otpRefs.current[0]?.focus(), 50);
+}, [showOTP]);
+
+// On close — return focus to trigger
+const triggerRef = useRef(null);
+// Store trigger ref before opening; restore on close
+```
+
+#### Button vs Link
+
+- `<button>` — triggers an action (submit, open modal, toggle state). No `href`.
+- `<a>` — navigates to a new location or resource. Must have `href`.
+- Never use `<div onClick>` for interactive controls — no keyboard access, no role semantics.
+
+```jsx
+// WRONG — div is not keyboard accessible
+<div onClick={handleClick} className="cursor-pointer">Submit</div>
+
+// CORRECT — button is focusable, activatable with Enter/Space
+<button onClick={handleClick} type="button">Submit</button>
+```
+
+#### Disclosure / Accordion
+
+```jsx
+<button
+  aria-expanded={isOpen}
+  aria-controls="accordion-body"
+  id="accordion-trigger"
+>
+  {isOpen ? 'Hide details' : 'Show details'}
+</button>
+<div
+  id="accordion-body"
+  role="region"
+  aria-labelledby="accordion-trigger"
+  hidden={!isOpen}
+>
+  {/* content */}
+</div>
+```
+
+---
+
+### Form Accessibility
+
+**Every input must have a label** — either `<label for>`, `aria-label`, or `aria-labelledby`. Placeholder text is not a label — it disappears on input and has insufficient contrast.
+
+```jsx
+// WRONG — placeholder only
+<input placeholder="Sort code" />
+
+// CORRECT — explicit label
+<label htmlFor="sort-code" className="text-sm text-stone-700">Sort code</label>
+<input id="sort-code" aria-describedby="sort-code-hint" />
+<p id="sort-code-hint" className="text-xs text-stone-500">Format: XX-XX-XX</p>
+```
+
+**Error messages:**
+```jsx
+// Link error to input with aria-describedby
+<input
+  aria-invalid={hasError}
+  aria-describedby={hasError ? 'sort-error' : undefined}
+/>
+{hasError && (
+  <p id="sort-error" role="alert" className="text-xs text-red-600">
+    Sort code must be in XX-XX-XX format
+  </p>
+)}
+```
+
+**Required fields:**
+```jsx
+<input required aria-required="true" />
+// Or describe it in the label: "Sort code (required)"
+```
+
+---
+
+### OTP Input Accessibility (Applied to This App)
+
+The 6-box OTP input needs:
+
+```jsx
+<div role="group" aria-labelledby="otp-label">
+  <span id="otp-label" className="sr-only">
+    Enter the 6-digit code from your text message
+  </span>
+  {otpDigits.map((d, i) => (
+    <input
+      key={i}
+      ref={el => { otpRefs.current[i] = el; }}
+      type="text"
+      inputMode="numeric"
+      maxLength={6}
+      value={d}
+      aria-label={`Digit ${i + 1} of 6`}
+      autoComplete={i === 0 ? 'one-time-code' : 'off'}
+      onChange={e => handleInput(i, e.target.value)}
+      onKeyDown={e => handleKey(i, e)}
+    />
+  ))}
+</div>
+```
+
+`autoComplete="one-time-code"` on the first box allows iOS/Android to suggest the SMS code from the notification tray.
+
+---
+
+### Screen Reader Testing Checklist
+
+| Check | Tool |
+|-------|------|
+| Headings make sense in isolation | NVDA (Windows), VoiceOver (Mac/iOS) |
+| All images have meaningful alt text | axe DevTools, Lighthouse |
+| Colour contrast ≥ 4.5:1 normal text | Colour Contrast Analyser, Chrome DevTools |
+| All interactive elements keyboard reachable | Tab through the page |
+| Focus never disappears | Visual inspection while tabbing |
+| Modals trap focus correctly | Tab while modal is open |
+| Live regions announce correctly | VoiceOver + interact with dynamic content |
+| Form errors linked to inputs | axe DevTools |
+
+---
+
+### Reduced Motion (WCAG 2.3.3 — Level AAA, but consider)
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade, .anim-slide, .shimmer {
+    animation: none;
+    transition: none;
+  }
+}
+```
+
+In Tailwind: `motion-reduce:animate-none` on animated elements. Users with vestibular disorders can trigger seizures from parallax, autoplay, or rapid animations.
+
+---
+
+### ARIA Anti-Patterns (What Not to Do)
+
+```jsx
+// WRONG — redundant role (div already doesn't have button role)
+<div role="button" onClick={fn}>Click</div>  // use <button> instead
+
+// WRONG — empty aria-label
+<button aria-label="">Submit</button>
+
+// WRONG — hiding focusable element from AT but keeping it visible
+<button aria-hidden="true">Submit</button>  // keyboard trap: focusable but invisible to SR
+
+// WRONG — using aria-label to override visible text with something different
+<button aria-label="Delete all files">Edit</button>  // confuses all users
+
+// CORRECT — aria-label supplements when visual label is absent
+<button aria-label="Close dialog"><X /></button>  // no visible text, so label needed
+```
+
