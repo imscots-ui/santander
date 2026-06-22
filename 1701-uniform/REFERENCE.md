@@ -1,8 +1,8 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 46 books across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 49 books across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
-virtual team leadership, Power BI, data analytics, PowerPoint, and SharePoint.
+virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, and employment law.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -40,6 +40,9 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 29. [Data Analytics with Excel & Power BI](#section-29--data-analytics-with-excel--power-bi)
 30. [PowerPoint — Presentation Design & Delivery](#section-30--powerpoint--presentation-design--delivery)
 31. [Microsoft SharePoint 365](#section-31--microsoft-sharepoint-365)
+32. [Microsoft PowerPoint 2024 — Step by Step (Sherer)](#section-32--microsoft-powerpoint-2024-step-by-step)
+33. [Microsoft PowerPoint 365 Complete Guide (Sherer)](#section-33--microsoft-powerpoint-365-complete-guide)
+34. [Equality Act 2010 — Employment & Accessibility Law](#section-34--equality-act-2010)
 
 ---
 
@@ -7148,3 +7151,176 @@ Introduction to PowerPoint — MBA Coursework Series (Hicham & Mohamed Ibnalkadi
 Microsoft SharePoint 365 for Beginners & Power Users (Tech Demystified),
 Microsoft PowerPoint User Guide 2024: A Step-By-Step Guide (Charles Sherer),
 Microsoft PowerPoint 365 (Charles Sherer).*
+
+
+---
+
+## Section 34 — Equality Act 2010
+
+*Source: Equality Act 2010 · Aileen McColgan · Institute of Employment Rights · October 2011*
+*McColgan is Professor of Human Rights Law, King's College London; barrister, Matrix Chambers*
+
+---
+
+### Overview
+
+The Equality Act 2010 (EqA) consolidated a mass of preceding discrimination legislation — Equal Pay Act 1970, Sex Discrimination Act 1975, Race Relations Act 1976, Disability Discrimination Act 1995, and seven further instruments — into a single Act of 239 pages. It applies across England, Scotland, and Wales. The EqA defines protected characteristics, prohibits discrimination in employment and public life, and imposes positive duties on public sector bodies.
+
+---
+
+### Protected Characteristics (s.4)
+
+Nine protected characteristics — discrimination relating to any of these is regulated:
+
+| Characteristic | Key notes |
+|---|---|
+| **Age** | Only characteristic where direct discrimination can be justified (proportionate means / legitimate aim) |
+| **Disability** | Physical or mental impairment with substantial, long-term adverse effect on normal day-to-day activities |
+| **Gender reassignment** | No requirement for medical involvement — any process of reassigning sex |
+| **Marriage / civil partnership** | Limited coverage — excluded from indirect discrimination and harassment provisions |
+| **Pregnancy / maternity** | Excluded from harassment provisions; covered via sex discrimination route |
+| **Race** | Includes colour, nationality, ethnic and national origins |
+| **Religion or belief** | Genuine Occupational Qualification exceptions apply for religious bodies |
+| **Sex** | Includes equal pay; positive action provisions available |
+| **Sexual orientation** | Covered by EU Directive 2000/78/EC framework |
+
+---
+
+### Types of Discrimination
+
+**Direct discrimination (s.13)** — Less favourable treatment "because of" a protected characteristic. No comparator required for pregnancy/maternity. Age alone can be justified. Racial segregation is expressly a form of direct race discrimination.
+
+**Indirect discrimination (s.19)** — A provision, criterion or practice (PCP) that:
+- Applies equally to all
+- Puts persons sharing B's characteristic at a particular disadvantage
+- Puts B at that disadvantage
+- Cannot be shown to be a proportionate means of achieving a legitimate aim
+
+Single definition now applies across all grounds (except marriage/civil partnership) and across all contexts (employment, services, housing, education, public functions).
+
+**Harassment (s.26)** — Unwanted conduct related to a protected characteristic that has the purpose or effect of:
+- Violating B's dignity, or
+- Creating an intimidating, hostile, degrading, humiliating or offensive environment
+
+Objective element applies where effect (not purpose) is relied upon — tribunal considers B's perception, circumstances, and whether it was reasonable for the conduct to have that effect. Sexual harassment and quid pro quo harassment are separately defined.
+
+**Victimisation (s.27)** — Subjecting B to a detriment because B has done, or A believes B has done or may do, a protected act (bringing proceedings, alleging discrimination, assisting proceedings). No comparator needed under EqA — improvement over previous law.
+
+**Instructions to discriminate (s.111)** — Prohibits A instructing B to discriminate against C. Actionable by both B and C if subjected to detriment. Only applies where A's relationship with B is such that A could themselves commit the basic contravention against B.
+
+---
+
+### Disability — Special Provisions
+
+**Reasonable adjustments (s.21)** — Where a PCP, physical feature, or lack of auxiliary aid puts a disabled person at a substantial disadvantage compared to non-disabled persons, the duty-holder must take reasonable steps to avoid the disadvantage. Applies in employment, services, and public functions.
+
+**Discrimination arising from disability (s.15)** — Unfavourable treatment because of something arising in consequence of a person's disability, unless:
+- The treatment is a proportionate means of achieving a legitimate aim, AND
+- The duty-holder knew (or should have known) of the disability
+
+No comparator required — improvement over the House of Lords decision in *Lewisham LBC v Malcolm* which had gutted disability-related discrimination under the DDA.
+
+**Pre-employment health questions (s.60)** — Employers cannot ask about health or disability before a job offer is made except in prescribed circumstances (e.g., adjustments for interview, monitoring, occupational requirements). Violation does not void any contract but is enforceable by the EHRC.
+
+---
+
+### Employment — Scope of Prohibitions (Part 5)
+
+Discrimination prohibited across all stages and relationships:
+- Employees and applicants (ss.39–40)
+- Contract workers (s.41)
+- Police officers (ss.42–43)
+- Partners (ss.44–46)
+- Barristers and advocates (ss.47–48)
+- Office holders (ss.49–52)
+
+**Third-party harassment (s.40(2))** — Employer liable where a third party harasses an employee in the course of employment and the employer failed to take reasonably practicable steps to prevent it (now subject to amendment, but the principle stands).
+
+---
+
+### Equal Pay (Chapter 3, Part 5)
+
+A sex equality clause is implied into every employment contract where no such term already exists. Equal pay claims require a real comparator employed by the same or associated employer. The law does not cover hypothetical comparators.
+
+**Material factor defence** — An employer may justify a pay difference by showing a genuine material factor that is not the difference of sex and does not involve indirect sex discrimination (or if it does, is justified).
+
+**Pay secrecy clauses** — Terms preventing employees discussing pay are unenforceable insofar as they prevent a "protected disclosure" — i.e., a disclosure made for the purpose of identifying whether there is a connection between a difference in pay and a protected characteristic.
+
+**Equal pay audits** — Employment tribunals may order an equal pay audit following a successful equal pay claim.
+
+---
+
+### Positive Action (ss.158–159)
+
+**General positive action (s.158)** — Permitted (not required) where a person reasonably thinks persons sharing a protected characteristic suffer disadvantage or have disproportionately low participation. Action must be a proportionate means of enabling participation or removing disadvantage.
+
+**Positive action in recruitment (s.159)** — Where candidates are "as qualified as" each other, an employer may select the candidate from an underrepresented group. Cannot be used as an automatic preference policy. Applies only as a tiebreaker.
+
+---
+
+### Public Sector Equality Duty (s.149 — Chapter 4)
+
+Public authorities (and private bodies exercising public functions) must, in the exercise of their functions, have due regard to the need to:
+1. Eliminate discrimination, harassment, victimisation, and other EqA-prohibited conduct
+2. Advance equality of opportunity between persons who share a protected characteristic and persons who do not
+3. Foster good relations between persons who share a protected characteristic and persons who do not
+
+**"Due regard"** — Not a duty to achieve results; a duty to consciously consider the PSED factors in decision-making. Weight given must be proportionate to the relevance of equality to the function being performed.
+
+**Publication duty** — Public authorities with 150+ employees must publish equality information annually demonstrating compliance with the PSED. Information must be published in an accessible way.
+
+**Equality objectives** — Authorities must publish one or more equality objectives at least every four years. Objectives must be specific and measurable.
+
+**Procurement** — Contracting authorities must have due regard to the PSED when awarding contracts; PSED-related requirements may be included in contract terms where relevant to subject matter.
+
+---
+
+### Genuine Occupational Qualifications (Schedule 9)
+
+An employer may apply a requirement that would otherwise be discriminatory where:
+- The employment is for the purposes of an organised religion
+- The requirement engages the compliance principle (conformity with religious doctrine) or the non-conflict principle (avoiding conflict with strongly held convictions of followers)
+- The applicant does not meet the requirement
+
+Requirements available under Schedule 9 include: being of a particular sex; not being a transsexual person; not being married to or in a civil partnership with a divorced person; requirements related to sexual orientation. The GOR must be a proportionate means of complying with the doctrine or avoiding the conflict — the original proportionality test was diluted during Parliamentary passage, which was criticised by equality organisations.
+
+---
+
+### Shortcomings — McColgan's Analysis
+
+**Conflict between protected characteristics** — The Act does not resolve conflicts between, e.g., religious beliefs and sexual orientation. Courts must balance competing rights case by case. The Act provides no hierarchy of characteristics.
+
+**Levelling down** — Where an employer cannot justify less favourable treatment of Group A compared to Group B, it may be tempting to remove Group B's advantage rather than extend it to Group A (e.g., removing enhanced maternity pay rather than providing equivalent paternity pay). The Act does not prevent this.
+
+**Systemic discrimination** — The Act's individually-focused enforcement model (tribunal claims brought by individuals) is poorly suited to addressing structural or institutional discrimination. Class actions are not available in UK employment law. The EHRC has enforcement powers but limited resources.
+
+**Section 14 (dual characteristics) not implemented** — The Coalition Government chose not to bring into force the provision allowing combined discrimination claims on two grounds simultaneously, citing a £3M annual cost to business.
+
+**Equal pay gap** — The Act's equal pay provisions are described by McColgan as "particularly unsatisfactory." The requirement for a real comparator, the complexity of material factor defences, and the absence of proactive pay transparency obligations leave significant gaps.
+
+---
+
+### Relevance to Digital Banking & Accessibility
+
+The EqA has direct operational relevance to financial services product design:
+
+| EqA provision | Banking application |
+|---|---|
+| **Reasonable adjustments (s.21)** | App must make reasonable adjustments for disabled customers — accessible UI, dyslexia fonts, reduced motion, large text |
+| **PSED (s.149)** | Applies to publicly-funded bodies; FCA-regulated firms must also consider vulnerable customers under FCA Guidance |
+| **Disability definition** | Dyslexia, ADHD, autism spectrum, dyscalculia, depression, and anxiety can all constitute disability under EqA |
+| **Indirect discrimination (s.19)** | A PCP that requires customers to use a digital channel without alternative may indirectly discriminate against older or disabled customers |
+| **Services provision (Part 3)** | Banks providing services to the public are prohibited from discriminating against customers on grounds of any protected characteristic |
+
+**FCA Vulnerable Customer Guidance (FG21/1)** — The FCA's guidance on the fair treatment of vulnerable customers sits alongside (and supplements) the EqA obligations. "Vulnerable customer" is broader than "disabled person" under EqA and includes those in financial difficulty, experiencing life events, or with low resilience. Banks should design products and services to meet the needs of vulnerable customers.
+
+**Accessibility best practice aligned with EqA:**
+- Offer alternative formats (large print, braille, audio, BSL)
+- Allow extra time for forms and decisions
+- Provide simplified language versions of complex terms
+- Design for cognitive load reduction (ADHD, autism, dyscalculia)
+- Ensure digital channels are not the only available channel
+
+---
+
+*Section 34 synthesised from: Equality Act 2010 · Aileen McColgan · Institute of Employment Rights, October 2011 (34 pages)*
