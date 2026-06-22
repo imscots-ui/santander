@@ -1,9 +1,10 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 52 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 56 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
-PSD2/SCA regulation, HMRC Making Tax Digital, and WCAG 2.1 accessibility.
+PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
+AML/KYC/KYB regulation, Companies House & Charity Commission APIs, and Tailwind CSS v3.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -48,6 +49,10 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 36. [PSD2 / Strong Customer Authentication & Open Banking](#section-36--psd2--strong-customer-authentication--open-banking)
 37. [HMRC Making Tax Digital — VAT](#section-37--hmrc-making-tax-digital--vat)
 38. [WCAG 2.1 / ARIA Accessibility Patterns](#section-38--wcag-21--aria-accessibility-patterns)
+39. [UK Payment Rails: Faster Payments, BACS, CHAPS & SWIFT](#section-39--uk-payment-rails-faster-payments-bacs-chaps--swift)
+40. [KYC, KYB & Anti-Money Laundering](#section-40--kyc-kyb--anti-money-laundering)
+41. [Companies House & Charity Commission APIs](#section-41--companies-house--charity-commission-apis)
+42. [Tailwind CSS v3 — Utility Reference & Patterns](#section-42--tailwind-css-v3--utility-reference--patterns)
 
 ---
 
@@ -8160,5 +8165,997 @@ In Tailwind: `motion-reduce:animate-none` on animated elements. Users with vesti
 
 // CORRECT — aria-label supplements when visual label is absent
 <button aria-label="Close dialog"><X /></button>  // no visible text, so label needed
+```
+
+
+---
+
+## Section 39 — UK Payment Rails: Faster Payments, BACS, CHAPS & SWIFT
+
+*Synthesised from: Pay.UK scheme rules, Faster Payments Scheme rulebook, BACS Payment Schemes Limited technical documentation, CHAPS scheme rules (Bank of England), SWIFT MT message standards, FCA PS21/3 APP fraud reimbursement.*
+
+---
+
+### The Four UK Payment Rails at a Glance
+
+| Rail | Speed | Limit | Typical use | Who controls |
+|------|-------|-------|-------------|--------------|
+| Faster Payments (FPS) | Seconds (< 20s typical) | £1,000,000 | Day-to-day, online, mobile | Pay.UK |
+| BACS Direct Credit | 3 working days | No formal limit (practical ~£20M) | Payroll, bulk supplier payments | Pay.UK |
+| BACS Direct Debit | 3 working days | Set by Service User | Regular collections, DDI mandates | Pay.UK |
+| CHAPS | Same day (< 2h) | No limit | High-value, property, large corporate | Bank of England |
+| SWIFT (international) | 1–5 working days | No limit | Cross-border, FX | SWIFT co-operative |
+
+---
+
+### Faster Payments (FPS)
+
+**Launched:** 2008. Near-universal UK bank participation (mandatory for current account providers since 2018 via PSO designation).
+
+**Processing:** 24/7/365. Most payments settle in under 20 seconds. Irrevocable once in settlement — the bank cannot recall a Faster Payment unilaterally; requires the beneficiary bank's cooperation (APP fraud exception below).
+
+**Limits:**
+- Scheme maximum: £1,000,000 per transaction
+- Banks set their own lower limits (typically £25,000–£250,000 for retail; £1M for business)
+- No minimum
+
+**Message format:** ISO 20022 (pacs.008 for credit transfers). Older banks still use proprietary formats internally but the interbank layer is ISO 20022.
+
+**Confirmation of Payee:** Required for all FPS transactions above £0 for PSPs with > 1M customers (from 2024 all PSPs). Response must be shown to the payer before payment is sent — not just logged.
+
+**APP Fraud Reimbursement (PS21/3 / PSR 2024):** From October 2024, sending banks must reimburse victims of Authorised Push Payment fraud up to £415,000 unless gross negligence is proven. Split 50/50 between sending and receiving PSP. This is why CoP is mandatory — it reduces gross negligence exposure.
+
+**In this app:**
+- New payee flows trigger CoP before any FPS payment
+- The OTP step implements SCA (required for FPS over £30 by PSD2)
+- Toast on FX completion: "same-day SWIFT" — correct; FPS for domestic
+
+---
+
+### BACS — Direct Credit (Payroll / Bulk Payments)
+
+**Cycle:** BACS is a 3-working-day cycle. Day 1 = submission, Day 2 = processing, Day 3 = funds received by beneficiary. Weekends and bank holidays do not count.
+
+```
+Day 1 (Tuesday):   Employer submits BACS file by 22:30
+Day 2 (Wednesday): BACS processes and notifies beneficiary banks
+Day 3 (Thursday):  Employees' accounts credited — value date is Thursday
+```
+
+**Submission deadline:** 22:30 on Day 1. Missing this window means sliding to the next business day — a critical operational constraint for payroll.
+
+**Service User Number (SUN):** Every BACS originator has a 6-digit SUN issued by their bank. Required on every BACS file. The SUN links to the originator's bank-verified mandate authority.
+
+**File format:** Standard 18 field-per-record format. Three record types:
+- `VOL` — volume label (file header)
+- `HDR` — header record (SUN, generation number, processing date)
+- `UHL` — user header label
+- Detail records (one per payment): sort code, account number, transaction code, amount, name
+- `EOF` — end of file
+
+**Transaction codes for Direct Credit:**
+- `99` — standard credit
+- `17` — premium credit (used for same-day urgency via BACS — rare)
+
+**Direct Debit transaction codes:**
+- `01` — first collection
+- `17` — regular ongoing collection
+- `18` — re-presented collection
+- `19` — final collection
+- `0N` / `0S` — new/cancellation instruction
+
+**AUDDIS (Automated Direct Debit Instruction Service):** Electronic DDI setup — replaces paper mandates. The payer's bank validates and stores the mandate; BACS notifies the Service User of acceptance/rejection. AUDDIS messages: `0N` (new instruction), `0C` (cancellation), `0S` (convert paper to electronic).
+
+**In this app:**
+- `renderWages` Step 0 selects source account → Step 1 selects employees → Step 3 signs
+- The 3-day window is the real-world constraint behind "payroll must be submitted Tuesday for Thursday pay"
+- The amber Forecast nudge card ("Payroll due Thursday — submit by Tuesday 22:30") reflects the BACS Day 1 deadline
+
+---
+
+### CHAPS (Clearing House Automated Payment System)
+
+**Operated by:** Bank of England (since 2017; previously CHAPS Co.).
+
+**Speed:** Same working day. Payments submitted before the cut-off (typically 15:30–16:00 for retail-facing cut-offs; 18:00 interbank) settle the same day. No 24/7 — operates Mon–Fri bank hours only.
+
+**No upper limit** — used for property completions (£500,000+), large corporate treasury movements, new business account funding.
+
+**Irrevocable:** Like FPS, once in settlement cannot be recalled without beneficiary cooperation.
+
+**Cost:** Banks typically charge £25–£35 per transaction (wholesale cost is ~£0.04; margin is deliberate to discourage low-value CHAPS).
+
+**When to use CHAPS vs FPS:**
+- Amount > £1M → CHAPS (over FPS scheme limit)
+- Time-critical same-day but after FPS bank cutoffs → CHAPS
+- Property/legal completion → CHAPS (solicitors require it)
+- Under £1M and not time-critical → FPS
+
+**In this app:** Not directly surfaced, but the FX workflow's "same-day" language refers to CHAPS for the sterling leg of an international payment.
+
+---
+
+### SWIFT — International Payments
+
+**Society for Worldwide Interbank Financial Telecommunication** — the cooperative messaging network used by 11,000+ institutions in 200+ countries.
+
+**SWIFT is messaging, not settlement.** It carries payment instructions between banks. Actual settlement happens through correspondent banking relationships, TARGET2 (eurozone), CHIPS (USD), or bilateral nostro/vostro account balances.
+
+#### BIC / SWIFT Code
+
+```
+SANTGB2L
+│   │  │└── Branch code (optional, 3 chars; 'XXX' if omitted)
+│   │  └─── Location code (2 chars; 'L' = London)
+│   └─────── Country code (ISO 3166)
+└─────────── Bank code (4 chars)
+```
+
+Full BIC: 11 characters. Short BIC: 8 characters (XXX assumed for branch).
+
+#### IBAN Structure (UK)
+
+```
+GB29 NWBK 6016 1331 9268 19
+│    │    │              └── Account number (8 digits)
+│    │    └───────────────── Sort code (6 digits)
+│    └────────────────────── Bank identifier (4 chars)
+└─────────────────────────── Country + check digits
+```
+
+UK IBAN: always 22 characters. Check digits (positions 3–4) are calculated via MOD 97.
+
+#### MT103 — Customer Credit Transfer
+
+The standard message for international customer payments:
+
+```
+:20:REFERENCE123          — transaction reference
+:23B:CRED                 — bank operation code (always CRED for customer payments)
+:32A:260622GBP10000,      — value date (YYMMDD), currency, amount
+:50K:/12345678            — ordering customer account
+     Alan Davidson        — name
+     123 High Street, London
+:56A:BNPAFRPP             — intermediary bank BIC (if needed)
+:57A:SANTUS33             — account with institution (beneficiary bank)
+:59:/DE89370400440532013000   — beneficiary IBAN
+     Supplier GmbH        — beneficiary name
+     Dusseldorf, Germany
+:70:Invoice INV-2026-001  — payment reference / details
+:71A:SHA                  — charges (SHA=shared, OUR=sender pays all, BEN=beneficiary pays)
+```
+
+**Charges field (71A):**
+- `SHA` — each bank deducts from their side; most common for B2B
+- `OUR` — sending bank pays all charges; beneficiary receives full amount; use for supplier payments where contract specifies net amount
+- `BEN` — beneficiary pays all; rarely used
+
+**Correspondent banking:** If no direct relationship exists between banks, the payment routes through one or more correspondent banks. Each correspondent may deduct a fee (SWIFT GPI — Global Payments Innovation — tracks this in real time and guarantees next-business-day delivery for participating banks).
+
+#### SEPA (Single Euro Payments Area)
+
+For EUR payments within the SEPA zone (36 countries including UK post-Brexit for some banks):
+- **SCT (SEPA Credit Transfer):** Next business day, up to €999,999,999.99
+- **SCT Inst (Instant):** 10 seconds, up to €100,000 (scheme limit; banks may set lower)
+- **SDD (SEPA Direct Debit):** 5-day advance notification required for first collection
+
+Post-Brexit: UK is no longer a SEPA member. UK banks can still send to SEPA but cannot originate SEPA Direct Debits. Some UK banks maintain SEPA sending capability through EU subsidiaries.
+
+**In this app:**
+- `renderFX` Step 0: currency + IBAN + beneficiary → Step 1: rate/fees → Step 2: SCA via OTP
+- IBAN field renders in `font-mono` — correct for fixed-width reference display
+- "MT103" implicit in the FX confirmation toast
+- The reference number field maps to `:70:` in the MT103
+
+---
+
+### Payment Timing — Implications for This App
+
+| Flow | Rail | Timing shown | Correct? |
+|------|------|-------------|----------|
+| New payee domestic | FPS | Instant after CoP | ✓ |
+| Bulk wages | BACS Direct Credit | 3-day processing | ✓ |
+| FX international | SWIFT MT103 | "same-day SWIFT" | ✓ for CHAPS sterling leg; FX delivery 1–2 days |
+| Mandate change | Internal | Cooling-off period | ✓ — not a payment |
+| Direct Debit | BACS SDD | Monthly collection | ✓ |
+
+---
+
+## Section 40 — KYC, KYB & Anti-Money Laundering
+
+*Synthesised from: Money Laundering, Terrorist Financing and Transfer of Funds Regulations 2017 (MLR 2017), FCA FG17/6 (Financial Crime Guide), JMLSG Guidance (Joint Money Laundering Steering Group), Proceeds of Crime Act 2002, Terrorism Act 2000, FCA SYSC 6.*
+
+---
+
+### The Legal Obligation
+
+**MLR 2017 Regulation 28** requires all "relevant persons" (including banks) to apply Customer Due Diligence before establishing a business relationship, and to monitor it on an ongoing basis.
+
+Failure to apply CDD is a criminal offence carrying unlimited fines and up to 2 years imprisonment for individuals. The FCA can also withdraw a firm's authorisation.
+
+---
+
+### CDD — Customer Due Diligence
+
+CDD must establish and verify the identity of:
+1. **The customer** (the business entity)
+2. **Ultimate Beneficial Owners (UBOs)** — individuals who own or control > 25%
+3. **Senior managing officials** — where no UBO can be identified
+4. **The person acting on behalf of the customer** (the signatory)
+
+#### Individual Verification (for signatories / UBOs / sole traders)
+
+Must verify: **full name, date of birth, residential address.**
+
+Acceptable documents:
+
+| Type | Documents |
+|------|-----------|
+| Government photo ID (name + DOB) | Passport, UK driving licence, national ID card |
+| Proof of address (name + address, < 3 months old) | Utility bill, bank statement, HMRC correspondence, council tax bill |
+| Combined (name + DOB + address) | UK driving licence (if not used as photo ID) |
+
+Electronic verification (credit bureau checks, PEP/sanctions databases) can substitute for document checks at Standard CDD. Must use two independent data sources.
+
+#### Business Verification (KYB — Know Your Business)
+
+For each entity type:
+
+| Entity | Verify | Source |
+|--------|--------|--------|
+| Limited company | Registered name, registered number, registered address, directors, UBOs > 25% | Companies House (primary); Certificate of Incorporation |
+| LLP | Registered name, number, address, designated members, UBOs > 25% | Companies House |
+| Partnership | Business name, address, all partners | Partnership agreement |
+| Sole trader | Trading name, individual identity (as above) | Self-declaration + individual ID |
+| Charity | Charity name, registration number, trustees, objects | Charity Commission; governing document |
+| Club/Society | Name, address, governing committee | Constitution; minutes |
+
+**This maps directly to `ENTITY_INFO` in App.jsx** — each entity type's `requiredDocs` array reflects MLR 2017 CDD requirements for that structure.
+
+---
+
+### UBO — Ultimate Beneficial Owner
+
+A UBO is any individual who:
+- Owns (directly or indirectly) > 25% of the shares or voting rights, or
+- Otherwise exercises control
+
+For companies, the **PSC (Person with Significant Control) register** at Companies House is the primary source. Banks must verify the PSC register but cannot rely on it alone — they must take reasonable steps to verify the information is accurate.
+
+If no individual owns > 25%, the senior managing official (typically a director) becomes the UBO for CDD purposes.
+
+**Threshold:** 25% is the MLR 2017 default. FATF guidance and some banks apply a lower 10% threshold for higher-risk customers.
+
+---
+
+### EDD — Enhanced Due Diligence
+
+EDD is required when higher risk is identified. MLR 2017 Regulation 33 specifies mandatory EDD triggers:
+
+| Trigger | Action |
+|---------|--------|
+| Customer in high-risk third country (FCA/FATF list) | Additional document checks, source of funds, senior management approval |
+| Politically Exposed Person (PEP) | Source of wealth, source of funds, senior management approval, enhanced monitoring |
+| Non-face-to-face onboarding where high risk flagged | Additional document verification |
+| Complex / unusual transaction patterns | Document purpose, source of funds |
+| Shell company or nominee shareholding | Identify natural persons behind all layers |
+
+**PEP definition:** Current or former holder of prominent public function (head of state, government minister, senior judicial official, senior military officer, board member of state enterprise) and their family members and close associates. Once a PEP, treated as PEP for 12 months after leaving the role (extendable if risk warrants).
+
+---
+
+### SDD — Simplified Due Diligence
+
+Lower-risk customers may qualify for SDD — verifying the customer but applying proportionate (not full) verification. MLR 2017 Regulation 37 qualifying criteria:
+
+- Public companies listed on UK regulated market
+- UK public authorities
+- Credit institutions and financial institutions supervised in the UK/EEA
+- Child trust funds, stakeholder pension schemes
+
+SDD does not mean no checks — it means proportionate checks without the same documentation burden.
+
+---
+
+### Ongoing Monitoring
+
+MLR 2017 Regulation 28(11): monitoring must be sufficient to identify unusual or suspicious transactions and keep documents/information up to date.
+
+**Triggers for re-CDD:**
+- Material change in circumstances (new director, change of control, new product)
+- Unusual transaction patterns
+- Periodic review (risk-based — high risk: annually; standard: every 3–5 years)
+- Name/address change
+
+---
+
+### SAR — Suspicious Activity Report
+
+If a firm identifies suspicion of money laundering or terrorist financing, the MLRO (Money Laundering Reporting Officer) must file a SAR with the **National Crime Agency (NCA)** via the Suspicious Activity Reports Online system.
+
+**Tipping off offence (PoCA 2002 s.333A):** It is a criminal offence to tell the customer that a SAR has been filed or that an investigation is underway.
+
+**Consent SAR:** If a firm wants to proceed with a transaction but is suspicious, they can file a defence SAR requesting consent. The NCA has 7 days to respond; silence = deemed consent after 7 days.
+
+---
+
+### Document Verification in This App
+
+`ENTITY_INFO.requiredDocs` array for each entity type reflects MLR 2017 CDD requirements:
+
+| App entity | CDD document requirement | Mapped to |
+|------------|------------------------|-----------|
+| `sole-trader` | Individual ID (passport or driving licence) + proof of address | Personal ID + trading proof |
+| `partnership` | Individual ID for all partners + partnership agreement | All partners' docs |
+| `limited` | Certificate of Incorporation + Companies House PSC register + director ID | CH number auto-verified |
+| `llp` | CH registration + designated member ID | CH number auto-verified |
+| `charity` | Charity Commission registration + trustee ID | Charity number auto-verified |
+| `club` | Constitution + committee member ID | Manual upload |
+| `society` | Rules/constitution + officer ID | Manual upload |
+
+**Companies House / Charity Commission auto-verification** in `renderBiz` represents the real-world pattern where UK banks treat Companies House as a verified source for company identity, reducing document burden for incorporated entities.
+
+---
+
+### FCA SYSC 6 — Systems and Controls
+
+SYSC 6.3 requires firms to:
+1. Have a documented AML policy
+2. Appoint an MLRO at senior manager level
+3. Train relevant staff
+4. Maintain records of CDD for **5 years** after the business relationship ends
+5. Conduct independent audits of the AML framework
+
+**Audit trail requirement** is why every action in this app writes to the audit log. The 5-year retention requirement means audit records cannot be deleted — they can only be archived.
+
+---
+
+## Section 41 — Companies House & Charity Commission APIs
+
+*Synthesised from: Companies House API documentation v3, Companies House Developer Hub, Charity Commission Register of Charities public API, Companies House streaming API documentation.*
+
+---
+
+### Companies House API
+
+**Base URL:** `https://api.company-information.service.gov.uk`
+
+**Authentication:** API key passed as HTTP Basic Auth username (no password):
+```
+Authorization: Basic <base64(api_key:)>
+```
+Or as a query parameter: `?apiKey=your_key` (deprecated — use Basic Auth).
+
+Rate limit: 600 requests per 5 minutes per key (streaming API is separate).
+
+---
+
+### Key Endpoints
+
+#### Company Search
+```
+GET /search/companies?q={query}&items_per_page=10&start_index=0
+```
+
+Response fields:
+```json
+{
+  "items": [{
+    "company_number": "09876543",
+    "title": "ACME SOLUTIONS LIMITED",
+    "company_status": "active",
+    "company_type": "ltd",
+    "date_of_creation": "2018-03-15",
+    "address": {
+      "address_line_1": "123 High Street",
+      "locality": "London",
+      "postal_code": "EC1A 1BB"
+    }
+  }]
+}
+```
+
+#### Company Profile
+```
+GET /company/{company_number}
+```
+
+Key fields:
+```json
+{
+  "company_number": "09876543",
+  "company_name": "ACME SOLUTIONS LIMITED",
+  "registered_office_address": { ... },
+  "company_status": "active | dissolved | liquidation | administration | ...",
+  "company_type": "ltd | llp | plc | partnership | ...",
+  "date_of_creation": "2018-03-15",
+  "accounts": {
+    "next_due": "2025-12-31",
+    "last_accounts": { "made_up_to": "2024-03-31" }
+  },
+  "confirmation_statement": {
+    "next_due": "2025-03-15",
+    "last_made_up_to": "2024-03-14"
+  },
+  "sic_codes": ["62012", "62020"],
+  "has_charges": false,
+  "has_insolvency_history": false
+}
+```
+
+**`company_status` values to flag as risky:** `dissolved`, `liquidation`, `administration`, `receivership`, `converted-closed`, `insolvency-proceedings`.
+
+#### Officers (Directors / Members)
+```
+GET /company/{company_number}/officers?items_per_page=100
+```
+
+Key fields per officer:
+```json
+{
+  "name": "DAVIDSON, Alan John",
+  "officer_role": "director | secretary | llp-member | ...",
+  "appointed_on": "2018-03-15",
+  "resigned_on": null,
+  "date_of_birth": { "month": 6, "year": 1980 },
+  "nationality": "British",
+  "country_of_residence": "England"
+}
+```
+
+Note: `date_of_birth` returns only month + year for privacy. Full DOB is not accessible via public API.
+
+#### PSC (Persons with Significant Control)
+```
+GET /company/{company_number}/persons-with-significant-control
+```
+
+```json
+{
+  "items": [{
+    "name": "DAVIDSON, Alan John",
+    "kind": "individual-person-with-significant-control",
+    "natures_of_control": ["ownership-of-shares-75-to-100-percent"],
+    "notified_on": "2016-04-06",
+    "date_of_birth": { "month": 6, "year": 1980 },
+    "nationality": "British",
+    "country_of_residence": "England",
+    "address": { ... }
+  }]
+}
+```
+
+`natures_of_control` values: `ownership-of-shares-25-to-50-percent`, `50-to-75-percent`, `75-to-100-percent`, `voting-rights-*`, `right-to-appoint-and-remove-directors`, `significant-influence-or-control`.
+
+#### Filing History
+```
+GET /company/{company_number}/filing-history?items_per_page=25
+```
+
+Returns recent filings — confirmation statements (`CS01`), accounts (`AA`), director appointments (`AP01`), etc. Useful for verifying the company is actively maintained.
+
+#### Registered Office Address
+```
+GET /company/{company_number}/registered-office-address
+```
+
+---
+
+### Company Number Validation
+
+UK company numbers follow these formats:
+
+| Type | Format | Example |
+|------|--------|---------|
+| England & Wales limited company | 8 digits | `09876543` |
+| Scottish company | SC + 6 digits | `SC123456` |
+| Northern Ireland company | NI + 6 digits | `NI012345` |
+| LLP | OC + 6 digits | `OC345678` |
+| Scottish LLP | SO + 6 digits | `SO123456` |
+
+```js
+// Validation regex
+const CH_NUMBER = /^(SC|NI|OC|SO|R0|IP|SP|RS|SL|NF|NO|NZ|FC|SF|SA|NA|NL|NR|ZC|\d{2})\d{6}$/;
+```
+
+---
+
+### Charity Commission API
+
+**Base URL:** `https://api.charitycommission.gov.uk/register/api/`
+
+**Authentication:** `Ocp-Apim-Subscription-Key` header (API key from Charity Commission developer portal).
+
+#### Charity Search
+```
+GET /charities/search?q={name}&page=1&pageSize=10
+```
+
+#### Charity Details
+```
+GET /charities/{registered_charity_number}
+```
+
+Key response fields:
+```json
+{
+  "registered_charity_number": 1234567,
+  "charity_name": "EXAMPLE CHARITY",
+  "charity_status": "Registered | Removed | LockedDown",
+  "charity_type": "Charitable Incorporated Organisation | ...",
+  "date_of_registration": "2010-06-15",
+  "address": { ... },
+  "charity_activities": "...",
+  "income_latest_year": 250000,
+  "expenditure_latest_year": 235000
+}
+```
+
+#### Charity Trustees
+```
+GET /charities/{number}/trustees
+```
+
+Returns list of current trustees — name, appointment date. Used for CDD trustee verification.
+
+---
+
+### Using CH/CC in This App
+
+The `renderBiz` workflow references "We'll sync with Companies House" for limited companies and LLPs. In a real implementation:
+
+```js
+// On company number entry — verify and pre-fill
+const verifyCH = async (companyNumber) => {
+  const res = await fetch(`/api/ch/company/${companyNumber}`);
+  // proxy through backend — never expose CH API key client-side
+  const data = await res.json();
+  if (data.company_status !== 'active') {
+    throw new Error(`Company is ${data.company_status} — cannot proceed`);
+  }
+  return {
+    name: data.company_name,
+    address: data.registered_office_address,
+    incorporated: data.date_of_creation,
+    nextConfirmation: data.confirmation_statement?.next_due,
+  };
+};
+```
+
+**Never call CH/CC APIs directly from the browser** — the API key would be exposed. Route through a backend proxy.
+
+**Data freshness:** Companies House updates on filing; not real-time. A company dissolved yesterday may still show as active for up to 24 hours. Add a note in the UI for time-sensitive decisions.
+
+---
+
+### SIC Codes — Relevant for KYB Risk Scoring
+
+SIC (Standard Industrial Classification) codes indicate what the business does. Some are higher-risk for AML:
+
+| SIC range | Sector | AML risk |
+|-----------|--------|----------|
+| 6419x | Other monetary intermediation | High |
+| 6492x | Other credit granting | High |
+| 6612x | Security dealing | High |
+| 7740x | Rental of intellectual property | Medium |
+| 9200x | Gambling | High |
+| 4711x–4799x | Retail (cash-intensive) | Medium |
+
+These inform whether EDD should be triggered automatically.
+
+---
+
+## Section 42 — Tailwind CSS v3 — Utility Reference & Patterns
+
+*Synthesised from: Tailwind CSS v3.x documentation, Tailwind CSS — Up and Running (Shreve), Adam Wathan talks, Tailwind Play source.*
+
+---
+
+### Core Mental Model
+
+Tailwind generates a stylesheet from utility classes found in your source files via a content scan. No class is in the output unless it appears literally in a scanned file.
+
+```js
+// tailwind.config.js
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
+  // Every class used in these files will be in the CSS output
+}
+```
+
+**Critical rule: never construct class names dynamically with string concatenation.**
+
+```jsx
+// WRONG — Tailwind can't detect 'text-red-500' or 'text-green-500' at build time
+const cls = `text-${color}-500`;
+
+// CORRECT — full class names must appear literally
+const cls = color === 'red' ? 'text-red-500' : 'text-green-500';
+```
+
+---
+
+### Spacing Scale
+
+Tailwind's default spacing scale (in rem, with px equivalent at 16px base):
+
+| Class | rem | px |
+|-------|-----|----|
+| `0` | 0 | 0 |
+| `0.5` | 0.125 | 2 |
+| `1` | 0.25 | 4 |
+| `1.5` | 0.375 | 6 |
+| `2` | 0.5 | 8 |
+| `2.5` | 0.625 | 10 |
+| `3` | 0.75 | 12 |
+| `3.5` | 0.875 | 14 |
+| `4` | 1 | 16 |
+| `5` | 1.25 | 20 |
+| `6` | 1.5 | 24 |
+| `7` | 1.75 | 28 |
+| `8` | 2 | 32 |
+| `9` | 2.25 | 36 |
+| `10` | 2.5 | 40 |
+| `11` | 2.75 | 44 |
+| `12` | 3 | 48 |
+| `14` | 3.5 | 56 |
+| `16` | 4 | 64 |
+| `20` | 5 | 80 |
+| `24` | 6 | 96 |
+| `28` | 7 | 112 |
+| `32` | 8 | 128 |
+| `36` | 9 | 144 |
+| `40` | 10 | 160 |
+| `48` | 12 | 192 |
+| `56` | 14 | 224 |
+| `64` | 16 | 256 |
+| `72` | 18 | 288 |
+| `80` | 20 | 320 |
+| `96` | 24 | 384 |
+
+The HMS 1701 spacing law maps to: `1 · 2 · 3 · 4 · 6 · 8 · 12 · 16 · 24 · 32` (= 4·8·12·16·24·32·48·64·96·128px).
+
+---
+
+### Typography
+
+```jsx
+// Size
+text-xs    // 12px / 0.75rem
+text-sm    // 14px / 0.875rem
+text-base  // 16px / 1rem
+text-lg    // 18px / 1.125rem
+text-xl    // 20px / 1.25rem
+text-2xl   // 24px / 1.5rem
+text-3xl   // 30px / 1.875rem
+text-4xl   // 36px / 2.25rem
+text-5xl   // 48px / 3rem
+
+// Weight
+font-thin       // 100
+font-light      // 300
+font-normal     // 400
+font-medium     // 500
+font-semibold   // 600
+font-bold       // 700
+font-extrabold  // 800
+font-black      // 900
+
+// Line height
+leading-none    // 1
+leading-tight   // 1.25
+leading-snug    // 1.375
+leading-normal  // 1.5
+leading-relaxed // 1.625
+leading-loose   // 2
+
+// Letter spacing
+tracking-tighter  // -0.05em
+tracking-tight    // -0.025em
+tracking-normal   // 0
+tracking-wide     // 0.025em
+tracking-wider    // 0.05em
+tracking-widest   // 0.1em
+```
+
+---
+
+### Colours — Stone Scale (used in this project)
+
+```
+stone-50    #fafaf9
+stone-100   #f5f5f4
+stone-200   #e7e5e4
+stone-300   #d6d3d1
+stone-400   #a8a29e
+stone-500   #78716c   ← FAILS AA contrast on white (4.1:1 — use 600 minimum)
+stone-600   #57534e   ← 5.9:1 on white ✓ AA
+stone-700   #44403c
+stone-800   #292524
+stone-900   #1c1917
+stone-950   #0c0a09
+```
+
+**Opacity modifier syntax:**
+```jsx
+bg-stone-900/80   // stone-900 at 80% opacity
+text-white/65     // white at 65% — use on dark/red surfaces
+border-stone-200/50 // stone-200 at 50%
+```
+
+---
+
+### Borders
+
+```jsx
+// Width
+border      // 1px
+border-2    // 2px
+border-4    // 4px
+border-8    // 8px
+border-0    // 0px
+
+// Sides
+border-t    // top only
+border-r    // right
+border-b    // bottom
+border-l    // left
+border-x    // left + right
+border-y    // top + bottom
+
+// Style
+border-solid
+border-dashed
+border-dotted
+border-none
+
+// Divide (between children — requires parent flex/grid)
+divide-y          // 1px border between vertical children
+divide-x          // 1px border between horizontal children
+divide-y-2        // 2px
+divide-stone-100  // colour of divider
+divide-dashed     // dashed divider
+```
+
+`divide-*` is cleaner than adding `border-b` to every child except the last.
+
+---
+
+### Ring vs Outline — The Distinction
+
+**`outline`** — rendered outside the box model, doesn't affect layout, browser default for focus.
+**`ring`** — Tailwind's box-shadow-based focus ring. Goes outside the border, doesn't affect layout.
+
+```jsx
+// ring utilities
+ring-0          // box-shadow: 0 0 0 0px ...
+ring-1          // box-shadow: 0 0 0 1px ...
+ring-2          // box-shadow: 0 0 0 2px ...  ← standard focus ring
+ring-4          // box-shadow: 0 0 0 4px ...
+ring-[#c8102e]  // ring colour
+ring-offset-2   // gap between element and ring (white gap)
+
+// outline utilities
+outline-none    // removes browser outline (use with focus-visible:ring-* to replace)
+outline-2
+outline-[#c8102e]
+outline-offset-2
+```
+
+**When to use which:**
+- `ring-2` for custom focus indicators — composable, colourable, can be inset
+- `outline` for native browser focus or when you need the outline to follow border-radius exactly
+- Never remove both without providing an alternative
+
+---
+
+### Pseudo-class Variants
+
+```jsx
+// State
+hover:bg-stone-100
+focus:outline-none
+focus-visible:ring-2     // only keyboard focus, not mouse click
+active:scale-[0.98]
+disabled:opacity-50
+disabled:cursor-not-allowed
+checked:bg-[#c8102e]     // for checkboxes/radios
+
+// Group — parent's state affects child
+<div className="group hover:bg-stone-50">
+  <span className="text-stone-500 group-hover:text-stone-900">Label</span>
+</div>
+
+// Peer — sibling state affects another sibling
+<input className="peer" type="checkbox" />
+<label className="peer-checked:text-[#c8102e]">Option</label>
+
+// First/Last/Odd/Even
+first:pt-0
+last:pb-0
+last:border-b-0    // remove bottom border from last item
+odd:bg-stone-50
+even:bg-white
+
+// Empty
+empty:hidden    // hide element if it has no children
+```
+
+---
+
+### Responsive Prefixes
+
+```
+(none)  → mobile first (all sizes)
+sm:     → 640px and up
+md:     → 768px and up
+lg:     → 1024px and up
+xl:     → 1280px and up
+2xl:    → 1536px and up
+```
+
+Tailwind is **mobile-first** — unprefixed classes apply at all sizes; `sm:` overrides at ≥ 640px.
+
+```jsx
+// Mobile: full width. Desktop: half width.
+<div className="w-full lg:w-1/2">
+
+// Mobile: stack. Desktop: side-by-side.
+<div className="flex flex-col lg:flex-row">
+
+// Mobile: hidden. Desktop: visible.
+<aside className="hidden lg:block">
+```
+
+---
+
+### Arbitrary Values
+
+When the scale doesn't cover it, use square bracket notation:
+
+```jsx
+// Colour
+bg-[#c8102e]           // exact hex
+text-[rgb(200,16,46)]  // rgb
+border-[hsl(350,86%,43%)]
+
+// Size
+w-[390px]              // exact pixel width
+h-[calc(100vh-4rem)]   // calc()
+top-[env(safe-area-inset-top)]  // CSS env()
+mt-[1.375rem]          // exact rem
+
+// Arbitrary property (any CSS property)
+[font-variant-numeric:tabular-nums]   // num-tab equivalent
+[letter-spacing:0.18em]
+[-webkit-overflow-scrolling:touch]
+```
+
+**Spaces in arbitrary values:** Use underscore for spaces in CSS values:
+```jsx
+bg-[url('/image_with_space.png')]  // won't work
+bg-[url('/image.png')]             // fine
+grid-cols-[1fr_auto_1fr]          // underscore = space in CSS
+```
+
+---
+
+### Animation
+
+```jsx
+animate-none
+animate-spin        // 360° rotation, 1s linear infinite
+animate-ping        // scale + fade, used for notification badges
+animate-pulse       // opacity 50%→100% cycle, used for skeletons
+animate-bounce      // vertical bounce
+
+// Duration / timing
+duration-75
+duration-100
+duration-150
+duration-200
+duration-300
+duration-500
+duration-700
+duration-1000
+
+ease-linear
+ease-in
+ease-out
+ease-in-out
+
+// Delay
+delay-75
+delay-100
+delay-150
+delay-300
+delay-500
+```
+
+Custom animations are defined in `tailwind.config.js` `theme.extend.keyframes` + `theme.extend.animation`, or in CSS using `@keyframes` directly and referenced as `animate-[my-anim]`.
+
+---
+
+### @layer — Custom CSS Organisation
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add to base — affects un-classed elements */
+@layer base {
+  body { @apply font-body text-stone-900; }
+  h1   { @apply font-display text-3xl; }
+}
+
+/* Add reusable component classes */
+@layer components {
+  .btn-primary {
+    @apply bg-[#c8102e] text-white py-4 px-6 rounded-2xl font-medium
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e];
+  }
+}
+
+/* Add new utilities (participate in responsive/hover variants) */
+@layer utilities {
+  .num-tab {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+```
+
+---
+
+### Common Gotchas
+
+**1. JIT purge** — if a class isn't in your scanned content at build time, it won't be in the output. Dynamic class construction (string interpolation) is the most common cause.
+
+**2. `overflow-hidden` clips `ring` and `box-shadow`** — if a card has `overflow-hidden` and a child has `ring-2`, the ring is clipped. Use `overflow-clip` or move the ring to the parent.
+
+**3. `z-index` requires `position`** — `z-50` only works on elements that are `relative`, `absolute`, `fixed`, or `sticky`. `static` elements ignore z-index.
+
+**4. Flex + `min-w-0`** — flex children don't shrink below their content size by default. If text is overflowing a flex child, add `min-w-0` to that child.
+
+```jsx
+// Text truncation in flex container
+<div className="flex">
+  <span className="min-w-0 truncate">Very long text that should truncate</span>
+  <span className="flex-shrink-0">£240.00</span>
+</div>
+```
+
+**5. `inset-0` vs `top-0 right-0 bottom-0 left-0`** — `inset-0` is shorthand for all four. Use it for full overlays.
+
+**6. `gap` on flex vs grid** — `gap-4` works on both. `gap-x-4` and `gap-y-4` work on both. `space-x-4` and `space-y-4` add margin between children — they don't work with `flex-wrap` because the margins go on every child including wrapped ones.
+
+**7. `w-full` inside `flex`** — a `w-full` child of a flex parent only fills the flex item's width, not the parent. This is usually what you want but can surprise when nesting.
+
+**8. `transition` without `duration`** — Tailwind's `transition` class applies a 150ms default. Always pair with an explicit `duration-*` for predictability.
+
+```jsx
+// GOOD — explicit, predictable
+className="transition-colors duration-200 hover:bg-stone-100"
+
+// FINE — uses 150ms default, but document it
+className="transition-colors hover:bg-stone-100"
+```
+
+**9. `aspect-ratio` requires explicit width** — `aspect-video` on a `div` with no explicit width will collapse to 0×0 unless the parent constrains the width.
+
+**10. `text-ellipsis` requires `overflow-hidden` and `whitespace-nowrap`**
+
+```jsx
+// All three required for truncation
+className="truncate"
+// is shorthand for:
+className="overflow-hidden whitespace-nowrap text-ellipsis"
 ```
 
