@@ -19,7 +19,7 @@ import {
   Video, Flag, Building, AlertTriangle, ScrollText, BookOpen, Zap,
   Receipt, TrendingUp, PoundSterling, Calculator, Send, Tag, Link2,
   CalendarDays, BarChart3, Sparkles, Award, Search,
-  Eye, EyeOff, Fingerprint, Snowflake,
+  Eye, EyeOff, Fingerprint, ScanFace, Snowflake,
   Mic, Activity, Gauge, Wand2, Volume2, Network
 } from 'lucide-react';
 
@@ -96,6 +96,7 @@ export default function App() {
   // Voice ID biometric authentication
   const [voiceIdEnrolled, setVoiceIdEnrolled] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
+  const [biometricType, setBiometricType] = useState('face-id'); // 'face-id' | 'fingerprint' | 'face-android'
   const [voiceIdTab, setVoiceIdTab] = useState('enrol');
   const [voicePhrasesDone, setVoicePhrasesDone] = useState(new Set());
   const [voiceRecordingPhrase, setVoiceRecordingPhrase] = useState(null);
@@ -671,6 +672,13 @@ export default function App() {
     fireToast("A signature didn't arrive in time — Priya's been told and will reach out.");
   };
   const triggerRM = (reason) => { setRMReason(reason); setShowRMSheet(true); };
+
+  const BIOMETRIC_OPTIONS = [
+    { id: 'face-id',      label: 'Face ID',           sub: 'Apple · iOS',     Icon: ScanFace    },
+    { id: 'fingerprint',  label: 'Fingerprint',        sub: 'Android · iOS',   Icon: Fingerprint },
+    { id: 'face-android', label: 'Face recognition',   sub: 'Android',         Icon: ScanFace    },
+  ];
+  const bm = BIOMETRIC_OPTIONS.find(o => o.id === biometricType) || BIOMETRIC_OPTIONS[0];
 
   const formatExecuteTime = (executesAt) => {
     const diffMs = executesAt - new Date();
@@ -3207,6 +3215,29 @@ export default function App() {
             </div>
             {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
           </button>
+          {/* Biometric method selector */}
+          <div className="p-4 rounded-2xl border border-stone-200 bg-white">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center flex-shrink-0">
+                <bm.Icon className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm">Device biometric</div>
+                <div className="text-[11px] text-stone-500">Currently: {bm.label} · {bm.sub}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {BIOMETRIC_OPTIONS.map(o => (
+                <button key={o.id} onClick={() => setBiometricType(o.id)}
+                  className={`py-2.5 px-2 rounded-xl text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+                  <o.Icon className="w-4 h-4 mx-auto mb-1" />
+                  <div className="text-[10px] font-medium leading-tight">{o.label}</div>
+                  <div className={`text-[9px] mt-0.5 leading-tight ${biometricType === o.id ? 'text-white/65' : 'text-stone-400'}`}>{o.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button onClick={() => { setShowVoiceSetup(true); setVoiceIdTab('sca'); }}
             className="w-full text-left p-4 rounded-2xl border border-stone-200 bg-white flex items-center gap-3 btn-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
             <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center flex-shrink-0">
@@ -3332,7 +3363,9 @@ export default function App() {
                 {!s && (
                   <div className="grid grid-cols-2 gap-2">
                     <button onClick={() => reject(p.id)} className="py-3 rounded-xl border border-stone-200 text-sm font-medium">Reject</button>
-                    <button onClick={() => sign(p.id)} className="py-3 rounded-xl bg-stone-900 text-white text-sm font-medium">Sign with Face ID</button>
+                    <button onClick={() => sign(p.id)} className="py-3 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center justify-center gap-2">
+                      <bm.Icon className="w-4 h-4" />Sign with {bm.label}
+                    </button>
                   </div>
                 )}
                 {s === 'signed' && <div className="text-center py-2 text-xs text-emerald-700 font-medium flex items-center justify-center gap-1"><CircleCheck className="w-4 h-4" /> Signed</div>}
@@ -3823,7 +3856,7 @@ export default function App() {
               <div className="space-y-3">
                 <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-center">
                   <div className="w-14 h-14 rounded-2xl bg-stone-900 text-white flex items-center justify-center mx-auto mb-3 lift-2">
-                    <Fingerprint className="w-7 h-7" />
+                    <bm.Icon className="w-7 h-7" />
                   </div>
                   <div className="font-display text-lg text-stone-900 mb-1">View your PIN</div>
                   <div className="text-[11px] text-stone-500 leading-relaxed mb-4 max-w-xs mx-auto">Retrieved from a secure HSM after biometric verification. Never stored in the app or transmitted in cleartext.</div>
@@ -3831,8 +3864,8 @@ export default function App() {
                     onClick={() => { setPinAuthDone(true); setPinRevealed(true); setPinCountdown(30); }}
                     className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
                   >
-                    <Fingerprint className="w-4 h-4" />
-                    Authenticate with Face ID
+                    <bm.Icon className="w-4 h-4" />
+                    Authenticate with {bm.label}
                   </button>
                 </div>
                 <div className="text-[10px] text-stone-400 text-center">Viewing your PIN is logged in your security audit trail.</div>
