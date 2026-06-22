@@ -374,10 +374,18 @@ export default function App() {
     setVoiceRecordingPhrase(null);
   };
 
+  const VOICE_DEMO_EXPENSES = [
+    { merchant: 'Caffè Nero', amount: 4.50,   vat: 0.75,  category: 'Meals & Entertainment', example: '"Coffee with client, four fifty, entertainment"' },
+    { merchant: 'Shell Garage', amount: 62.40, vat: 10.40, category: 'Travel & Mileage',        example: '"Petrol, sixty-two forty, travel"' },
+    { merchant: 'Amazon Web Services', amount: 240.00, vat: 40.00, category: 'IT & Technology', example: '"AWS invoice, two forty, IT and software"' },
+    { merchant: 'Travelodge London', amount: 89.00, vat: 14.83, category: 'Accommodation',      example: '"Hotel in London, eighty-nine pounds, accommodation"' },
+    { merchant: 'Staples Office Supplies', amount: 34.99, vat: 5.83, category: 'Office Supplies', example: '"Staples, thirty-five pounds, office supplies"' },
+  ];
   const doVoiceMemo = () => {
     setVoiceRecording(true);
     setTimeout(() => {
-      setVoiceParsed({ merchant: 'Caffè Nero', amount: 4.50, vat: 0.75, category: 'Meals & Entertainment', ref: 'VM' + Date.now().toString().slice(-6) });
+      const demo = VOICE_DEMO_EXPENSES[Math.floor(Math.random() * VOICE_DEMO_EXPENSES.length)];
+      setVoiceParsed({ ...demo, ref: 'VM' + Date.now().toString().slice(-6) });
       setVoiceRecording(false);
     }, 1800);
   };
@@ -858,6 +866,8 @@ export default function App() {
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); } }
     @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-2px); } }
+    @keyframes voiceBar { 0%, 100% { transform: scaleY(0.15); } 50% { transform: scaleY(1); } }
+    .voice-bar { transform-origin: center; animation: voiceBar 0.7s ease-in-out infinite; }
 
     .anim-slide { animation: slideUp 0.42s cubic-bezier(0.2, 0.9, 0.3, 1); }
     .anim-fade { animation: fadeIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
@@ -4147,6 +4157,8 @@ export default function App() {
   // === VOICE MEMO SHEET ===
   const VoiceMemoSheet = () => {
     const BARS = [6, 14, 9, 18, 12, 22, 8, 16, 20, 10, 15, 19, 7, 13, 21];
+    const exampleIdx = Math.floor(Date.now() / 10000) % VOICE_DEMO_EXPENSES.length;
+    const examplePrompt = VOICE_DEMO_EXPENSES[exampleIdx].example;
     return (
       <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center anim-fade" onClick={() => { setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null); }}>
         <div className="bg-white w-full max-w-lg rounded-t-2xl p-6 pb-10 anim-slide" onClick={e => e.stopPropagation()}>
@@ -4163,7 +4175,7 @@ export default function App() {
                   </button>
                   <p className="text-sm text-stone-400 text-center max-w-xs">
                     Tap and say something like<br/>
-                    <em className="text-stone-600 not-italic font-medium">"Coffee with client, four fifty, entertainment"</em>
+                    <em className="text-stone-600 not-italic font-medium">{examplePrompt}</em>
                   </p>
                 </>
               ) : (
@@ -4174,9 +4186,14 @@ export default function App() {
                       <Mic size={36} className="text-[#c8102e]" />
                     </div>
                   </div>
-                  <svg width="200" height="36" viewBox="0 0 200 36">
+                  <svg width="200" height="40" viewBox="0 0 200 40" aria-hidden="true">
                     {BARS.map((h, i) => (
-                      <rect key={i} x={i * 13 + 4} y={(36 - h) / 2} width="9" height={h} rx="4" fill="#c8102e" opacity={0.5 + (i % 4) * 0.12} />
+                      <rect key={i}
+                        x={i * 13 + 4} y={(40 - h) / 2} width="9" height={h} rx="4"
+                        fill="#c8102e" opacity={0.45 + (i % 3) * 0.18}
+                        className="voice-bar"
+                        style={{ animationDelay: `${(i * 0.07).toFixed(2)}s`, animationDuration: `${0.55 + (i % 5) * 0.09}s` }}
+                      />
                     ))}
                   </svg>
                   <span className="text-sm text-stone-500">Listening…</span>
@@ -4185,21 +4202,27 @@ export default function App() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
-                <div className="flex items-center gap-2 mb-3">
+              <div className="bg-stone-50 rounded-2xl border border-stone-100 divide-y divide-stone-100">
+                <div className="flex items-center gap-2 px-4 py-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                     <Check size={11} className="text-white" />
                   </div>
                   <span className="text-sm font-medium text-stone-700">Parsed successfully</span>
                 </div>
-                <div className="space-y-2 text-sm">
-                  {[['Merchant', voiceParsed.merchant], ['Amount', `£${voiceParsed.amount.toFixed(2)}`], ['VAT', `£${voiceParsed.vat.toFixed(2)}`], ['Category', voiceParsed.category], ['Reference', voiceParsed.ref]].map(([k, v]) => (
-                    <div key={k} className="flex justify-between">
-                      <span className="text-stone-500">{k}</span>
-                      <span className="font-medium font-mono">{v}</span>
-                    </div>
-                  ))}
-                </div>
+                {[
+                  { l: 'Merchant', v: voiceParsed.merchant },
+                  { l: 'Amount',   v: fmt(voiceParsed.amount) },
+                  { l: 'VAT',      v: fmt(voiceParsed.vat) },
+                  { l: 'Category', v: voiceParsed.category, tag: true },
+                  { l: 'Reference',v: voiceParsed.ref, mono: true },
+                ].map(({ l, v, tag, mono }) => (
+                  <div key={l} className="flex justify-between items-center px-4 py-3">
+                    <span className="text-sm text-stone-500">{l}</span>
+                    {tag
+                      ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                      : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : 'num-tab'}`}>{v}</span>}
+                  </div>
+                ))}
               </div>
               <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-2">
                 <Info size={14} className="text-blue-600 flex-shrink-0 mt-0.5" />
@@ -4207,12 +4230,12 @@ export default function App() {
               </div>
               <div className="flex gap-3">
                 <button onClick={() => { setVoiceParsed(null); setVoiceRecording(false); }}
-                  className="flex-1 py-3 rounded-xl border border-stone-200 text-stone-700 text-sm font-medium hover:bg-stone-50">Re-record</button>
+                  className="flex-1 py-3 rounded-xl border border-stone-200 text-stone-700 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">Re-record</button>
                 <button onClick={() => {
                   setVoiceMemoAdded(prev => new Set([...prev, voiceParsed.ref]));
-                  fireToast('Expense added to MTD ledger · ' + voiceParsed.ref);
+                  fireToast(`Expense added · ${voiceParsed.merchant} · ${fmt(voiceParsed.amount)} → MTD ledger`);
                   setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
-                }} className="flex-1 py-3 rounded-xl bg-stone-900 text-white text-sm font-medium">Add to MTD</button>
+                }} className="flex-1 py-3 rounded-xl bg-stone-900 text-white text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">Add to MTD</button>
               </div>
             </div>
           )}
