@@ -881,6 +881,8 @@ export default function App() {
     .a11y-focus .stagger-4,.a11y-focus .stagger-5,.a11y-focus .stagger-6,
     .a11y-focus .stagger-7 { animation: none !important; opacity: 1 !important; }
     .a11y-focus .hero-card .absolute, .a11y-focus .cool-card .absolute { display: none !important; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `;
 
   // === PRIMITIVES (functional components — no state inside) ===
@@ -2685,6 +2687,59 @@ export default function App() {
               {creditRingfenced && <span className="text-[10px] uppercase tracking-wider bg-emerald-500/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-emerald-400/30 text-emerald-200">Credit ring-fenced</span>}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* What's coming — proactive nudges (Predict → Explain → Act) */}
+      <div className="mb-5 anim-fade stagger-1">
+        <div className="flex items-center justify-between px-5 mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Proactive · 3 items</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">What's coming</h2>
+          </div>
+        </div>
+        <div className="flex gap-3 px-5 overflow-x-auto no-scrollbar pb-1">
+          {/* Payroll run - amber */}
+          <button onClick={() => { setWorkflow('wages'); setStep(0); }}
+            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-amber-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                <CalendarDays className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-amber-600 font-medium">In 3 days</span>
+            </div>
+            <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Payroll run · £42,180</div>
+            <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Balance covers it — review if payees changed</div>
+            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Review payroll <ArrowRight className="w-3 h-3" /></div>
+          </button>
+
+          {/* MTD deadline - red */}
+          <button onClick={() => setTab('mtd')}
+            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-red-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-8 h-8 rounded-xl bg-red-50 text-[#c8102e] flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-[#c8102e] font-medium">22 days</span>
+            </div>
+            <div className="font-medium text-sm text-stone-900 leading-snug mb-1">VAT return due 7 Aug</div>
+            <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Q3 Making Tax Digital · HMRC submission</div>
+            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Start now <ArrowRight className="w-3 h-3" /></div>
+          </button>
+
+          {/* Companies House - blue */}
+          <button onClick={() => { setWorkflow('idcheck'); setStep(0); }}
+            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-blue-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-blue-600 font-medium">14 days</span>
+            </div>
+            <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Annual confirmation due</div>
+            <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Companies House · {entity.name}</div>
+            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Run KYB check <ArrowRight className="w-3 h-3" /></div>
+          </button>
         </div>
       </div>
 
