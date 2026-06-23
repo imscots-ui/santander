@@ -1,6 +1,6 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 78 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 79 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
@@ -9,8 +9,8 @@ MakerSpace management, basic electronics, mechatronics, digital logic, electroni
 CSS animations & motion design, Vite build tooling & TypeScript large-scale patterns, React 19.1 Server Components,
 Photoshop, Arduino/IoT, UX design, KiCad PCB design (RP2040), embedded Linux programming, AI content creation
 workflows, C# microservices with .NET 5, FARM stack (FastAPI/React/MongoDB), AI prompt libraries for image/video/writing,
-deep learning & computer vision for surveillance, critical theory of AI-generated images, and Power BI data analyst
-certification.
+deep learning & computer vision for surveillance, critical theory of AI-generated images, Power BI data analyst
+certification, and Microsoft Dynamics 365 Business Central AL programming.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -81,6 +81,7 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 62. [Deep Learning & AI in Surveillance Systems — Pandey et al.](#section-62--deep-learning--ai-in-surveillance-systems)
 63. [Critical Analysis of AI-Generated Images — Bouko & Laba et al.](#section-63--critical-analysis-of-ai-generated-images)
 64. [Microsoft Power BI Data Analyst Exam Guide — ter Braake](#section-64--microsoft-power-bi-data-analyst-exam-guide)
+65. [Programming Microsoft Dynamics 365 Business Central — Brummel](#section-65--programming-microsoft-dynamics-365-business-central)
 
 ---
 
@@ -13563,3 +13564,495 @@ Sales YTD = CALCULATE([Total Sales], DATESYTD('Date'[Date]))
 - High-contrast mode supported
 
 ---
+
+## Section 65 — Programming Microsoft Dynamics 365 Business Central
+
+*Source: Programming Microsoft Dynamics 365 Business Central — Marije Brummel (Packt, 7th edition). 8 chapters covering the AL language, Business Central objects (tables, pages, reports, queries, codeunits), extensibility, and web service integration.*
+
+### Business Central as an ERP Platform
+
+**Scope:** Microsoft Dynamics 365 Business Central is a cloud-first ERP system serving 200,000+ companies. It covers financial management, manufacturing, supply chain, business intelligence, CRM, HR, and project management in one integrated platform.
+
+**Deployment:** Hosted on Microsoft Azure (SaaS); accessible from modern browsers. Integrates natively with Microsoft 365, Power Platform (Power Automate, Power Apps, Power BI, Power Virtual Agents), and the broader Azure ecosystem.
+
+**Development environment:** Visual Studio Code (VS Code) with the AL Language extension. All Business Central AL development happens in VS Code (exceptions: Word/Excel report layouts, SQL Server Report Builder, JavaScript add-ins).
+
+**Object types in Business Central:**
+- **Tables** — data structure definitions + business rules + triggers
+- **Pages** — interactive UI; list pages, card pages, role centres, worksheets
+- **Reports** — data extraction + formatted output (Word, RDLC, Excel layouts)
+- **Queries** — read-only data extraction; composable with filters
+- **Codeunits** — libraries of AL procedures; no UI
+- **XMLports** — import/export structured data (XML, CSV)
+- **Enums** — enumeration types replacing the old Option field type
+- **API Pages/Queries** — RESTful endpoints exposed by BC for external consumption
+
+---
+
+### AL Language Fundamentals
+
+**AL** (Application Language) is a strongly-typed, event-driven language purpose-built for Business Central. It compiles to extensions (.app files) that are deployed to a Business Central environment.
+
+**Variable declaration:**
+```al
+var
+    CustomerRec: Record Customer;
+    TotalAmount: Decimal;
+    IsPosted: Boolean;
+    Description: Text[100];
+    Counter: Integer;
+```
+
+**Naming conventions:**
+- Variables: PascalCase
+- Procedures: PascalCase
+- Local variables: lowerCamelCase prefix `l` (`lCustomer`, `lTotal`)
+- Global variables: no prefix (declared in `var` block of object)
+- Parameters: PascalCase
+
+**Operators:**
+- Arithmetic: `+  -  *  /  div  mod`
+- Comparison: `=  <>  <  >  <=  >=`
+- Logical: `and  or  not  xor`
+- String concatenation: `+`
+
+**Control flow:**
+```al
+// IF-THEN-ELSE
+if Amount > 0 then
+    PostEntry()
+else
+    Error('Amount must be positive');
+
+// CASE
+case DocumentType of
+    DocumentType::Invoice: PostInvoice();
+    DocumentType::CreditMemo: PostCreditMemo();
+    else
+        Error('Unsupported document type');
+end;
+
+// REPEAT-UNTIL
+repeat
+    ProcessLine(SalesLine);
+    SalesLine.Next();
+until SalesLine.Next() = 0;
+
+// FOR
+for i := 1 to 10 do
+    Sum += i;
+
+// WHILE
+while SalesLine.Next() <> 0 do
+    TotalAmount += SalesLine.Amount;
+```
+
+**Procedures:**
+```al
+procedure CalculateTotal(var SalesHeader: Record "Sales Header"): Decimal
+var
+    lSalesLine: Record "Sales Line";
+    lTotal: Decimal;
+begin
+    lSalesLine.SetRange("Document No.", SalesHeader."No.");
+    if lSalesLine.FindSet() then
+        repeat
+            lTotal += lSalesLine."Line Amount";
+        until lSalesLine.Next() = 0;
+    exit(lTotal);
+end;
+```
+
+---
+
+### Tables — Data Structure
+
+**Table definition structure:**
+```al
+table 50100 "WDTU Item"
+{
+    Caption = 'WDTU Item';
+    DataClassification = CustomerContent;
+    
+    fields
+    {
+        field(1; "No."; Code[20]) { Caption = 'No.'; }
+        field(2; Description; Text[100]) { Caption = 'Description'; }
+        field(3; "Unit Price"; Decimal)
+        {
+            Caption = 'Unit Price';
+            DecimalPlaces = 2 : 2;
+            MinValue = 0;
+        }
+    }
+    
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+        key(SK1; Description) { }
+    }
+    
+    trigger OnInsert()
+    begin
+        // Fires when a new record is inserted
+    end;
+    
+    trigger OnModify()
+    begin
+        // Fires when an existing record is modified
+    end;
+    
+    trigger OnDelete()
+    begin
+        // Fires when a record is deleted
+    end;
+}
+```
+
+**Table numbering:** Microsoft reserves 1–49,999 and 50,000+ for partner/customer use. AppSource extensions use a registered range assigned by Microsoft.
+
+**Table properties:**
+- `DataClassification` — GDPR data sensitivity: `CustomerContent`, `SystemMetadata`, `ToBeClassified`
+- `TableType` — `Normal` (default), `Temporary`, `CRM`, `ExternalSQL`
+- `DrillDownPageId` / `LookupPageId` — default drill-down and lookup pages
+
+**Keys and SumIndexFields (SIFT):**
+```al
+keys
+{
+    key(PK; "No.") { Clustered = true; }
+    key(SK1; "Customer No.", "Posting Date")
+    {
+        SumIndexFields = Amount, "Amount (LCY)";
+        // SIFT: maintains running totals; enables instant CalcSums
+    }
+}
+```
+`SIFT` (SumIndex Flow Technology): BC maintains pre-aggregated sums for indexed fields — `CalcSums` runs in O(1) rather than scanning all rows.
+
+---
+
+### Field Types — FieldClass
+
+**FieldClass = Normal** (default): A regular stored field; value saved to SQL table.
+
+**FieldClass = FlowField**: A calculated field; value computed on-demand by a formula; never stored.
+```al
+field(20; Balance; Decimal)
+{
+    FieldClass = FlowField;
+    CalcFormula = sum("Cust. Ledger Entry".Amount where("Customer No." = field("No.")));
+}
+```
+Call `Rec.CalcFields(Balance)` before reading a FlowField value.
+
+**FieldClass = FlowFilter**: A filter field used to parameterise FlowField calculations; appears in filter panels; not stored.
+
+**Common simple data types:**
+| Type | Storage | Notes |
+|------|---------|-------|
+| `Integer` | 32-bit | -2,147,483,647 to 2,147,483,647 |
+| `BigInteger` | 64-bit | For large sequences |
+| `Decimal` | 18 significant digits | Financial amounts; use `DecimalPlaces` property |
+| `Code[n]` | Uppercase text, max n chars | Keys and identifiers; auto-uppercased |
+| `Text[n]` | Mixed-case text, max n chars | Descriptions |
+| `Date` | Date only | `0D` = empty date |
+| `DateTime` | Date + Time | UTC stored; local timezone displayed |
+| `Boolean` | true/false | |
+| `Option` | Deprecated — use `Enum` instead | |
+| `Guid` | 16-byte GUID | |
+| `Blob` | Binary large object | Images, attachments |
+| `Media` / `MediaSet` | Blob with metadata | Product images; stream-friendly |
+| `RecordId` | Reference to a record | Cross-table linking without foreign key |
+
+---
+
+### Pages — Interactive Interface
+
+**Page types:**
+| Type | Use case |
+|------|---------|
+| `List` | Grid view of records; browse and navigate |
+| `Card` | Single record detail view |
+| `ListPart` / `CardPart` | Embedded subpage in another page |
+| `RoleCenter` | Personalised dashboard |
+| `Worksheet` | Editable journal/batch processing |
+| `ConfirmationDialog` | Yes/No prompt |
+| `StandardDialog` | Input form |
+| `NavigatePage` | Wizard (multi-step) |
+| `API` | RESTful endpoint; no UI |
+
+**Minimal list page:**
+```al
+page 50100 "WDTU Item List"
+{
+    Caption = 'WDTU Items';
+    PageType = List;
+    SourceTable = "WDTU Item";
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    
+    layout
+    {
+        area(Content)
+        {
+            repeater(Items)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(Description; Rec.Description) { ApplicationArea = All; }
+                field("Unit Price"; Rec."Unit Price") { ApplicationArea = All; }
+            }
+        }
+    }
+    
+    actions
+    {
+        area(Processing)
+        {
+            action(PostAll)
+            {
+                Caption = 'Post All';
+                Image = Post;
+                trigger OnAction()
+                begin
+                    PostAllItems();
+                end;
+            }
+        }
+    }
+}
+```
+
+**Page triggers (firing order for record navigation):**
+1. `OnOpenPage` — once on page open
+2. `OnFindRecord` / `OnNextRecord` — record navigation
+3. `OnAfterGetRecord` — fires after each record is fetched; use to set non-stored fields
+4. `OnAfterGetCurrRecord` — fires when current record changes
+5. `OnNewRecord` — fires when a new blank record is initialised
+6. `OnInsertRecord` / `OnModifyRecord` / `OnDeleteRecord` — before standard write
+
+---
+
+### CRUD Operations in AL
+
+**Finding records:**
+```al
+// Find single record by primary key
+if CustomerRec.Get(CustomerNo) then
+    Message('Found: %1', CustomerRec.Name)
+else
+    Error('Customer %1 not found', CustomerNo);
+
+// Find first record matching filters
+CustomerRec.SetRange("Country/Region Code", 'GB');
+CustomerRec.SetFilter(Balance, '>%1', 0);
+if CustomerRec.FindFirst() then
+    ProcessCustomer(CustomerRec);
+
+// Iterate all matching records
+if CustomerRec.FindSet() then
+    repeat
+        ProcessCustomer(CustomerRec);
+    until CustomerRec.Next() = 0;
+```
+
+**Inserting records:**
+```al
+NewCustomer.Init();
+NewCustomer."No." := GetNextNo();
+NewCustomer.Name := 'Acme Ltd';
+NewCustomer.Insert(true);  // true = run triggers
+```
+
+**Modifying records:**
+```al
+if CustomerRec.Get(CustomerNo) then begin
+    CustomerRec.Validate(Name, 'New Name');  // Validate runs field triggers
+    CustomerRec.Modify(true);
+end;
+```
+
+**Deleting records:**
+```al
+CustomerRec.SetRange("Salesperson Code", OldSalesCode);
+CustomerRec.DeleteAll(true);  // true = run triggers per record
+```
+
+**Validation methods:**
+```al
+SalesLine.TestField("No.");               // Error if field is blank
+SalesLine.TestField(Quantity, 1);         // Error if not equal to 1
+SalesLine.FieldError(Quantity, 'must be positive');  // Custom error on field
+SalesLine.Init();                         // Reset all fields to default values
+SalesLine.Validate(Quantity, 5);          // Set field + fire OnValidate trigger
+```
+
+---
+
+### Reports and Queries
+
+**Report anatomy:**
+- **DataItems** — nested table iterators (like nested loops); outer DataItem iterates header records, inner iterates related lines
+- **Columns** — fields from DataItems exposed to the report layout
+- **Layout** — Word (.docx), RDLC (.rdlc), or Excel (.xlsx); designed outside VS Code
+- **Request page** — auto-generated filter/options dialog shown before the report runs
+
+**Running a report from AL:**
+```al
+Report.Run(Report::"Sales Invoice");           // Interactive (shows request page)
+Report.RunModal(Report::"Sales Invoice");       // Modal
+Report.SaveAsPdf(Report::"Sales Invoice", 'out.pdf');
+```
+
+**Query objects** — read-only; faster than reports for data extraction:
+```al
+query 50100 "Customer Totals"
+{
+    QueryType = Normal;
+    elements
+    {
+        dataitem(Customer; Customer)
+        {
+            column(No; "No.") { }
+            column(Name; Name) { }
+            dataitem(CustLedgerEntry; "Cust. Ledger Entry")
+            {
+                DataItemLink = "Customer No." = Customer."No.";
+                column(TotalAmount; Amount) { Method = Sum; }
+            }
+        }
+    }
+}
+```
+
+---
+
+### Extensibility — Table Extensions, Page Extensions, Events
+
+**Table extension** — add fields to a standard BC table without modifying it:
+```al
+tableextension 50100 "Customer Ext" extends Customer
+{
+    fields
+    {
+        field(50100; "Custom Field"; Text[50])
+        {
+            Caption = 'Custom Field';
+            DataClassification = CustomerContent;
+        }
+    }
+}
+```
+
+**Page extension** — add controls or actions to a standard page:
+```al
+pageextension 50100 "Customer Card Ext" extends "Customer Card"
+{
+    layout
+    {
+        addafter(Name)
+        {
+            field("Custom Field"; Rec."Custom Field") { ApplicationArea = All; }
+        }
+    }
+}
+```
+
+**Event-driven extensibility (publisher/subscriber pattern):**
+```al
+// Codeunit A publishes an event
+[IntegrationEvent(false, false)]
+local procedure OnBeforePostDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+begin
+end;
+
+// Codeunit B subscribes (in a different extension — no direct dependency needed)
+[EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostDocument', '', false, false)]
+local procedure HandleBeforePost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+begin
+    // Extend posting logic without modifying the base codeunit
+end;
+```
+
+---
+
+### Web Services & External Integration
+
+**SOAP (Page / XMLport):** Legacy XML protocol; expose a Page as SOAP service via BC Admin Centre; consume from any SOAP client. Supports read, write, delete.
+
+**OData (Page / Query):** Microsoft-proprietary REST variant; predefined format; used by Excel Power Query, Power BI, SharePoint. Pages support read/write/delete; Queries are read-only.
+
+**API Pages:** First-class RESTful endpoints; designed for programmatic integration; no UI rendering overhead.
+```al
+page 50200 "Customer API"
+{
+    PageType = API;
+    APIVersion = 'v2.0';
+    APIPublisher = 'mycompany';
+    APIGroup = 'core';
+    EntityName = 'customer';
+    EntitySetName = 'customers';
+    SourceTable = Customer;
+    // Fields exposed as JSON properties
+}
+```
+
+**Calling external REST APIs from AL:**
+```al
+var
+    HttpClient: HttpClient;
+    HttpRequest: HttpRequestMessage;
+    HttpResponse: HttpResponseMessage;
+    JsonResponse: JsonObject;
+    ResponseText: Text;
+begin
+    HttpRequest.Method := 'GET';
+    HttpRequest.SetRequestUri('https://api.example.com/data');
+    HttpRequest.Headers.Add('Authorization', 'Bearer ' + GetToken());
+    
+    if HttpClient.Send(HttpRequest, HttpResponse) then begin
+        HttpResponse.Content.ReadAs(ResponseText);
+        JsonResponse.ReadFrom(ResponseText);
+        // Parse JSON...
+    end;
+end;
+```
+
+**Authentication:** All BC web service access uses OAuth 2.0 via Microsoft Entra ID (formerly Azure AD). Basic authentication was deprecated. Service-to-service (daemon) apps use client credentials flow.
+
+---
+
+### Multi-Language & Translation
+
+Business Central supports multiple display languages via **translation files** (.xlf format). All user-facing strings use the `Caption` property — never hardcode translated strings in AL code.
+
+```al
+field(1; "No."; Code[20])
+{
+    Caption = 'No.';  // English; .xlf files contain translations for other languages
+}
+```
+
+Translation files follow XLIFF standard and are generated by the AL build toolchain. The `TranslationFile` property in app.json specifies the translation folder.
+
+---
+
+### Debugging in VS Code
+
+**Breakpoints:** Click left gutter in VS Code or press F9. Requires a launch configuration pointing to a sandbox environment.
+
+**Launch configuration (`launch.json`):**
+```json
+{
+    "name": "BC Sandbox",
+    "type": "al",
+    "request": "launch",
+    "environmentType": "Sandbox",
+    "environmentName": "MySandbox",
+    "tenant": "<tenant-id>",
+    "authentication": "UserPassword"
+}
+```
+
+**Debugger features:** Step Over (F10), Step Into (F11), watch variables, evaluate expressions in the Debug Console, inspect `Rec` and related records at any trigger breakpoint.
+
