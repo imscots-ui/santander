@@ -610,13 +610,20 @@ export default function App() {
     let bal = accounts.filter(a => a.status === 'active').reduce((s, a) => s + a.balance, 0);
     return Array.from({ length: 13 }, (_, w) => {
       const d = new Date(2026, 5, 18 + w * 7);
-      const inflow  = 10800 + (w % 3 === 0 ? 28000 : 0);
-      const outflow = 7400
-        + (w === 3 ? 29650 : 0)   // payroll month-end
-        + (w === 1 ? 41614 : 0)   // VAT settlement
-        + (w % 4 === 2 ? 8400 : 0); // quarterly supplier
+      const customerReceipts = w % 3 === 0 ? 28000 : 0;
+      const inflow  = 10800 + customerReceipts;
+      const payroll  = w === 3 ? 29650 : 0;   // payroll month-end
+      const vat      = w === 1 ? 41614 : 0;    // VAT settlement
+      const supplier = w % 4 === 2 ? 8400 : 0; // quarterly supplier
+      const outflow = 7400 + payroll + vat + supplier;
       bal += inflow - outflow;
-      return { w, d, bal: Math.max(0, bal), inflow, outflow, warn: bal < 80000 };
+      // Name the dominant cash event so the chart can explain each movement, not just plot it.
+      const event = vat ? { label: 'VAT settlement', amount: vat }
+                  : payroll ? { label: 'Payroll run', amount: payroll }
+                  : supplier ? { label: 'Quarterly supplier', amount: supplier }
+                  : customerReceipts ? { label: 'Customer receipts', amount: customerReceipts, inflow: true }
+                  : null;
+      return { w, d, bal: Math.max(0, bal), inflow, outflow, event, warn: bal < 80000 };
     });
   }, [accounts]);
 
@@ -2576,18 +2583,22 @@ export default function App() {
             <h2 className="font-display text-2xl">Less paperwork, more business</h2>
             <button onClick={() => setShowSavings(false)} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center"><X className="w-4 h-4" /></button>
           </div>
-          <p className="text-xs text-stone-500 mt-1 mb-2">Three forms we used to ask you to fill in, post, and wait for. Now they live here.</p>
+          <p className="text-xs text-stone-500 mt-1 mb-2">Seven forms we used to ask you to fill in, post, and wait for. Now they live here.</p>
         </div>
         <div className="px-5 py-5 space-y-3">
           {[
-            { form: 'ANBMC0800', name: "Treasurer's mandate", pages: '8 pages' },
-            { form: 'ANB9 0042', name: 'Change of business details', pages: '3 pages' },
-            { form: 'ANB9 0370', name: 'Close an account', pages: '2 pages' },
+            { form: 'ANBMC0800', name: "Treasurer's mandate", pages: '8 pages', sla: '5 working days' },
+            { form: 'ANB9 0042', name: 'Change of business details', pages: '3 pages', sla: '5 working days' },
+            { form: 'ANB9 0370', name: 'Close an account', pages: '2 pages', sla: '5 working days' },
+            { form: 'ANB9 0561', name: 'International payment instruction', pages: '4 pages', sla: '3 working days' },
+            { form: 'ANBPAY212', name: 'Bulk payment (BACS) submission', pages: '6 pages', sla: '2 working days' },
+            { form: 'ANB9 0188', name: 'Reactivate a dormant account', pages: '3 pages', sla: '10 working days' },
+            { form: 'ANBRF044', name: 'Ring-fence instruction', pages: '5 pages', sla: '7 working days' },
           ].map(f => (
             <div key={f.form} className="p-4 rounded-2xl border border-stone-200">
               <div className="flex items-start justify-between">
                 <div><div className="font-display text-base">{f.name}</div><div className="text-[11px] text-stone-500 font-mono mt-0.5">{f.form} · {f.pages}</div></div>
-                <div className="text-right text-[11px]"><div className="text-stone-500 line-through">5 working days</div><div className="text-emerald-700 font-medium">Now: minutes</div></div>
+                <div className="text-right text-[11px]"><div className="text-stone-500 line-through">{f.sla}</div><div className="text-emerald-700 font-medium">Now: minutes</div></div>
               </div>
             </div>
           ))}
@@ -3200,26 +3211,46 @@ export default function App() {
       {/* 13-week cash flow forecast */}
       {(() => {
         const maxBal = Math.max(...forecastWeeks.map(w => w.bal));
-        const warnRatio = 80000 / maxBal;
-        const warnY = (76 - warnRatio * 72).toFixed(1);
-        const hasWarn = forecastWeeks.some(w => w.warn);
         const minBal = Math.min(...forecastWeeks.map(w => w.bal));
+        const range = maxBal - minBal || 1;
+        const hasWarn = forecastWeeks.some(w => w.warn);
+        // Zoom the bars to the [min, max] band — on a healthy balance the weekly
+        // swings are a tiny fraction of the total, so a 0-based axis renders a flat
+        // wall. Banding makes the actual movement (and the dips) legible.
+        const barFor = (bal) => 14 + ((bal - minBal) / range) * 58;
+        // £80k working-capital floor — only meaningful when it falls inside the band.
+        const showFloor = minBal < 80000 && maxBal > 80000;
+        const floorY = (76 - barFor(80000)).toFixed(1);
+        // Largest scheduled outflow and the lowest projected week — the two facts a
+        // director actually wants off this chart.
+        const outflowEvents = forecastWeeks.filter(w => w.event && !w.event.inflow);
+        const bigEvent = outflowEvents.reduce((a, b) => (b.event.amount > (a?.event.amount ?? 0) ? b : a), null);
+        const lowIdx = forecastWeeks.reduce((lo, w, i) => (w.bal < forecastWeeks[lo].bal ? i : lo), 0);
         return (
           <div className="px-5 mb-7 anim-fade">
             <div className="flex items-end justify-between mb-3">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Projected</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Projected · from live balances</div>
                 <h2 className="font-display-tight text-2xl text-stone-900">13-week forecast</h2>
               </div>
               {hasWarn && <span className="text-[10px] uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 mb-1">Risk ahead</span>}
             </div>
             <div className="bg-white rounded-2xl border border-stone-200/80 p-4 lift-1">
-              <svg viewBox="0 0 520 80" className="w-full mb-1" preserveAspectRatio="none">
-                <line x1="0" y1={warnY} x2="520" y2={warnY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.5" />
+              <svg viewBox="0 0 520 84" className="w-full mb-1" preserveAspectRatio="none">
+                {showFloor && <line x1="0" y1={floorY} x2="520" y2={floorY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.6" />}
                 {forecastWeeks.map((wk, i) => {
-                  const barH = ((wk.bal / maxBal) * 72).toFixed(1);
-                  const y = (76 - barH).toFixed(1);
-                  return <rect key={i} x={i * 40 + 3} y={y} width={34} height={barH} fill={wk.warn ? '#f59e0b' : '#c8102e'} rx={3} opacity="0.82" />;
+                  const barH = barFor(wk.bal);
+                  const y = 76 - barH;
+                  const isOutflowEvent = wk.event && !wk.event.inflow;
+                  const fill = wk.warn ? '#f59e0b' : '#c8102e';
+                  const opacity = wk.warn ? 0.92 : isOutflowEvent ? 0.9 : wk.event ? 0.55 : 0.32;
+                  return (
+                    <g key={i}>
+                      <rect x={i * 40 + 3} y={y.toFixed(1)} width={34} height={barH.toFixed(1)} fill={fill} rx={3} opacity={opacity} />
+                      {/* dot above weeks carrying a scheduled outflow, so the dips read as events */}
+                      {isOutflowEvent && <circle cx={i * 40 + 20} cy={(y - 4).toFixed(1)} r={2.4} fill={wk.warn ? '#d97706' : '#c8102e'} />}
+                    </g>
+                  );
                 })}
               </svg>
               <div className="flex justify-between text-[9px] text-stone-400 mb-3 px-0.5">
@@ -3229,19 +3260,28 @@ export default function App() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-                  <div className="text-[10px] text-stone-500 mb-0.5">Min projected</div>
+                  <div className="text-[10px] text-stone-500 mb-0.5">Lowest · week {lowIdx + 1}</div>
                   <div className="font-display-tight text-base num-tab text-stone-900">{fmt(minBal)}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-                  <div className="text-[10px] text-stone-500 mb-0.5">Week 13</div>
+                  <div className="text-[10px] text-stone-500 mb-0.5">Week 13 close</div>
                   <div className="font-display-tight text-base num-tab text-stone-900">{fmt(forecastWeeks[12].bal)}</div>
                 </div>
               </div>
+              {/* Always explain the chart: name the biggest scheduled outflow and when it lands. */}
+              {bigEvent && (
+                <div className="mt-3 p-3 rounded-xl bg-stone-50 border border-stone-100 flex gap-2">
+                  <CalendarDays className="w-3.5 h-3.5 text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-[11px] text-stone-600 leading-relaxed">
+                    Largest outflow: <strong className="text-stone-900">{bigEvent.event.label} {fmt(bigEvent.event.amount)}</strong> in week {bigEvent.w + 1} ({bigEvent.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}).
+                  </div>
+                </div>
+              )}
               {hasWarn && (
-                <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200/50 flex gap-2">
+                <div className="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-200/50 flex gap-2">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5" />
                   <div className="text-[11px] text-amber-900 leading-relaxed">
-                    Projected dip below £80k in <strong>week {forecastWeeks.findIndex(w => w.warn) + 1}</strong> · consider transferring from Reserve account.
+                    Balance dips to <strong>{fmt(minBal)}</strong> in week {lowIdx + 1}, below the £80k working-capital floor · consider transferring from Reserve.
                   </div>
                 </div>
               )}
@@ -5242,6 +5282,18 @@ export default function App() {
                 </div>
               </div>
             </div>
+            <div className="pt-1">
+              <button onClick={() => window.location.reload()}
+                className="w-full p-3 rounded-2xl border border-dashed border-stone-300 text-left flex items-center gap-3 hover:bg-stone-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+                <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm text-stone-900">Reset demo</div>
+                  <div className="text-[11px] text-stone-500 mt-0.5">Presenter · clears every in-progress workflow and returns to a clean slate</div>
+                </div>
+              </button>
+            </div>
             <div className="pb-2" />
           </div>
         </div>
@@ -5326,6 +5378,8 @@ export default function App() {
               <div className="text-[10px] uppercase tracking-wider text-stone-500 px-3 mb-2">Quick actions</div>
               {[
                 { id: 'wages', label: 'Bulk payments', icon: Banknote },
+                { id: 'fx', label: 'International', icon: Globe },
+                { id: 'lending', label: 'Business loan', icon: PoundSterling },
                 { id: 'mandate', label: 'Change mandate', icon: Users },
                 { id: 'biz', label: 'Business details', icon: Briefcase },
                 { id: 'idcheck', label: 'ID register', icon: UserCheck },
