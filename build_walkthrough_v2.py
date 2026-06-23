@@ -12,7 +12,7 @@ Design philosophy:
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 RED    = RGBColor(0xC8, 0x10, 0x2E)
@@ -57,6 +57,7 @@ def text(slide, txt, l, t, w, h, size=14, bold=False, color=DARK,
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     p  = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
@@ -74,6 +75,7 @@ def multiline(slide, lines, l, t, w, h, size=12, color=DARK,
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     for i, line in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         run = p.add_run()

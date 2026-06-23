@@ -6,7 +6,7 @@ A comprehensive document-style deck capturing everything built, written, and del
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
 # ── Brand colours ─────────────────────────────────────────────────────────────
 RED      = RGBColor(0xC8, 0x10, 0x2E)
@@ -51,6 +51,7 @@ def T(slide, text, l, t, w, h, size=12, bold=False, color=DARK,
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     p = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
@@ -67,6 +68,7 @@ def ML(slide, lines, l, t, w, h, size=11, color=DARK, leading=5):
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     first = True
     for line in lines:
         if first:

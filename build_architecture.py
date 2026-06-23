@@ -7,7 +7,7 @@ Santander Business Banking prototype using python-pptx.
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
 # ---------------------------------------------------------------------------
 # Colour constants
@@ -81,6 +81,7 @@ def bullets_box(slide, bullets, left, top, width, height, size=15):
     tb = add_textbox(slide, left, top, width, height)
     tf = tb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
     first = True
     for bullet in bullets:
         para = tf.paragraphs[0] if first else tf.add_paragraph()
