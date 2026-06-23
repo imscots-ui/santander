@@ -41,17 +41,34 @@ Report: Security [GREEN/AMBER/RED]
 ## STATION 3 — Engineer checks
 
 ```bash
-# Missing keys in maps
-grep -n "\.map(" App.jsx | grep -v "key=" | head -10
+# Missing keys in maps — only considers maps that render JSX (an opening tag appears
+# in the 8-line window) and lack a key. Skips data-transform maps and tolerates keys
+# placed several lines below the .map( call.
+grep -n "\.map(" App.jsx | while IFS=: read -r ln _; do
+  win=$(sed -n "${ln},$((ln+8))p" App.jsx)
+  echo "$win" | grep -q "<[A-Za-z]" || continue          # skip data-transform maps
+  echo "$win" | grep -q "key=" || echo "Line $ln: render map without key"
+done | head -10
 
-# Always-on intervals
-grep -n "setInterval" App.jsx
+# Always-on intervals — flag only setInterval without a clearInterval cleanup nearby
+grep -n "setInterval" App.jsx | while IFS=: read -r ln _; do
+  sed -n "${ln},$((ln+4))p" App.jsx | grep -q "clearInterval" || echo "Line $ln: setInterval without cleanup"
+done
+# Any output → RED (interval must live in useEffect with a clearInterval teardown)
 
 # Build health
 npm run build 2>&1 | grep -E "error|Error|✓|built in" | tail -10
 ```
 
 Report: Engineering [GREEN/AMBER/RED]
+
+> **Map-key check is advisory.** Confirm each remaining hit by eye before judging.
+> A hit is RED **only** if a JSX element returned by the map genuinely has no `key`.
+> Two legitimate exonerations (→ GREEN): (1) a data-transform map whose JSX comes
+> from a *following* statement, e.g. `Math.max(...weeks.map(w => w.bal))` sitting
+> just above a `return (<…>)`; (2) a render map whose key sits beyond the 8-line
+> window because of intermediate `const` declarations. The interval and build
+> checks are authoritative — any output there is RED.
 
 ---
 
