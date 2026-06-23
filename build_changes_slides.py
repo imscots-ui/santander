@@ -303,11 +303,15 @@ SLIDES = [
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    path = "/home/user/santander/Santander_June2026_Changes.pptx"
-    prs  = Presentation(path)
+    path  = "/home/user/santander/Santander_June2026_Changes.pptx"
+    base  = "/tmp/changes_base11.pptx"   # clean 11-slide template from git
+    import shutil, os
+    # Always start from the clean 11-slide base so this script is idempotent
+    shutil.copy2(base, path)
+    prs = Presentation(path)
 
     before = len(prs.slides)
-    print(f"Existing slides: {before}")
+    print(f"Base slides: {before}")
 
     for slide_def in SLIDES:
         build_slide(
