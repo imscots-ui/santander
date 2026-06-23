@@ -3,16 +3,16 @@ import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 export default defineConfig({
-  plugins: [react(), viteSingleFile()],
+  plugins: [react(), viteSingleFile({ useRecommendedBuildConfig: true })],
   build: {
     target: 'esnext',
+    outDir: 'dist',
     assetsInlineLimit: 100000000,
     chunkSizeWarningLimit: 100000000,
     cssCodeSplit: false,
     rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
+      input: 'index.html',
+      output: { inlineDynamicImports: true },
     },
   },
   server: { host: true, port: 5173 },

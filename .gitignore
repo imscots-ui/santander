@@ -1,3 +1,17 @@
 node_modules/
 .DS_Store
 *.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+
+# SQLite demo database
+*.db
+*.sqlite
+
+# Claude Code agent worktrees (temporary isolation sandboxes)
+.claude/worktrees/
