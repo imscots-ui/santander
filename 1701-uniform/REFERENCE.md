@@ -1,13 +1,16 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 71 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 78 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
 AML/KYC/KYB regulation, Companies House & Charity Commission APIs, Tailwind CSS v3, hardware version control,
 MakerSpace management, basic electronics, mechatronics, digital logic, electronic devices & circuits,
 CSS animations & motion design, Vite build tooling & TypeScript large-scale patterns, React 19.1 Server Components,
-Photoshop, Arduino/IoT, UX design, KiCad PCB design (RP2040), and embedded Linux programming.
+Photoshop, Arduino/IoT, UX design, KiCad PCB design (RP2040), embedded Linux programming, AI content creation
+workflows, C# microservices with .NET 5, FARM stack (FastAPI/React/MongoDB), AI prompt libraries for image/video/writing,
+deep learning & computer vision for surveillance, critical theory of AI-generated images, and Power BI data analyst
+certification.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -71,6 +74,13 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 55. [Practical UX Design — Faranello](#section-55--practical-ux-design)
 56. [Design an RP2040 Board with KiCad — Hinchliffe & Everard](#section-56--design-an-rp2040-board-with-kicad)
 57. [Mastering Embedded Linux Programming — Simmonds](#section-57--mastering-embedded-linux-programming)
+58. [AI Content Creator's Playbook — Sayto](#section-58--ai-content-creators-playbook)
+59. [C# 9 Microservices Architecture with .NET 5 — Millie](#section-59--c-9-microservices-architecture-with-net-5)
+60. [FARM Stack: FastAPI, React & MongoDB — Millie](#section-60--farm-stack-fastapi-react--mongodb)
+61. [AI Prompt Mastery Guide — Sonvane](#section-61--ai-prompt-mastery-guide)
+62. [Deep Learning & AI in Surveillance Systems — Pandey et al.](#section-62--deep-learning--ai-in-surveillance-systems)
+63. [Critical Analysis of AI-Generated Images — Bouko & Laba et al.](#section-63--critical-analysis-of-ai-generated-images)
+64. [Microsoft Power BI Data Analyst Exam Guide — ter Braake](#section-64--microsoft-power-bi-data-analyst-exam-guide)
 
 ---
 
@@ -12519,5 +12529,1037 @@ echo preemptirqsoff > /sys/kernel/debug/tracing/current_tracer
 - Use `pthread_mutex_init` with `PTHREAD_PRIO_INHERIT` protocol to prevent priority inversion
 - Keep critical sections short; avoid dynamic memory allocation in RT threads
 - Dedicate CPU cores with `isolcpus=` kernel parameter; use `taskset` to pin threads
+
+---
+
+## Section 58 — AI Content Creator's Playbook
+
+*Source: The AI Content Creator's Playbook — Akemi Sayto (2024–2025). 85 prompt templates across 5 parts: toolkit, AI vs human, scripting/ideation, distribution/growth, longevity.*
+
+### AI Tool Landscape for Creators
+
+**Tier 1 — Writing & Ideation:**
+- ChatGPT / Claude / Perplexity AI — research, outlines, first drafts, metadata
+- Jasper / Notion AI — team-oriented writing pipelines
+- Perplexity — trending topic research before competitors (live search + synthesis)
+
+**Tier 2 — Video Production:**
+- Opus Clip / Descript — repurpose long-form video into short clips; auto-identifies best moments
+- HeyGen / Synthesia — AI avatar talking-head videos at scale without camera presence
+- ElevenLabs — voice cloning for podcast episode production; clone once, produce indefinitely
+
+**Tier 3 — Visual Creation:**
+- Midjourney / DALL·E 3 — thumbnail concept generation; A/B test concepts before filming
+- Suno / Udio — royalty-free AI-generated background music
+- Captions App / Whisper AI — automated subtitle and caption generation
+
+**Tier 4 — Automation:**
+- Zapier + AI — content repurposing workflows across platforms
+- Adobe Podcast AI — audio clean-up and enhancement in one pass
+- Beehiiv AI / ConvertKit — personalised newsletter segments at scale
+
+---
+
+### AI vs Human Division of Labour
+
+**Fully delegate to AI:**
+- Research, competitive landscape sweeps
+- Topic ideation (30 video ideas from one prompt)
+- First drafts, outlines, scripts
+- SEO metadata: titles, descriptions, tags, timestamps
+- Comment reply templates (standard queries)
+- Thumbnail A/B concept variations
+
+**Always human-controlled:**
+- Personal stories and lived experience
+- Emotional hook selection — which of 20 AI hooks sounds like you
+- Brand voice in every published title
+- Vulnerable audience responses
+- Narrative arc of a story
+- Community relationship moments
+
+**Decision tree rule:** If the output would change if a different person created it → human. If it's a format/structure/metadata task → AI.
+
+---
+
+### High-Performance Prompt Structures
+
+**YouTube idea generation prompt structure:**
+```
+You are a YouTube strategy expert for creators in the [NICHE] space.
+Generate 30 video ideas that are:
+1. Searchable (people type these into YouTube search)
+2. Audience-centric (solve a problem or answer a burning question)
+3. Monetization-friendly (attract brand deals, sustain watch time)
+4. Format-flexible (long-form, short-form, or series)
+
+My channel focuses on: [2-3 SENTENCES]
+My audience struggles with: [3-5 PAIN POINTS]
+Trending angles now: [3-4 TOPICS]
+Content already covered: [5-10 EXISTING TITLES]
+
+For each idea include: title, primary keyword, audience benefit (1 sentence), format recommendation.
+```
+
+**YouTube script structure (3-act):**
+- HOOK (0–15s): Pattern interrupt — surprising statement, micro-story, or assumption-challenging question. Never open with "Today I'm going to show you..."
+- ACT 1 (15–45s): Acknowledge the problem; make audience feel seen; signal solution coming
+- ACT 2 (45s – END-60s): The 2-1-3-4 method — 2 examples first, 1 deep-dive, 3 actionable takeaways, 4 ways to apply today. Break pattern every 60–90s.
+- ACT 3 (last 60s): Restate core takeaway in one sentence; deliver earned CTA tied to the value received
+
+**Short-form (TikTok/Reels) script format:**
+```
+[0-3 sec]  HOOK: Stop-scroll statement or mid-action open
+[3-15 sec] RETENTION BEAT 1: Build context without explaining
+[15-30 sec] RETENTION BEAT 2: Reveal or pivot
+[30-45 sec] RETENTION BEAT 3 (optional): Surprising proof point
+[45-60 sec] CTA: Comment, share, save, or follow — tied to the value
+```
+Key rule: assume sound OFF — visuals must carry meaning independently.
+
+---
+
+### Content Distribution & Monetization Templates
+
+**Cross-platform repurposing from one hero piece:**
+1. Long-form YouTube video (primary)
+2. Short-form clip (Reels/Shorts/TikTok) — 3 variants from different moments
+3. LinkedIn thought leadership post — POV-driven, ends with a question
+4. Twitter/X thread — builds tension, punchline at end
+5. Newsletter issue — 3 bullet points → full issue via AI
+6. Podcast episode outline + show notes
+
+**LinkedIn post formula for comments (not just likes):**
+- Open with a counterintuitive claim (not a statistic)
+- Share 1 concrete data point or case study
+- Give 3 actionable insights
+- End with a specific question that readers can answer from their own experience
+- Never use "I'm excited to announce..."
+
+**Sponsorship and monetization sequence:**
+- Media kit narrative from analytics — use AI to draft, human to verify accuracy
+- Brand partnership email: lead with audience specifics (size, engagement, niche match), not your follower count
+- Digital product launch: 5-email funnel — problem → story → solution → proof → urgency
+
+---
+
+### Creator Longevity & Burnout Prevention
+
+**Batch production system:** Record all talking-head segments in one session; B-roll on a second day; editing and AI-assisted captions on a third. Never create and publish same-day.
+
+**Trend monitoring:** Weekly AI digest prompt — feed 3-5 top performing competitors' recent titles to AI, ask it to identify the common audience pain point driving engagement.
+
+**AI-proof creator assets (cannot be replicated by AI alone):**
+- Lived experience and personal stories
+- Community trust built over time
+- A niche point of view with a defined intellectual framework
+- Relationships with collaborators and brands
+- Authentic real-time reactions (unscripted moments)
+
+**Personal prompt library structure:** Organise by format (YouTube / LinkedIn / TikTok), by content goal (educational / entertainment / conversion), and by audience intent (discover / consider / act).
+
+---
+
+## Section 59 — C# 9 Microservices Architecture with .NET 5
+
+*Source: C# 9 Microservices Architecture Development with .NET 5 — Katie Millie (2024). 14 chapters covering monolith decomposition, C# 9 features, Docker, Kubernetes, testing, security, CI/CD.*
+
+### Monolith vs Microservices — The Core Trade-off
+
+**Monolith problems at scale:**
+- Scaling requires scaling the entire app even if only one component is under load
+- One deployment per change, even for a single line — slow release cycles
+- A failure in any component can crash the whole system (no fault isolation)
+- Teams block each other — merge conflicts on shared codebase
+
+**Microservices principles:**
+1. **Decomposition** — split on business capabilities, not technical layers
+2. **Independence** — each service independently deployable, scalable, and maintainable
+3. **Single Responsibility** — one service owns one bounded context
+4. **Communication** — REST or async messaging (MassTransit/RabbitMQ); no shared databases
+5. **Resilience** — circuit breakers, retries, timeouts; failures stay isolated
+6. **Bounded data** — each service has its own database; no cross-service DB joins
+
+**Microservices costs:** Distributed system complexity, service discovery overhead, cross-service transaction management, more infrastructure, harder end-to-end testing.
+
+---
+
+### C# 9 Features for Microservices
+
+**Minimal APIs (ASP.NET Core):** Eliminate controller boilerplate for lightweight endpoints.
+```csharp
+var app = WebApplication.Create(args);
+app.MapGet("/products/{id}", (int id, ProductService svc) => svc.GetById(id));
+app.Run();
+```
+
+**Records — immutable value objects for DTOs:**
+```csharp
+public record ProductDto(int Id, string Name, decimal Price);
+// Equality by value, not reference — safe for caching and hashing
+// Deconstruct: var (id, name, price) = dto;
+// With-expression: var updated = dto with { Price = 9.99m };
+```
+
+**Top-level statements:** Remove `Main()` and `Program` class boilerplate — entry point is the first statement in the file.
+
+**Pattern matching enhancements:** `is not null`, `and`/`or`/`not` combinators, relational patterns (`> 0`).
+
+---
+
+### Communication Strategies
+
+**Synchronous (REST):** Client waits for response. Use when: caller needs an immediate answer, operation is query-heavy, latency is acceptable.
+```csharp
+// HttpClient with typed client pattern
+builder.Services.AddHttpClient<ProductClient>(c =>
+    c.BaseAddress = new Uri("https://products-svc/"));
+```
+
+**Asynchronous (Message Bus):** Publisher fires and forgets; subscriber handles later. Use when: decoupling is paramount, operation is a command, caller doesn't need the result immediately.
+
+**MassTransit + RabbitMQ pattern:**
+```csharp
+// Publisher
+await _bus.Publish(new OrderPlaced { OrderId = id });
+
+// Consumer
+public class OrderPlacedConsumer : IConsumer<OrderPlaced>
+{
+    public async Task Consume(ConsumeContext<OrderPlaced> context)
+    {
+        // handle the event
+    }
+}
+```
+
+**API Gateway pattern:** Single entry point for all clients; handles routing, auth, rate limiting, SSL termination. Routes requests to appropriate downstream services. Prevents direct service-to-service coupling for external callers.
+
+---
+
+### Domain-Driven Design (DDD) with Microservices
+
+**Bounded Context** — a boundary within which a domain model applies. Each microservice = one bounded context.
+
+**Aggregate** — a cluster of domain objects treated as a unit. Only one entity is the aggregate root; external services reference the root ID only.
+
+**Domain Events** — signals emitted when something significant happens within a bounded context. Consumers in other services subscribe; the publisher doesn't know who subscribes.
+
+**Ubiquitous Language** — the business team and the code use identical vocabulary for the same concepts. A `Product` in the catalogue service is not the same object as a `Product` in the ordering service; each has its own model.
+
+---
+
+### Docker & Kubernetes
+
+**Containerise a .NET 5 microservice:**
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /app
+COPY --from=build /app .
+ENTRYPOINT ["dotnet", "MyService.dll"]
+```
+
+**Docker Compose — local orchestration:**
+```yaml
+services:
+  product-svc:
+    build: ./ProductService
+    ports: ["5001:80"]
+  order-svc:
+    build: ./OrderService
+    environment:
+      - ProductServiceUrl=http://product-svc
+```
+
+**Kubernetes key concepts:**
+- **Pod** — smallest deployable unit; one or more containers sharing network namespace
+- **Deployment** — manages replica sets; rolling updates with zero downtime
+- **Service** — stable DNS name and virtual IP for a set of pods
+- **ConfigMap / Secret** — externalise configuration and credentials
+- **Ingress** — HTTP routing from outside the cluster to internal services
+
+```bash
+kubectl apply -f deployment.yaml
+kubectl get pods -n production
+kubectl rollout status deployment/product-svc
+kubectl scale deployment product-svc --replicas=5
+```
+
+---
+
+### Testing Microservices
+
+**Unit tests** — test a single class in isolation; mock all dependencies.
+
+**Integration tests** — test one service with its real database; use Testcontainers to spin up a real DB in Docker for the test run.
+
+**Contract testing (Pact):** Consumer defines the contract; provider verifies it. No need for a running version of both services simultaneously. Catches breaking API changes before deployment.
+
+**Chaos engineering:** Deliberately inject failures — kill pods, introduce latency, saturate CPU — to verify that fault isolation and retry logic hold under real failure conditions. Netflix Chaos Monkey popularised this approach.
+
+---
+
+### Security
+
+**Transport:** Always TLS between services (mutual TLS in zero-trust networks).
+
+**Authentication:** OAuth 2.0 / JWT. Services validate the token independently; no shared session state.
+```csharp
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opts => {
+        opts.Authority = "https://identity-svc";
+        opts.Audience = "product-api";
+    });
+```
+
+**Secrets management:** Never store credentials in source code or environment variables baked into images. Use Azure Key Vault, AWS Secrets Manager, or Kubernetes Secrets (encrypted at rest).
+
+**Principle of least privilege:** Each service gets only the database permissions it needs; service accounts have no admin rights.
+
+---
+
+### Monitoring & Observability
+
+**Three pillars:**
+1. **Logs** — structured (JSON); include correlation ID on every log line; ship to centralised store (ELK, Splunk, Azure Monitor)
+2. **Metrics** — counters, gauges, histograms; expose via `/metrics` endpoint; scrape with Prometheus; visualise in Grafana
+3. **Traces** — distributed tracing with OpenTelemetry; trace propagation via `traceparent` header; view in Jaeger or Zipkin
+
+**Health checks:**
+```csharp
+app.MapHealthChecks("/health/live");   // is the process alive?
+app.MapHealthChecks("/health/ready"); // is it ready to serve traffic?
+```
+
+---
+
+## Section 60 — FARM Stack: FastAPI, React & MongoDB
+
+*Source: Build Web Applications with FastAPI, React, and MongoDB — Katie Millie (2024). 10 chapters + appendices covering full-stack development from setup to cloud deployment.*
+
+### FARM Stack Overview
+
+**F** — FastAPI (Python backend; async; automatic OpenAPI docs)  
+**A** — React (JavaScript frontend; component-based; hooks-driven state)  
+**R** — (no R — the acronym's letters are FastAPI/React/MongoDB)  
+**M** — MongoDB (NoSQL document store; flexible schema; JSON-native)
+
+**Why this stack:**
+- FastAPI generates interactive API docs automatically from type hints
+- React delivers rich interactive UIs without page reloads
+- MongoDB's document model matches JSON API payloads — no ORM impedance mismatch
+- All three are high-performance, widely adopted, and cloud-deployable
+
+**Comparison with alternatives:**
+
+| Stack | Backend | Frontend | DB | Trade-off |
+|-------|---------|----------|----|-----------|
+| FARM | FastAPI | React | MongoDB | Python + async; great for ML integration |
+| MERN | Node/Express | React | MongoDB | JS everywhere; large npm ecosystem |
+| Django + React | Django | React | PostgreSQL | Mature ORM; batteries included |
+| MEAN | Node | Angular | MongoDB | Full JS; Angular's steep learning curve |
+
+---
+
+### FastAPI Backend Patterns
+
+**Project structure:**
+```
+app/
+  main.py          # app factory, router registration
+  models/          # Pydantic schemas (request/response)
+  routes/          # APIRouter per resource
+  database.py      # MongoDB connection (Motor async driver)
+  dependencies.py  # shared Depends() callables
+```
+
+**Async MongoDB with Motor:**
+```python
+from motor.motor_asyncio import AsyncIOMotorClient
+
+client = AsyncIOMotorClient(settings.MONGO_URL)
+db = client[settings.DB_NAME]
+
+async def get_product(id: str):
+    doc = await db.products.find_one({"_id": ObjectId(id)})
+    return doc
+```
+
+**CRUD endpoints:**
+```python
+router = APIRouter(prefix="/products", tags=["products"])
+
+@router.get("/{id}", response_model=ProductOut)
+async def read_product(id: str):
+    product = await get_product(id)
+    if not product:
+        raise HTTPException(status_code=404)
+    return product
+
+@router.post("/", response_model=ProductOut, status_code=201)
+async def create_product(body: ProductIn):
+    result = await db.products.insert_one(body.dict())
+    return await get_product(str(result.inserted_id))
+```
+
+**Dependency injection:**
+```python
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+    payload = decode_jwt(token)
+    return await get_user(payload["sub"])
+
+@router.get("/me")
+async def me(user: User = Depends(get_current_user)):
+    return user
+```
+
+**Validation:** FastAPI uses Pydantic models for automatic request validation; invalid payloads return 422 with detailed error messages. Use `Field(...)` for constraints.
+
+---
+
+### MongoDB Patterns
+
+**Document model:** Documents are JSON-like BSON. No schema enforcement by default — enforce at application layer with Pydantic.
+
+**Collections, documents, queries:**
+```python
+# Insert
+result = await db.users.insert_one({"name": "Alice", "role": "admin"})
+
+# Find one
+user = await db.users.find_one({"email": "alice@example.com"})
+
+# Find many with filter
+cursor = db.products.find({"price": {"$lt": 50}})
+products = await cursor.to_list(length=100)
+
+# Update
+await db.users.update_one({"_id": user["_id"]}, {"$set": {"role": "superuser"}})
+
+# Delete
+await db.users.delete_one({"_id": user["_id"]})
+```
+
+**Indexes — create upfront for query patterns:**
+```python
+await db.products.create_index("sku", unique=True)
+await db.orders.create_index([("user_id", 1), ("created_at", -1)])
+```
+
+**ObjectId:** MongoDB's default `_id` is a 12-byte ObjectId. In Pydantic, configure:
+```python
+class ProductOut(BaseModel):
+    id: str = Field(alias="_id")
+    model_config = ConfigDict(populate_by_name=True)
+```
+
+---
+
+### React Frontend Patterns
+
+**Component structure with hooks:**
+```jsx
+function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(r => r.json())
+      .then(data => { setProducts(data); setLoading(false); });
+  }, []);
+
+  if (loading) return <Spinner />;
+  return products.map(p => <ProductCard key={p.id} product={p} />);
+}
+```
+
+**State management choices:**
+- Local state: `useState` — component-scoped
+- Shared state without library: React Context + `useReducer`
+- Complex global state: Redux Toolkit or Zustand
+- Server state (caching, refetching): React Query / TanStack Query
+
+**React Router v6:**
+```jsx
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/products/:id" element={<ProductDetail />} />
+  <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+---
+
+### Authentication (JWT + FastAPI)
+
+**Flow:** User submits credentials → FastAPI verifies → returns access token (short-lived) + refresh token → React stores access token in memory, refresh token in httpOnly cookie → on each request, send `Authorization: Bearer <token>` header.
+
+```python
+# FastAPI token endpoint
+@router.post("/token")
+async def login(form: OAuth2PasswordRequestForm = Depends()):
+    user = await authenticate(form.username, form.password)
+    if not user:
+        raise HTTPException(401, "Incorrect credentials")
+    access_token = create_jwt(user.id, expires_minutes=15)
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+**RBAC (Role-Based Access Control):** Attach role to the JWT payload; check role in a dependency:
+```python
+def require_admin(user: User = Depends(get_current_user)):
+    if user.role != "admin":
+        raise HTTPException(403, "Admin required")
+```
+
+---
+
+### Server-Side Rendering with Next.js + FastAPI
+
+**Why SSR:** Better SEO (search engines see rendered HTML), faster First Contentful Paint, improved Core Web Vitals.
+
+**Data fetching strategies in Next.js:**
+- `getStaticProps` — build-time fetch; good for rarely-changing content
+- `getServerSideProps` — per-request fetch; always fresh; hits FastAPI at request time
+- `getStaticPaths` + `getStaticProps` — static generation for dynamic routes (e.g. product pages)
+- React Server Components (Next.js App Router) — stream HTML from server, no JS for static parts
+
+---
+
+### Deployment
+
+**Backend (FastAPI on DigitalOcean Ubuntu):**
+1. Gunicorn as process manager: `gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker`
+2. Nginx as reverse proxy + TLS termination; proxy_pass to Gunicorn socket
+3. Systemd service for auto-restart on failure
+4. Environment variables via `.env` file, never committed to git
+
+**Frontend (React on Netlify):**
+- `npm run build` → `dist/` → deploy to Netlify CDN
+- Set `REACT_APP_API_URL` in Netlify environment settings
+
+**Redis caching:**
+```python
+import aioredis
+redis = await aioredis.from_url("redis://localhost")
+
+async def get_products_cached():
+    cached = await redis.get("products:all")
+    if cached:
+        return json.loads(cached)
+    data = await fetch_from_mongo()
+    await redis.set("products:all", json.dumps(data), ex=300)  # 5-minute TTL
+    return data
+```
+
+---
+
+## Section 61 — AI Prompt Mastery Guide
+
+*Source: AI Prompt Mastery Guide: 850+ Ready-to-Use Prompts for Image Generation, Video Creation, Writing, and Publishing — Ritesh Sonvane (2026). A practical library of categorised prompts across 6 chapters.*
+
+### Prompt Engineering Fundamentals
+
+**Core principle:** A prompt is an instruction to an AI model. Quality of output correlates directly with specificity, context, and constraint in the prompt. Vague prompts produce generic output; structured prompts with role, context, output format, and constraints produce usable output.
+
+**Prompt anatomy for image generation:**
+```
+[Subject] + [Style/Medium] + [Lighting] + [Composition] + [Technical specs]
+
+"Photorealistic portrait of a 35-year-old woman, natural skin texture,
+ soft window lighting from the left, shallow depth of field,
+ professional DSLR photography, 85mm lens"
+```
+
+**Prompt anatomy for writing tasks:**
+```
+[Role]: You are a [expert role]
+[Context]: [background and constraints]
+[Task]: [precise instruction]
+[Format]: [output structure: bullets/numbered/prose/table]
+[Tone]: [formal/casual/persuasive/educational]
+[Example]: [show the pattern you want]
+```
+
+---
+
+### Image Generation Prompt Categories (150 prompts total in source)
+
+**Portrait & Photography:**
+- Photorealistic: `natural skin texture, realistic lighting, shallow depth of field, professional DSLR`
+- Cinematic: `dramatic lighting, soft shadows, moody atmosphere, film-style composition`
+- Professional headshot: `clean background, soft studio lighting, confident expression`
+- Fashion editorial: `luxury magazine style, dramatic lighting` — add season and brand tone
+
+**Product & Brand Visuals:**
+- Product photography: `studio lighting, sharp focus, clean background` — specify surface and angle
+- Luxury ad: `premium lighting, elegant composition, high-end brand feel`
+- Flat lay: `top-down view, minimal props, aesthetic composition` — specify colour palette
+- Ecommerce banner: `bold typography, promotional layout`
+
+**Architecture & Environments:**
+- Exterior: `professional architectural photography style` — mention materials and environment
+- Interior: `photorealistic, natural lighting, modern furniture` — specify style (minimal/luxury)
+- Urban night: `neon lights, reflections, moody atmosphere` — add rain or fog for drama
+
+**Creative & Concept Art:**
+- Fantasy character: `detailed outfit, magical elements, cinematic lighting` — mention race or role
+- Sci-fi character: `futuristic outfit, advanced technology details`
+- Digital illustration: `artistic style, detailed composition` — specify art movement (surrealism, impressionism)
+
+**Social Media & Marketing:**
+- YouTube thumbnail: `bold text, expressive face, bright colors, high CTR composition`
+- Instagram post: `bold composition, modern design, square format` — specify niche and brand colours
+- Infographic: `icons, clean layout, easy-to-read structure, numbered sections`
+
+---
+
+### Video & Motion Prompt Templates (Chapter 2)
+
+**Cinematic short-form:** `[Scene] cinematic shot, [camera movement], [lighting], [mood], film grain, 4K`
+
+**Social media reels (structure):**
+1. First frame must be a hook — text overlay with the controversial/surprising claim
+2. Second beat — proof or pivot (3-5 seconds)
+3. Third beat — CTA or resolution
+4. Audio: suggest upbeat/lo-fi/dramatic to match emotion
+
+**Explainer video:** `Clean 2D animation, flat design, step-by-step walkthrough of [process], voiceover style: [professional/friendly], brand colour [hex], duration [X] seconds`
+
+**Editing transitions:** `Cut to black, smash cut, whip pan, J-cut (audio leads video), L-cut (video leads audio), match cut on motion`
+
+---
+
+### Writing, Book & Publishing Prompt Templates (Chapter 3)
+
+**Book outline prompt:**
+```
+You are an expert [genre] book editor. Create a detailed outline for a book titled "[TITLE]".
+Target audience: [DESCRIPTION]
+Core premise: [1 SENTENCE]
+Provide: Chapter titles, 3-5 key points per chapter, logical arc from problem to resolution.
+```
+
+**Non-fiction chapter draft:**
+```
+Write Chapter [N] of a book about [TOPIC].
+Chapter title: [TITLE]
+Key arguments to cover: [LIST]
+Evidence/examples to include: [LIST]
+Tone: [authoritative/conversational/academic]
+Word count target: [N] words
+```
+
+**Fiction scene prompt:**
+```
+Write a [GENRE] scene where [PROTAGONIST] [ACTION] in [SETTING].
+POV: [first/third limited/omniscient]
+Tension level: [low/medium/high]
+Include sensory detail (sight, sound, smell). End on a hook.
+```
+
+**Editing prompt:** `Review the following text for: clarity, passive voice, repetition, missing transitions, and factual claims that need verification. Suggest specific rewrites, not general comments.`
+
+---
+
+### Advanced Prompt Techniques (Chapter 5)
+
+**Prompt chaining:** Break complex tasks into sequential prompts where each output feeds the next.
+```
+Step 1: "Generate 10 book chapter ideas for [TOPIC]"
+Step 2: "Expand chapter 3 from the above into a detailed outline"
+Step 3: "Write the introduction section of chapter 3 using this outline"
+Step 4: "Edit the above for clarity, removing any repetition"
+```
+
+**Role-play / persona prompting:** `You are a cynical senior editor at a major publishing house. Review the following book proposal and explain why you would reject it. Be specific.`
+
+**Constraint prompting:** Adding constraints forces creativity and focus: `Explain [CONCEPT] in exactly 5 bullet points, each under 15 words, using no jargon.`
+
+**Quality enhancement strategies:**
+- Add `ultra-detailed`, `professional-grade`, `award-winning` to image prompts
+- Add `step-by-step reasoning`, `cite specific examples` to writing prompts
+- Use `negative prompting` to exclude unwanted elements: `--no blur, watermark, text`
+- Run the same prompt 3 times and pick the best; or ask AI to pick the best from multiple outputs
+
+**Prompt customisation framework:**
+```
+Base prompt: [core task]
+Role modifier: [expert persona]
+Constraint modifier: [format, length, tone]
+Output modifier: [specific structure required]
+Quality modifier: [level of detail]
+```
+
+---
+
+## Section 62 — Deep Learning & AI in Surveillance Systems
+
+*Source: Deep Learning and Machine Learning, Listening to the Hiding Heart of the Earth — multiple editors including Jay Kumar Pandey et al. (Wiley, 2024). 10 chapters on AI/CV in smart city surveillance.*
+
+### Computer Vision Pipeline for Surveillance
+
+**Standard processing pipeline:**
+```
+Camera (raw video) →
+  Edge Computing (initial filtering, latency reduction) →
+  Noise Reduction (blur, filtering) →
+  Edge Detection (Canny, Sobel) →
+  Feature Extraction (HOG, SIFT, CNN features) →
+  AI Model (detection / classification / tracking) →
+  Anomaly Detection →
+  Alert System / Dashboard
+```
+
+**Image processing techniques:**
+- **Noise reduction:** Gaussian blur, median filter — remove sensor noise before detection
+- **Edge detection:** Canny, Sobel, Laplacian — highlight object boundaries for segmentation
+- **Feature extraction:** Histogram of Oriented Gradients (HOG) for pedestrians; SIFT/SURF for keypoints; CNN feature maps for deep learning approaches
+- **Optical flow:** Tracks pixel movement across frames; detects motion direction and speed
+
+---
+
+### Neural Network Architectures for Video Analytics
+
+**CNN (Convolutional Neural Networks):** Extract spatial features from frames; backbone for most object detection models.
+
+**YOLO (You Only Look Once):** Single-pass object detection; trades some accuracy for real-time speed. YOLOv8 (latest at time of publication) achieves strong mAP on COCO dataset.
+- Use case in chapter 9: Robust object detection for autonomous vehicles on Indian roads
+- Challenge: domain shift — models trained on Western road datasets degrade on Indian roads due to class distribution differences (auto-rickshaws, cattle, different lane discipline)
+
+**Two-stage detectors (Faster R-CNN):** Region proposal network (RPN) + classification head; higher accuracy, slower inference than YOLO.
+
+**Tracking algorithms:**
+- **SORT (Simple Online and Realtime Tracking):** Kalman filter + Hungarian algorithm; fast but loses track through occlusion
+- **DeepSORT:** Adds appearance descriptor (re-ID features) to handle occlusion better
+- **ByteTrack:** Tracks even low-confidence detections; state-of-the-art for dense crowds
+
+---
+
+### Thermal Imaging & Night Surveillance
+
+**Why thermal:** Visible-light cameras fail in zero-light, fog, and camouflage conditions. Thermal cameras detect infrared radiation (heat signature) regardless of ambient light.
+
+**Fusion approaches:** Combine visible and thermal frames — visible provides colour/texture, thermal provides heat-based presence detection. Late fusion (fuse detection outputs) is simpler than early fusion (fuse raw frames).
+
+**Applications:**
+- Perimeter security: detect intruders in zero-light conditions
+- Forest fire early detection: hot spots visible before visible smoke
+- Medical screening: fever detection in crowds (COVID-era mass screening)
+- Industrial maintenance: detect overheating components
+
+**Limitations:** Thermal cameras are expensive (5–20× visible); glass blocks IR — thermal cameras cannot see through windows; false positives from hot engines, sun-warmed surfaces.
+
+---
+
+### Smart City Surveillance Architecture
+
+**Edge computing rationale:** Analysing raw video in the cloud requires enormous bandwidth. Edge devices (NVIDIA Jetson, Intel Neural Compute Stick) run inference locally; only metadata (bounding boxes, IDs, events) is sent to cloud.
+
+**Data flow:**
+```
+Camera → Edge Device (inference) → MQTT/WebSocket → Cloud/On-prem Server
+                                                        ↓
+                                               Alert System + Analytics DB
+                                                        ↓
+                                               Dashboard (operator view)
+```
+
+**Smart city use cases:**
+- **Traffic management:** Count vehicles, detect congestion, optimise signal timing dynamically
+- **Crowd density:** Estimate occupancy in public spaces; trigger evacuation thresholds
+- **Anomaly detection:** Detect abandoned objects, fighting, falls, or unusual loitering
+- **Facial recognition:** Crime prevention — high controversy; requires legal framework (GDPR in EU)
+- **Precision agriculture (chapter 8):** Remote sensing + UAV imagery; detect crop stress, pest damage, irrigation needs using NDVI indices
+
+---
+
+### AirNet-X: Object Detection from Aerial Images (Chapter 7)
+
+**Problem:** Aerial (drone/satellite) images differ from ground-level images — objects appear smaller, perspectives change, density is higher.
+
+**AirNet-X approach:**
+- Multi-scale feature pyramid network to handle small objects
+- Attention mechanisms to focus on salient regions
+- Data augmentation: random crops at multiple scales, mosaic augmentation
+- Application: disaster detection — detect damaged buildings, blocked roads, survivor heat signatures after earthquakes or floods
+
+**Performance metrics:**
+- **mAP (mean Average Precision):** Primary metric; integrates precision/recall across IoU thresholds
+- **FPS (Frames per Second):** Real-time threshold is typically 25–30 FPS for live video
+- **IoU (Intersection over Union):** Measure of bounding box quality; threshold typically 0.5 for "correct"
+
+---
+
+### Ethical & Privacy Considerations
+
+**Algorithmic bias:** Models trained on non-representative datasets exhibit differential accuracy across demographic groups. Facial recognition systems have documented higher error rates for darker skin tones and women.
+
+**GDPR (EU) constraints on surveillance AI:**
+- Processing biometric data requires explicit legal basis
+- Automated decision-making with significant effects requires human review
+- Data minimisation: retain only what's needed for the stated purpose
+- Right to explanation: individuals can request explanation of automated decisions affecting them
+
+**Privacy-preserving techniques:**
+- Anonymise faces in stored footage unless a specific alert is triggered
+- On-device processing — raw video never leaves the camera
+- Differential privacy on aggregated statistics (crowd counts)
+- Audit trails on all human access to surveillance footage
+
+---
+
+## Section 63 — Critical Analysis of AI-Generated Images
+
+*Source: Critical Analysis of AI-Generated Images — edited by Catherine Bouko & Nataliia Laba (Routledge, 2024/2025). Academic collection; 10 contributors including researchers from Ghent, Groningen, Melbourne, RMIT, and Venice.*
+
+### Theoretical Frameworks
+
+**Sociomateriality:** GenAI image systems cannot be understood as purely technical tools used by independent humans. The system, the user, the training data, and the social context are entangled — each shapes and is shaped by the others. This lens (from Karen Barad's concept of "intra-action") rejects the idea that humans and machines are separate agents acting on each other.
+
+**Intra-action vs interaction:** Traditional view assumes humans and AI tools are pre-existing independent entities that "interact." Intra-action holds that human and machine co-constitute each other through the process — the user's desires are partly shaped by what the system makes possible.
+
+**Pataphysics in GenAI critique:** Pataphysics (Alfred Jarry, early 20th century) — "the science of imaginary solutions." Applied to GenAI: deliberately paradoxical prompts, impossible specifications, and altered dataset composition reveal how systems negotiate between expected and anomalous. Pataphysical experiments expose hidden assumptions baked into training data and model architectures.
+
+---
+
+### Prompts as Sociomaterial Sites
+
+**The "dog → space dog → Aztec space dog" phenomenon:** Midjourney founder Holz observed that individual users given unlimited creative power default to simple, constrained prompts. Social interaction escalates imagination. This reveals that prompts are not just instructions — they are socially negotiated artefacts shaped by what feels "acceptable" or "achievable."
+
+**Prompt engineering as expertise:** As prompts are engineered, reverse-engineered, shared, and remixed, prompting becomes a form of craft knowledge. Reverse prompting (deriving prompts from existing images), step-back prompting (asking the system a more abstract version of the question first), and prompt noise (introducing deliberate ambiguity) are documented strategies.
+
+**Acceptability thresholds:** What counts as "good enough" in a GenAI image system reflects a mix of:
+- Human aesthetic expectations
+- Computational limitations of the model
+- Platform's embedded norms and content policies
+- Training data biases
+
+These thresholds are not neutral — they embed cultural, commercial, and political values.
+
+---
+
+### Training Data & Representation Politics
+
+**Dataset bias:** AI image models trained primarily on Western, English-language internet images reproduce those perspectives as default. Non-Western faces, places, and cultural objects are underrepresented and more likely to be distorted.
+
+**Naming and categorisation:** What appears in the training data depends on what humans labelled it and how. Stereotypes in labelling propagate into model outputs. Categories that do not exist in the labelling vocabulary cannot be generated reliably.
+
+**Anna Ridler / Nora Al-Badri case studies (chapter 1):** Artists who question dataset politics by curating their own training sets or deliberately prompting systems to expose their boundaries. These artistic interventions are framed as pataphysical — they reveal what the system cannot represent.
+
+---
+
+### Sociotechnical Imaginaries
+
+**Harold Cohen's AARON (1972–2010s):** Rule-based painting software — not generative AI, but an early precedent. Cohen defined the rules; AARON executed them. He was wary of claiming AARON was "creative"; it was a painter executing procedural mimicry. The work illustrates the long philosophical debate about machine creativity and what it means to "learn" from a machine's production process.
+
+**Earthrise / The Blue Marble as visual technics:** The 1968/1972 NASA photographs function as a precedent for how novel image-making technologies establish visual logics. Once a visual logic is established (the whole Earth seen from space = fragile and unified), it becomes naturalised and hard to see outside of. GenAI images are argued to be doing the same — establishing new visual norms at scale.
+
+**Capitalism and image making:** GenAI infrastructure (training, inference, RLHF) is funded by and serves commercial imperatives. "Free" tools monetise through data collection, lock-in, and API pricing. The images produced naturalise certain aesthetics (smooth, photorealistic, Western-normative) as defaults.
+
+---
+
+### Critical Literacy for AI Images
+
+**Questions to ask of any AI-generated image:**
+1. What training data was this model trained on? What is absent?
+2. Who decided what counts as "acceptable" output?
+3. What trade-off was made between efficiency and nuance?
+4. Whose aesthetic preferences are encoded as default?
+5. What cannot be generated by this system, and why?
+
+**Verification heuristics:** AI-generated images frequently show: anatomically impossible hands (too many or too few fingers), text that cannot be read (random letterforms), repeated patterns that don't tile correctly, lighting inconsistencies across a single scene, and background details that dissolve into texture noise.
+
+**Disclosure practice:** Responsible creators label AI-generated images. Platforms are increasingly requiring disclosure (EU AI Act, platform policies). Undisclosed use in journalism or medical imaging constitutes deception.
+
+---
+
+### GenAI Tools Referenced
+
+| Tool | Modality | Key capability |
+|------|----------|----------------|
+| Midjourney | Image | High aesthetic quality; community-prompting culture |
+| DALL·E (OpenAI) | Image | Instruction-following; safety filters |
+| Stable Diffusion | Image | Open-source; locally runnable; fine-tunable |
+| Sora (OpenAI) | Video | Text-to-video generation |
+| ElevenLabs | Audio | Voice cloning; text-to-speech |
+| Runway ML | Video | Video editing + generation hybrid |
+
+---
+
+## Section 64 — Microsoft Power BI Data Analyst Exam Guide
+
+*Source: Microsoft Power BI Data Analyst Exam Guide — Peter ter Braake (BPB Publications, 2024). Certification prep for the PL-300 exam. Author: Microsoft MVP, MCT since 2002, Physics PhD.*
+
+### Business Intelligence Foundations
+
+**BI definition:** Providing the right people with the right information in the right format at the right time in order to make the right decision.
+
+**The five "rights" unpacked:**
+- **Right decision** — the ultimate goal; BI enables, not replaces, human judgement
+- **Right information** — requires clean, prepared data; raw data is almost never fit for use directly
+- **Right format** — visualisation choice dramatically affects interpretation; 3D pie charts mislead
+- **Right people** — role-based access; not every metric is for everyone
+- **Right time** — stale data that arrives after the decision is useless
+
+**Data maturity model (simplified):**
+1. **Unaware** — no formal data usage; ad-hoc reporting; no governance
+2. **Aware** — some reports exist; inconsistent definitions
+3. **Managed** — central data warehouse; consistent KPIs; IT-owned
+4. **Optimised** — self-service BI; governed; democratised access
+5. **Transformational** — data-driven culture embedded in decision processes
+
+**Key historical lesson:** In the 1980s, relational databases promised "information at your fingertips" directly from operational systems. This failed because: normalised schemas are too complex for casual reporting, analytical queries degrade OLTP performance, data quality in operational systems is poor, and there is no consistent 360-degree view across systems. Power BI learns from this — the recommended pattern is to extract, transform, and load (ETL) into a dimensional model before building reports.
+
+---
+
+### Common Data Quality Issues
+
+Every data project encounters these — address them before analysis:
+
+| Issue | Example | Fix |
+|-------|---------|-----|
+| Duplicate rows | 30% duplicate patients in hospital DB | Deduplication step in ETL |
+| Missing data | Birth date optional in web form → blank | Imputation or null handling |
+| Incorrect data | Unix epoch (1970-01-01) as birth date | Validation rules + flagging |
+| Inconsistent data | Seattle + Australia for same customer | Cross-field validation |
+| Homonyms | Bruxelles / Brussel / Brussels = same city | Standardisation lookup table |
+| Synonyms | Two fields meaning "sales total" but calculated differently | Agreed business definitions |
+
+**Exploratory Data Analysis (EDA) — first step in every Power BI project:**
+1. Profile each column: distinct count, null %, min/max, common values
+2. Check for duplicates across key fields
+3. Verify referential integrity between tables
+4. Identify outliers
+
+---
+
+### Dimensional Modelling
+
+**Star schema — the correct model for Power BI:**
+- **Fact table:** Events/transactions; numeric measures; high row count; thin columns
+- **Dimension tables:** Descriptive attributes; the "who/what/where/when"; lower row count; wide columns
+
+```
+[Date Dim] ─┐
+[Product Dim]─┼──[Sales Fact]──┐─[Customer Dim]
+[Store Dim] ─┘                 └─[Promotion Dim]
+```
+
+**Why star schema beats normalised model in Power BI:**
+- DAX measures are simpler; fewer JOINs
+- VertiPaq column-store engine compresses dimension columns efficiently
+- Report builders reason in business terms (product, date, store), not database terms
+
+**Slowly Changing Dimensions (SCD):**
+- **Type 1:** Overwrite old value — no history, simple
+- **Type 2:** Add new row with new value; date effective/expired — full history, recommended
+- **Type 3:** Add a "previous value" column — limited history
+
+**Date dimension — always required:** Create a complete date table (every day, no gaps) with columns for year, quarter, month, week, weekday, is-working-day, fiscal period. Mark it as date table in Power BI.
+
+---
+
+### Power BI Architecture Components
+
+| Component | Purpose |
+|-----------|---------|
+| Power BI Desktop | Data modelling, report authoring (free) |
+| Power BI Service | Cloud hosting, collaboration, scheduled refresh |
+| Power BI Gateway | Bridge between cloud service and on-premises data sources |
+| Power BI Mobile | View and interact with reports on iOS/Android |
+| Power BI Embedded | Embed reports in custom applications via API |
+| Microsoft Fabric | Unified analytics platform; Power BI is one workload |
+
+**Licensing:**
+- **Free:** Desktop only; personal workspace in service; no sharing
+- **Power BI Pro (£9.40/user/month):** Share content, collaborate, publish to workspaces
+- **Power BI Premium (capacity-based):** Large datasets, paginated reports, AI features, unlimited viewers without Pro licences
+
+---
+
+### Power Query (ETL in Power BI)
+
+**Power Query Editor** — GUI for data transformation using M language under the hood.
+
+**Common transformations:**
+```
+Remove duplicates → Filter rows → Replace values → Split columns →
+Merge queries (JOIN) → Append queries (UNION) → Pivot/Unpivot →
+Change data types → Add custom column
+```
+
+**M language basics:**
+```
+= Table.SelectRows(Source, each [Revenue] > 0)
+= Table.AddColumn(PreviousStep, "FullName", each [FirstName] & " " & [LastName])
+= Table.RenameColumns(PreviousStep, {{"OldName", "NewName"}})
+```
+
+**Best practice:** Apply all filtering and aggregation in Power Query (before loading); minimise the amount of data brought into the model. Never transform in DAX what can be done in Power Query.
+
+---
+
+### DAX Fundamentals
+
+**DAX = Data Analysis Expressions** — formula language for calculated columns, measures, and tables.
+
+**Calculated column vs measure:**
+- **Calculated column:** Evaluates row-by-row at data refresh; stored in model; use for categorisation
+- **Measure:** Evaluates at query time in response to report filter context; not stored; use for aggregations
+
+```dax
+-- Simple measure
+Total Sales = SUM(Sales[Revenue])
+
+-- Measure with filter
+Sales YTD = CALCULATE([Total Sales], DATESYTD('Date'[Date]))
+
+-- Ratio measure
+% of Total = DIVIDE([Total Sales], CALCULATE([Total Sales], ALL(Product)))
+```
+
+**Key DAX functions:**
+- `CALCULATE(expression, filter1, filter2)` — the most important function; modifies filter context
+- `ALL(table/column)` — removes filters from a table or column; used for percentage of totals
+- `FILTER(table, condition)` — returns a table; use inside CALCULATE
+- `RELATED(column)` — navigate to related dimension; usable in calculated columns only
+- `SELECTEDVALUE(column)` — returns the single selected value; blank if multiple
+- `DIVIDE(numerator, denominator, [alt])` — safe division; returns alt (default 0) if denominator is 0
+
+**Filter context vs row context:**
+- **Row context:** Exists in calculated columns and inside iterators (SUMX, MAXX, FILTER); `this row`
+- **Filter context:** Comes from report slicers, page filters, visual filters, CALCULATE; changes what rows are included in aggregation
+
+---
+
+### Visualisation Best Practices
+
+**Choosing the right visual:**
+- **Bar/Column chart:** Compare categories; always the default starting point
+- **Line chart:** Trends over time
+- **Scatter plot:** Correlation between two measures
+- **Matrix:** Pivot-table style; multiple row and column hierarchies
+- **Card / KPI:** Single headline metric with target
+- **Map:** Geographic distribution — use filled map for regions, bubble map for point data
+
+**Design rules:**
+- Align visuals to a grid; consistent padding
+- No more than 5–7 colours in one report page; use a consistent palette
+- Direct labels beat legends — label the data point, not just the legend entry
+- Remove chart junk: gridlines, borders, backgrounds unless they add meaning
+- The title should state the insight, not just the metric name ("Revenue fell 15% in Q4" not "Revenue by Quarter")
+
+**Accessibility in Power BI:**
+- Alt text on every visual (Auto or custom)
+- Tab order set deliberately for keyboard navigation
+- Avoid colour as the only encoding (use patterns or labels too)
+- High-contrast mode supported
 
 ---
