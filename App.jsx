@@ -3214,18 +3214,37 @@ export default function App() {
         const minBal = Math.min(...forecastWeeks.map(w => w.bal));
         const range = maxBal - minBal || 1;
         const hasWarn = forecastWeeks.some(w => w.warn);
-        // Zoom the bars to the [min, max] band — on a healthy balance the weekly
-        // swings are a tiny fraction of the total, so a 0-based axis renders a flat
-        // wall. Banding makes the actual movement (and the dips) legible.
-        const barFor = (bal) => 14 + ((bal - minBal) / range) * 58;
-        // £80k working-capital floor — only meaningful when it falls inside the band.
-        const showFloor = minBal < 80000 && maxBal > 80000;
-        const floorY = (82 - barFor(80000)).toFixed(1);
-        // Largest scheduled outflow and the lowest projected week — the two facts a
-        // director actually wants off this chart.
+        const lowIdx = forecastWeeks.reduce((lo, w, i) => (w.bal < forecastWeeks[lo].bal ? i : lo), 0);
+        // Largest scheduled outflow — the one fact a director wants off this chart.
         const outflowEvents = forecastWeeks.filter(w => w.event && !w.event.inflow);
         const bigEvent = outflowEvents.reduce((a, b) => (b.event.amount > (a?.event.amount ?? 0) ? b : a), null);
-        const lowIdx = forecastWeeks.reduce((lo, w, i) => (w.bal < forecastWeeks[lo].bal ? i : lo), 0);
+
+        // ── Area-chart geometry ──────────────────────────────────────────
+        // A balance over 13 weeks is a trend, not a set of independent bars.
+        // We draw a smooth gradient-filled area, zoomed to the [min,max] band
+        // (+padding) so the actual weekly movement is legible even when the
+        // balance is large and the swings are proportionally small.
+        const VW = 520, top = 16, bot = 128;
+        const pad = range * 0.35;
+        const yLo = Math.max(0, minBal - pad), yHi = maxBal + pad;
+        const xFor = (i) => 10 + (i / (forecastWeeks.length - 1)) * (VW - 20);
+        const yFor = (bal) => bot - ((bal - yLo) / (yHi - yLo)) * (bot - top);
+        const pts = forecastWeeks.map((wk, i) => [xFor(i), yFor(wk.bal)]);
+        // Catmull-Rom → cubic Bézier for a natural, smooth curve.
+        const smooth = (p) => {
+          let d = `M ${p[0][0].toFixed(1)} ${p[0][1].toFixed(1)}`;
+          for (let i = 0; i < p.length - 1; i++) {
+            const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+            const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+            const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+            d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+          }
+          return d;
+        };
+        const linePath = smooth(pts);
+        const areaPath = `${linePath} L ${xFor(forecastWeeks.length - 1).toFixed(1)} ${bot} L ${xFor(0).toFixed(1)} ${bot} Z`;
+        const showFloor = minBal < 80000 && maxBal > 80000;
+        const floorY = yFor(80000).toFixed(1);
         return (
           <div className="px-5 mb-7 anim-fade">
             <div className="flex items-end justify-between mb-3">
@@ -3236,30 +3255,43 @@ export default function App() {
               {hasWarn && <span className="text-[10px] uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 mb-1">Risk ahead</span>}
             </div>
             <div className="bg-white rounded-2xl border border-stone-200/80 p-4 lift-1">
-              <svg viewBox="0 0 520 92" className="w-full mb-1" preserveAspectRatio="none">
-                <line x1="0" y1="86" x2="520" y2="86" stroke="#e7e5e4" strokeWidth="1"/>
-                {showFloor && <line x1="0" y1={floorY} x2="520" y2={floorY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.7" />}
+              <svg viewBox="0 0 520 148" className="w-full mb-1" role="img" aria-label="13-week cash flow forecast">
+                <defs>
+                  <linearGradient id="fcFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#c8102e" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#c8102e" stopOpacity="0.02" />
+                  </linearGradient>
+                </defs>
+                {/* faint horizontal gridlines for a sense of scale */}
+                {[0.25, 0.5, 0.75].map((f, i) => (
+                  <line key={i} x1="10" y1={(top + (bot - top) * f).toFixed(1)} x2="510" y2={(top + (bot - top) * f).toFixed(1)} stroke="#f0eee9" strokeWidth="1" />
+                ))}
+                {showFloor && <line x1="10" y1={floorY} x2="510" y2={floorY} stroke="#d97706" strokeWidth="1.25" strokeDasharray="4,3" opacity="0.7" />}
+                {/* gradient area + smooth trend line */}
+                <path d={areaPath} fill="url(#fcFill)" />
+                <path d={linePath} fill="none" stroke="#c8102e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                {/* event markers — named cash movements sit on the curve */}
                 {forecastWeeks.map((wk, i) => {
-                  const barH = barFor(wk.bal);
-                  const y = 82 - barH;
-                  const isOutflowEvent = wk.event && !wk.event.inflow;
-                  const isInflowEvent = wk.event && wk.event.inflow;
-                  const fill = wk.warn ? '#f59e0b'
-                             : isOutflowEvent ? '#c8102e'
-                             : isInflowEvent ? '#e08898'
-                             : '#f5d0d4';
-                  return (
-                    <g key={i}>
-                      <rect x={i * 40 + 4} y={y.toFixed(1)} width={32} height={barH.toFixed(1)} fill={fill} rx={4} />
-                      {isOutflowEvent && <circle cx={i * 40 + 20} cy={(y - 5).toFixed(1)} r={3} fill={wk.warn ? '#d97706' : '#c8102e'} />}
-                    </g>
-                  );
+                  if (!wk.event && i !== lowIdx) return null;
+                  const cx = xFor(i), cy = yFor(wk.bal);
+                  const isOut = wk.event && !wk.event.inflow;
+                  if (i === lowIdx && hasWarn) {
+                    return <g key={i}><circle cx={cx} cy={cy} r="5.5" fill="#fff" stroke="#d97706" strokeWidth="2.5" /></g>;
+                  }
+                  if (!wk.event) return null;
+                  return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#c8102e' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
                 })}
               </svg>
               <div className="flex justify-between text-[9px] text-stone-400 mb-3 px-0.5">
                 {forecastWeeks.filter((_,i) => i % 3 === 0).map((wk,i) => (
                   <span key={i}>{wk.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
                 ))}
+              </div>
+              {/* legend */}
+              <div className="flex items-center gap-4 mb-3 text-[10px] text-stone-500">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#c8102e]" />Outflow event</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e08898]" />Receipts</span>
+                {hasWarn && <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full border-2 border-amber-600 bg-white" />Lowest week</span>}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
