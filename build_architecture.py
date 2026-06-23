@@ -77,7 +77,7 @@ def red_bar(slide, top=True):
     add_rect(slide, Inches(0), top_, Inches(13.33), bar_h, RED)
 
 
-def bullets_box(slide, bullets, left, top, width, height, size=15):
+def bullets_box(slide, bullets, left, top, width, height, size=13):
     tb = add_textbox(slide, left, top, width, height)
     tf = tb.text_frame
     tf.word_wrap = True
@@ -87,7 +87,7 @@ def bullets_box(slide, bullets, left, top, width, height, size=15):
         para = tf.paragraphs[0] if first else tf.add_paragraph()
         first = False
         para.text = bullet
-        para.space_before = Pt(6)
+        para.space_before = Pt(5)
         r = para.runs[0]
         r.font.name  = "Calibri"
         r.font.size  = Pt(size)
@@ -290,7 +290,7 @@ def slide_05_navigation(prs):
         para.text = line; para.space_before = Pt(5)
         run = para.runs[0] if para.runs else para.add_run()
         run.font.name  = "Calibri"
-        run.font.size  = Pt(14)
+        run.font.size  = Pt(12)
         run.font.color.rgb = BODY_DARK
 
 
@@ -323,7 +323,7 @@ def slide_06_entity_system(prs):
         para.text = bullet; para.space_before = Pt(6)
         r = para.runs[0]; r.font.name = "Calibri"
         is_indent = bullet.startswith("    ")
-        r.font.size  = Pt(13) if is_indent else Pt(15)
+        r.font.size  = Pt(11) if is_indent else Pt(13)
         r.font.color.rgb = MID_GREY if is_indent else BODY_DARK
 
 
@@ -489,8 +489,8 @@ def slide_11_tech_stack(prs):
         "• Dev commands: npm run dev | npm run build | npm run preview",
     ]
 
-    bullets_box(slide, left_bullets,  Inches(0.6), Inches(1.45), Inches(6.1), Inches(5.5), size=14)
-    bullets_box(slide, right_bullets, Inches(7.1), Inches(1.45), Inches(6.1), Inches(5.5), size=14)
+    bullets_box(slide, left_bullets,  Inches(0.6), Inches(1.45), Inches(6.1), Inches(5.5), size=13)
+    bullets_box(slide, right_bullets, Inches(7.1), Inches(1.45), Inches(6.1), Inches(5.5), size=13)
     add_rect(slide, Inches(6.67), Inches(1.45), Inches(0.02), Inches(5.5), LIGHT_GREY)
 
 

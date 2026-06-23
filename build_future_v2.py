@@ -248,12 +248,12 @@ def s6_command_centre():
     ], 0.75, 5.98, 5.2, 0.7, sz=11, color=RGBColor(0xB0, 0xAA, 0xA4), sp=5)
     # Right content
     txt(slide, "Why this is different",
-        6.4, 1.38, 6.6, 0.5, sz=16, bold=True, color=DARK)
+        6.4, 1.38, 6.6, 0.5, sz=15, bold=True, color=DARK)
     ml(slide, [
         "Conventional banking apps show you data.",
         "This one tells you what to do with it.",
         "",
-        "The three forecast cards on the Home screen replace:",
+        "The three forecast cards replace:",
         "  •  The payroll reminder email from the accountant",
         "  •  The tax calendar the director keeps in their head",
         "  •  The Companies House letter that gets filed and forgotten",
@@ -261,17 +261,17 @@ def s6_command_centre():
         "Each card surfaces a specific, time-bounded, actionable signal.",
         "Each taps directly into the resolution — no navigation required.",
         "",
-        "This is 'Predict → Explain → Act' — applied to banking.",
+        "'Predict → Explain → Act' — applied to banking.",
         "It's not a feature. It's a design principle.",
         "",
         "The Home screen knows:",
-        "  •  When payroll is due (from the wages workflow history)",
-        "  •  How much VAT is owed (from the transaction categorisation)",
-        "  •  When Companies House confirmation is due (from the entity setup)",
+        "  •  When payroll is due (wages workflow history)",
+        "  •  How much VAT is owed (transaction categorisation)",
+        "  •  When Companies House confirmation is due (entity setup)",
         "",
         "This information already exists in the bank.",
-        "The question is whether the bank surfaces it — or makes the customer look for it.",
-    ], 6.4, 1.95, 6.5, 5.2, sz=12, color=STONE7, sp=5)
+        "The question is whether the bank surfaces it.",
+    ], 6.4, 1.95, 6.5, 5.2, sz=10.5, color=STONE7, sp=4)
 
 # ── SLIDE 7 — MTD / HMRC ─────────────────────────────────────────────────────
 def s7_mtd():
@@ -344,9 +344,9 @@ def s8_compliance():
         txt(slide, reg, x + 0.16, 1.45, W - 0.25, 0.38,
             sz=10, bold=True, color=ac)
         txt(slide, title, x + 0.16, 1.88, W - 0.25, 0.5,
-            sz=14, bold=True, color=DARK)
-        ml(slide, body.split('\n'), x + 0.16, 2.45, W - 0.25, 4.45,
-           sz=11, color=STONE7, sp=5)
+            sz=13, bold=True, color=DARK)
+        ml(slide, body.split('\n'), x + 0.16, 2.45, W - 0.25, 4.55,
+           sz=10, color=STONE7, sp=4)
 
 # ── SLIDE 9 — INTELLIGENCE ────────────────────────────────────────────────────
 def s9_intelligence():
@@ -390,9 +390,9 @@ def s9_intelligence():
         x = 0.55 + i * W
         rect(slide, x + 0.04, 1.42, W - 0.08, 5.6, fill=DARK2)
         txt(slide, title, x + 0.16, 1.58, W - 0.25, 0.65,
-            sz=12, bold=True, color=ac)
-        ml(slide, body.split('\n'), x + 0.16, 2.3, W - 0.25, 4.55,
-           sz=10.5, color=RGBColor(0xB0, 0xAA, 0xA4), sp=5)
+            sz=11, bold=True, color=ac)
+        ml(slide, body.split('\n'), x + 0.16, 2.3, W - 0.25, 4.65,
+           sz=10, color=RGBColor(0xB0, 0xAA, 0xA4), sp=4)
 
 # ── SLIDE 10 — THE BUSINESS CASE ─────────────────────────────────────────────
 def s10_business_case():

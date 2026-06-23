@@ -206,21 +206,21 @@ def content_slide(eyebrow_txt, headline, left_lines, right_lines=None,
         if left_title:
             text(slide, left_title, 0.55, 1.25, lw, 0.32,
                  size=9, bold=True, color=RED)
-        rect(slide, 0.55, 1.62, lw, 5.35, fill=WHITE, line_color=STONE2)
-        multiline(slide, left_lines, 0.75, 1.75, lw - 0.25, 5.05,
-                  size=11.5, color=DARK, line_space_pt=5)
+        rect(slide, 0.55, 1.62, lw, 5.5, fill=WHITE, line_color=STONE2)
+        multiline(slide, left_lines, 0.75, 1.75, lw - 0.25, 5.3,
+                  size=10, color=DARK, line_space_pt=4)
         rx = 0.55 + lw + 0.42
         rw = 13.33 - rx - 0.42
         if right_title:
             text(slide, right_title, rx, 1.25, rw, 0.32,
                  size=9, bold=True, color=RED)
-        rect(slide, rx, 1.62, rw, 5.35, fill=WHITE, line_color=STONE2)
-        multiline(slide, right_lines, rx + 0.2, 1.75, rw - 0.25, 5.05,
-                  size=11.5, color=DARK, line_space_pt=5)
+        rect(slide, rx, 1.62, rw, 5.5, fill=WHITE, line_color=STONE2)
+        multiline(slide, right_lines, rx + 0.2, 1.75, rw - 0.25, 5.3,
+                  size=10, color=DARK, line_space_pt=4)
     else:
-        rect(slide, 0.55, 1.22, 12.23, 5.72, fill=WHITE, line_color=STONE2)
-        multiline(slide, left_lines, 0.75, 1.38, 11.8, 5.45,
-                  size=12.5, color=DARK, line_space_pt=6)
+        rect(slide, 0.55, 1.22, 12.23, 5.9, fill=WHITE, line_color=STONE2)
+        multiline(slide, left_lines, 0.75, 1.38, 11.8, 5.7,
+                  size=11, color=DARK, line_space_pt=5)
     if note:
         text(slide, note, 0.55, 7.1, 12.23, 0.28,
              size=9, italic=True, color=STONE5)
@@ -238,18 +238,18 @@ def highlight_slide(eyebrow_txt, headline, subhead, callouts, footer=""):
     rule(slide)
     if subhead:
         text(slide, subhead, 0.55, 1.2, 12.2, 0.5,
-             size=14, italic=True, color=STONE5)
+             size=13, italic=True, color=STONE5)
     # callouts = [(title, body, bg_color, text_color), ...]
     n = len(callouts)
     W = 12.23 / n
     for i, (ctitle, cbody, bg, tc) in enumerate(callouts):
         x = 0.55 + i * W
         y = 1.85 if subhead else 1.4
-        rect(slide, x + 0.06, y, W - 0.12, 4.8, fill=bg)
+        rect(slide, x + 0.06, y, W - 0.12, 5.0, fill=bg)
         text(slide, ctitle, x + 0.22, y + 0.22, W - 0.36, 0.5,
              size=11, bold=True, color=tc)
         multiline(slide, cbody.split('\n'), x + 0.22, y + 0.75,
-                  W - 0.36, 3.8, size=11, color=tc, line_space_pt=5)
+                  W - 0.36, 4.0, size=10, color=tc, line_space_pt=4)
     if footer:
         text(slide, footer, 0.55, 7.1, 12.23, 0.28,
              size=9, italic=True, color=STONE5)
@@ -268,14 +268,14 @@ def three_col(eyebrow_txt, headline, cols):
     W = 4.0
     for i, (ctitle, cdesc, lines, accent) in enumerate(cols):
         x = 0.55 + i * (W + 0.16)
-        rect(slide, x, 1.25, W, 5.72, fill=WHITE, line_color=STONE2)
+        rect(slide, x, 1.25, W, 5.9, fill=WHITE, line_color=STONE2)
         rect(slide, x, 1.25, W, 0.08, fill=accent)
         text(slide, ctitle, x + 0.18, 1.42, W - 0.3, 0.45,
              size=13, bold=True, color=DARK)
         text(slide, cdesc, x + 0.18, 1.9, W - 0.3, 0.38,
              size=10, italic=True, color=STONE5)
-        multiline(slide, lines, x + 0.18, 2.35, W - 0.3, 4.4,
-                  size=11, color=STONE7, line_space_pt=5)
+        multiline(slide, lines, x + 0.18, 2.35, W - 0.3, 4.55,
+                  size=10, color=STONE7, line_space_pt=4)
     return slide
 
 def back_cover(name, email, url, note):
@@ -814,75 +814,100 @@ split_panel(
     ]
 )
 
-# ── 14. MTD VAT SUBMISSION ────────────────────────────────────────────────────
+# ── 14a. MTD VAT SUBMISSION — THE FIVE STEPS ─────────────────────────────────
 content_slide(
-    eyebrow_txt="WORKFLOW 11  ·  MTD HMRC VAT SUBMISSION",
-    headline="File your VAT return from your phone. In 5 steps. With a countdown.",
+    eyebrow_txt="WORKFLOW 11  ·  MTD HMRC VAT SUBMISSION  ·  PART 1 OF 2",
+    headline="File your VAT return from your phone — in 5 steps.",
     left_lines=[
-        "THE FIVE STEPS",
-        "",
         "STEP 1  —  REVIEW TRANSACTIONS",
-        "  The bank shows all transactions in the VAT quarter.",
-        "  Each one is pre-categorised. The user confirms or corrects.",
+        "  All transactions in the VAT quarter shown by the bank.",
+        "  Each one is pre-categorised. Confirm or correct each line.",
         "",
         "STEP 2  —  CATEGORISE",
         "  Receipts scanned earlier auto-populate this step.",
-        "  Voice memos recorded via the Home screen also feed in.",
-        "  Manual overrides are available for each transaction.",
+        "  Voice memos from the Home screen also feed in.",
+        "  Manual override available per transaction.",
         "",
         "STEP 3  —  REVIEW FIGURES",
         "  VAT due: £4,118.00",
         "  Output tax (sales): £18,472.40",
         "  Input tax (purchases): £14,354.40",
         "  Period: Q3 Jul–Sep 2026 · Due: 7 Nov 2026",
-        "",
+    ],
+    right_lines=[
         "STEP 4  —  DECLARATION",
-        "  'I declare that the information given in this return is true',",
-        "  'complete and accurate.' — statutory HMRC wording.",
+        "  'I declare that the information given in this return",
+        "   is true, complete and accurate.'",
+        "  — statutory HMRC wording.",
         "  Checkbox. Timestamp. Logged in audit trail.",
+        "  Director's name and role recorded.",
         "",
         "STEP 5  —  THE COUNTDOWN",
         "  'Filing your VAT return'",
-        "  A 5-second countdown ring. 'Filing automatically in 5s'",
-        "  A calm amber note: 'Filed returns cannot be corrected',",
-        "  'through this app — contact HMRC directly to amend.'",
-        "  A grey Cancel button. Not alarming. Not red.",
-        "  At zero: submitted. Receipt number in audit log.",
+        "  A 5-second countdown ring with 'sec' label.",
+        "  Amber note: 'Filed returns cannot be corrected",
+        "   through this app — contact HMRC to amend.'",
+        "  Grey Cancel button — not red, not alarming.",
+        "  At zero: submitted to HMRC.",
+        "  Receipt number logged in the Audit tab.",
     ],
-    right_lines=[
+    left_title="STEPS 1–3",
+    right_title="STEPS 4–5"
+)
+
+# ── 14b. MTD VAT SUBMISSION — DESIGN RATIONALE ────────────────────────────────
+content_slide(
+    eyebrow_txt="WORKFLOW 11  ·  MTD HMRC VAT SUBMISSION  ·  PART 2 OF 2",
+    headline="Why the countdown. Why grey. Why the bank — not the spreadsheet.",
+    left_lines=[
         "WHY THE COUNTDOWN",
         "",
-        "HMRC VAT returns, once filed, cannot be amended through",
-        "the same API call — a correction requires a separate amendment.",
+        "HMRC VAT returns, once filed, cannot be amended through the same",
+        "API call — a correction requires a separate amendment.",
         "",
         "The 5-second countdown gives the user one last chance to stop.",
         "Without panic. Without red buttons.",
         "",
-        "Design decisions in the countdown overlay:",
+        "DESIGN DECISIONS IN THE COUNTDOWN OVERLAY",
         "",
-        "  •  Heading: 'Filing your VAT return' — not 'One last chance to stop'",
-        "     (the previous version; changed because it was alarming)",
+        "  Heading: 'Filing your VAT return'",
+        "  — not 'One last chance to stop'",
+        "    (previous version; changed — it was alarming)",
         "",
-        "  •  Cancel button: stone-100 grey — secondary, not red",
-        "     (the previous version used brand red, which confused users",
-        "     — cancel should not look like a danger/CTA action)",
+        "  Cancel button: stone-100 grey (secondary)",
+        "  — not red (previous version confused users:",
+        "    cancel should not look like a danger action)",
         "",
-        "  •  Ring: larger (r=46), with 'sec' label beneath the number",
-        "",
-        "  •  Details in a left-aligned pill: label + £4,118.00",
-        "",
-        "  •  Amber warning shortened:",
-        "     'Filed returns cannot be corrected through this app.'",
-        "",
-        "WHY IT MATTERS",
-        "",
-        "Most UK businesses still file VAT via bridging software.",
-        "The bank holds the transaction data.",
-        "The prototype shows that the bank could file the return —",
-        "without the business owner ever opening a spreadsheet.",
+        "  Ring: r=46, larger than original, with 'sec' label",
+        "  Details pill: left-aligned · label · £4,118.00",
+        "  Amber warning: shortened to one clear sentence",
     ],
-    left_title="THE 5-STEP SUBMISSION",
-    right_title="THE COUNTDOWN — DESIGN RATIONALE"
+    right_lines=[
+        "WHY IT MATTERS — THE BIGGER PICTURE",
+        "",
+        "Most UK businesses still file VAT via bridging software:",
+        "  •  Accountant exports bank data",
+        "  •  Accountant pastes into spreadsheet",
+        "  •  Spreadsheet feeds into bridging software",
+        "  •  Bridging software submits to HMRC MTD API",
+        "",
+        "The bank already holds all the transaction data.",
+        "",
+        "This prototype shows that the bank could:",
+        "  •  Auto-categorise every transaction",
+        "  •  Calculate the VAT figures",
+        "  •  Present the declaration",
+        "  •  Submit directly to HMRC",
+        "",
+        "Without the customer ever opening a spreadsheet.",
+        "Without an accountant involved in the mechanics.",
+        "Without bridging software.",
+        "",
+        "The bank becomes the tax agent —",
+        "not just the ledger.",
+    ],
+    left_title="COUNTDOWN — DESIGN RATIONALE",
+    right_title="THE BIGGER PICTURE"
 )
 
 # ── 15. OTHER WORKFLOWS ───────────────────────────────────────────────────────
@@ -967,66 +992,113 @@ section_header(
     eyebrow_txt="PRESENTER GUIDE"
 )
 
-# ── 16. DEMO SCRIPT ───────────────────────────────────────────────────────────
+# ── 16a. DEMO SCRIPT — PART 1 ─────────────────────────────────────────────────
 content_slide(
-    eyebrow_txt="PRESENTER GUIDE  ·  LIMITED COMPANY WALKTHROUGH",
-    headline="Suggested script — 10 minutes, covers every headline feature.",
+    eyebrow_txt="PRESENTER GUIDE  ·  LIMITED COMPANY WALKTHROUGH  ·  PART 1 OF 2",
+    headline="Suggested script — 10 minutes, every headline feature. Opening + Command Centre + VAT.",
     left_lines=[
         "OPENING  (1 min)",
         "  Open imscots-ui.github.io/santander on your phone.",
         "  'This is a fully working banking app — built as a prototype",
-        "   to show what Santander Business Banking could look like.'",
-        "",
-        "THE COMMAND CENTRE  (3 min)",
-        "  Point to the balance hero card: 'Total balance, one number, immediately.'",
-        "  Scroll to the Forecast strip: 'The bank tells you what needs doing.",
-        "   Payroll in 3 days. VAT in 22 days. Companies House in 14 days.",
-        "   Each one taps directly into the workflow.'",
-        "  Tap 'Review payroll' → show the wages workflow briefly → back.",
-        "  Scroll to the Actions grid: '10 tasks. All the ones that currently",
-        "   require a phone call or a letter to Sunderland.'",
-        "  Scroll to the forecast chart: '13 weeks of cash flow. The bank knows",
-        "   payroll lands in week 3. It flags that the balance dips below £80k.'",
-        "",
-        "VAT SUBMISSION  (3 min)",
-        "  Tap the Tax tab (bottom bar).",
-        "  'This is Making Tax Digital. The bank has already categorised",
-        "   your transactions. You review, declare, and submit.'",
-        "  Walk through steps 1–3. On step 3: 'The figures come directly",
-        "   from the bank's transaction data — no spreadsheet.'",
-        "  Tap Submit. Show the countdown: '5 seconds. One last chance to cancel.",
-        "   Then it goes to HMRC. Receipt number in the audit log.'",
+        "   to show what Business Banking could look like.'",
     ],
     right_lines=[
+        "VAT SUBMISSION  (3 min)",
+        "  Tap the Tax tab (bottom bar).",
+        "  'Making Tax Digital. The bank has already categorised",
+        "   your transactions. You review, declare, and submit.'",
+        "  Walk through steps 1–3.",
+        "  On step 3: 'Figures come directly from the bank's",
+        "   transaction data — no spreadsheet, no bridging software.'",
+        "  Tap Submit → show the countdown:",
+        "  '5 seconds. One last chance to cancel.",
+        "   Then it goes to HMRC. Receipt in the audit log.'",
+    ],
+    left_title="OPENING",
+    right_title="VAT SUBMISSION"
+)
+
+# command centre gets its own full-width block
+content_slide(
+    eyebrow_txt="PRESENTER GUIDE  ·  COMMAND CENTRE SECTION",
+    headline="The Command Centre — 3 minutes of your 10-minute demo.",
+    left_lines=[
+        "THE COMMAND CENTRE  (3 min)",
+        "",
+        "  Point to the balance hero card:",
+        "  'Total balance, one number, immediately.'",
+        "",
+        "  Scroll to the Forecast strip:",
+        "  'The bank tells you what needs doing.",
+        "   Payroll in 3 days. VAT in 22 days.",
+        "   Companies House in 14 days.",
+        "   Each one taps directly into the workflow.'",
+        "",
+        "  Tap 'Review payroll'",
+        "  → show the wages workflow briefly → back.",
+        "",
+        "  Scroll to the Actions grid:",
+        "  '10 tasks. All the ones that currently require",
+        "   a phone call or a letter to Sunderland.'",
+        "",
+        "  Scroll to the forecast chart:",
+        "  '13 weeks of cash flow. The bank knows payroll",
+        "   lands in week 3. It flags that the balance",
+        "   dips below £80k — consider a Reserve transfer.'",
+    ],
+)
+
+# ── 16b. DEMO SCRIPT — PART 2 ─────────────────────────────────────────────────
+content_slide(
+    eyebrow_txt="PRESENTER GUIDE  ·  LIMITED COMPANY WALKTHROUGH  ·  PART 2 OF 2",
+    headline="Mandate change. Entity switching. Closing line. Follow-up questions.",
+    left_lines=[
         "MANDATE CHANGE  (2 min)",
         "  Tap Home → Paperless Actions → 'Change mandate'",
         "  'Adding a signatory currently takes 5 days by post.",
-        "   Here it takes 6 minutes. OTP confirmation. Cooling-off if required.",
+        "   Here it takes 6 minutes. OTP confirmation.",
+        "   Cooling-off if required by the mandate rule.",
         "   Audit trail automatically created.'",
-        "  Show step 1: select account. Step 2: signing rule.",
+        "  Show step 1: select account.",
+        "  Show step 2: choose signing rule.",
         "  Cancel — no need to complete the workflow.",
         "",
         "CLOSING  (1 min)",
         "  Tap the entity pill at the top of the Home screen.",
-        "  'It supports 7 business types — Limited Company, Sole Trader,",
-        "   LLP, Partnership, Charity, Club, Society.",
+        "  'It supports 7 business types — Limited Company,",
+        "   Sole Trader, LLP, Partnership, Charity, Club, Society.",
         "   Switch live in the demo and every screen updates.",
-        "   Different accounts. Different mandate rules. Different KYC requirements.'",
-        "  Switch to Charity → show the entity name, accounts, and copy changes.",
+        "   Different accounts. Different mandate rules.",
+        "   Different KYC requirements.'",
+        "  Switch to Charity → show entity name changes.",
         "  Switch back to Limited Company.",
-        "",
-        "'This is one prototype. Built alone. In spare time.",
-        " It's live right now — you can open it on your phone.",
-        " The question is: what could a team build?'",
-        "",
-        "─────────────────────────────────────────────────",
-        "AFTER THE DEMO — suggested follow-up questions:",
-        "  • What workflows are most painful for your business customers?",
-        "  • Would you like to see any entity type specifically?",
-        "  • What would you want to see in a production roadmap?",
     ],
-    left_title="OPENING + COMMAND CENTRE + VAT",
-    right_title="MANDATE CHANGE + CLOSING"
+    right_lines=[
+        "THE CLOSING LINE",
+        "",
+        "  'This is one prototype.",
+        "   Built alone. In spare time.",
+        "   It's live right now — you can open it on",
+        "   your phone in this room.',",
+        "   'The question is: what could a team build?'",
+        "",
+        "─────────────────────────────────────────────",
+        "AFTER THE DEMO",
+        "Suggested follow-up questions:",
+        "",
+        "  •  What workflows are most painful for your",
+        "     business customers right now?",
+        "",
+        "  •  Would you like to see any specific entity",
+        "     type — Charity, LLP, Sole Trader?",
+        "",
+        "  •  What would you want to see in a",
+        "     production roadmap?",
+        "",
+        "  •  Who else in your team should see this?",
+    ],
+    left_title="MANDATE CHANGE + CLOSING",
+    right_title="CLOSING LINE + FOLLOW-UP"
 )
 
 # ── 17. ENTITY SWITCHING ──────────────────────────────────────────────────────
