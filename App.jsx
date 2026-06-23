@@ -3220,7 +3220,7 @@ export default function App() {
         const barFor = (bal) => 14 + ((bal - minBal) / range) * 58;
         // £80k working-capital floor — only meaningful when it falls inside the band.
         const showFloor = minBal < 80000 && maxBal > 80000;
-        const floorY = (76 - barFor(80000)).toFixed(1);
+        const floorY = (82 - barFor(80000)).toFixed(1);
         // Largest scheduled outflow and the lowest projected week — the two facts a
         // director actually wants off this chart.
         const outflowEvents = forecastWeeks.filter(w => w.event && !w.event.inflow);
@@ -3236,19 +3236,22 @@ export default function App() {
               {hasWarn && <span className="text-[10px] uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 mb-1">Risk ahead</span>}
             </div>
             <div className="bg-white rounded-2xl border border-stone-200/80 p-4 lift-1">
-              <svg viewBox="0 0 520 84" className="w-full mb-1" preserveAspectRatio="none">
-                {showFloor && <line x1="0" y1={floorY} x2="520" y2={floorY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.6" />}
+              <svg viewBox="0 0 520 92" className="w-full mb-1" preserveAspectRatio="none">
+                <line x1="0" y1="86" x2="520" y2="86" stroke="#e7e5e4" strokeWidth="1"/>
+                {showFloor && <line x1="0" y1={floorY} x2="520" y2={floorY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="5,3" opacity="0.7" />}
                 {forecastWeeks.map((wk, i) => {
                   const barH = barFor(wk.bal);
-                  const y = 76 - barH;
+                  const y = 82 - barH;
                   const isOutflowEvent = wk.event && !wk.event.inflow;
-                  const fill = wk.warn ? '#f59e0b' : '#c8102e';
-                  const opacity = wk.warn ? 0.92 : isOutflowEvent ? 0.9 : wk.event ? 0.55 : 0.32;
+                  const isInflowEvent = wk.event && wk.event.inflow;
+                  const fill = wk.warn ? '#f59e0b'
+                             : isOutflowEvent ? '#c8102e'
+                             : isInflowEvent ? '#e08898'
+                             : '#f5d0d4';
                   return (
                     <g key={i}>
-                      <rect x={i * 40 + 3} y={y.toFixed(1)} width={34} height={barH.toFixed(1)} fill={fill} rx={3} opacity={opacity} />
-                      {/* dot above weeks carrying a scheduled outflow, so the dips read as events */}
-                      {isOutflowEvent && <circle cx={i * 40 + 20} cy={(y - 4).toFixed(1)} r={2.4} fill={wk.warn ? '#d97706' : '#c8102e'} />}
+                      <rect x={i * 40 + 4} y={y.toFixed(1)} width={32} height={barH.toFixed(1)} fill={fill} rx={4} />
+                      {isOutflowEvent && <circle cx={i * 40 + 20} cy={(y - 5).toFixed(1)} r={3} fill={wk.warn ? '#d97706' : '#c8102e'} />}
                     </g>
                   );
                 })}
