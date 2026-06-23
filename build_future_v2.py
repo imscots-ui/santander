@@ -47,7 +47,7 @@ def txt(slide, s, l, t, w, h, sz=14, bold=False, color=DARK,
         align=PP_ALIGN.LEFT, italic=False):
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame; tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     p  = tf.paragraphs[0]; p.alignment = align
     r  = p.add_run(); r.text = s
     r.font.size = Pt(sz); r.font.bold = bold; r.font.italic = italic
@@ -57,7 +57,7 @@ def txt(slide, s, l, t, w, h, sz=14, bold=False, color=DARK,
 def ml(slide, lines, l, t, w, h, sz=12, color=DARK, sp=5):
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame; tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     for i, line in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         r = p.add_run(); r.text = line

@@ -57,7 +57,7 @@ def text(slide, txt, l, t, w, h, size=14, bold=False, color=DARK,
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     p  = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
@@ -75,7 +75,7 @@ def multiline(slide, lines, l, t, w, h, size=12, color=DARK,
     tb = slide.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     for i, line in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         run = p.add_run()
@@ -159,10 +159,10 @@ def split_panel(eyebrow_txt, headline, left_stat, left_label, body_lines,
          size=13, color=RGBColor(0x90, 0x8A, 0x84))
     # Right content
     text(slide, headline, 4.5, 0.8, 8.4, 1.2,
-         size=28, bold=True, color=DARK)
+         size=26, bold=True, color=DARK)
     rect(slide, 4.5, 2.1, 8.4, 0.04, fill=RED)
-    multiline(slide, body_lines, 4.5, 2.25, 8.4, 4.8, size=13, color=STONE7,
-              line_space_pt=6)
+    multiline(slide, body_lines, 4.5, 2.2, 8.4, 5.1, size=10, color=STONE7,
+              line_space_pt=3)
     return slide
 
 def stat_grid(eyebrow_txt, headline, stats):
@@ -995,7 +995,7 @@ section_header(
 # ── 16a. DEMO SCRIPT — PART 1 ─────────────────────────────────────────────────
 content_slide(
     eyebrow_txt="PRESENTER GUIDE  ·  LIMITED COMPANY WALKTHROUGH  ·  PART 1 OF 2",
-    headline="Suggested script — 10 minutes, every headline feature. Opening + Command Centre + VAT.",
+    headline="Suggested 10-minute script — Opening, Command Centre, VAT.",
     left_lines=[
         "OPENING  (1 min)",
         "  Open imscots-ui.github.io/santander on your phone.",
@@ -1051,7 +1051,7 @@ content_slide(
 # ── 16b. DEMO SCRIPT — PART 2 ─────────────────────────────────────────────────
 content_slide(
     eyebrow_txt="PRESENTER GUIDE  ·  LIMITED COMPANY WALKTHROUGH  ·  PART 2 OF 2",
-    headline="Mandate change. Entity switching. Closing line. Follow-up questions.",
+    headline="Mandate change, entity switching, closing line and follow-up questions.",
     left_lines=[
         "MANDATE CHANGE  (2 min)",
         "  Tap Home → Paperless Actions → 'Change mandate'",

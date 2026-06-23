@@ -51,7 +51,7 @@ def T(slide, text, l, t, w, h, size=12, bold=False, color=DARK,
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     p = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
@@ -68,7 +68,7 @@ def ML(slide, lines, l, t, w, h, size=11, color=DARK, leading=5):
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     first = True
     for line in lines:
         if first:
