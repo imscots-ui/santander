@@ -5576,61 +5576,69 @@ export default function App() {
         {paymentPending && (() => {
           const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
           const pct = paymentPending.countdown / maxCountdown;
-          const r = 42;
+          const r = 46;
           const circ = 2 * Math.PI * r;
           const isHmrc = paymentPending.kind === 'hmrc';
           return (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/75 backdrop-blur-sm anim-fade">
-              <div className="bg-white rounded-3xl p-8 mx-5 max-w-xs w-full shadow-2xl text-center">
-                {/* Ring countdown */}
-                <div className="relative w-24 h-24 mx-auto mb-5">
-                  <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                    <circle cx="48" cy="48" r={r} fill="none" stroke="#e7e5e4" strokeWidth="7" />
-                    <circle cx="48" cy="48" r={r} fill="none" stroke="#c8102e" strokeWidth="7"
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm anim-fade">
+              <div className="bg-white rounded-3xl px-8 pt-8 pb-6 mx-5 max-w-xs w-full shadow-2xl text-center">
+
+                {/* Ring countdown — hero */}
+                <div className="relative w-28 h-28 mx-auto mb-6">
+                  <svg className="w-28 h-28 -rotate-90" viewBox="0 0 112 112">
+                    <circle cx="56" cy="56" r={r} fill="none" stroke="#f5f5f4" strokeWidth="8" />
+                    <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#c8102e' : '#1c1917'} strokeWidth="8"
                       strokeDasharray={circ}
                       strokeDashoffset={circ * (1 - pct)}
                       strokeLinecap="round"
                       style={{ transition: 'stroke-dashoffset 0.9s linear' }}
                     />
                   </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-stone-900 tabular-nums">{paymentPending.countdown}</span>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-bold text-stone-900 tabular-nums leading-none">{paymentPending.countdown}</span>
+                    <span className="text-[10px] text-stone-400 uppercase tracking-wide mt-0.5">sec</span>
                   </div>
                 </div>
 
-                {/* Title */}
-                <div className="text-xs uppercase tracking-widest text-stone-400 mb-1">
+                {/* Label */}
+                <div className="text-[11px] uppercase tracking-widest text-stone-400 mb-1.5">
                   {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
                 </div>
-                <div className="font-display text-2xl text-stone-900 leading-tight mb-1">
-                  {isHmrc ? 'One last chance to stop' : 'Check the details'}
+                <div className="font-display text-xl text-stone-900 leading-snug mb-4">
+                  {isHmrc ? 'Filing your VAT return' : 'Confirm payment'}
                 </div>
-                <div className="text-sm text-stone-500 mb-1">{paymentPending.label}</div>
-                {paymentPending.total > 0 && (
-                  <div className="font-mono text-xl font-semibold text-stone-900 num-tab mb-5">
-                    {fmt(paymentPending.total)}
+
+                {/* Details pill */}
+                <div className="bg-stone-50 rounded-2xl px-4 py-3 mb-4 text-left">
+                  <div className="text-[11px] text-stone-400 mb-0.5">{paymentPending.label}</div>
+                  {paymentPending.total > 0 && (
+                    <div className="font-mono text-lg font-semibold text-stone-900 num-tab">{fmt(paymentPending.total)}</div>
+                  )}
+                </div>
+
+                {/* Warning */}
+                {isHmrc ? (
+                  <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-5 text-xs text-amber-800 leading-relaxed text-left">
+                    Filed returns cannot be corrected through this app — contact HMRC directly to amend.
+                  </div>
+                ) : (
+                  <div className="bg-stone-50 rounded-xl px-3 py-2.5 mb-5 text-xs text-stone-500 leading-relaxed text-left">
+                    Money moves when the countdown ends. Cancel now if the account or amount looks wrong.
                   </div>
                 )}
 
-                {/* Warning */}
-                <div className={`rounded-2xl p-3 mb-5 text-xs leading-relaxed ${isHmrc ? 'bg-amber-50 text-amber-800' : 'bg-stone-50 text-stone-600'}`}>
-                  {isHmrc
-                    ? 'Once submitted, this return is lodged with HMRC and cannot be amended through this app. Contact HMRC directly to correct a filed return.'
-                    : 'Money moves when the countdown ends. Cancel now if you have spotted a wrong account or amount.'}
-                </div>
-
-                {/* Cancel */}
+                {/* Cancel — subdued secondary, not alarming */}
                 <button
                   onClick={() => {
                     setPaymentPending(null);
                     fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
                   }}
-                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                  className="w-full bg-stone-100 text-stone-700 py-3.5 rounded-2xl font-medium text-sm active:scale-[0.98] transition-all hover:bg-stone-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
                 >
-                  Cancel — go back
+                  Cancel
                 </button>
                 <div className="mt-3 text-[11px] text-stone-400">
-                  Sending automatically in {paymentPending.countdown}s
+                  {isHmrc ? 'Filing automatically in' : 'Sending automatically in'} {paymentPending.countdown}s
                 </div>
               </div>
             </div>
