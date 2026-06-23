@@ -1,12 +1,13 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 66 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 71 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
 AML/KYC/KYB regulation, Companies House & Charity Commission APIs, Tailwind CSS v3, hardware version control,
 MakerSpace management, basic electronics, mechatronics, digital logic, electronic devices & circuits,
-CSS animations & motion design, Vite build tooling & TypeScript large-scale patterns, and React 19.1 Server Components.
+CSS animations & motion design, Vite build tooling & TypeScript large-scale patterns, React 19.1 Server Components,
+Photoshop, Arduino/IoT, UX design, KiCad PCB design (RP2040), and embedded Linux programming.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -65,6 +66,11 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 50. [CSS Animation: Transitions, Keyframes & Motion Design](#section-50--css-animation-transitions-keyframes--motion-design)
 51. [Vite & TypeScript: Large-Scale App Patterns](#section-51--vite--typescript-large-scale-app-patterns)
 52. [React 19.1 & Server Components](#section-52--react-191--server-components)
+53. [Photoshop: The Complete Beginners Guide](#section-53--photoshop-the-complete-beginners-guide)
+54. [Arduino Programming: Beginners Guide to Internet of Things](#section-54--arduino-programming-beginners-guide-to-internet-of-things)
+55. [Practical UX Design — Faranello](#section-55--practical-ux-design)
+56. [Design an RP2040 Board with KiCad — Hinchliffe & Everard](#section-56--design-an-rp2040-board-with-kicad)
+57. [Mastering Embedded Linux Programming — Simmonds](#section-57--mastering-embedded-linux-programming)
 
 ---
 
@@ -11268,3 +11274,1250 @@ Rules:
 - **Wrap non-urgent state updates** in `startTransition`
 - **Key lists correctly** — use stable IDs, not array indices, as React `key` props
 
+
+---
+
+## Section 53 — Photoshop: The Complete Beginners Guide
+
+**Source:** Photoshop: The Complete Beginners Guide To Mastering Photoshop And Creating Amazing, Professional Looking Photos In 24 Hours Or Less! (UpSkill / Amazon)
+
+---
+
+### Why Photoshop
+
+Adobe Photoshop (1990–present) remains the industry standard for photo editing and graphic design. Key use cases: photo correction (lighting, red-eye, blemishes), creative composition, restoring old prints, combining text with images, designing T-shirts/greeting cards, artistic transformations (charcoal, watercolor, stained glass effects).
+
+Every result can be achieved via multiple methods — two users can produce identical output through completely different tool combinations.
+
+---
+
+### Core Tools
+
+**Marquee Selection** — dotted-line selection tool. Variants:
+- Rectangular (default)
+- Elliptical (circular areas)
+- Single Row / Single Column (1-pixel strips)
+
+**Move** — moves the active layer. Objects moved outside canvas bounds retain their data.
+
+**Lasso** — freeform selection. Variants:
+- Default: draw freehand around area
+- Polygon: straight-line segments, adjust to 1 pixel
+- Magnetic: auto-snaps to natural boundaries defined by light/colour contrast
+
+**Magic Wand** — selects contiguous pixels of similar colour. Adjust sensitivity via the Tolerance value.
+
+**Mode** (Image menu) — switches colour model: RGB, CMYK, Greyscale, Web. Use to convert colour to black-and-white (higher quality than camera greyscale, original data preserved).
+
+**Adjust** (Image menu) — brightness and contrast sliders with live preview. Always preview before committing.
+
+**Image Size** — resize with proportions locked (Constrain Proportions checkbox). Pixel setting = screen size; Document setting = print size. Save original before resizing.
+
+**Canvas Size** — expands the working area without scaling the image; creates space for effects or additional content.
+
+**Crop** — drag handles to define kept area; removes everything outside.
+
+**Layers** — every image is a stack of layers. Move, swap, or merge individual layers. Keep original file untouched while experimenting.
+- Eye icon: click + Alt to isolate a single layer (all others hidden); repeat to restore.
+- Merge layers: Ctrl + Shift + Alt + E
+
+**Text** — added as an independent layer. Write, resize, set font. Merge with image layer by saving as image and inserting. Exit text box: Ctrl + Enter (returns cursor to main screen without closing shortcuts).
+
+**Foreground/Background colours** — click colour square to pick. X swaps foreground/background. Apply colour with paintbrush (adjustable size), pencil (thin line), or eraser (removes top layer, reveals lower).
+
+**Saving** — always Save As to a new filename to preserve the original. "Save for Web" optimises without flattening.
+
+**Filters** — apply from Filter menu; undo several at once: Ctrl + Alt + Z.
+
+**Custom Shape** — draw freehand with pen or use marquee tools. Colour and save for reuse (watermarks, fun graphics).
+
+---
+
+### Key Tips
+
+| Tip | Method |
+|-----|--------|
+| Transform (scale/rotate/skew/distort) | Ctrl + T |
+| Duplicate layer | Ctrl + J |
+| Spot Healing Brush | Auto-samples surrounding colour to fix blemishes |
+| Dodge Tool | Lightens area; soft brush at 20% Highlights removes red-eye |
+| Blur Tool | Smooths fine lines/wrinkles; use sparingly |
+| Bird's Eye view | Hold H + drag — instant full-screen preview, click to zoom back in |
+| Brush size | [ (smaller) or ] (larger) |
+| Cycle backgrounds | Press F repeatedly |
+| Swap foreground/background | X |
+| Spring-loaded Move | Hold Ctrl from any tool to temporarily activate Move; release to return |
+| Pen Tool Rubber Band | Options > Geometry > Rubber Band — preview curve before committing |
+| Copy layer | Ctrl + drag layer |
+| Undo | Ctrl + Z (once); Ctrl + Alt + Z (multiple) |
+| Rotating pattern / kaleidoscope | Ctrl + Alt + T duplicates and transforms a layer |
+| Ruler units | Ctrl + R shows rulers; right-click to switch px/cm/inch |
+| Diffuse effect | Scatter light in selected area; combine with desaturation for dreamy look |
+| Mask Sharpening | Drag cursor to reveal greyscale; black areas cannot be sharpened |
+| Layers split view | Tools > Photoshop > Load Files — splits image by layers |
+| Create custom brush | Convert to B&W, select area, Edit > Define Brush Preset |
+| 3D Carousel | Ctrl + B — displays saved images as 3D rotating slideshow |
+
+---
+
+### Workflow Summary
+
+1. Open image → duplicate layer (Ctrl + J) to protect original
+2. Correct exposure/colour via Image > Adjustments
+3. Remove blemishes: Spot Healing Brush
+4. Fix red-eye: Dodge Tool, soft brush, Highlights 20%
+5. Crop to composition
+6. Add text as separate layer (Ctrl + Enter to exit)
+7. Apply filters selectively
+8. Flatten/merge only when finalised
+9. Save for Web for online use; File > Save As for archival PSD
+
+---
+
+## Section 54 — Arduino Programming: Beginners Guide to Internet of Things
+
+**Source:** Arduino Programming: Beginners Guide To Get Started With Internet Of Things (UpSkill Learning)
+
+---
+
+### What is Arduino
+
+Arduino is an open-source microcontroller platform combining hardware boards with the Arduino IDE. Programs ("sketches") compile to C++ and upload over USB. Used for rapid prototyping of electronics, sensors, actuators, and IoT projects.
+
+---
+
+### Board Families
+
+| Board | MCU | Digital pins | Analog | Flash | SRAM | Clock |
+|-------|-----|-------------|--------|-------|------|-------|
+| Uno / Genuino Uno | ATmega328 | 14 (6 PWM) | 6 | 32KB | 2KB | 16MHz |
+| Mega 2560 | ATmega2560 | 54 (15 PWM) | 16 | 256KB | 8KB | 16MHz |
+| Mini / Nano | ATmega328 | 14 (6 PWM) | 8 | 32KB | 2KB | 16MHz |
+| Zero | ATSAMD21 (ARM M0+) | 14 (12 PWM) | 6 | 256KB | 32KB | 48MHz |
+|101 | Intel Curie (ARM M4) | 14 (4 PWM) | 6 | 196KB | 24KB | 32MHz |
+| MKR1000 | ATSAMW25 (ARM M0) | 8 (4 PWM) | 7 | 256KB | 32KB | 48MHz |
+
+PWM-capable pins on Uno: 3, 5, 6, 9, 10, 11 (~490Hz; pins 5 and 6 ~980Hz).
+
+---
+
+### IDE & Upload Workflow
+
+1. Connect board via USB
+2. Tools → Board → select your board
+3. Tools → Port → select COM/ttyUSB port
+4. Write sketch in IDE
+5. Verify (compiles) → Upload (flashes)
+6. Use Serial Monitor (Tools → Serial Monitor) for `Serial.print` output — match baud rate
+
+---
+
+### Program Structure
+
+```cpp
+void setup() {
+  // runs once on power-on/reset
+  pinMode(13, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // runs forever
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+  delay(1000);
+}
+```
+
+---
+
+### Data Types
+
+| Type | Size | Range |
+|------|------|-------|
+| `bool` | 1 byte | true / false |
+| `byte` | 1 byte | 0–255 |
+| `int` | 2 bytes | –32,768 to 32,767 |
+| `unsigned int` | 2 bytes | 0–65,535 |
+| `long` | 4 bytes | –2,147,483,648 to 2,147,483,647 |
+| `unsigned long` | 4 bytes | 0–4,294,967,295 |
+| `float` | 4 bytes | ±3.4×10³⁸ (6–7 sig digits) |
+| `double` | 4 bytes | same as float on Uno |
+| `char` | 1 byte | single character |
+| `String` | object | variable-length text |
+
+---
+
+### Constants
+
+```
+HIGH / LOW          — digital pin states
+INPUT / OUTPUT / INPUT_PULLUP — pin modes
+true / false
+LED_BUILTIN         — pin 13 on most boards
+```
+
+---
+
+### Digital I/O
+
+```cpp
+pinMode(pin, mode);           // OUTPUT, INPUT, or INPUT_PULLUP
+digitalWrite(pin, HIGH/LOW);
+int val = digitalRead(pin);   // returns HIGH or LOW
+```
+
+---
+
+### Analog I/O
+
+```cpp
+analogReference(DEFAULT);     // 5V ref (DEFAULT / INTERNAL / EXTERNAL)
+int v = analogRead(A0);       // 0–1023 (maps 0–5V); ~100µs per read
+analogWrite(pin, val);        // PWM: val 0–255; pin must be PWM-capable
+```
+
+---
+
+### Time Functions
+
+```cpp
+millis()                // ms since boot; overflows at ~50 days (unsigned long)
+micros()                // µs since boot; overflows at ~70 min; 4µs resolution on 16MHz
+delay(ms)               // pause execution
+delayMicroseconds(us)   // max accurate: 16383µs; use delay() for longer
+```
+
+---
+
+### Math & Utility Functions
+
+```cpp
+min(x, y)             max(x, y)
+abs(x)
+constrain(x, a, b)    // clamps x to [a, b]
+pow(base, exp)        // returns double
+sqrt(x)               // returns double
+```
+
+---
+
+### Bit Operations
+
+```cpp
+lowByte(x)            // right byte
+highByte(x)           // second-from-right byte
+bitRead(x, n)         // 0 or 1
+bitWrite(x, n, b)     // write bit b at position n
+bitSet(x, n)          // set bit n to 1
+bitClear(x, n)        // clear bit n to 0
+bit(n)                // value of bit n (1, 2, 4, 8…)
+```
+
+---
+
+### Serial Communication
+
+```cpp
+Serial.begin(9600);        // in setup(); sets baud rate
+Serial.print("text");      // no newline
+Serial.println(value);     // with newline; accepts int/float/String
+```
+
+Uses digital pins 0 (RX) and 1 (TX) — cannot use these as GPIO when Serial is active.
+Mega has three additional UART ports: Serial1–3 on pins 18–19, 16–17, 14–15.
+
+---
+
+### Preprocessor Directives
+
+```cpp
+#define LED_PIN 13        // constant; no semicolon; no type; replaced at compile time
+#include <Servo.h>        // include library; no semicolon
+```
+
+Prefer `const int pin = 13;` over `#define` for typed constants.
+
+---
+
+### Control Flow
+
+```cpp
+if (condition) { } else { }
+for (int i = 0; i < 10; i++) { }
+while (condition) { }
+do { } while (condition);
+switch (var) { case 1: break; default: break; }
+break; continue; return value;
+```
+
+---
+
+### Bitwise Operators
+
+| Operator | Symbol | Example |
+|----------|--------|---------|
+| AND | `&` | `5 & 3` → 1 |
+| OR | `\|` | `5 \| 3` → 7 |
+| XOR | `^` | `5 ^ 3` → 6 |
+| NOT | `~` | `~5` → -6 |
+| Left shift | `<<` | `1 << 4` → 16 |
+| Right shift | `>>` | `16 >> 4` → 1 |
+
+---
+
+### Example: Furnace Controller
+
+```cpp
+const float MAX_TEMP = 90;
+const float MIN_TEMP = 80;
+const int FIRE_PIN = 3;
+
+void setup() {
+  pinMode(FIRE_PIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int raw = analogRead(A0);
+  float voltage = raw * (5.0 / 1023.0);
+  float temp = voltage / 0.01;           // LM35: 10mV per °C
+
+  if (temp < MIN_TEMP) {
+    digitalWrite(FIRE_PIN, HIGH);
+  } else if (temp > MAX_TEMP) {
+    digitalWrite(FIRE_PIN, LOW);
+  }
+  Serial.println(temp);
+  delay(100);
+}
+```
+
+---
+
+### Internet of Things (IoT)
+
+IoT: physical objects with unique identifiers connected over IP networks, collecting and exchanging data without human intervention. Term coined 1999 (Kevin Ashton).
+
+**Key benefits:**
+- Real-time monitoring — devices report status continuously
+- Remote monitoring — access from anywhere with internet
+- Data analytics — cloud services present data as charts/graphs
+- Process optimisation — location/time-independent data enables smarter decisions
+
+**Application domains:**
+- Home automation (lights, HVAC, appliances)
+- Industrial automation (harsh environments, remote control)
+- Patient/health monitoring (wearable sensors → hospital servers)
+- Vehicle tracking (GPS + GSM alerts to owner/police)
+- Agricultural automation (soil moisture, humidity, pump control)
+- Security systems (burglar alarms + internet alerts)
+- Emergency SOS (crash detection → broadcasts location)
+
+**Career paths created by IoT:** agricultural technologist, 3D printing engineer, grid modernization engineer, wearable tech designer, medical robot designer, data security expert, cloud computing specialist, intermodal transport designer.
+
+---
+
+## Section 55 — Practical UX Design
+
+**Source:** Practical UX Design (Packt, 2016) — Scott Faranello
+
+---
+
+### The UX Mindset
+
+UX is skill + practice + mindset. It covers button placement, content organisation, interface design, wireframes, and usability studies — but more fundamentally it is about **outside-in** problem solving: understanding user problems before proposing solutions, not assuming expertise from the inside-out.
+
+**The "faster horses" myth** — the quote attributed to Henry Ford is unverifiable and first appeared in a 2001 marketing publication. By 1908, city horses were a well-documented public health crisis (manure, stampedes, disease, carcasses). Ford responded to real observed problems. The myth persists because it rationalises skipping user research. Cost of that skip: an estimated $150 billion wasted annually on IT projects abandoned as inadequate (Dr Susan Weinschenk, Human Factors International).
+
+The genuine UX approach requires: business and user research, data analytics, customer interviews, subject matter expert (SME) sessions, usability testing, root-cause analysis, prototyping, and wireframing — not lone-inventor intuition.
+
+---
+
+### Creative UX
+
+Creativity requires two alternating modes:
+
+**Open mode** — expansive, exploratory, playful. Generates options. No criticism.  
+**Closed mode** — focused, evaluative, decisive. Selects and implements.
+
+Staying locked in one mode is a failure pattern: "closed mode only" stifles innovation; "open mode only" never ships.
+
+**Six conditions for creativity:**
+1. **Space** — a dedicated creative environment, separate from day-to-day work
+2. **Time** — protected blocks; no interruptions; the "10,000 hour rule" applies
+3. **Confidence** — psychological safety to propose ideas without ridicule
+4. **Play** — low-stakes experimentation; humour signals safety
+5. **Agreement** — team consensus that creative exploration is the current activity
+6. **Humor** — lightens the atmosphere; reduces inhibition
+
+---
+
+### Good Design Principles (Dieter Rams applied to UX)
+
+Good design is **invisible** — it guides users without calling attention to itself. When you notice the design, it has usually failed.
+
+Good design creates **emotion** — it generates satisfaction, delight, or trust.
+
+Good design is **familiar** — leverages existing mental models; doesn't make users learn new paradigms unnecessarily.
+
+| Principle | Meaning |
+|-----------|---------|
+| Innovative | Solves a problem in a new way — but novelty for its own sake isn't good design |
+| Useful | Serves a clear purpose; removes unnecessary friction |
+| Minimalist | Nothing superfluous; every element earns its place |
+| Understandable | User comprehends function within 3 seconds without instruction |
+| Valuable | Worth the user's time and attention |
+| Safe | Provides affordances that prevent errors; reversible actions |
+| Long-lasting | Doesn't date quickly; resists fashion |
+
+**The 3-second rule:** if a user cannot understand what a UI element does within 3 seconds, it fails the understandability test.
+
+**Native advertising** illustrates the danger of clever design: ads styled to look like editorial content undermine trust long-term even if they drive short-term clicks.
+
+---
+
+### Information Architecture (IA)
+
+IA organises content so users can find what they need. It is the backbone of any product.
+
+**The Four Cs of IA:**
+- **Coordination** — elements work together toward the same goal (gamification is a coordination tool)
+- **Cooperation** — components support each other without conflict
+- **Change** — the IA accommodates growth and evolution without breaking
+- **Consequence** — every IA decision has downstream effects; design for them
+
+**Navigation** — should match users' mental models. Poor navigation makes correct content unfindable.
+
+**Mental models** — users approach a product with pre-existing assumptions about how it works. Good IA aligns with those models; great IA gently expands them.
+
+**Taxonomy types:**
+- Flat — all items at same level (small sets)
+- Hierarchical — parent/child structure (most common)
+- Faceted — items classified by multiple independent attributes simultaneously
+- Networked — items linked by associations (Wikipedia, knowledge graphs)
+
+**Sitemaps** — visual map of top-level sections and their relationships. The essential IA planning tool.
+
+**Designing for change** — every IA decision has consequences. A change to navigation taxonomy can break bookmarks, SEO, user habits. Model the knock-on effects before committing.
+
+**The IA of cities:** cities are the most complex IAs humans have built. Fractal loading (city → district → street → building → room) is a natural model. Good digital IAs mirror this: each level of zoom reveals the right level of detail.
+
+**Wayfinding** — four stages users go through: orientation → route decision → route monitoring → destination recognition. IA must support all four, not just the destination.
+
+**Seamless IA** (Apple store floor plan model): different zones serve different purposes; transitions are invisible; users move through the space without noticing the architecture.
+
+---
+
+### Patterns, Properties, and Principles
+
+Christopher Alexander's 15 Fundamental Properties of Wholeness (from *The Nature of Order*) apply directly to UX:
+
+| Property | UX Application |
+|----------|---------------|
+| Levels of scale | Hierarchy is visible — headings, body, captions clearly differentiated |
+| Strong centers | Primary content/CTA has clear visual dominance |
+| Boundaries | Containers separate distinct concerns without creating walls |
+| Alternating repetition | Repeated elements vary just enough to avoid monotony |
+| Positive space | Whitespace is active, not empty — it guides attention |
+| Good shape | Every element has a natural, purposeful form |
+| Local symmetries | Groupings are internally balanced even if the overall layout is asymmetric |
+| Deep interlock | Elements interpenetrate — text wraps images, sections nest naturally |
+| Contrast | Sufficient difference between foreground/background and element types |
+| Gradients | Smooth transitions in density, size, or colour |
+| Roughness | Perfect uniformity feels mechanical; slight irregularity feels human |
+| Echoes | Visual motifs repeat throughout to create coherence |
+| The Void | Moments of emptiness provide rest and focus |
+| Inner calm | Absence of unnecessary visual noise |
+| Not-separateness | Design feels connected to its context; not arbitrary |
+
+**Pattern libraries vs style guides:**  
+Style guides define visual rules (colours, typography, spacing).  
+Pattern libraries define interaction patterns (how a modal behaves, how a form validates).  
+Both are needed. Neither replaces the other.
+
+---
+
+### UX Maturity Model
+
+| Level | Name | Characteristics |
+|-------|------|-----------------|
+| 1 | Awareness | UX is known but not prioritised; ad-hoc work |
+| 2 | Repeatable | Some UX processes exist; applied inconsistently |
+| 3 | Strategic | UX integrated into project planning; metrics tracked |
+| 4 | Integrated | UX embedded in all product decisions; cross-team buy-in |
+| 5 | Core | UX is a company-wide value; drives strategy |
+
+**Enterprise UX** — optimises for efficiency, effectiveness, and satisfaction in workplace tools. Often neglected; high ROI when done well.
+
+---
+
+### UX Metrics
+
+**Financial metrics** — concrete business outcomes: conversion rate, revenue per user, cost-per-acquisition. Example: strategic email marketing campaign measured by open rate, click-through, and revenue uplift.
+
+**Operational metrics** — employee productivity and error rate. Example: redesigning an internal tool reduced task completion time and error frequency.
+
+**Human metrics** — user satisfaction and comprehension. Measured by: SUS (System Usability Scale), NPS, task success rate, error rate, time-on-task.
+
+---
+
+### UX Tools
+
+**Personas** — fictional but data-grounded profiles representing user types. Include goals, frustrations, context of use. The "human persona" goes beyond demographics to capture emotional state and cognitive style.
+
+**Ethnography** — observing users in their natural environment. Uncovers behaviour that users cannot or do not articulate in interviews.
+
+**Human Centered Design (HCD)** — iterative process: empathise → define → ideate → prototype → test. Framework from IDEO/Stanford d.school.
+
+**Journey maps** — visual timeline of a user's experience with a product or service. Captures: moments of truth (high-stakes touchpoints), pain points, emotions, and opportunities. Establishes a baseline for improvement.
+
+**Usability studies** — structured observation of users attempting real tasks. RITE (Rapid Iterative Testing and Evaluation): fix problems immediately between sessions rather than waiting until all sessions complete. Reporting: prioritise findings by severity and frequency.
+
+**Visual design** — the execution layer. Typography, colour, layout, iconography. Visual design communicates before the user reads a word.
+
+**Cynefin framework** — sense-making model for understanding problem complexity. Four domains: Obvious (best practice), Complicated (expert analysis), Complex (emergent, probe-sense-respond), Chaotic (act first). UX work sits mostly in Complicated and Complex.
+
+**Business Model Canvas (BMC)** — 9-block strategic overview: value propositions, customer segments, channels, revenue streams, cost structure, etc. Aligns UX work with business viability.
+
+**Wireframes** — low-fidelity structural layouts. Separate structure decisions from visual design decisions. Avoid the "make it look nice first" trap.
+
+**Prototyping** — interactive mock-ups tested with users before any code is written. Fail fast at the prototype stage, not in production.
+
+---
+
+### Closing Principle
+
+*"Always Be Closing" → Always Be Learning.* UX is not a phase of a project — it is an ongoing practice of observing, learning, adjusting, and improving. The mindset that "we know what users want" is the single largest predictor of project failure.
+
+---
+
+## Section 56 — Design an RP2040 Board with KiCad
+
+**Source:** Design an RP2040 Board with KiCad, 1st Edition — Jo Hinchliffe & Ben Everard (Raspberry Pi Press / HackSpace)
+
+---
+
+### KiCad Workflow Overview
+
+```
+Schematic Editor → ERC → Footprint assignment → PCB Editor → DRC → Gerber export → Fabrication
+```
+
+KiCad is open-source, professional-grade PCB design software. All project files are text-based and version-control friendly.
+
+---
+
+### Schematics (Ch1)
+
+**Symbols vs footprints** — a symbol is the logical representation (schematic); a footprint is the physical pad layout (PCB). They are separate in KiCad and linked during footprint assignment.
+
+**Net labels** — connect wires without drawing a physical line across the schematic. Power symbols (VCC, GND) are global nets by default.
+
+**Schematic organisation:**
+- Group related components together
+- Use net labels for long connections
+- Add a title block (project name, revision, date)
+- Decoupling capacitors placed immediately adjacent to IC power pins in the schematic
+
+**ERC (Electrical Rules Check)** — flags unconnected pins, conflicting drivers, missing power pins. Run before moving to PCB layout.
+
+---
+
+### PCB Layout (Ch2)
+
+**Board Setup:**
+- Physical Stackup: set dielectric thickness per substrate (FR4 default 1.6mm)
+- Design Rules > Constraints: min track width, min clearance, min via size
+
+**Trace widths (guidelines):**
+- Signal traces: 0.2mm minimum
+- Power traces: 0.4mm+ (calculate for current using IPC-2221 or online calculators)
+- USB differential pairs: 0.2mm, matched length
+
+**Copper pour (flood zones):**
+- Add copper fill tied to GND or VCC
+- Improves EMI, reduces impedance, provides thermal relief
+- Run DRC after flood: check for clearance violations
+
+**3D Viewer** — File > 3D Viewer; shows photorealistic board rendering for visual verification.
+
+**Gerber export:**
+- F.Cu, B.Cu — front/back copper layers
+- F.Mask, B.Mask — solder mask (negative)
+- F.SilkS — silkscreen legend
+- Edge.Cuts — board outline
+- Drill file (DRL) — plated and non-plated through-holes; JLCPCB wants two separate files; OSH Park wants merged
+
+---
+
+### Libraries: Symbols and Footprints (Ch3)
+
+**Creating symbols** — Symbol Editor: define pins (input/output/power/passive), set pin numbers, add body rectangle, set reference designator prefix (R, C, U, J, etc.).
+
+**Creating footprints** — Footprint Editor: place pads on grid, set pad type (SMD/through-hole/NPTH), set pad dimensions, draw courtyard and silkscreen.
+
+**Footprint tips:**
+- Push Pad Properties to Other Pads — change one pad then propagate to all compatible pads
+- Press spacebar to set local origin; use Position Relative To… for sub-millimetre accuracy
+- Save custom footprints to a project-specific library to avoid polluting global libraries
+
+**Importing from EasyEDA** — export footprint from LCSC/EasyEDA as KiCad format; import via File > Import in Footprint Editor.
+
+---
+
+### PCBA Service: JLCPCB (Ch4)
+
+**Basic vs Extended parts:**
+- Basic parts: always stocked, no extra fee per component type
+- Extended parts: may carry a ~$3 setup fee per unique part; check stock before finalising BOM
+
+**Required files for JLCPCB PCBA:**
+1. Gerber + drill files (zipped)
+2. BOM (CSV): reference designator, quantity, value, LCSC part number
+3. CPL / Pick-and-Place file (CSV): reference, X, Y, layer, rotation
+
+**Cost strategy:** economic assembly for ≥5 boards; JLCPCB adds components per board-side (single-sided cheaper). Panelise designs for efficiency — JLCPCB offers V-cut and mouse-bite panelisation.
+
+**Virtual Warehouse** — pre-purchase and hold component stock against future assembly orders; prevents mid-project stock outages.
+
+---
+
+### RP2040 Board Design (Ch5)
+
+The RP2040 is Raspberry Pi's dual-core ARM Cortex-M0+ microcontroller (2021). Key design requirements:
+
+**Power supplies (four separate rails):**
+- IOVDD: 1.8–3.3V, IO voltage
+- DVDD: 1.1V core (internal LDO from 3.3V)
+- ADC_AVDD: 3.3V, separate quiet supply for ADC
+- USB_VDD: 3.3V USB PHY supply
+
+**Decoupling:** 100nF ceramic capacitor on every power pin, placed as close as possible to the pin.
+
+**Crystal:** 12MHz ±30ppm; 10–15pF load capacitors; shielded from copper pours.
+
+**QSPI Flash:** W25Q128JVSIQ (16MB) or compatible; 6-wire QSPI interface; pull-up on CS.
+
+**USB:** 27Ω series resistors on USB_DP and USB_DM; no external ESD on reference design.
+
+**Reset/Run:** 1MΩ pull-down on RUN pin; 100nF filter cap; exposed pad for manual reset button.
+
+**SWD debug:** two-pin (SWDIO, SWDCLK); 3-pin with SWD_GND; accessible on edge pins.
+
+**Minimum viable RP2040 BOM:** RP2040, W25Q128 flash, 12MHz crystal, 2×load caps, 4×100nF decoupling per power pin, 27Ω USB resistors, 3.3V LDO, 1MΩ RUN pull-down.
+
+---
+
+### Hierarchical Sheets (Ch6)
+
+Hierarchical sheets split large schematics into reusable sub-sheets stored as separate `.kicad_sch` files.
+
+**Creating a hierarchical sheet:** Add a hierarchical sheet tool (or press S) → draw rectangle → set sheet name and filename.
+
+**Hierarchical labels** — create connections between a sub-sheet and the parent. Press H inside sub-sheet to place. Then, from the parent, right-click the sheet rectangle → Import Sheet Pin to pull the label out as a connectable pin.
+
+**Global labels** — connect automatically across all sheets in a project (like global power symbols). Use for GND, VCC, and other project-wide nets.
+
+**Copying hierarchical sheets** — paste a sheet rectangle in the parent to create a new instance; KiCad auto-increments the sheet name. Copy-paste the contents of the original sub-sheet into the new one and relabel hierarchical pins.
+
+**Flat hierarchy pattern** — for large projects, use the top sheet purely as a holder for hierarchical sheet rectangles with no visible wires. Use global labels for all connectivity within sub-sheets. Allows working on each sub-sheet in isolation.
+
+---
+
+### PCB as Mechanical Part (Ch7)
+
+**Design for mechanical fit:**
+- Import board outline SVG from Inkscape (with 2mm corner radii) into Edge.Cuts layer via File > Import > Graphics
+- Set user grid to 1mm for accurate footprint placement
+- Use Position Relative To… (right-click > Positioning Tools) for sub-millimetre accuracy relative to a known reference pad
+
+**Non-plated through-holes (NPTH):** place a pad, press E, change pad type to NPTH. For motor mount holes: 2.1mm diameter for M2 clearance.
+
+**Silkscreen management:**
+- Remove auto-placed reference designators that overlap pads: select on F.Silkscreen layer, Delete
+- Edit footprint silkscreen without affecting global library: select footprint, Ctrl+E → "Editing from board" mode
+- Add text: Add Text tool; Knockout option (new in KiCad 7) creates solid block with text cut out
+
+**SVG text for silkscreen:** create text in Inkscape → Path > Object to Path → resize document → import to F.Silkscreen in KiCad.
+
+**3D verification:** File > Export > VRML (WRL) → import into FreeCAD to check mechanical fit against 3D-printed parts before fabrication.
+
+---
+
+### PCB Substrates (Ch8)
+
+| Substrate | Properties | Use case |
+|-----------|-----------|----------|
+| FR4 | Fire-retardant fiberglass; low thermal expansion; most common | General purpose |
+| Flexible (polyamide) | Bends repeatedly; single or multi-layer copper | Connectors, antennas, wearables |
+| Aluminium | Conducts heat through board; acts as heatsink | High-power LEDs, power electronics |
+| Rogers / PTFE | Low dielectric loss at high frequency | RF/microwave designs |
+
+**Surface finishes:**
+- **HASL** (Hot Air Solder Levelling) — dipped in molten solder; lead or lead-free; affordable; long shelf life
+- **ENIG** (Electroless Nickel Immersion Gold) — nickel barrier + gold flash; flat, solderable, oxidation-resistant; preferred for fine-pitch SMD
+
+**Copper weight:** expressed in oz/ft². 1oz is standard; 2oz for high-current traces. Affects track impedance and current capacity.
+
+**Via finishing options:**
+- Tented — solder mask covers hole; reduces accidental shorts
+- Un-tented — exposed; finished in surface finish
+- Plugged — filled with solder mask or epoxy resin
+- Conductive plugged — filled with copper epoxy; increases current capacity
+
+**Flexible PCB design rules:** avoid sharp 90° corners (stress concentration → tears); use Inkscape Corners path effect to add chamfers to SVG outlines before import.
+
+---
+
+### PCB Manufacturers (Ch9)
+
+| Service | Strength | Notes |
+|---------|----------|-------|
+| JLCPCB | Lowest cost, PCBA service, huge parts library | Min 0.005" (4-layer+) track/clearance; upload Gerbers + BOM + CPL |
+| OSH Park | Direct KiCad upload, purple solder mask, excellent support | Merges split DRL files automatically; slower, US-based |
+| PCBWay | Large maximum board size (1100×500mm), many surface finishes | Specify board dimensions before Gerber upload |
+| DirtyPCBs | Cheap, minimal service | No support channel; check forum posts for quirks |
+
+**DRC rules matching manufacturer:** File > Board Setup > Design Rules > Constraints — set minimum track width and clearance to match your target fab's capabilities before starting layout.
+
+**Common Gerber pitfalls:**
+- JLCPCB wants separate DRL files for plated vs non-plated holes; OSH Park wants them merged
+- Boards with no copper layers (artistic PCBs) may cause upload errors on some services
+- Edge-cut arcs may not render correctly on JLCPCB preview but fabricate correctly — confirm via chat
+
+---
+
+### Smart Stepper Motor Board (Ch10)
+
+**NEMA 17 dimensions:** 42×42mm body; four M3 mounting holes on 31mm square pattern.
+
+**Urumbu concept:** embed RP2040 directly on motor; control via USB without G-code middleware. Motor driver modules (TMC2208, DRV8833, A4988) share a common 16-pin 2×8 footprint at 2.54mm pitch.
+
+**Component sourcing tips:**
+- Check JLCPCB stock before finalising BOM; high-turnover parts (USB sockets, LDOs) go out of stock
+- Use LCSC parts manager Virtual Warehouse to pre-purchase critical components
+- When swapping components, triple-check footprint and pinout compatibility
+
+**Layout techniques:**
+- G key ("Grab") moves a footprint while keeping track connectivity — useful for compact rearrangement
+- Delete unused GPIO breakout sections to save space
+
+---
+
+### RP2040 Game Controller (Ch11)
+
+**Button circuit:** momentary push-to-make, 4-pin SMD (e.g., C221902); one pin to GPIO, remaining three to GND. Six buttons: D-pad (4) + A + B.
+
+**Custom CircuitPython firmware:**
+1. Copy `circuitpython/ports/raspberrypi/boards/raspberry_pi_pico` to new board directory
+2. Edit `pins.c` — map named constants (BTN_A, UP, etc.) to GPIO numbers via `MP_ROM_QSTR`
+3. Edit `mpconfigboard.mk` — set USB VID/PID, product name, flash chip, frozen modules
+4. Add `FROZEN_MPY_DIRS += $(TOP)/frozen/Adafruit_CircuitPython_HID`
+5. Build: `make BOARD=your_board_name` → produces `firmware.uf2`
+
+**HID gamepad code pattern (CircuitPython):**
+```python
+import board, digitalio, usb_hid
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
+
+btn_up = digitalio.DigitalInOut(board.UP)
+btn_up.pull = digitalio.Pull.UP
+kbd = Keyboard(usb_hid.devices)
+
+while True:
+    if not btn_up.value:
+        kbd.press(Keycode.UP_ARROW)
+    else:
+        kbd.release(Keycode.UP_ARROW)
+```
+
+**3D enclosure workflow:** File > Export > STEP from KiCad PCB Editor → import into FreeCAD → design enclosure around PCB geometry → verify fit before ordering.
+
+**Lead-free solder note:** for any board handled repeatedly (game controllers, wearables), use lead-free HASL or ENIG. Leaded solder accumulates on skin over repeated use.
+
+---
+
+## Section 57 — Mastering Embedded Linux Programming
+
+**Source:** Mastering Embedded Linux Programming, 2nd Edition (Packt, 2017) — Chris Simmonds
+
+---
+
+### The Four Elements
+
+Every embedded Linux project requires four components, in dependency order:
+
+```
+Toolchain → Bootloader → Kernel → Root Filesystem
+```
+
+1. **Toolchain** — cross-compiler and libraries; everything else is built with it
+2. **Bootloader** — initialises hardware, loads kernel (U-Boot)
+3. **Kernel** — manages resources, hardware interfaces, scheduling
+4. **Root filesystem** — userspace programs, libraries, init system
+
+---
+
+### Toolchain
+
+A toolchain consists of:
+- **Binutils** — assembler (`as`), linker (`ld`), `objdump`, `readelf`, `nm`, `strip`
+- **GCC** — C/C++ compiler (and optionally Fortran, Ada, Go)
+- **C library** — POSIX API bridge between userspace and kernel
+
+**C library choices:**
+
+| Library | Size | License | Use case |
+|---------|------|---------|---------|
+| glibc | Large | LGPL 2.1 | Full POSIX; standard choice |
+| musl libc | Small | MIT | Memory-constrained; standards-compliant |
+| uClibc-ng | Micro | LGPL 2.1 | uClinux (no MMU) targets |
+
+Decision rule: use uClibc-ng only for uClinux; use musl for tight RAM/flash budgets; otherwise use glibc.
+
+**Cross vs native toolchain:**
+- Cross: compiled on host (x86_64), runs on target (ARM). Standard approach.
+- Native: compile directly on target. Only practical on resource-rich targets (Raspberry Pi, BeagleBone).
+
+**Toolchain tuple** — `cpu-vendor-kernel-os`:
+- `arm-cortex_a8-linux-gnueabihf` — ARM Cortex-A8, Linux, glibc, EABI hard-float
+- `mipsel-unknown-linux-gnu` — little-endian MIPS
+
+**ABI choices for ARM:**
+- OABI — obsolete
+- EABI — floating-point passed in integer registers
+- EABIHF — floating-point passed in FPU registers (faster; requires hardware FPU)
+
+**Building with crosstool-NG:**
+```bash
+git clone https://github.com/crosstool-ng/crosstool-ng.git
+./bootstrap && ./configure --enable-local && make
+./ct-ng arm-cortex_a8-linux-gnueabi   # select base config
+./ct-ng menuconfig                    # customise
+./ct-ng build                         # ~30 min
+```
+
+**Sysroot** — directory containing target libraries and headers; set via `--with-sysroot`. Contains `lib/` (shared objects), `usr/include/` (headers), `usr/bin/` (target utilities).
+
+**Key toolchain commands:**
+```bash
+arm-...-gcc -print-sysroot           # show sysroot path
+arm-...-gcc --version / -v           # version and full config
+arm-...-gcc -dumpmachine             # target tuple
+arm-...-readelf -a binary | grep "Shared library"  # linked .so files
+arm-...-gcc -static prog.c           # statically link everything
+```
+
+---
+
+### Bootloader: U-Boot
+
+**Three-phase boot sequence:**
+1. **ROM code** — on-chip; minimal; loads SPL from SD/eMMC/NAND
+2. **SPL (Secondary Program Loader)** — initialises DRAM; loads U-Boot proper
+3. **TPL (U-Boot proper)** — full environment; loads kernel
+
+**Device trees** — describe hardware topology to the kernel in DTS format:
+```
+/ {
+  #address-cells = <1>;
+  memory@80000000 {
+    device_type = "memory";
+    reg = <0x80000000 0x20000000>;
+  };
+};
+```
+Compiled with `dtc` to `.dtb` binary blob; passed to kernel by bootloader.
+
+**U-Boot commands:**
+```bash
+printenv                   # show environment variables
+setenv bootargs "console=ttyS0,115200 root=/dev/mmcblk0p2"
+saveenv                    # persist to flash
+tftp 0x80000000 zImage     # load kernel via TFTP
+bootz 0x80000000 - 0x82000000  # boot zImage with DTB
+```
+
+**U-Boot scripting** — `bootcmd` environment variable runs automatically; supports conditional logic for fail-safe boot.
+
+---
+
+### Kernel
+
+**Kernel configuration — Kconfig/menuconfig:**
+```bash
+make ARCH=arm CROSS_COMPILE=arm-...- menuconfig
+make ARCH=arm CROSS_COMPILE=arm-...- zImage modules dtbs
+make ARCH=arm CROSS_COMPILE=arm-...- INSTALL_MOD_PATH=../rootfs modules_install
+```
+
+`LOCALVERSION` appends a suffix to kernel version string — useful to distinguish custom builds.
+
+**Kernel command line** — passed by bootloader; key parameters:
+- `root=/dev/mmcblk0p2` — root filesystem device
+- `console=ttyAMA0,115200` — serial console
+- `init=/bin/sh` — override init for debugging
+
+**Device tree porting** — set `compatible` property to match the SoC driver; duplicate nearest existing board DTS as starting point.
+
+**Kernel modules** — `.ko` files; `insmod` / `modprobe` / `rmmod`; signed modules require key.
+
+---
+
+### Root Filesystem
+
+**Directory layout:**
+```
+/bin    — essential user binaries
+/sbin   — essential system binaries
+/lib    — shared libraries
+/etc    — configuration files
+/dev    — device nodes
+/proc   — kernel virtual filesystem
+/sys    — sysfs (hardware topology)
+/tmp    — temporary files (tmpfs)
+/usr    — non-essential binaries and libraries
+/var    — variable data (logs, spools)
+```
+
+**BusyBox** — single binary implementing ~300 Unix utilities (sh, ls, cp, mount, init, etc.). Configure with `make menuconfig`; install with `make install`.
+
+**Device nodes:**
+- Static: `mknod /dev/ttyS0 c 4 64` — fragile, requires manual maintenance
+- devtmpfs: kernel auto-creates device nodes; mount in early init
+- mdev: BusyBox hotplug manager; handles dynamic device events
+
+**Network configuration (glibc):** requires `nsswitch.conf`, `resolv.conf`, and `ld.so.conf` in rootfs for DNS and dynamic linking to work.
+
+**Initramfs** — a cpio archive embedded in the kernel or loaded separately; provides early userspace before root filesystem is mounted. Used for: disk decryption, NFS root, custom init.
+
+---
+
+### Build Systems
+
+**Buildroot** — simple, fast, produces minimal systems:
+```bash
+make menuconfig    # select arch, packages, filesystem type
+make               # downloads, builds everything → output/images/
+```
+- Overlays: `BR2_ROOTFS_OVERLAY` — files copied verbatim into rootfs
+- Add packages: create `package/<name>/<name>.mk` with Buildroot macro conventions
+- Generates toolchain, bootloader, kernel, rootfs in one pass
+
+**Yocto Project** — enterprise-grade, layered, highly configurable:
+- **Layers** — `meta-`, `meta-bsp-`, `meta-myapp-` directories with recipes
+- **BitBake** — task execution engine; resolves dependencies
+- **Recipes** (`.bb` files) — define how to fetch, patch, compile, install a package
+- **Images** — recipes that assemble a rootfs from packages; `core-image-minimal`, `core-image-full-cmdline`
+- `local.conf` — per-machine customisation (MACHINE, DISTRO, extra packages)
+- SDK generation: `bitbake -c populate_sdk core-image-minimal` → installer for host cross-dev environment
+
+---
+
+### Storage Strategy
+
+**Flash types:**
+- **NOR flash** — byte-addressable, XIP (execute in place), reliable, expensive, slow writes
+- **NAND flash** — block-erase, page-read, requires ECC, bad-block management; more common
+- **Managed flash** (SD/eMMC) — has internal FTL; appears as block device
+
+**MTD subsystem** — Memory Technology Devices; exposes raw flash to Linux; partitioned via kernel cmdline or device tree.
+
+**Filesystems for raw NAND:**
+| Filesystem | Properties |
+|-----------|-----------|
+| JFFS2 | Journalled, wear-levelling; slow mount on large devices |
+| YAFFS2 | Yet Another Flash Filesystem; faster mount; not in mainline kernel |
+| UBIFS | Best current choice; sits on UBI layer; fast mount, efficient |
+
+**Filesystems for managed flash (eMMC/SD):**
+| Filesystem | Use case |
+|-----------|---------|
+| ext4 | General purpose; journalled |
+| F2FS | Flash-friendly; optimised for NAND wear patterns |
+| FAT16/32 | Interoperability with Windows/Mac; /boot partition |
+| squashfs | Read-only compressed; for root filesystem images |
+
+**Read-only root filesystem** — mount rootfs as `ro`; use tmpfs overlay or separate `/var` partition for mutable state. Greatly improves reliability and power-loss resistance.
+
+---
+
+### Software Updates (OTA)
+
+**Update types:**
+- **Symmetric image** — two equal partitions; A/B flip on success
+- **Asymmetric image** — smaller recovery partition + full main partition
+- **Atomic file** — rsync-style per-file update; less safe on power loss
+- **OTA (Over the Air)** — device fetches update from server; critical for field devices
+
+**Mender** — open-source OTA update client:
+```bash
+mender -install /mnt/sdcard/update.mender   # local install
+mender -commit                               # commit after verify
+mender -rollback                             # revert to previous
+```
+
+**Making updates fail-safe:**
+- Never overwrite the running partition
+- Verify signature before applying
+- Only mark update as "good" after successful boot
+- Keep rollback partition intact until new update is committed
+
+---
+
+### Device Drivers
+
+**Driver types:**
+- Character — sequential byte access (`/dev/ttyS0`, `/dev/mem`)
+- Block — random sector access (`/dev/mmcblk0`)
+- Network — socket interface, no device node
+
+**Userspace hardware access (no kernel driver needed):**
+- GPIO: `/sys/class/gpio/export`; write pin number, then read/write `value`
+- LED: `/sys/class/leds/<name>/brightness`
+- I2C: open `/dev/i2c-N`; ioctl with `I2C_RDWR`
+- SPI: open `/dev/spidev0.0`; ioctl with `SPI_IOC_MESSAGE`
+
+**Kernel module anatomy:**
+```c
+#include <linux/module.h>
+#include <linux/init.h>
+
+static int __init mydriver_init(void) { /* register driver */ return 0; }
+static void __exit mydriver_exit(void) { /* unregister */ }
+
+module_init(mydriver_init);
+module_exit(mydriver_exit);
+MODULE_LICENSE("GPL");
+```
+
+**Device tree binding** — driver declares `compatible` strings it handles; kernel matches device tree nodes to driver on boot.
+
+---
+
+### Init Systems
+
+**BusyBox init** — minimal; reads `/etc/inittab`:
+```
+::sysinit:/etc/init.d/rcS
+::askfirst:/bin/sh
+::ctrlaltdel:/sbin/reboot
+```
+
+**System V init** — `/etc/init.d/` scripts with `start`/`stop` actions; runlevels 0–6; `update-rc.d` to enable.
+
+**systemd** — modern init; units in `/lib/systemd/system/`:
+```ini
+[Unit]
+Description=My Daemon
+
+[Service]
+ExecStart=/usr/bin/mydaemon
+Restart=on-failure
+WatchdogSec=30
+
+[Install]
+WantedBy=multi-user.target
+```
+`systemctl enable/start/stop/status myservice`
+
+**systemd on embedded:** significantly larger footprint than BusyBox init; adds D-Bus, udev, journald; worthwhile for complex systems, overkill for simple devices.
+
+---
+
+### Power Management
+
+**CPUFreq** — dynamic frequency/voltage scaling:
+- Governors: `powersave` (min freq), `performance` (max), `ondemand` (auto), `schedutil` (scheduler-driven)
+- `/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+
+**CPUIdle** — select deeper C-states when idle; tradeoff: deeper = lower power, longer wakeup latency.
+
+**Tickless kernel (`CONFIG_NO_HZ_IDLE`)** — stops periodic tick when CPU is idle; reduces unnecessary wakeups.
+
+**System suspend states:**
+- `freeze` — processes frozen; no hardware suspend
+- `standby` — light sleep; quick resume
+- `mem` (S3) — RAM retained; most peripherals powered off
+- `disk` (S4/hibernate) — state to disk; full power off
+
+**Wakeup sources:** GPIO interrupt, RTC alarm, network (Wake-on-LAN), USB.
+
+**RTC wakeup:**
+```bash
+echo +3600 > /sys/class/rtc/rtc0/wakealarm   # wake in 1 hour
+echo mem > /sys/power/state
+```
+
+---
+
+### Processes, Threads, and Scheduling
+
+**Process creation:**
+```c
+pid_t pid = fork();
+if (pid == 0) { execv("/bin/prog", args); }  // child
+// parent continues
+```
+
+**IPC mechanisms:**
+
+| Method | Use case |
+|--------|---------|
+| Unix domain sockets | Bidirectional; supports fd passing |
+| FIFOs / named pipes | Simple unidirectional stream |
+| POSIX message queues | Typed messages with priority |
+| POSIX shared memory | Highest throughput; needs separate synchronisation |
+
+**pthreads:**
+```c
+pthread_create(&tid, NULL, thread_func, arg);
+pthread_mutex_lock(&mutex);
+pthread_cond_wait(&cond, &mutex);
+pthread_mutex_unlock(&mutex);
+pthread_join(tid, NULL);
+```
+
+**Scheduling policies:**
+- `SCHED_OTHER` — default timeshared; `nice` value –20 to +19
+- `SCHED_FIFO` — real-time; first-in first-out; no timeslice; use `sched_setscheduler()`
+- `SCHED_RR` — real-time; round-robin within same priority
+
+Real-time priorities: 1 (lowest) to 99 (highest). Higher priority preempts lower. Avoid priority inversion with priority inheritance mutexes.
+
+---
+
+### Memory Management
+
+**Virtual memory** — each process has isolated 32-bit (or 64-bit) address space; kernel maps physical pages on demand.
+
+**mmap uses:**
+```c
+// allocate anonymous private memory (like malloc but page-aligned)
+ptr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+
+// map a file
+ptr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+
+// map device registers
+ptr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, devfd, phys_addr);
+```
+
+**Measuring memory usage:**
+- `top` / `ps` — VSZ (virtual), RSS (resident physical)
+- `smem` — PSS (proportional shared size); most accurate for shared library accounting
+- `/proc/<pid>/maps` — full memory map
+
+**Memory leak detection:**
+- `mtrace()` — GNU C library; instrument `malloc`/`free`; run `mtrace binary logfile`
+- Valgrind `--tool=memcheck` — intercepts all allocations; reports leaks on exit
+
+**OOM (Out of Memory):** kernel kills processes via OOM killer when swap exhausted; control with `/proc/<pid>/oom_score_adj`.
+
+---
+
+### Debugging with GDB
+
+**Remote debugging workflow:**
+```bash
+# On target:
+gdbserver :2345 ./myapp
+
+# On host:
+arm-...-gdb myapp
+(gdb) target remote 192.168.1.100:2345
+(gdb) set sysroot /path/to/sysroot
+(gdb) continue
+```
+
+**Key GDB commands:**
+```
+break main              b main
+run / continue          r / c
+next / step             n / s  (step over / step into)
+print var               p var
+backtrace               bt
+info locals             i locals
+watch var               w var  (watchpoint)
+core mycore             load and analyse core dump
+```
+
+**Kernel debugging:**
+- `kgdb` — GDB stub in kernel; connect via serial or network; requires `CONFIG_KGDB`
+- `kdb` — in-kernel debugger; enter via SysRq+g or on Oops; examine kernel state
+- Oops messages contain PC, LR, register dump, and stack backtrace; decode with `addr2line`
+
+---
+
+### Profiling and Tracing
+
+**perf** — Linux profiling tool; uses hardware performance counters:
+```bash
+perf record -g ./myapp      # record with call graphs
+perf report                 # interactive viewer
+perf annotate myfunction    # source-level annotation
+```
+
+**Ftrace** — kernel tracing framework; in-kernel; zero overhead when off:
+```bash
+echo function > /sys/kernel/debug/tracing/current_tracer
+echo 1 > /sys/kernel/debug/tracing/tracing_on
+cat /sys/kernel/debug/tracing/trace
+```
+
+**LTTng** — Linux Trace Toolkit Next Generation; low-overhead kernel + userspace tracing; produces CTF (Common Trace Format) output; view with Babeltrace or TraceCompass.
+
+**Valgrind tools:**
+- `--tool=memcheck` — memory errors, leaks
+- `--tool=callgrind` — call-graph profiling; view with KCacheGrind
+- `--tool=helgrind` — thread synchronisation errors (race conditions, lock-order violations)
+
+**strace** — system call tracer:
+```bash
+strace -p <pid>             # attach to running process
+strace -e trace=file ./app  # filter to file-related syscalls
+```
+
+---
+
+### Real-Time Programming
+
+**Sources of non-determinism in standard Linux:**
+- Timer interrupts (periodic tick)
+- Interrupts running in hard-IRQ context with preemption disabled
+- Non-preemptible kernel sections (spinlocks)
+- Memory page faults under load
+- CPU frequency scaling
+
+**PREEMPT_RT patch** — converts most kernel locking to preemptible mutexes; converts hard-IRQ handlers to kernel threads (threaded IRQs); dramatically reduces worst-case latency.
+
+```bash
+# Apply patch to kernel source, then:
+make menuconfig
+# Enable: Preemption Model → Fully Preemptible Kernel (RT)
+```
+
+**Avoiding page faults:** `mlockall(MCL_CURRENT | MCL_FUTURE)` — locks all current and future pages in RAM; eliminates demand-paging latency.
+
+**Measuring latency:**
+```bash
+cyclictest -p 99 -t 1 -n -i 1000   # 1ms interval, RT priority 99
+# Reports: min/avg/max latency in µs
+```
+
+**Ftrace for latency analysis:**
+```bash
+echo preemptirqsoff > /sys/kernel/debug/tracing/current_tracer
+# Captures worst-case preemption/IRQ disabled intervals
+```
+
+**Real-time scheduling rules:**
+- Use `SCHED_FIFO` for time-critical threads; set priority 1–99
+- Use `pthread_mutex_init` with `PTHREAD_PRIO_INHERIT` protocol to prevent priority inversion
+- Keep critical sections short; avoid dynamic memory allocation in RT threads
+- Dedicate CPU cores with `isolcpus=` kernel parameter; use `taskset` to pin threads
+
+---
