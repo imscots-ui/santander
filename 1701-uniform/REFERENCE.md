@@ -1,10 +1,11 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 56 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 63 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
-AML/KYC/KYB regulation, Companies House & Charity Commission APIs, and Tailwind CSS v3.
+AML/KYC/KYB regulation, Companies House & Charity Commission APIs, Tailwind CSS v3, hardware version control,
+MakerSpace management, basic electronics, mechatronics, digital logic, and electronic devices & circuits.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -53,6 +54,13 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 40. [KYC, KYB & Anti-Money Laundering](#section-40--kyc-kyb--anti-money-laundering)
 41. [Companies House & Charity Commission APIs](#section-41--companies-house--charity-commission-apis)
 42. [Tailwind CSS v3 — Utility Reference & Patterns](#section-42--tailwind-css-v3--utility-reference--patterns)
+43. [Git for Electronic Circuit Design](#section-43--git-for-electronic-circuit-design)
+44. [Creating & Managing MakerSpaces](#section-44--creating--managing-makerspaces)
+45. [Basic Electronics Engineering](#section-45--basic-electronics-engineering)
+46. [Mechatronics: Electronic Control Systems](#section-46--mechatronics-electronic-control-systems)
+47. [Digital Computer Fundamentals](#section-47--digital-computer-fundamentals)
+48. [Digital Electronics](#section-48--digital-electronics)
+49. [Electronic Devices and Circuits](#section-49--electronic-devices-and-circuits)
 
 ---
 
@@ -9158,4 +9166,1156 @@ className="truncate"
 // is shorthand for:
 className="overflow-hidden whitespace-nowrap text-ellipsis"
 ```
+
+
+---
+
+## Section 43 — Git for Electronic Circuit Design
+
+*Source: Git for Electronic Circuit Design (Altay Brusan, Aytac Durmaz — Apress/Springer, 2022)*
+
+---
+
+### Why Git for Hardware
+
+Git was created by Linus Torvalds for Linux kernel development, but hardware designers increasingly use it for tracking schematic and PCB files. Altium Designer pioneered native Git integration for CAD. Version control for hardware solves the same problems as for software — who changed what, when, and why — but with additional constraints around binary files.
+
+---
+
+### Core Git Concepts Applied to Circuit Design
+
+**Repository** — a directory tracked by Git. Every change is recorded with a hash. Two types:
+- **Local repository** — on the designer's machine
+- **Remote repository** — on a server (GitHub, GitLab, self-hosted). Git creates a private copy on the remote, unlike SVN which has a single central repository.
+
+**Git commands follow the pattern:** `git <command> [parameters]`
+
+Git installs Git Bash — a terminal that emulates Linux and provides basic Linux commands:
+```bash
+touch file.txt    # create file
+rm file.txt       # remove file
+mv a.txt b.txt    # rename/move
+mkdir dir/        # make directory
+ls -la            # list with hidden files
+pwd               # print working directory
+.                 # current directory
+..                # parent directory
+/                 # directory delimiter (even on Windows in Git Bash)
+```
+
+---
+
+### Essential Git Workflow
+
+```bash
+# Initialise a new repository
+git init
+
+# Check the state of the working directory
+git status
+
+# Stage a file for commit
+git add filename.sch
+git add .           # stage everything (use carefully with binary files)
+
+# Commit with a message
+git commit -m "Add 5V regulator to power supply schematic"
+
+# View commit history
+git log --oneline
+git log --oneline --graph --all   # visualise branches
+
+# Create and switch to a new branch
+git checkout -b feature/add-usb-port
+
+# Merge branch back to main
+git checkout main
+git merge feature/add-usb-port
+
+# Push to remote
+git push origin main
+git push -u origin feature/add-usb-port   # -u sets upstream tracking
+```
+
+---
+
+### Handling Binary Files — The Hardware Problem
+
+PCB and schematic files (`.SchDoc`, `.PcbDoc`, `.brd`, `.sch`) are binary. Git cannot diff them meaningfully. Strategies:
+
+**`.gitignore` for generated outputs** — don't track Gerbers, pick-and-place, BOMs unless they're release artifacts:
+```
+# Generated outputs — track separately in releases/
+*.gbr
+*.drl
+*.xln
+*-bom.csv
+*-pnp.csv
+
+# Altium output jobs
+*.OutJob
+
+# KiCad backup files
+*-backups/
+*.kicad_pcb-bak
+*.sch-bak
+```
+
+**`.gitattributes` for binary diffs** — mark binary files so Git doesn't attempt text diffs:
+```
+*.SchDoc binary
+*.PcbDoc binary
+*.brd    binary
+*.sch    binary
+```
+
+**Commit message conventions for hardware:**
+```
+feat: add USB-C power delivery circuit
+fix: correct capacitor footprint on C12 (0402 → 0805)
+refactor: reorganise power domain into separate sheet
+release: v1.2 — production-ready Gerbers attached
+```
+
+---
+
+### Branching Strategy for Hardware Projects
+
+```
+main           — release-quality, fab-ready designs only
+develop        — integration branch
+feature/*      — individual circuit blocks or sub-systems
+release/v1.x   — frozen for production; only bug fixes merged in
+hotfix/*       — emergency PCB errata corrections
+```
+
+**Rule:** Never commit Gerbers to `main` directly. They belong in tagged releases or `release/*` branches, never mixed into the working design flow.
+
+---
+
+### Tags for Hardware Releases
+
+```bash
+# Tag a release (PCB version)
+git tag -a v1.2 -m "Rev 1.2 — USB-C added, thermal via array on U3"
+
+# Push tags to remote
+git push origin --tags
+
+# Check out a specific board revision
+git checkout v1.1
+```
+
+Tags serve as the hardware bill of materials (BOM) anchor — every tag corresponds to a physical board revision that was or could be fabricated.
+
+---
+
+### Conflict Resolution for Circuit Files
+
+Binary file conflicts cannot be auto-merged. When two designers modify the same schematic:
+
+```bash
+# Git marks the conflict
+git merge feature/designer-b
+# CONFLICT (binary): Merge conflict in power_supply.SchDoc
+
+# Choose one version explicitly
+git checkout --ours power_supply.SchDoc    # keep your version
+git checkout --theirs power_supply.SchDoc  # take their version
+
+# Then stage and commit
+git add power_supply.SchDoc
+git commit -m "merge: accept designer-b USB-C changes over local LDO revision"
+```
+
+**Prevention:** Work on separate sheets/sub-schematics where possible. Assign clear ownership. Use design blocks (Altium) or hierarchical sheets (KiCad) to reduce overlap.
+
+---
+
+### Git for Non-Design Files in Hardware Projects
+
+Text-based files in hardware repos benefit most from Git diffs:
+- `README.md` — project description, design decisions
+- `BOM.csv` — bill of materials (if kept as text)
+- `constraints.txt` — mechanical and electrical requirements
+- `CHANGELOG.md` — revision history
+- Design rule check (DRC) reports
+- Simulation SPICE netlists (`.cir`, `.sp`) — fully diffable
+
+---
+
+## Section 44 — Creating & Managing MakerSpaces
+
+*Source: Creating MakerSpaces for Electronics, Arts, Engineering and More (Sevile G. Mannickarottu, Michael G. Patterson, Carolyne Godon — Apress, 2025)*
+
+---
+
+### What a MakerSpace Is
+
+A MakerSpace is a dedicated physical environment equipped with tools and materials that enables making — building, fabricating, prototyping, creating. It can range from a corner of a room to a dedicated facility.
+
+**Key principle:** the space defines what gets made. Organised, well-equipped spaces enable ambition; cluttered, ill-equipped spaces constrain it.
+
+**Maker fields** (domains a space can serve):
+- Electronics and embedded systems
+- Woodworking and carpentry
+- Machine shop (lathe, milling, CNC)
+- 3D printing and additive manufacturing
+- Textiles, sewing, soft goods
+- Art and fabrication (laser cutting, vinyl)
+- Welding and metal fabrication
+- Biomaking (biology, chemistry)
+
+---
+
+### Space Planning Principles
+
+**Zone separation** — each maker field needs its own zone. Sawdust contaminates electronics. Metal chips damage optics. Define zones by:
+- Material type (wet/dry, clean/dirty, flammable/safe)
+- Noise level (loud power tools ≠ delicate soldering)
+- Safety classification (fume-generating processes need extraction)
+
+**Workbench layout:**
+- Electronics bench: anti-static mat, ESD wrist strap point, good overhead lighting (minimum 500 lux), power strip with surge protection
+- Machine area: 1m clearance around rotating equipment, floor markings for exclusion zones
+- Storage: everything has a designated location; shadow boards for hand tools; labelled bins for consumables
+
+**Power distribution:**
+- Electronics benches: individually switched outlets, 13A minimum
+- Machine tools: dedicated circuits; 3-phase where needed
+- Emergency stop: red mushroom button accessible from all zones
+
+---
+
+### Equipment Inventory — Electronics MakerSpace
+
+**Essential:**
+| Equipment | Purpose | Notes |
+|-----------|---------|-------|
+| Soldering station | Through-hole and SMD | Temperature-controlled (e.g. Hakko FX-888D) |
+| Hot air rework | SMD removal/placement | Essential for BGA, QFP |
+| Digital multimeter | Voltage, current, resistance | Minimum: Fluke 117 class |
+| Oscilloscope | Waveform analysis | 4-channel, 100MHz minimum |
+| Power supply | Bench power | Dual-rail, current-limited |
+| Function generator | Test signals | Sine, square, triangle output |
+| PCB vice / third hand | Holding work | Both needed |
+| ESD mat and wrist straps | Static protection | Mandatory for CMOS work |
+
+**Desirable:**
+| Equipment | Purpose |
+|-----------|---------|
+| Logic analyser | Digital protocol capture (I2C, SPI, UART) |
+| LCR meter | Passive component measurement |
+| Spectrum analyser | RF work |
+| Microscope (stereo) | Fine SMD inspection |
+| PCB mill / CNC | Rapid prototype PCBs |
+| Reflow oven | SMD assembly |
+
+---
+
+### Safety Requirements
+
+**General:**
+- First aid kit accessible from all zones
+- Fire extinguisher: CO₂ for electronics/electrical; dry powder for wood/metal
+- Safety data sheets (SDS) for all chemicals
+- Ventilation: minimum 6 air changes per hour in soldering areas
+- No food or drink near chemicals or electronics
+
+**Soldering:** Lead solder produces fumes — fume extractor required at every soldering station. Use flux-cored solder in well-ventilated areas. Wash hands after soldering.
+
+**3D printing:** Enclosed printers or good ventilation for ABS (styrene fumes). PLA is safer but still produces ultrafine particles.
+
+**Laser cutting:** Full enclosure + filtered exhaust ducted outside. Never cut PVC (produces chlorine gas). Materials whitelist required.
+
+**Machine shop:** Face shields (not just safety glasses) for all rotating operations. Hair and loose clothing must be secured. Lone worker policy — no machine operation alone.
+
+---
+
+### Governance and Access
+
+**Membership tiers:**
+1. **Induction only** — general access, hand tools, 3D printers, basic electronics
+2. **Trained** — power tools, soldering, laser cutter (after specific training per tool)
+3. **Competent** — lathe, milling, CNC, welding (formal assessment required)
+
+**Tool sign-off system:** Each major tool has a competency record. Users cannot operate a tool without a signed-off qualification. Record kept physically at the tool and digitally.
+
+**Maintenance schedule:**
+- Daily: clean and return all tools; log any defects
+- Weekly: consumables check; sharpen/replace cutting tools
+- Monthly: formal equipment inspection; test emergency stops
+- Annually: PAT testing for all portable electrical equipment
+
+**Booking system:** High-demand tools (laser cutter, CNC, lathe) need a booking system to prevent conflict and ensure access fairness.
+
+---
+
+### Software and Digital Tools
+
+| Tool | Purpose |
+|------|---------|
+| KiCad | Free, open-source PCB design |
+| Fusion 360 | CAD/CAM for machining and 3D print |
+| LightBurn | Laser cutter control |
+| PrusaSlicer / Cura | 3D printer slicing |
+| Fritzing | Quick breadboard diagrams |
+| Arduino IDE | Microcontroller programming |
+| GitHub/GitLab | Version control for design files |
+
+**Documentation requirement:** Every project in a shared space should have a repository (even private) with a README covering: purpose, components used, power requirements, known hazards, and status.
+
+---
+
+### Inventory and Consumables Management
+
+**Electronics consumables to stock:**
+- Resistors: E24 series, 0402 and 0805, 1% tolerance
+- Capacitors: ceramic (100nF, 10μF), electrolytic (10–1000μF)
+- Common semiconductors: 1N4148, 1N4007, BC547, IRF540N, common op-amps
+- Wire: 22 AWG solid core (breadboard), 26–28 AWG stranded (wiring)
+- Solder: 63/37 tin/lead or lead-free (SAC305)
+- Flux: no-clean flux pen; flux remover
+- Breadboards, jumper wire kits
+- Arduino Uno/Nano, Raspberry Pi (for project stock)
+
+---
+
+## Section 45 — Basic Electronics Engineering
+
+*Source: Basic Electronics Engineering — Diploma Course Reference (Manas Ranjan Pati, P. Bhawani; SCTE&VT Odisha)*
+
+---
+
+### What Electronics Is
+
+Electronics is the branch of engineering dealing with current conduction through vacuum, gas, or semiconductor. An electronic device controls current flow through these media.
+
+**Applications:** Consumer devices, medical instruments (NMR, ECG, X-ray), industrial automation, military systems (radar, UAV), aerospace, agriculture sensors.
+
+---
+
+### Electron Emission
+
+Electron emission = liberation of electrons from a metallic surface. Requires energy ≥ the work function of the material.
+
+| Type | Mechanism |
+|------|-----------|
+| **Thermionic** | Heat (~2500°C) excites electrons past surface barrier; used in vacuum tubes |
+| **Field emission** | Strong electric field pulls electrons out |
+| **Secondary** | High-velocity particle strikes surface; ejects secondary electrons |
+| **Photoelectric** | Light energy liberates electrons; intensity ∝ emission rate |
+
+---
+
+### Energy Bands and Material Classification
+
+**Three bands:**
+- **Valence band** — energies of valence electrons
+- **Conduction band** — energies of conduction electrons
+- **Forbidden gap** — energy range with no allowed electron states
+
+| Material | Forbidden gap | Conductivity |
+|----------|-------------|-------------|
+| Insulator (glass, wood) | ~15 eV | Near zero |
+| Semiconductor (Si, Ge) | ~1 eV | Intermediate; temperature-dependent |
+| Conductor (copper, aluminium) | 0 (bands overlap) | High |
+
+**Temperature effect:** Insulators and semiconductors increase conductivity with temperature (negative temperature coefficient). Conductors decrease conductivity with temperature (positive coefficient).
+
+---
+
+### Semiconductors
+
+**Intrinsic semiconductor** — pure; electron-hole pairs created thermally at room temperature. Both electrons (n-carriers) and holes (p-carriers) conduct.
+
+**Extrinsic (doped) semiconductor:**
+- **n-type** — pentavalent impurity (As, Sb, P) donates free electrons; electrons = majority carriers
+- **p-type** — trivalent impurity (Ga, In, B) creates holes; holes = majority carriers
+
+**Doping** — adding controlled impurities to change conductivity.
+
+---
+
+### PN Junction Diode
+
+A PN junction forms when p-type and n-type materials are joined. A depletion region forms at the junction as carriers diffuse and recombine, creating a built-in potential (barrier potential V₀ ≈ 0.7V for silicon, 0.3V for germanium).
+
+**Forward bias** (+ to p-side): depletion region narrows; current flows when V > knee voltage (~0.7V Si)
+
+**Reverse bias** (+ to n-side): depletion region widens; only tiny reverse saturation current flows until breakdown
+
+**Breakdown mechanisms:**
+| Type | Mechanism | Recoverable? |
+|------|-----------|-------------|
+| Avalanche | Carrier multiplication by collision; lightly doped; Vz > 8V | No |
+| Zener | Quantum tunnelling; heavily doped; Vz 5–8V; sharp VI curve | Yes |
+
+**Applications:** Rectification, clipping, clamping, voltage regulation (Zener), light emission (LED), switching.
+
+---
+
+### Zener Diode
+
+Heavily doped PN junction designed to operate in controlled reverse breakdown. Used almost exclusively in reverse bias.
+
+**Operation:** At Vz (zener voltage), current rises sharply while voltage stays constant → voltage regulator behaviour.
+
+**Applications:** Voltage regulators, overvoltage protection, clipper circuits.
+
+---
+
+### LED (Light Emitting Diode)
+
+Forward-biased diode made from compound semiconductors (GaAsP, GaP). When electrons recombine with holes, energy is released as photons instead of heat.
+
+| Colour | Material |
+|--------|----------|
+| Red | GaAsP |
+| Green | GaP |
+| Blue | InGaN |
+| White | Blue LED + phosphor |
+
+Forward voltage: typically 1.8–3.3V depending on colour. Always use a series current-limiting resistor.
+
+---
+
+### Rectifiers
+
+Convert AC to pulsating DC using diodes.
+
+| Type | Diodes | Output | Ripple | Efficiency |
+|------|--------|--------|--------|-----------|
+| Half-wave | 1 | One half-cycle only | High | ~40% |
+| Full-wave centre-tap | 2 | Both half-cycles | Lower | ~81% |
+| Full-wave bridge | 4 | Both half-cycles; no centre-tap needed | Lower | ~81% |
+
+**Bridge rectifier** is the most common — no centre-tapped transformer required; full secondary voltage available.
+
+---
+
+### Filters
+
+Remove AC ripple from rectified output. Goal: produce steady DC.
+
+| Filter type | Components | Mechanism |
+|-------------|-----------|-----------|
+| Shunt capacitor | C in parallel with load | C charges to peak; discharges slowly through load |
+| Choke input (L-C) | L in series, C in parallel | L blocks AC; C bypasses remaining AC |
+| π-filter | C₁, L, C₂ | Double filtering; best smoothing |
+
+**Capacitor reactance:** XC = 1/(2πfC) — low for AC, infinite for DC (f=0). Capacitor passes AC, blocks DC.
+**Inductor reactance:** XL = 2πfL — zero for DC (f=0), high for AC. Inductor passes DC, blocks AC.
+
+---
+
+### Transistors
+
+Three-terminal semiconductor device. Two types:
+- **NPN** — two n-regions sandwiching p; electron-controlled
+- **PNP** — two p-regions sandwiching n; hole-controlled
+
+**Terminals:**
+- **Emitter (E)** — heavily doped; supplies majority carriers
+- **Base (B)** — thin, lightly doped; controls carrier flow
+- **Collector (C)** — moderately doped; collects carriers
+
+**Rule:** Emitter-Base = always forward biased. Collector-Base = always reverse biased.
+
+**Kirchhoff's law at transistor:** IE = IB + IC
+
+**Configurations and gain:**
+
+| Config | Current gain | Voltage gain | Common use |
+|--------|-------------|-------------|-----------|
+| Common Base (CB) | < 1 (α) | Yes | High-frequency |
+| Common Emitter (CE) | β (typically 50–300) | Yes | Amplifiers |
+| Common Collector (CC) | γ = 1+β | None | Impedance matching |
+
+Relations: β = α/(1-α) · γ = 1+β · α = β/(1+β)
+
+---
+
+### Biasing
+
+Biasing = applying DC supply to set the transistor's operating point (Q-point) in the active region.
+
+| Method | Stability | Complexity |
+|--------|-----------|-----------|
+| Base resistor | Poor | Simple |
+| Emitter bias | Moderate | Moderate |
+| Collector feedback | Good | Moderate |
+| Voltage divider | Best | Standard |
+
+**Voltage divider bias** is the most widely used. R1 and R2 form a voltage divider; RE provides thermal stabilisation.
+
+---
+
+### Amplifiers
+
+An amplifier increases signal strength using transistor action.
+
+**CE single-stage amplifier:** Weak AC signal → base → amplified collector current → large voltage across RC.
+
+Voltage gain = (β × RC) / (rbe)
+
+Coupling capacitors (10μF): connect signal source to input; block DC.
+Bypass capacitor (100μF across RE): short-circuits RE for AC to maximise gain.
+
+---
+
+### Oscillators
+
+Generate continuous AC waveforms without an input signal. Convert DC to AC via positive feedback.
+
+**Classification:**
+- By waveform: sinusoidal (RC, LC, crystal) or non-sinusoidal (square, sawtooth)
+- By frequency: audio (20Hz–200kHz) → RC oscillators; radio frequency (>300kHz) → LC oscillators
+- RC oscillators: low frequency, simple; LC oscillators: high frequency, stable
+
+**Barkhausen criterion:** Loop gain = 1; total phase shift = 360°. Without this, oscillations die or grow unbounded.
+
+---
+
+### Transducers and Sensors
+
+**Transducer** — converts one form of energy to another (physical quantity → electrical signal).
+**Sensor** — measures a physical quantity and produces a readable signal; the sensing element within a transducer.
+
+**Classification:**
+- Active (self-generating): piezoelectric crystal, thermocouple — generate their own output
+- Passive (require external power): resistive, capacitive, inductive
+
+**Photoelectric transducers:**
+| Type | Mechanism |
+|------|-----------|
+| Photoemissive | Light ejects electrons from cathode |
+| Photoconductive | Light increases semiconductor conductivity |
+| Photovoltaic | Light generates voltage (solar cells) |
+
+---
+
+### Instruments
+
+**Multimeter:** Measures voltage, current, resistance (AC and DC). Uses an ADC (typically dual-slope integration).
+
+| Feature | Analogue | Digital |
+|---------|----------|---------|
+| Display | Moving pointer | Numeric |
+| Noise immunity | Better | Worse |
+| Accuracy | Lower | Higher |
+| External interface | No | Yes (often) |
+
+**CRO (Cathode Ray Oscilloscope):** Displays time-varying voltage waveforms. Blocks: vertical amplifier → delay line → CRT; trigger circuit → timebase → horizontal amplifier → CRT.
+
+**CRT components:** Electron gun + vertical deflection plates + horizontal deflection plates + fluorescent screen.
+
+---
+
+## Section 46 — Mechatronics: Electronic Control Systems
+
+*Source: Mechatronics: Electronic Control Systems in Mechanical and Electrical Engineering, 7th Edition (William Bolton — Pearson)*
+
+---
+
+### What Mechatronics Is
+
+Mechatronics = the integration of mechanical, electrical, electronic, and computing systems into a unified product or process. Modern examples: washing machines, CNC machines, robots, automotive systems, industrial IoT.
+
+**Core elements:**
+1. **Sensors** — measure physical quantities; input to the control system
+2. **Signal conditioning** — filter, amplify, convert sensor outputs
+3. **Controller** — processes signals; implements control logic (microcontroller, PLC, PC)
+4. **Actuators** — convert control signals to physical action (motors, solenoids, heaters)
+5. **Process** — the system being controlled
+
+---
+
+### Number Systems (Appendix B)
+
+| System | Base | Digits | Example (decimal 15) |
+|--------|------|--------|---------------------|
+| Decimal | 10 | 0–9 | 15 |
+| Binary | 2 | 0, 1 | 1111 |
+| Octal | 8 | 0–7 | 17 |
+| Hexadecimal | 16 | 0–9, A–F | F |
+| BCD | — | 0–9 encoded in 4-bit groups | 0001 0101 |
+
+**Binary:** LSB (least significant bit) = rightmost; MSB (most significant bit) = leftmost.
+
+**Hex** is preferred for microprocessor programming — compact representation of binary data. One hex digit = 4 bits (nibble). Two hex digits = 1 byte.
+
+**BCD (Binary Coded Decimal):** Each decimal digit encoded separately in 4 bits. Useful for display outputs — directly maps to seven-segment displays without conversion.
+
+```
+Decimal → Binary conversion: repeated division by 2, remainders read upward
+Decimal → Hex: repeated division by 16, remainders (as hex digits) read upward
+Hex → Binary: each hex digit → its 4-bit binary equivalent directly
+```
+
+---
+
+### Sensor Types — IoT & Industrial
+
+| Sensor | Measures | Common technologies |
+|--------|----------|-------------------|
+| Temperature | Heat | Thermocouple, RTD (Pt100), thermistor, IC sensor (LM35) |
+| Pressure | Force/area | Piezoelectric, capacitive, strain gauge |
+| Level | Liquid/solid height | Float switch, ultrasonic, radar, capacitive |
+| Flow | Fluid movement | Turbine, electromagnetic, ultrasonic, Coriolis |
+| Proximity | Presence/distance | Inductive, capacitive, optical, ultrasonic |
+| Humidity | Moisture | Capacitive, resistive |
+| Electric current | Current flow | Hall effect, shunt resistor, current transformer |
+| Acceleration | Motion/vibration | MEMS accelerometer (wearables, phones) |
+| Angular rate | Rotation | MEMS gyroscope |
+| Infrared | Heat radiation | Thermopile, pyroelectric |
+
+---
+
+### Signal Conditioning
+
+Raw sensor outputs need conditioning before use:
+
+| Operation | Purpose | Circuit |
+|-----------|---------|---------|
+| **Amplification** | Boost weak sensor signal | Op-amp (inverting/non-inverting) |
+| **Filtering** | Remove noise | Low-pass RC filter; active filter |
+| **Offset removal** | Zero the baseline | Op-amp with reference voltage |
+| **Linearisation** | Correct non-linear response | Look-up table, piecewise linear |
+| **Isolation** | Protect controller from high voltage | Optocoupler, isolation amplifier |
+| **ADC** | Convert analogue to digital | 8–24 bit ADC, successive approximation or Σ-Δ |
+
+---
+
+### Control System Fundamentals
+
+**Open-loop:** Controller sends command; no feedback. Example: toaster timer.
+
+**Closed-loop (feedback):** Output measured; compared to setpoint; error drives correction. Example: thermostat.
+
+```
+Setpoint → [+] → Controller → Actuator → Process → Output
+               ↑                                        |
+               └──────────── Sensor ─────────────────┘
+                             (feedback)
+```
+
+**Error:** e = setpoint − measured output. Controller acts to minimise e.
+
+---
+
+### PID Control
+
+The most widely used control algorithm in industrial systems:
+
+**P (Proportional):** Output ∝ error. Fast response; residual steady-state error.
+**I (Integral):** Output ∝ accumulated error over time. Eliminates steady-state error; can cause overshoot.
+**D (Derivative):** Output ∝ rate of change of error. Dampens oscillation; sensitive to noise.
+
+```
+u(t) = Kp·e(t) + Ki·∫e(t)dt + Kd·de(t)/dt
+
+Kp = proportional gain
+Ki = integral gain
+Kd = derivative gain
+```
+
+**Tuning:** Start with P only; add I to eliminate offset; add D to reduce oscillation. Ziegler-Nichols method provides starting values.
+
+---
+
+### Actuators
+
+| Actuator | Application | Control signal |
+|---------|-------------|---------------|
+| DC motor | Positioning, wheels | PWM via H-bridge |
+| Stepper motor | Precise positioning | Step/direction pulses |
+| Servo motor | RC/robotics | PWM (1–2ms pulse width) |
+| Solenoid | On/off valve/latch | Digital output via transistor |
+| Heater | Temperature control | PWM via triac/SSR |
+| Pneumatic cylinder | Linear force | Solenoid valve |
+
+**PWM (Pulse Width Modulation):** Rapidly switches power on/off. Duty cycle = on-time / period. 50% duty = half power average. Used to control motor speed, heater power, LED brightness.
+
+---
+
+### Wearable Sensors (IoT Application)
+
+Accelerometers and gyroscopes are the defining sensors of wearable technology:
+
+**MEMS Accelerometer:**
+- Measures linear acceleration in x, y, z axes
+- At rest: measures gravity vector → used to determine device orientation
+- Applications: step counting, gesture recognition, fall detection, screen rotation
+- Output: analogue voltage or digital (SPI/I2C); typical sensitivity 100–300 mV/g
+
+**MEMS Gyroscope:**
+- Measures angular velocity (rotation rate) in degrees/second
+- Does not measure absolute angle; must integrate over time (accumulates drift)
+- Combined with accelerometer → complementary filter or Kalman filter for stable angle
+- Applications: stabilisation (drones, cameras), gaming controllers, VR headsets
+
+---
+
+### Touchscreen Controllers
+
+Two main technologies:
+| Technology | Mechanism | Multi-touch? | Notes |
+|-----------|-----------|-------------|-------|
+| Resistive | Pressure deforms two conductive layers | No | Works with gloves/stylus |
+| Capacitive | Finger disturbs electric field grid | Yes | Requires bare skin or conductive stylus |
+| Surface acoustic wave | Ultrasonic waves interrupted by touch | No | Glass surface; very durable |
+
+---
+
+## Section 47 — Digital Computer Fundamentals
+
+*Source: Digital Computer Fundamentals — CTE 121 Course (Irechukwu Onyedika)*
+
+---
+
+### What a Digital Computer Is
+
+A digital computer is a system that performs computational tasks using the **binary number system** — digits 0 and 1 only. All data (numbers, text, images, audio) is ultimately encoded in binary.
+
+**A bit** = one binary digit (0 or 1).
+**A byte** = 8 bits.
+**A nibble** = 4 bits.
+
+---
+
+### Number Systems
+
+All positional number systems work the same way: each digit's contribution = digit × base^position.
+
+#### Decimal (Base 10)
+Digits: 0–9. Position weights: …1000, 100, 10, 1.
+```
+352 = 3×100 + 5×10 + 2×1
+```
+
+#### Binary (Base 2)
+Digits: 0, 1. Position weights: …8, 4, 2, 1.
+```
+1011 = 1×8 + 0×4 + 1×2 + 1×1 = 11 decimal
+```
+
+#### Octal (Base 8)
+Digits: 0–7. Position weights: …512, 64, 8, 1. Each octal digit = 3 bits.
+```
+Octal 17 = 1×8 + 7×1 = 15 decimal
+```
+
+#### Hexadecimal (Base 16)
+Digits: 0–9, A–F (A=10, B=11, …F=15). Each hex digit = 4 bits (one nibble).
+```
+0xF = 15 decimal = 1111 binary
+0x1A = 1×16 + 10 = 26 decimal
+```
+
+---
+
+### Conversion Methods
+
+**Decimal → Binary:** Repeatedly divide by 2; remainders form the binary number (read upward).
+```
+13 ÷ 2 = 6 R 1
+6  ÷ 2 = 3 R 0
+3  ÷ 2 = 1 R 1
+1  ÷ 2 = 0 R 1   → 1101 binary
+```
+
+**Binary → Decimal:** Multiply each bit by 2^position; sum.
+```
+1101 = 1×8 + 1×4 + 0×2 + 1×1 = 13
+```
+
+**Binary → Hex:** Group into nibbles from right; convert each group.
+```
+1010 1111 → A F → 0xAF
+```
+
+**Hex → Binary:** Expand each hex digit to 4 bits.
+```
+0xB3 → 1011 0011
+```
+
+**Decimal → Hex:** Divide by 16 repeatedly; remainders (as hex digits) read upward.
+```
+255 ÷ 16 = 15 R 15 (F)
+15  ÷ 16 = 0  R 15 (F)  → 0xFF
+```
+
+---
+
+### Binary Arithmetic
+
+**Addition:** Same as decimal but carries happen at 2 not 10.
+```
+  1011    (11)
++ 0110    (6)
+──────
+ 10001    (17)
+```
+Rules: 0+0=0, 0+1=1, 1+1=10 (0 carry 1), 1+1+1=11 (1 carry 1)
+
+**Two's complement** — standard way computers represent negative numbers:
+1. Invert all bits (one's complement)
+2. Add 1
+
+```
++5  =  0000 0101
+Invert: 1111 1010
+Add 1:  1111 1011  = -5 in two's complement
+```
+
+**Advantage:** Subtraction becomes addition. A - B = A + (-B). No special subtraction circuit needed.
+
+**Overflow:** Result doesn't fit in the available bits. Detected by examining carry-in and carry-out of the sign bit.
+
+---
+
+### Data Representation
+
+**Characters:** ASCII — 7-bit encoding for English alphabet + digits + symbols. Extended ASCII = 8 bits. Unicode/UTF-8 = variable width, covers all world scripts.
+
+```
+'A' = 65 decimal = 0x41 = 0100 0001 binary
+'a' = 97 decimal = 0x61 = 0110 0001 binary
+'0' = 48 decimal = 0x30 = 0011 0000 binary
+```
+
+**Integers:** Stored as 8, 16, 32, or 64-bit two's complement.
+- 8-bit signed: range -128 to +127
+- 16-bit signed: range -32768 to +32767
+- 32-bit signed: range -2,147,483,648 to +2,147,483,647
+
+**Floating point (IEEE 754):** Sign bit + exponent + mantissa. 32-bit (single) and 64-bit (double) standard formats.
+
+---
+
+### Logic Gates — Foundation of Digital Systems
+
+Every digital circuit is built from logic gates implementing Boolean functions:
+
+| Gate | Symbol | Boolean | Truth |
+|------|--------|---------|-------|
+| AND | A · B | Output 1 only if ALL inputs 1 | 0·0=0, 0·1=0, 1·1=1 |
+| OR | A + B | Output 1 if ANY input 1 | 0+0=0, 0+1=1, 1+1=1 |
+| NOT | Ā | Invert input | 0→1, 1→0 |
+| NAND | (A·B)' | AND then NOT | Universal gate |
+| NOR | (A+B)' | OR then NOT | Universal gate |
+| XOR | A⊕B | Output 1 if inputs DIFFER | 0⊕0=0, 0⊕1=1, 1⊕1=0 |
+| XNOR | (A⊕B)' | Output 1 if inputs SAME | opposite of XOR |
+
+**NAND and NOR are universal** — any Boolean function can be built from NAND gates alone, or NOR gates alone. Simplifies fabrication.
+
+---
+
+### Boolean Algebra Laws
+
+```
+Identity:       A + 0 = A      A · 1 = A
+Null:           A + 1 = 1      A · 0 = 0
+Idempotent:     A + A = A      A · A = A
+Complement:     A + Ā = 1      A · Ā = 0
+Commutative:    A + B = B + A  A · B = B · A
+Associative:    (A+B)+C = A+(B+C)
+Distributive:   A·(B+C) = A·B + A·C
+De Morgan's:    (A·B)' = A' + B'    (A+B)' = A'·B'
+```
+
+**De Morgan's theorem** is the most important for circuit simplification — converts AND-OR to OR-AND and vice versa.
+
+---
+
+## Section 48 — Digital Electronics
+
+*Source: Digital Electronics — Principles, Devices and Applications (Shivam Kulkarni)*
+
+---
+
+### Analogue vs Digital
+
+**Analogue circuits:** Voltages vary continuously over a range. Examples: amplifiers, filters, oscillators, rectifiers. Signal can take any value between limits.
+
+**Digital circuits:** Only two voltage states exist at any point in time:
+- Logic HIGH (1): typically +2.4V to +5V (TTL), +3V to VDD (CMOS)
+- Logic LOW (0): typically 0V to +0.8V (TTL), 0V to 0.3V (CMOS)
+
+Everything in between is an **undefined** / forbidden state — circuits must transition quickly through this region.
+
+**Why digital?** Immunity to noise. A signal degraded by noise but still in the HIGH range is correctly interpreted as 1. Analogue circuits amplify noise along with the signal.
+
+---
+
+### Logic Families
+
+**TTL (Transistor-Transistor Logic):**
+- Supply: 5V ± 0.25V
+- Logic HIGH output: ≥ 2.4V
+- Logic LOW output: ≤ 0.4V
+- HIGH input threshold: ≥ 2.0V
+- LOW input threshold: ≤ 0.8V
+- Fan-out: 10 (drives 10 TTL inputs)
+- Propagation delay: ~10ns
+- Power: high (always-on totem-pole output dissipates static power)
+
+**CMOS (Complementary Metal Oxide Semiconductor):**
+- Supply: 3V–18V (classic 4000 series); 3.3V or 5V (HC/HCT series)
+- Logic thresholds: approximately 30% (LOW) and 70% (HIGH) of VDD
+- Fan-out: very high (limited by capacitive loading, not current)
+- Propagation delay: ~5–10ns (74HC series)
+- Power: near-zero static power; power ∝ switching frequency
+- **Sensitivity:** CMOS inputs must never float — connect unused inputs to VDD or GND
+
+**74HC / 74HCT series:** High-speed CMOS, 5V compatible, now the standard for discrete logic design.
+
+**Key rule:** Never mix TTL and CMOS outputs to inputs without level shifting — voltage thresholds are incompatible.
+
+---
+
+### Combinational vs Sequential Logic
+
+**Combinational:** Output depends only on current inputs. No memory.
+Examples: adders, multiplexers, decoders, encoders, comparators.
+
+**Sequential:** Output depends on current inputs AND previous state. Has memory.
+Examples: flip-flops, registers, counters, state machines.
+
+---
+
+### Flip-Flops (Sequential Building Blocks)
+
+| Type | Inputs | Function |
+|------|--------|----------|
+| SR | S (Set), R (Reset) | Set=1→Q=1; Reset=1→Q=0; S=R=1 → forbidden |
+| D | D (Data) | On clock edge, Q = D |
+| JK | J, K, Clock | J=K=0→hold; J=1,K=0→set; J=0,K=1→reset; J=K=1→toggle |
+| T | T, Clock | T=0→hold; T=1→toggle |
+
+**Edge-triggered** flip-flops change state only on rising (↑) or falling (↓) edge of the clock. This is the standard in synchronous design.
+
+---
+
+### Counters
+
+**Binary counter:** N flip-flops count from 0 to 2^N - 1 then reset.
+**Decade counter:** Counts 0–9, then resets. 74HC390 is a standard IC.
+**Up/down counter:** Direction controlled by an input.
+
+---
+
+### Multiplexer (MUX) and Demultiplexer (DEMUX)
+
+**MUX:** Many inputs → one output. Selection bits choose which input routes to output.
+- 2-to-1 MUX: 1 select bit, 2 data inputs
+- 4-to-1 MUX: 2 select bits, 4 data inputs
+- 8-to-1 MUX: 3 select bits, 8 data inputs
+
+**DEMUX:** One input → many outputs. Selection routes input to one output.
+
+MUXes implement any Boolean function — connect data inputs to 0/1 based on truth table.
+
+---
+
+### Decoder and Encoder
+
+**Decoder:** N inputs → 2^N outputs. Exactly one output HIGH for each input combination. Used for address decoding, memory chip select.
+- 2-to-4 decoder, 3-to-8 decoder (74HC138), BCD-to-7-segment
+
+**Encoder:** 2^N inputs → N outputs. Inverse of decoder. Priority encoder handles multiple active inputs.
+
+---
+
+### Shift Registers
+
+Chain of flip-flops. Data shifts left or right on each clock edge.
+
+**Uses:**
+- Serial-to-parallel conversion (receive serial data, output 8 bits in parallel)
+- Parallel-to-serial conversion (load 8 bits, transmit serially)
+- Delay lines
+- Ring counters
+
+**74HC595** (8-bit serial-in, parallel-out) is ubiquitous in embedded systems for expanding GPIO via SPI.
+
+---
+
+### ADC and DAC (Interface Between Analogue and Digital)
+
+**DAC (Digital-to-Analogue Converter):** Digital word → analogue voltage.
+- Resolution: number of bits (8-bit = 256 levels, 12-bit = 4096 levels)
+- Full-scale output / (2^N - 1) = voltage per step (LSB size)
+
+**ADC (Analogue-to-Digital Converter):** Analogue voltage → digital word.
+- **Successive approximation (SAR):** Fast, moderate precision; standard for 8–16 bit at MHz rates
+- **Sigma-delta (Σ-Δ):** Very high resolution (18–24 bit); slower; used for audio, instruments
+- **Flash ADC:** Fastest (GHz); uses 2^N comparators; very power hungry
+
+**Key ADC parameters:**
+- **Resolution:** bits (determines smallest detectable change)
+- **Sampling rate:** samples per second (must be > 2× highest signal frequency — Nyquist theorem)
+- **SNR:** signal-to-noise ratio; SNR ≈ 6.02N + 1.76 dB for N-bit ADC
+
+---
+
+## Section 49 — Electronic Devices and Circuits
+
+*Source: Electronic Devices and Circuits (Taniya Mhalunge)*
+
+---
+
+### Electron Dynamics in Electric Fields
+
+An electron (charge e = 1.602 × 10⁻¹⁹ C, mass m = 9.1 × 10⁻³¹ kg) in an electric field experiences force:
+
+```
+F = eE   (where E = electric field intensity in V/m)
+```
+
+This produces acceleration:
+```
+a = F/m = eE/m
+```
+
+**Work done** on electron moving through potential difference V:
+```
+W = eV   (in joules)
+     = V   (in electron-volts — eV is the natural unit for particle energies)
+```
+
+An electron accelerated through 1 volt gains 1 eV of kinetic energy.
+
+**Velocity gained** from rest through potential V:
+```
+v = √(2eV/m)   m/s
+```
+
+---
+
+### Electron Dynamics in Magnetic Fields
+
+A moving electron in magnetic field B experiences force:
+```
+F = evB sin(θ)   where θ is angle between velocity and field
+```
+
+For electron moving perpendicular to B: circular motion with radius:
+```
+r = mv / (eB)
+```
+
+**Parallel electric and magnetic fields:** Electron accelerates (from E field) and follows helical path (from B field).
+**Perpendicular E and M fields:** Used in velocity selectors — only electrons with v = E/B pass through undeflected.
+
+---
+
+### Cathode Ray Tube (CRT) Principles
+
+CRT is the display technology in oscilloscopes (CRO), traditional televisions, and radar displays. Now mostly superseded by LCD/LED but fundamental to understanding electron beam control.
+
+**Components:**
+1. **Electron gun** — generates focused electron beam
+   - Cathode: heated to emit electrons (thermionic emission)
+   - Control grid: controls beam intensity (brightness)
+   - Anodes: accelerate electrons and focus beam
+2. **Deflection system** — steers beam
+   - Electrostatic: plates above/below and left/right of beam
+   - Magnetic: coils around neck of tube (used in TVs)
+3. **Fluorescent screen** — phosphor coating converts electron energy to visible light
+
+**Electrostatic deflection sensitivity:**
+```
+D = (L × l × Vd) / (2 × d × Va)
+
+D  = deflection on screen
+L  = distance from deflection plates to screen
+l  = length of deflection plates
+Vd = deflecting voltage
+d  = separation between deflection plates
+Va = accelerating voltage
+```
+
+Sensitivity is inversely proportional to accelerating voltage — higher Va means faster electrons, less deflection.
+
+---
+
+### Oscilloscope (CRO) — Practical Operation
+
+**Vertical axis:** Voltage (V/div knob sets scale). Input coupling:
+- DC: shows DC + AC components
+- AC: blocks DC component; shows only AC
+- GND: disconnects input; shows zero reference
+
+**Horizontal axis:** Time (time/div knob sets scale). Triggered by the signal (trigger level + edge select).
+
+**Measurements:**
+```
+Voltage measurement: V = (number of divisions) × (V/div setting)
+Period measurement:  T = (number of divisions) × (time/div setting)
+Frequency:          f = 1/T
+Phase difference:   φ = (time delay / period) × 360°
+```
+
+**Probe attenuation:** ×1 probe: full signal; ×10 probe: signal / 10 but higher input impedance and wider bandwidth. Use ×10 for most work above audio frequencies.
+
+---
+
+### Vacuum Tubes vs Semiconductors — Comparison
+
+| Parameter | Vacuum Tube | Semiconductor |
+|-----------|------------|---------------|
+| Size | Large | Microscopic |
+| Power consumption | High | Low |
+| Heat | Significant | Minimal |
+| Supply voltage | High (100–300V) | Low (1.8–5V typical) |
+| Voltage gain | High | High |
+| Input impedance | Very high | Lower (BJT); very high (FET) |
+| Temperature sensitivity | Low | High |
+| Replacement | User-replaceable | Requires soldering |
+| Cost | High | Very low |
+| Physical strength | Fragile (glass) | Robust |
+| Applications (modern) | Hi-fi audio, high-power RF | Almost everything else |
+
+---
+
+### Semiconductor Device Summary
+
+| Device | Symbol | Key parameter | Application |
+|--------|--------|--------------|-------------|
+| PN diode | → | Forward voltage ~0.7V Si | Rectification, protection |
+| Zener diode | →Z | Zener voltage Vz | Voltage regulation |
+| LED | →▷ | Forward voltage 1.8–3.3V | Indicators, displays |
+| Photodiode | ←→ | Reverse current ∝ illumination | Light sensing |
+| BJT (NPN) | ▷ | Current gain β (hFE) | Amplification, switching |
+| BJT (PNP) | ◁ | Current gain β | Amplification (high-side) |
+| JFET | → | Pinch-off voltage | High-impedance amplifier |
+| MOSFET (N) | ⊿ | Threshold voltage Vth; RDS(on) | Power switching, digital logic |
+| SCR (Thyristor) | →G | Trigger current | Power control, crowbar |
+| TRIAC | ≈ | Gate trigger | AC power control |
+
+---
+
+### Coulomb's Law and Electric Fields (Fundamentals)
+
+**Coulomb's Law:** Force between two point charges:
+```
+F = kq₁q₂ / r²
+
+k = 8.99 × 10⁹ N·m²/C² (Coulomb's constant)
+  = 1/(4πε₀) where ε₀ = 8.85 × 10⁻¹² F/m (permittivity of free space)
+```
+
+**Electric field intensity E** at a point = force per unit positive charge:
+```
+E = F/q   (V/m)
+```
+
+**Electric potential V** = work done per unit charge to move from reference (infinity) to the point:
+```
+V = kq/r   (volts)
+```
+
+**Relation:** E = -dV/dr (field points from high to low potential)
 
