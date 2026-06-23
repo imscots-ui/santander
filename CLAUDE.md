@@ -23,7 +23,7 @@ You are a rated member of HMS 1701's AI agent crew. Read your orders, know your 
 
 ## What this is
 
-A front-end-only React prototype of a Santander Business Banking app. No backend, no real data, no API calls (except Google Fonts). Built to demo paperless workflows — mandate changes, bulk payments, KYC/KYB, MTD HMRC, account closures — for internal presentations and customer research.
+A front-end-only React prototype of a Santander Business Banking app. No backend, no real data, no API calls (except Google Fonts). Built to demo paperless workflows — mandate changes, bulk payments (wages), KYC/KYB, MTD HMRC, account closures, lending, FX payments, account unlinking, and ring-fencing — for internal presentations and customer research.
 
 ## Commands
 
@@ -54,25 +54,25 @@ There are no tests, no lint scripts, and no type checking in this project.
 
 ## Architecture
 
-The entire prototype lives in a single file: **`App.jsx`** (~5,300 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
+The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
 
 ### Single-component structure
 
 `App` is one large React function component. Its internal structure follows this order:
 
-1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks. As of June 2026 the file has 60+ state variables; hooks run from line ~27 to ~627. The `/ship-ready` awk check flags any hook past line 120 — this is a known false positive on this file size. The architectural rule to enforce is: **no hook may appear after line 664 (first closure)**. The awk threshold is stale; the boundary is not.
+1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks. As of June 2026 the file has 120+ state variables; hooks run from line ~28 to ~685. The `/ship-ready` awk check flags any hook past line 120 — this is a known false positive on this file size. The architectural rule to enforce is: **no hook may appear after line ~744 (first closure, `closeWorkflow`)**. The awk threshold is stale; the boundary is not.
 2. **Static data** — `ENTITY_INFO`, `signatories`, `accounts` (via `useMemo`), `mtdData`, `statementsData` (via `useMemo`)
 3. **Inline CSS** — a `css` template literal variable holds brand-specific styles, animations, and glass effects. Injected via `<style>{css}</style>` in the render
 4. **Primitive components** — `ProgressDots`, `StepFrame`, `Input`, `Field`, `Toggle` — small JSX helpers defined as closures. **No hooks inside these.**
-5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderDormancy`, `renderIdCheck`, `renderMtdSubmit` — each returns JSX and reads/writes the top-level state. **No hooks inside these.**
-6. **Screen components** — `HomeScreen`, `ApproveScreen`, `MTDScreen`, `StatementsScreen`, `AuditScreen` — also closures. **No hooks inside these.**
-7. **Sheet/modal components** — `RMSheet`, `EntitySheet`, `CancelSheet`, `ComplianceSheet`, `SavingsSheet`, `CounterpartySheet` — overlays rendered conditionally from the main return
+5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderLending`, `renderFX`, `renderDormancy`, `renderUnlink`, `renderRingfence`, `renderIdCheck`, `renderMtdSubmit` — each returns JSX and reads/writes the top-level state. **No hooks inside these.**
+6. **Screen components** — `HomeScreen`, `ApproveScreen`, `AuditScreen`, `StatementsScreen`, `MTDScreen` — also closures. **No hooks inside these.**
+7. **Sheet/modal components** — `OTPSheet`, `ComplianceSheet`, `SavingsSheet`, `RMSheet`, `EntitySheet`, `CancelSheet`, `ReceiptSheet`, `PinSheet`, `OBSheet`, `VoiceMemoSheet`, `SequencerSheet`, `VoiceIdSheet`, `NotificationsSheet`, `CounterpartySheet`, `A11ySheet` — overlays rendered conditionally from the main return
 8. **Main render** — two code paths: `viewMode === 'desktop'` (sidebar layout) and the default mobile shell (bottom nav). Both render the same screen components and workflow overlays with the same state.
 
 ### Navigation model
 
 - `tab` state drives the main screen: `'home' | 'approve' | 'audit' | 'mtd' | 'statements'`
-- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'dormancy' | 'idcheck' | 'mtd-submit'`
+- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'lending' | 'fx' | 'dormancy' | 'unlink' | 'ringfence' | 'idcheck' | 'mtd-submit'`
 - `step` state tracks position within the active workflow (0-based)
 - `viewMode` toggles between `'mobile'` (default) and `'desktop'`
 
@@ -107,21 +107,27 @@ Each account has a `rule`: `'any-1'`, `'any-2'`, or `'all'`. The `getMandateFor(
 
 | What | Approximate line |
 |------|-----------------|
-| All state declarations | ~25–115 |
-| `ENTITY_INFO` static data | ~142 |
-| `accounts` useMemo | ~162 |
-| `payees` state (bulk payments demo data) | ~79 |
-| `mtdData` (Making Tax Digital) | ~214 |
-| `statementsData` useMemo (transaction history) | ~257 |
-| Inline CSS (`css` template literal) | ~490 |
-| Primitive components (`StepFrame`, `Input`, etc.) | ~598 |
-| `renderClosure` | ~670 |
-| `renderBiz` | ~800 |
-| `renderMandate` | ~902 |
-| `renderWages` | ~1100 |
-| `HomeScreen` | ~1617 |
-| Desktop shell main render | ~2857 |
-| Mobile shell main render | ~3075 |
+| All state declarations | ~28–685 |
+| `payees` state (bulk payments demo data) | ~167 |
+| `ENTITY_INFO` static data | ~264 |
+| `accounts` useMemo | ~334 |
+| `getMandateFor` helper | ~420 |
+| `mtdData` (Making Tax Digital) | ~442 |
+| `statementsData` useMemo (transaction history) | ~485 |
+| `closeWorkflow` (resets workflow state) | ~744 |
+| Inline CSS (`css` template literal) | ~779 |
+| Primitive components (`ProgressDots`, `StepFrame`, `Input`, etc.) | ~950 |
+| `renderClosure` | ~1021 |
+| `renderBiz` | ~1332 |
+| `renderMandate` | ~1428 |
+| `renderWages` | ~1630 |
+| `renderLending` / `renderFX` | ~1915 / ~2018 |
+| `renderDormancy` / `renderUnlink` / `renderRingfence` | ~2149 / ~2177 / ~2310 |
+| `renderIdCheck` | ~2390 |
+| `HomeScreen` | ~2832 |
+| `renderMtdSubmit` | ~4998 |
+| Desktop shell main render (`viewMode === 'desktop'`) | ~5264 |
+| Mobile shell main render (default `return`) | ~5565 |
 
 ## Important constraints
 
