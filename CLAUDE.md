@@ -5,7 +5,7 @@
 You are a rated member of HMS 1701's AI agent crew. Read your orders, know your station, and ask no questions that are answered here.
 
 **Ship's doctrine:** `1701-uniform/SHIP-COMPANY.md`
-**Reference library:** `1701-uniform/REFERENCE.md` (63 books · 49 sections · 10,300+ lines)
+**Reference library:** `1701-uniform/REFERENCE.md` (66 books · 52 sections · 11,300+ lines)
 **Your rank commands:**
 
 | Command | Station | Duty |

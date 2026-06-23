@@ -1,11 +1,12 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 63 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 66 books and technical documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
 AML/KYC/KYB regulation, Companies House & Charity Commission APIs, Tailwind CSS v3, hardware version control,
-MakerSpace management, basic electronics, mechatronics, digital logic, and electronic devices & circuits.
+MakerSpace management, basic electronics, mechatronics, digital logic, electronic devices & circuits,
+CSS animations & motion design, Vite build tooling & TypeScript large-scale patterns, and React 19.1 Server Components.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -61,6 +62,9 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 47. [Digital Computer Fundamentals](#section-47--digital-computer-fundamentals)
 48. [Digital Electronics](#section-48--digital-electronics)
 49. [Electronic Devices and Circuits](#section-49--electronic-devices-and-circuits)
+50. [CSS Animation: Transitions, Keyframes & Motion Design](#section-50--css-animation-transitions-keyframes--motion-design)
+51. [Vite & TypeScript: Large-Scale App Patterns](#section-51--vite--typescript-large-scale-app-patterns)
+52. [React 19.1 & Server Components](#section-52--react-191--server-components)
 
 ---
 
@@ -10318,4 +10322,949 @@ V = kq/r   (volts)
 ```
 
 **Relation:** E = -dV/dr (field points from high to low potential)
+
+
+---
+
+## Section 50 — CSS Animation: Transitions, Keyframes & Motion Design
+
+*Source: CSS Animation: Master the Art of Moving Objects on the Web — Bharatsinh Parmar*
+
+---
+
+### Transitions vs. Keyframe Animations
+
+**Transitions** — triggered by a state change (hover, focus, class toggle). One start state to one end state.
+
+```css
+/* Shorthand: property | duration | timing-function | delay */
+transition: background-color 0.3s ease;
+transition: all 0.2s ease-in-out;
+
+/* Multiple properties */
+transition: transform 0.3s ease, opacity 0.2s linear;
+```
+
+**Keyframe animations** — run automatically, can loop, can have multiple intermediate states.
+
+```css
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.element {
+  animation: fade-in 0.4s ease forwards;
+}
+```
+
+---
+
+### The `animation` Shorthand
+
+Order: `name | duration | timing-function | delay | iteration-count | direction | fill-mode | play-state`
+
+```css
+animation: spin 1s linear infinite;
+animation: slide-in 0.3s ease-out 0.1s 1 normal forwards running;
+```
+
+**Sub-properties:**
+
+| Property | Values | Notes |
+|---|---|---|
+| `animation-name` | identifier | Matches `@keyframes` name |
+| `animation-duration` | `0.3s`, `300ms` | Required; default `0` = no animation |
+| `animation-timing-function` | `ease`, `linear`, `ease-in`, `ease-out`, `ease-in-out`, `cubic-bezier()`, `steps()` | |
+| `animation-delay` | `0.1s`, `-0.5s` | Negative = start mid-animation |
+| `animation-iteration-count` | `1`, `infinite`, `2.5` | |
+| `animation-direction` | `normal`, `reverse`, `alternate`, `alternate-reverse` | |
+| `animation-fill-mode` | `none`, `forwards`, `backwards`, `both` | **`forwards`** = stay at final keyframe after ending |
+| `animation-play-state` | `running`, `paused` | Toggle with JS for pause/resume |
+
+---
+
+### Timing Functions
+
+```
+ease          — slow start, fast middle, slow end (default)
+linear        — constant speed
+ease-in       — slow start, accelerates
+ease-out      — fast start, decelerates (best for exits)
+ease-in-out   — slow both ends, fast middle (best for entrances)
+cubic-bezier(x1, y1, x2, y2)  — custom curve
+steps(n, start|end)            — discrete jumps (sprite animation)
+```
+
+**Rule of thumb:** Use `ease-out` for elements entering the screen; `ease-in` for exiting; `ease-in-out` for looping or in-place transitions.
+
+---
+
+### `@keyframes` Percentage Syntax
+
+```css
+@keyframes bounce {
+  0%   { transform: translateY(0); }
+  25%  { transform: translateY(-12px); }
+  50%  { transform: translateY(0); }
+  75%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+```
+
+`from` = `0%`, `to` = `100%`. Intermediate percentages are optional but powerful.
+
+---
+
+### Multiple Animations on One Element
+
+Comma-separate the `animation` declarations:
+
+```css
+.element {
+  animation:
+    fade-in 0.4s ease forwards,
+    slide-up 0.4s ease forwards;
+}
+```
+
+Each animation runs independently. Conflicts on the same property: last animation wins at the conflicting keyframe.
+
+---
+
+### 3D Transforms
+
+```css
+@keyframes flip {
+  from { transform: rotateX(0deg); }
+  to   { transform: rotateX(360deg); }
+}
+
+.card {
+  transform-style: preserve-3d;   /* required for 3D children */
+  perspective: 800px;              /* applied on parent for depth */
+}
+```
+
+Common 3D transforms: `rotateX()`, `rotateY()`, `rotateZ()`, `translateZ()`, `scale3d()`.
+
+---
+
+### `animation-fill-mode: forwards`
+
+Without `forwards`, the element snaps back to its original style after the animation ends.
+
+```css
+/* Fade in and STAY visible */
+@keyframes appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.panel {
+  animation: appear 0.3s ease forwards; /* stays at opacity: 1 */
+}
+```
+
+---
+
+### SVG Animations
+
+Apply `animation` directly to SVG elements. SVG properties like `stroke-dashoffset` and `fill` are animatable.
+
+```css
+@keyframes draw {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+path {
+  stroke-dasharray: 200;
+  animation: draw 1.5s ease forwards;
+}
+```
+
+---
+
+### Performance Rules
+
+**Animate only these two properties for GPU-accelerated, layout-free rendering:**
+1. `transform` (translate, rotate, scale)
+2. `opacity`
+
+**Avoid animating:** `width`, `height`, `top`, `left`, `margin`, `padding` — these trigger layout reflow on every frame.
+
+```css
+/* BAD — causes layout reflow */
+@keyframes move { from { left: 0; } to { left: 200px; } }
+
+/* GOOD — GPU composited */
+@keyframes move { from { transform: translateX(0); } to { transform: translateX(200px); } }
+```
+
+Use `will-change: transform` sparingly on elements that will animate soon — pre-promotes to GPU layer. Remove after animation completes.
+
+---
+
+### Reduced Motion — Accessibility Requirement
+
+**Always** respect `prefers-reduced-motion`. This is a WCAG 2.1 requirement (see §38).
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+Or per-animation:
+
+```css
+.hero {
+  animation: slide-in 0.5s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero { animation: none; }
+}
+```
+
+---
+
+### CSS Transitions — Full Reference
+
+```css
+/* Trigger: class toggle via JS or :hover/:focus */
+.card {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+```
+
+`transition: all` is convenient but catches unexpected properties. Prefer explicit property names for predictability and performance.
+
+---
+
+### Common Patterns (Ready to Use)
+
+**Fade in from bottom:**
+```css
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+```
+
+**Spin (loading indicator):**
+```css
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinner { animation: spin 0.8s linear infinite; }
+```
+
+**Pulse / heartbeat:**
+```css
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+```
+
+**Shimmer (skeleton screens):**
+```css
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+```
+
+**Stagger children** using `animation-delay` multiples:
+```css
+.item:nth-child(1) { animation-delay: 0ms; }
+.item:nth-child(2) { animation-delay: 60ms; }
+.item:nth-child(3) { animation-delay: 120ms; }
+```
+
+Or in Tailwind with custom CSS classes like `stagger-1` through `stagger-7`:
+```css
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+/* ... */
+```
+
+---
+
+### Waveform / Bar Animation (Voice / Audio)
+
+Pattern used in voice memo and audio-recording UIs:
+
+```css
+@keyframes voiceBar {
+  0%, 100% { transform: scaleY(0.15); }
+  50%       { transform: scaleY(1); }
+}
+.voice-bar {
+  transform-origin: center;
+  animation: voiceBar 0.7s ease-in-out infinite;
+}
+```
+
+Apply different `animation-delay` and `animation-duration` per bar to create a natural, non-uniform effect.
+
+---
+
+## Section 51 — Vite & TypeScript: Large-Scale App Patterns
+
+*Source: Large Scale Apps with Vue, Vite and TypeScript — Damiano Fusco*
+
+*Note: The source uses Vue. This section extracts the Vite build-tool and TypeScript patterns that are framework-agnostic and applicable to any Vite project (React, Vue, etc.).*
+
+---
+
+### Vite at a Glance
+
+Vite is a build tool and dev server that uses native ES modules in development (no bundling) and Rollup for production builds.
+
+**Key benefits over webpack/CRA:**
+- Dev server starts in milliseconds (no full bundle)
+- Hot Module Replacement (HMR) is near-instant
+- Production build is Rollup-based with tree-shaking
+- Built-in TypeScript support without extra config
+
+---
+
+### Project Creation
+
+```bash
+npm create vite@latest my-app -- --template react-ts   # React + TypeScript
+npm create vite@latest my-app -- --template react       # React + JSX
+npm create vite@latest my-app -- --template vue-ts      # Vue + TypeScript
+
+cd my-app
+npm install
+npm run dev       # dev server at http://localhost:5173
+npm run build     # production build to dist/
+npm run preview   # serve the production build locally
+```
+
+---
+
+### `vite.config.ts` — Core Structure
+
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),    // import from '@/components/...'
+      '@models': resolve(__dirname, 'src/models'),
+    }
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,  // true for debugging production builds
+  },
+  test: {
+    environment: 'jsdom',   // for Vitest (unit tests in DOM env)
+  }
+})
+```
+
+Install `@types/node` for `__dirname` in TypeScript:
+```bash
+npm install --save-dev @types/node
+```
+
+---
+
+### Environment Variables
+
+Vite uses `.env` files at the project root. **Only variables prefixed `VITE_` are exposed to client code.**
+
+```
+# .env (shared defaults — safe for all environments)
+VITE_APP_NAME=MyApp
+
+# .env.development (overrides for dev)
+VITE_API_CLIENT=mock
+
+# .env.production (overrides for production)
+VITE_API_CLIENT=live
+```
+
+**Access in code:**
+```ts
+const apiMode = import.meta.env.VITE_API_CLIENT   // 'mock' or 'live'
+const appName = import.meta.env.VITE_APP_NAME
+const isDev   = import.meta.env.DEV               // boolean
+const isProd  = import.meta.env.PROD              // boolean
+```
+
+**Type-safe env vars** — extend `ImportMeta` in `src/vite-env.d.ts`:
+```ts
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_API_CLIENT: 'mock' | 'live'
+  readonly VITE_APP_NAME: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+```
+
+---
+
+### Multiple `vite.config` Files per Environment
+
+For complex projects with distinct mock/production setups:
+
+```
+vite.config.mock.ts
+vite.config.production.ts
+vite.config.ts   (default)
+```
+
+**`package.json` scripts:**
+```json
+{
+  "scripts": {
+    "dev":           "vite --config vite.config.mock.ts --mode mock",
+    "build":         "vite build --config vite.config.production.ts --mode production",
+    "build:mock":    "vite build --config vite.config.mock.ts --mode mock",
+    "preview":       "vite preview"
+  }
+}
+```
+
+`--mode` maps to `.env.{mode}` file. Pass `--mode mock` to load `.env.mock`.
+
+---
+
+### TypeScript Patterns for Large-Scale Apps
+
+#### Interfaces over `any`
+
+Always replace `any[]` with a typed interface. Catch shape errors at compile time, not runtime.
+
+```ts
+// BAD
+const items: any[] = [...]
+
+// GOOD
+interface ItemModel {
+  id: number
+  name: string
+  selected: boolean
+}
+const items: ItemModel[] = [...]
+```
+
+Use `interface` for data shapes (like C structs). Use `type` for unions, intersections, and computed types:
+```ts
+type SortOrder = 'asc' | 'desc'
+type ApiResponse<T> = { data: T; error: string | null }
+```
+
+#### Barrel Exports (index.ts)
+
+Avoid deep relative imports by creating `index.ts` barrel files:
+
+```
+src/
+  models/
+    items/
+      Item.interface.ts
+      index.ts         ← export * from './Item.interface'
+    index.ts           ← export * from './items'
+```
+
+```ts
+// Without barrel: messy
+import type { ItemModel } from '../../models/items/Item.interface'
+
+// With barrel: clean
+import type { ItemModel } from '@/models'
+```
+
+#### `import type` for type-only imports
+
+```ts
+import type { ItemModel } from '@/models'   // erased at compile time, no runtime overhead
+```
+
+---
+
+### Project Directory Structure (Recommended)
+
+```
+src/
+  api-client/
+    mock/          ← static JSON mock data
+    live/          ← real HTTP calls (axios/fetch)
+    index.ts       ← factory: returns mock or live based on VITE_API_CLIENT
+  components/
+    items/
+      ItemsList.component.vue  (or .tsx)
+      children/
+        Item.component.vue
+  models/
+    items/
+      Item.interface.ts
+      index.ts
+    index.ts
+  store/           ← state management modules
+  test-utils/      ← shared testing helpers
+  vite-env.d.ts    ← env var type declarations
+```
+
+---
+
+### Mock/Live API Client Pattern
+
+Decouple the front-end from the back-end by returning different API implementations based on environment:
+
+```ts
+// src/api-client/index.ts
+let apiClient: ApiClientInterface
+
+if (import.meta.env.VITE_API_CLIENT === 'live') {
+  const { LiveApiClient } = await import('./live')
+  apiClient = new LiveApiClient()
+} else {
+  const { MockApiClient } = await import('./mock')
+  apiClient = new MockApiClient()
+}
+
+export { apiClient }
+```
+
+Both implementations satisfy the same `ApiClientInterface`. Front-end code never knows which one it's using.
+
+---
+
+### Vitest — Unit Testing in Vite Projects
+
+```bash
+npm install --save-dev vitest @testing-library/react jsdom
+```
+
+**`package.json` scripts:**
+```json
+{
+  "scripts": {
+    "test":          "vitest run",
+    "test:watch":    "vitest watch",
+    "test:coverage": "vitest run --coverage"
+  }
+}
+```
+
+**Configure in `vite.config.ts`:**
+```ts
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: true,
+  }
+})
+```
+
+**Test file header:**
+```ts
+// @vitest-environment jsdom
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+```
+
+**`data-testid` pattern** — add `data-testid` attributes to DOM elements for stable test selectors that survive className refactors:
+```tsx
+<li data-testid={`item-${item.id}`}>...</li>
+```
+```ts
+const el = screen.getByTestId('item-1')
+expect(el.textContent).toContain('Item 1')
+```
+
+---
+
+### The Dev Proxy — Avoid CORS in Development
+
+```ts
+// vite.config.ts
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:3001',
+      changeOrigin: true,
+    }
+  }
+}
+```
+
+All requests to `/api/*` are proxied to `http://localhost:3001/api/*` in dev. Production uses the real domain — no CORS workaround needed there.
+
+---
+
+## Section 52 — React 19.1 & Server Components
+
+*Source: React 19.1 & Server Components: A Deep Dive into Modern React Development — Edwin S. Cornish*
+
+---
+
+### React 19.1 — New Features at a Glance
+
+| Feature | What it does |
+|---|---|
+| **React Server Components (RSC)** | Render on the server; reduce client JS; direct DB access |
+| **React Actions** | Standardised server mutations via `'use server'` functions |
+| **`useOptimistic`** | Instant UI feedback before server confirms |
+| **`startTransition` / `useTransition`** | Non-blocking state updates; "urgent vs. deferrable" UI |
+| **`Suspense` + streaming** | Progressive rendering; show fallback while async RSC loads |
+
+---
+
+### Server Components (RSC) — The Core Idea
+
+**Default behaviour in React 19.1:** Every component is a Server Component unless you opt out.
+
+```tsx
+// Server Component — NO 'use client', runs only on the server
+// Can: async/await, DB access, environment vars, secrets
+// Cannot: useState, useEffect, event handlers, browser APIs
+
+async function ProductList() {
+  const products = await db.query('SELECT * FROM products')
+  return (
+    <ul>
+      {products.map(p => <li key={p.id}>{p.name}</li>)}
+    </ul>
+  )
+}
+export default ProductList
+```
+
+```tsx
+// Client Component — explicit 'use client' directive
+// Can: useState, useEffect, onClick, browser APIs
+// Cannot: direct DB access, server-only secrets
+
+'use client'
+import { useState } from 'react'
+
+function AddToCart({ productId }: { productId: number }) {
+  const [added, setAdded] = useState(false)
+  return (
+    <button onClick={() => setAdded(true)}>
+      {added ? 'Added!' : 'Add to Cart'}
+    </button>
+  )
+}
+```
+
+---
+
+### Server vs. Client — Decision Matrix
+
+| Concern | Use Server Component | Use Client Component |
+|---|---|---|
+| Fetch from DB/API | ✅ | ❌ |
+| Use `useState` / `useReducer` | ❌ | ✅ |
+| Handle `onClick`, `onChange` | ❌ | ✅ |
+| Access `localStorage` / cookies | ❌ | ✅ |
+| Access secrets / API keys | ✅ | ❌ |
+| SEO-critical content | ✅ | ❌ (CSR) |
+| Animations / interactive UI | ❌ | ✅ |
+
+**Mental model:** Server Components are the default. Add `'use client'` only when you need interactivity or browser APIs.
+
+**Import rules:**
+- Server Components **can** import Client Components (rendered server-side, hydrated client-side)
+- Client Components **cannot** import Server Components (would break the server/client boundary)
+
+---
+
+### `'use server'` — React Actions
+
+React Actions allow Client Components to call server-side logic directly — no API routes needed.
+
+```tsx
+// actions.ts — server-side logic
+'use server'
+import { db } from './db'
+
+export async function updateProfile(formData: FormData) {
+  const name = formData.get('name') as string
+  await db.user.update({ where: { id: session.userId }, data: { name } })
+  revalidatePath('/profile')  // Next.js: re-fetch RSCs on this path
+}
+```
+
+```tsx
+// ProfileForm.tsx — client component using the action
+'use client'
+
+import { updateProfile } from './actions'
+
+export function ProfileForm() {
+  return (
+    <form action={updateProfile}>
+      <input name="name" type="text" />
+      <button type="submit">Save</button>
+    </form>
+  )
+}
+```
+
+**Key points:**
+- `'use server'` marks a function to run exclusively on the server
+- Can be called from Client Components or `<form action={...}>`
+- Cannot return non-serialisable values (functions, class instances)
+- Always validate and sanitise input on the server side
+
+---
+
+### `useOptimistic` — Instant UI Feedback
+
+Shows a temporary UI state immediately; reverts if the server rejects.
+
+```tsx
+'use client'
+import { useOptimistic, useTransition } from 'react'
+import { likePost } from './actions'
+
+function LikeButton({ postId, initialLikes }: Props) {
+  const [optimisticLikes, addOptimisticLike] = useOptimistic(
+    initialLikes,
+    (current, increment: number) => current + increment
+  )
+  const [isPending, startTransition] = useTransition()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() => {
+        startTransition(async () => {
+          addOptimisticLike(1)         // immediate UI update
+          await likePost(postId)       // actual server call
+        })
+      }}
+    >
+      ❤️ {optimisticLikes}
+    </button>
+  )
+}
+```
+
+`useOptimistic(serverState, updateFn)` — `updateFn` computes the temporary state. Reverts to `serverState` when the async operation completes.
+
+---
+
+### `startTransition` / `useTransition` — Non-Blocking Updates
+
+Marks a state update as "non-urgent" — the browser keeps responding to user input while the update is pending.
+
+```tsx
+import { startTransition, useState } from 'react'
+
+function SearchBar() {
+  const [query, setQuery] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Immediate: keeps the input responsive
+    const value = e.target.value
+
+    // Deferred: heavy re-render doesn't block typing
+    startTransition(() => {
+      setQuery(value)
+    })
+  }
+
+  return <input onChange={handleChange} />
+}
+```
+
+`useTransition` returns `[isPending, startTransition]`. Use `isPending` to show a loading indicator:
+
+```tsx
+const [isPending, startTransition] = useTransition()
+// isPending === true while the transition is in progress
+```
+
+**When to use:**
+- Filtering/searching large lists
+- Tab switches with expensive renders
+- Any update that doesn't need to feel instantaneous (e.g., background navigation)
+
+---
+
+### Code Splitting with `lazy` + `Suspense`
+
+Defer loading a component until it's needed; show a fallback in the meantime.
+
+```tsx
+import { lazy, Suspense } from 'react'
+
+const HeavyChart = lazy(() => import('./HeavyChart'))
+
+function Dashboard() {
+  return (
+    <Suspense fallback={<div className="skeleton">Loading chart...</div>}>
+      <HeavyChart />
+    </Suspense>
+  )
+}
+```
+
+Also works with Server Components — RSCs stream their output; `Suspense` shows a fallback while the async RSC is rendering on the server.
+
+---
+
+### Streaming Server Components
+
+With RSC streaming, different parts of the page appear progressively:
+
+```tsx
+// Page.tsx — Server Component
+import { Suspense } from 'react'
+import { SlowDataComponent } from './SlowData'
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <Suspense fallback={<p>Loading stats...</p>}>
+        <SlowDataComponent />  {/* streams in when ready */}
+      </Suspense>
+    </div>
+  )
+}
+```
+
+The `<h1>` renders immediately; `SlowDataComponent` streams in later without blocking the initial paint.
+
+---
+
+### Essential Hooks — Quick Reference (React 18/19)
+
+| Hook | Purpose | Key rule |
+|---|---|---|
+| `useState` | Local component state | Never mutate state directly; always use the setter |
+| `useEffect` | Side effects (fetch, subscriptions, DOM) | Return cleanup function; specify dependency array |
+| `useRef` | Mutable ref (DOM element or value that doesn't trigger re-render) | `ref.current` is the value |
+| `useContext` | Read from Context without prop drilling | Wrap with `<Context.Provider value={...}>` |
+| `useReducer` | Complex state logic with multiple sub-values | `(state, action) => newState` pattern |
+| `useMemo` | Memoise expensive computed value | Only re-computes when deps change |
+| `useCallback` | Memoised function reference | Prevents unnecessary re-renders of children |
+| `useTransition` | Mark update as non-urgent | Returns `[isPending, startTransition]` |
+| `useOptimistic` | Temporary optimistic UI state | Reverts on server response |
+
+---
+
+### Immutability Rule — Never Mutate State Directly
+
+```tsx
+// ❌ BAD — direct mutation; React cannot detect the change
+user.name = 'Alice'
+setUser(user)
+
+// ✅ GOOD — new object; React detects and re-renders
+setUser({ ...user, name: 'Alice' })
+
+// ✅ GOOD — array: new array via map/filter/slice
+setItems(items.filter(i => i.id !== removedId))
+setItems(items.map(i => i.id === updatedId ? { ...i, selected: true } : i))
+```
+
+---
+
+### JSX Rules That Differ from HTML
+
+```tsx
+// className not class
+<div className="container">
+
+// htmlFor not for
+<label htmlFor="email">
+
+// Self-closing required
+<input type="text" />
+<br />
+<img src="..." alt="..." />
+
+// Comments in JSX
+{/* This is a JSX comment */}
+
+// Fragments — no extra DOM node
+<>
+  <h1>Hello</h1>
+  <p>World</p>
+</>
+```
+
+---
+
+### Custom Hooks — Pattern
+
+Extract reusable stateful logic into a function prefixed `use`:
+
+```tsx
+function useWindowSize() {
+  const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight })
+  useEffect(() => {
+    const handler = () => setSize({ w: window.innerWidth, h: window.innerHeight })
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return size
+}
+
+// Use anywhere:
+const { w, h } = useWindowSize()
+```
+
+Rules:
+- Must start with `use`
+- Can call other hooks inside
+- Cannot be called inside loops, conditions, or non-hook functions
+- Test hooks with `@testing-library/react`'s `renderHook`
+
+---
+
+### Performance Checklist
+
+- **Prefer Server Components** for static/data-driven content — reduces client JS bundle
+- **Use `React.memo`** on leaf components that receive the same props repeatedly
+- **Use `useMemo`** for expensive computations; **`useCallback`** for stable function references passed to children
+- **Avoid `useEffect` + `useState` for data fetching** in new code — use RSC `async` functions or data-fetching libraries (TanStack Query, SWR)
+- **Code-split** heavy components with `lazy` + `Suspense`
+- **Wrap non-urgent state updates** in `startTransition`
+- **Key lists correctly** — use stable IDs, not array indices, as React `key` props
 
