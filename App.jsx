@@ -3352,12 +3352,12 @@ export default function App() {
                   </div>
                   {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium flex-shrink-0">Frozen</span>}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-1">
                   <button
                     onClick={() => { setPinCardKey(card.key); setPinAuthDone(false); setPinRevealed(false); setPinCountdown(30); setShowPinSheet(true); }}
-                    className="flex-1 py-2.5 rounded-xl border border-stone-200 text-xs font-medium text-stone-700 flex items-center justify-center gap-1.5 hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                    className="flex-1 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-[13px] font-medium text-stone-800 flex items-center justify-center gap-2 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-4 h-4" />
                     View PIN
                   </button>
                   <button
@@ -3365,9 +3365,9 @@ export default function App() {
                       setFrozenCards(prev => { const n = new Set(prev); isFrozen ? n.delete(card.key) : n.add(card.key); return n; });
                       fireToast(isFrozen ? `${card.name} unfrozen — ready to use` : `${card.name} frozen — all transactions blocked`);
                     }}
-                    className={`flex-1 py-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${isFrozen ? 'border-blue-200 text-blue-700 hover:bg-blue-50' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}
+                    className={`flex-1 py-2.5 rounded-xl text-[13px] font-medium flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${isFrozen ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-900 text-white hover:bg-stone-800'}`}
                   >
-                    <Snowflake className="w-3.5 h-3.5" />
+                    <Snowflake className="w-4 h-4" />
                     {isFrozen ? 'Unfreeze' : 'Freeze'}
                   </button>
                 </div>
@@ -3474,13 +3474,13 @@ export default function App() {
                 <div className="text-[11px] text-stone-500">Currently: {bm.label} · {bm.sub}</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="bg-stone-100 rounded-2xl p-1.5 grid grid-cols-3 gap-1">
               {BIOMETRIC_OPTIONS.map(o => (
                 <button key={o.id} onClick={() => setBiometricType(o.id)}
-                  className={`py-2.5 px-2 rounded-xl text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+                  className={`py-2.5 px-2 rounded-xl text-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-white shadow-sm border border-stone-200/60 text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}>
                   <o.Icon className="w-4 h-4 mx-auto mb-1" />
                   <div className="text-[10px] font-medium leading-tight">{o.label}</div>
-                  <div className={`text-[9px] mt-0.5 leading-tight ${biometricType === o.id ? 'text-white/65' : 'text-stone-400'}`}>{o.sub}</div>
+                  <div className={`text-[9px] mt-0.5 leading-tight ${biometricType === o.id ? 'text-stone-500' : 'text-stone-400'}`}>{o.sub}</div>
                 </button>
               ))}
             </div>
