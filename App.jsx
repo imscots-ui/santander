@@ -23,6 +23,77 @@ import {
   Mic, Activity, Gauge, Wand2, Volume2, Network
 } from 'lucide-react';
 
+// === PRIMITIVES — outside App so React sees stable component identity across renders ===
+const ProgressDots = ({ total, current }) => (
+  <div className="flex gap-1.5">
+    {Array.from({ length: total }).map((_, i) => (
+      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#c8102e]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
+    ))}
+  </div>
+);
+
+const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Continue', nextDisabled, replaces, onClose, children }) => (
+  <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
+    <div className="flex-shrink-0 border-b border-stone-200 bg-white">
+      <div className="px-5 pt-4 pb-3 flex items-center justify-between">
+        <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
+        <ProgressDots total={total} current={current} />
+        <button onClick={onClose} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
+      </div>
+      <div className="px-5 pb-4">
+        <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
+        {sub && <p className="text-sm text-stone-500 mt-1">{sub}</p>}
+      </div>
+    </div>
+    <div className="flex-1 overflow-y-auto px-5 py-5 pb-32">
+      {replaces && current === 0 && (
+        <div className="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0"><MailX className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-400">Replaces</div>
+              <div className="text-sm font-medium">{replaces.form}</div>
+              <div className="text-xs text-stone-300 mt-1">{replaces.savings}</div>
+            </div>
+          </div>
+        </div>
+      )}
+      {children}
+    </div>
+    <div className="flex-shrink-0 border-t border-stone-200 px-5 py-4 bg-white">
+      <button onClick={onNext} disabled={nextDisabled}
+        className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        {nextLabel} <ArrowRight className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+);
+
+const Input = ({ value, onChange, placeholder, type = 'text', className: cls = '' }) => (
+  <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+    className={`w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors ${cls}`} />
+);
+
+const Field = ({ label, hint, children }) => (
+  <div className="mb-3">
+    <label className="block text-xs font-medium text-stone-700 mb-1.5 uppercase tracking-wider">{label}</label>
+    {children}
+    {hint && <div className="text-[11px] text-stone-500 mt-1">{hint}</div>}
+  </div>
+);
+
+const Toggle = ({ label, value, onChange, sub }) => (
+  <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+    <div>
+      <div className="text-sm">{label}</div>
+      {sub && <div className="text-[11px] text-stone-500">{sub}</div>}
+    </div>
+    <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#c8102e]' : 'bg-stone-300'}`}>
+      <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
+    </div>
+  </button>
+);
+
 export default function App() {
   // === ALL HOOKS AT TOP LEVEL ===
   const [tab, setTab] = useState('home');
@@ -953,77 +1024,6 @@ export default function App() {
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `;
 
-  // === PRIMITIVES (functional components — no state inside) ===
-  const ProgressDots = ({ total, current }) => (
-    <div className="flex gap-1.5">
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#c8102e]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
-      ))}
-    </div>
-  );
-
-  const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Continue', nextDisabled, replaces, children }) => (
-    <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
-      <div className="flex-shrink-0 border-b border-stone-200 bg-white">
-        <div className="px-5 pt-4 pb-3 flex items-center justify-between">
-          <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
-          <ProgressDots total={total} current={current} />
-          <button onClick={closeWorkflow} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
-        </div>
-        <div className="px-5 pb-4">
-          <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
-          {sub && <p className="text-sm text-stone-500 mt-1">{sub}</p>}
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto px-5 py-5 pb-32">
-        {replaces && current === 0 && (
-          <div className="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0"><MailX className="w-4 h-4" /></div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-stone-400">Replaces</div>
-                <div className="text-sm font-medium">{replaces.form}</div>
-                <div className="text-xs text-stone-300 mt-1">{replaces.savings}</div>
-              </div>
-            </div>
-          </div>
-        )}
-        {children}
-      </div>
-      <div className="flex-shrink-0 border-t border-stone-200 px-5 py-4 bg-white">
-        <button onClick={onNext} disabled={nextDisabled}
-          className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-          {nextLabel} <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-
-  const Input = ({ value, onChange, placeholder, type = 'text', className: cls = '' }) => (
-    <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className={`w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors ${cls}`} />
-  );
-
-  const Field = ({ label, hint, children }) => (
-    <div className="mb-3">
-      <label className="block text-xs font-medium text-stone-700 mb-1.5 uppercase tracking-wider">{label}</label>
-      {children}
-      {hint && <div className="text-[11px] text-stone-500 mt-1">{hint}</div>}
-    </div>
-  );
-
-  const Toggle = ({ label, value, onChange, sub }) => (
-    <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
-      <div>
-        <div className="text-sm">{label}</div>
-        {sub && <div className="text-[11px] text-stone-500">{sub}</div>}
-      </div>
-      <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#c8102e]' : 'bg-stone-300'}`}>
-        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
-      </div>
-    </button>
-  );
-
   // === WORKFLOW RENDERERS (just JSX — no hooks!) ===
   const renderClosure = () => {
     const m = getMandateFor(closureSel);
@@ -1097,7 +1097,7 @@ export default function App() {
     );
 
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={titles[step]} sub={subs[step]} total={4} current={step}
         onBack={back} onNext={next}
         nextLabel={nextLabel}
@@ -1360,7 +1360,7 @@ export default function App() {
     ].filter(Boolean);
 
     return (
-      <StepFrame title={titles[step]} sub={['Tick everything', 'New values', 'Local authority bill or utility < 3 months', `Any 2 ${entity.authorities}`][step]}
+      <StepFrame onClose={closeWorkflow} title={titles[step]} sub={['Tick everything', 'New values', 'Local authority bill or utility < 3 months', `Any 2 ${entity.authorities}`][step]}
         total={4} current={step} onBack={back} onNext={next}
         nextLabel={step === 3 ? 'Sign update' : 'Continue'}
         replaces={{ form: 'Form ANB9 0042 · Change of business details', savings: 'No black-ink block-capitals · no Sunderland post' }}
@@ -1482,7 +1482,7 @@ export default function App() {
     };
 
     return (
-      <StepFrame title={sd.t} sub={sd.s} total={total} current={step}
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
         onBack={back} onNext={next}
         nextLabel={step === total - 1 ? 'Sign' : 'Continue'}
         replaces={{ form: entity.isTreasurer ? 'Form ANBMC0800 · 8-page treasurer mandate' : 'Mandate change form + ID copies', savings: 'Board minutes uploaded · ID via GOV.UK One Login' }}
@@ -1704,7 +1704,7 @@ export default function App() {
     ];
 
     return (
-      <StepFrame title={titles[step]} sub={subs[step]} total={4} current={step}
+      <StepFrame onClose={closeWorkflow} title={titles[step]} sub={subs[step]} total={4} current={step}
         onBack={back} onNext={next}
         nextDisabled={(step === 0 && !wagesSource) || (step === 1 && selectedCount === 0)}
         nextLabel={step === 3 ? 'Sign & send' : 'Continue'}
@@ -1934,7 +1934,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Your offer', 'Terms & rights', 'Confirm & draw down'][step]}
         sub={['Pre-approved on your 6-month trading history', 'Read before you commit — 14-day cooling-off right applies', 'Authenticate to release funds'][step]}
         total={3} current={step} onBack={back} onNext={next}
@@ -2039,7 +2039,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['International payment', 'Rate & fees', 'Confirm & send'][step]}
         sub={['Pay an overseas supplier in their currency', 'FCA transparency — no hidden charges', 'Authenticate to release funds'][step]}
         total={3} current={step} onBack={back} onNext={next}
@@ -2154,7 +2154,7 @@ export default function App() {
   };
 
   const renderDormancy = () => (
-    <StepFrame title="Dormant accounts" sub="Reactivate or close accounts inactive 12+ months"
+    <StepFrame onClose={closeWorkflow} title="Dormant accounts" sub="Reactivate or close accounts inactive 12+ months"
       total={1} current={0} onBack={closeWorkflow}
       onNext={() => { fireToast("Reactivation underway — you'll see it on the home screen."); closeWorkflow(); }}
       nextLabel="Request reactivation"
@@ -2195,7 +2195,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Personal accounts', 'What changes', 'Confirm & unlink'][step]}
         sub={[
           'Currently visible to all users on this business banking profile',
@@ -2324,7 +2324,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Credit decisioning', 'Confirm ring-fence'][step]}
         sub={[
           'Personal account data currently visible to our credit team',
@@ -2395,7 +2395,7 @@ export default function App() {
   };
 
   const renderIdCheck = () => (
-    <StepFrame title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
+    <StepFrame onClose={closeWorkflow} title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
       total={1} current={0} onBack={closeWorkflow} onNext={closeWorkflow} nextLabel="Done"
       replaces={{ form: 'Annual letters with photocopies', savings: 'Continuous re-verification via GOV.UK One Login' }}>
       <div className="space-y-2">
@@ -5098,7 +5098,7 @@ export default function App() {
     ];
 
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={titles[mtdQuarterStep]}
         sub={subs[mtdQuarterStep]}
         total={4} current={mtdQuarterStep} onBack={back} onNext={next}
