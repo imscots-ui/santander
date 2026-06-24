@@ -5557,19 +5557,19 @@ export default function App() {
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
 
-        {showOTP && <OTPSheet />}
-        {showCompliance && <ComplianceSheet />}
-        {showSavings && <SavingsSheet />}
-        {showRMSheet && <RMSheet />}
-        {showEntitySwitcher && <EntitySheet />}
-        {pendingCancelId && <CancelSheet />}
-        {showReceiptSheet && <ReceiptSheet />}
-        {showPinSheet && <PinSheet />}
-        {showOBSheet && <OBSheet />}
-        {showVoiceMemo && <VoiceMemoSheet />}
-        {showSequencer && <SequencerSheet />}
-        {showA11ySheet && <A11ySheet />}
-        {showVoiceSetup && <VoiceIdSheet />}
+        {showOTP && OTPSheet()}
+        {showCompliance && ComplianceSheet()}
+        {showSavings && SavingsSheet()}
+        {showRMSheet && RMSheet()}
+        {showEntitySwitcher && EntitySheet()}
+        {pendingCancelId && CancelSheet()}
+        {showReceiptSheet && ReceiptSheet()}
+        {showPinSheet && PinSheet()}
+        {showOBSheet && OBSheet()}
+        {showVoiceMemo && VoiceMemoSheet()}
+        {showSequencer && SequencerSheet()}
+        {showA11ySheet && A11ySheet()}
+        {showVoiceSetup && VoiceIdSheet()}
         {showNotifications && <NotificationsSheet />}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
@@ -5736,19 +5736,19 @@ export default function App() {
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
 
-      {showOTP && <OTPSheet />}
-      {showCompliance && <ComplianceSheet />}
-      {showSavings && <SavingsSheet />}
-      {showRMSheet && <RMSheet />}
-      {showEntitySwitcher && <EntitySheet />}
-      {pendingCancelId && <CancelSheet />}
-      {showReceiptSheet && <ReceiptSheet />}
-      {showPinSheet && <PinSheet />}
-      {showOBSheet && <OBSheet />}
-      {showVoiceMemo && <VoiceMemoSheet />}
-      {showA11ySheet && <A11ySheet />}
-      {showSequencer && <SequencerSheet />}
-      {showVoiceSetup && <VoiceIdSheet />}
+      {showOTP && OTPSheet()}
+      {showCompliance && ComplianceSheet()}
+      {showSavings && SavingsSheet()}
+      {showRMSheet && RMSheet()}
+      {showEntitySwitcher && EntitySheet()}
+      {pendingCancelId && CancelSheet()}
+      {showReceiptSheet && ReceiptSheet()}
+      {showPinSheet && PinSheet()}
+      {showOBSheet && OBSheet()}
+      {showVoiceMemo && VoiceMemoSheet()}
+      {showA11ySheet && A11ySheet()}
+      {showSequencer && SequencerSheet()}
+      {showVoiceSetup && VoiceIdSheet()}
       {showNotifications && <NotificationsSheet />}
       {openCounterparty && <CounterpartySheet />}
 
