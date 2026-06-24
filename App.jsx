@@ -3580,7 +3580,21 @@ export default function App() {
   const ApproveScreen = () => {
     const sign = (id) => triggerOTP(
       `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`,
-      () => { setApprovalState({ ...approvalState, [id]: 'signed' }); fireToast('Signed. Releasing now.'); }
+      () => {
+        const p = pendingApprovals.find(a => a.id === id);
+        setApprovalState({ ...approvalState, [id]: 'signed' });
+        if (p?.amount) {
+          setPaymentPending({
+            kind: 'payment',
+            label: p.desc,
+            total: parseFloat(p.amount.replace(/[£,]/g, '')),
+            count: 1,
+            countdown: 10,
+          });
+        } else {
+          fireToast('Signed. Releasing now.');
+        }
+      }
     );
     const reject = (id) => { setApprovalState({ ...approvalState, [id]: 'rejected' }); fireToast("Rejected. We've let them know."); };
     return (
