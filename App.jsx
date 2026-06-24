@@ -5445,11 +5445,11 @@ export default function App() {
           {/* Centre: main content — same screens as mobile */}
           <main className={tab === 'statements' || tab === 'mtd' ? "col-span-10" : "col-span-7"}>
             <div className="max-w-2xl mx-auto">
-              {tab === 'home' && <HomeScreen />}
-              {tab === 'approve' && <ApproveScreen />}
-              {tab === 'audit' && <AuditScreen />}
-              {tab === 'mtd' && <MTDScreen />}
-              {tab === 'statements' && <StatementsScreen />}
+              {tab === 'home' && HomeScreen()}
+              {tab === 'approve' && ApproveScreen()}
+              {tab === 'audit' && AuditScreen()}
+              {tab === 'mtd' && MTDScreen()}
+              {tab === 'statements' && StatementsScreen()}
             </div>
           </main>
 
@@ -5570,7 +5570,7 @@ export default function App() {
         {showSequencer && SequencerSheet()}
         {showA11ySheet && A11ySheet()}
         {showVoiceSetup && VoiceIdSheet()}
-        {showNotifications && <NotificationsSheet />}
+        {showNotifications && NotificationsSheet()}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
         {paymentPending && (() => {
@@ -5644,7 +5644,7 @@ export default function App() {
             </div>
           );
         })()}
-        {openCounterparty && <CounterpartySheet />}
+        {openCounterparty && CounterpartySheet()}
 
         {toast && (
           <div className="fixed bottom-8 right-8 z-50 anim-fade max-w-md">
@@ -5692,11 +5692,11 @@ export default function App() {
       </header>
 
       <main>
-        {tab === 'home' && <HomeScreen />}
-        {tab === 'approve' && <ApproveScreen />}
-        {tab === 'audit' && <AuditScreen />}
-        {tab === 'mtd' && <MTDScreen />}
-        {tab === 'statements' && <StatementsScreen />}
+        {tab === 'home' && HomeScreen()}
+        {tab === 'approve' && ApproveScreen()}
+        {tab === 'audit' && AuditScreen()}
+        {tab === 'mtd' && MTDScreen()}
+        {tab === 'statements' && StatementsScreen()}
       </main>
 
       <nav className="fixed bottom-0 inset-x-0 z-30 bg-white/85 backdrop-blur-2xl border-t border-stone-200/60">
@@ -5749,8 +5749,8 @@ export default function App() {
       {showA11ySheet && A11ySheet()}
       {showSequencer && SequencerSheet()}
       {showVoiceSetup && VoiceIdSheet()}
-      {showNotifications && <NotificationsSheet />}
-      {openCounterparty && <CounterpartySheet />}
+      {showNotifications && NotificationsSheet()}
+      {openCounterparty && CounterpartySheet()}
 
       {toast && (
         <div className="fixed bottom-24 inset-x-5 z-50 anim-fade">
