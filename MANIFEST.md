@@ -152,40 +152,22 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 7,150 lines · 33 sections · 48 books synthesised
+**Size:** 15,552 lines · 77 sections · 86 books & regulatory documents · Quick Lookup decision index (Jun 2026)
 
-### Sections Written This Project
+### Domain Groups (77 sections)
 
-| Section | Title | Books Synthesised | Lines |
-|---------|-------|-------------------|-------|
-| 1 | FastAPI & SQLAlchemy | FastAPI docs, SQLAlchemy docs | ~180 |
-| 2 | React Fundamentals | React docs | ~150 |
-| 3 | Tailwind CSS | Tailwind docs | ~120 |
-| 4 | Git & Version Control | Pro Git | ~200 |
-| 5 | Docker & Containers | Docker docs | ~150 |
-| 6 | Python Best Practices | Fluent Python | ~180 |
-| 7 | TypeScript | TypeScript Handbook | ~160 |
-| 8 | Testing | Testing library docs | ~140 |
-| 9 | AWS & Cloud | AWS docs | ~200 |
-| 10 | Security Fundamentals | OWASP | ~180 |
-| 11 | React & JS Frontend Patterns | You Don't Know JS, JavaScript: The Good Parts, Eloquent JavaScript, JavaScript Patterns | ~350 |
-| 12 | Python Data Science | Python for Data Analysis | ~150 |
-| 13 | JWT & Authentication | OAuth2 specs, JWT RFC | ~220 |
-| 14 | REST API Conventions | RESTful Web APIs | ~180 |
-| 15 | GraphQL | GraphQL docs | ~150 |
-| 16 | PostgreSQL | PostgreSQL docs | ~200 |
-| 17 | Redis | Redis docs | ~140 |
-| 18 | Kubernetes | Kubernetes docs | ~180 |
-| 19 | CI/CD | GitHub Actions docs | ~160 |
-| 20 | Monitoring & Observability | SRE Book | ~180 |
-| 21 | HTTP Fundamentals | HTTP: The Definitive Guide (Gourley & Totty) | ~380 |
-| 22 | SQL Performance & Indexing | SQL Performance Explained (Winand) | ~350 |
-| 23 | Advanced Prompt Engineering | Prompt Engineering for LLMs (Al-Shamey, Venn, Vael) | ~420 |
-| 24 | AI Agent Architecture | Building AI Agents (from training) + Mastering AI Tools | ~380 |
-| 25 | Claude Code Workflow | Claude Code Mastery + Claude Myths & Realities + AI Tools User Guide | ~360 |
-| 26 | UI Design Principles | Refactoring UI (Wathan & Schoger — from training, 30MB+ original) | ~420 |
-
-**Additional books processed:** Kali Linux (security testing), Claude Fabi.sk, AI Tools UI (multiple epub sources)
+| Domain | Sections | Key sources |
+|--------|----------|-------------|
+| Core Development | §1–22 | Python, SQL, FastAPI, Docker, Git, React/JS, JWT, HTTP, Linux, Security, Pydantic, async, pytest |
+| AI & Prompt Engineering | §20, §23–25, §58–65, §72–74 | Claude, AI Agents, Copilot, ChatGPT, AI Content Creation, Surveillance AI, Dynamics 365 AI, 600+ prompts |
+| Banking · Payments · Open Banking | §35–41, §70–71 | PSD2, MTD HMRC, WCAG, FPS/BACS/CHAPS/SWIFT, KYC/AML, Companies House, Financial Inclusion |
+| FCA Regulation | §66–70 | Consumer Duty PS22/9, AML MLR 2017, Ring-Fencing FSMA, BCOBS/CASS, SCA/UK-RTS |
+| Data Protection | §75, §77 | GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024), GDPR for Startups (Martin, Edward Elgar 2023) |
+| UI · Frontend · Design | §11, §26, §42, §50–56 | React/JS patterns, Refactoring UI, Tailwind CSS v3, CSS Animation, Vite/TS, React 19, UX, Photoshop, KiCad |
+| Microsoft Ecosystem | §27–33, §64–65, §76 | Power Teams, Power BI (×2), PowerPoint (×2), SharePoint, Dynamics 365 BC AL, Azure AI Engineer |
+| Employment & Equality Law | §34 | Equality Act 2010, protected characteristics, WCAG legal duty, reasonable adjustments |
+| Electronics · Hardware · IoT | §43–49, §54, §57 | MakerSpace, Electronics, Mechatronics, Digital Logic, Devices & Circuits, Arduino/IoT, Embedded Linux |
+| Quick Lookup Decision Index | — | 70+ answers · 8 themed tables · maps common questions to exact values · spans all 77 sections |
 
 ---
 
@@ -286,7 +268,7 @@ Contents:
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — all 33 sections, 48 books, 7,150 lines |
+| 10 | Reference library — 77 sections, 86 books, 15,552 lines, Quick Lookup index |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
 | 13 | Business case summary — £137M, metrics, differentiators, phase status |

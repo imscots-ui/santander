@@ -625,58 +625,61 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "5,024 lines · 26 sections · 41 books synthesised into a single indexed technical reference")
+               "15,552 lines · 77 sections · 86 books & regulatory documents · Quick Lookup decision index")
 
-sections = [
-    ("1",  "FastAPI & SQLAlchemy",          "FastAPI docs, SQLAlchemy docs",                                     "~180"),
-    ("2",  "React Fundamentals",             "React docs",                                                        "~150"),
-    ("3",  "Tailwind CSS",                   "Tailwind docs",                                                     "~120"),
-    ("4",  "Git & Version Control",          "Pro Git",                                                           "~200"),
-    ("5",  "Docker & Containers",            "Docker docs",                                                       "~150"),
-    ("6",  "Python Best Practices",          "Fluent Python",                                                     "~180"),
-    ("7",  "TypeScript",                     "TypeScript Handbook",                                               "~160"),
-    ("8",  "Testing",                        "Testing library docs",                                              "~140"),
-    ("9",  "AWS & Cloud",                    "AWS docs",                                                          "~200"),
-    ("10", "Security Fundamentals",          "OWASP",                                                             "~180"),
-    ("11", "React & JS Frontend Patterns",   "You Don't Know JS · JS Good Parts · Eloquent JS · JS Patterns",    "~350"),
-    ("12", "Python Data Science",            "Python for Data Analysis",                                          "~150"),
-    ("13", "JWT & Authentication",           "OAuth2 specs, JWT RFC",                                             "~220"),
-    ("14", "REST API Conventions",           "RESTful Web APIs",                                                  "~180"),
-    ("15", "GraphQL",                        "GraphQL docs",                                                      "~150"),
-    ("16", "PostgreSQL",                     "PostgreSQL docs",                                                   "~200"),
-    ("17", "Redis",                          "Redis docs",                                                        "~140"),
-    ("18", "Kubernetes",                     "Kubernetes docs",                                                   "~180"),
-    ("19", "CI/CD",                          "GitHub Actions docs",                                               "~160"),
-    ("20", "Monitoring & Observability",     "SRE Book",                                                          "~180"),
-    ("21", "HTTP Fundamentals",              "HTTP: The Definitive Guide (Gourley & Totty)",                      "~380"),
-    ("22", "SQL Performance & Indexing",     "SQL Performance Explained (Winand)",                                "~350"),
-    ("23", "Advanced Prompt Engineering",    "Prompt Engineering for LLMs (Al-Shamey, Venn, Vael)",              "~420"),
-    ("24", "AI Agent Architecture",          "Building AI Agents + Mastering AI Tools",                           "~380"),
-    ("25", "Claude Code Workflow",           "Claude Code Mastery + Claude Myths & Realities + AI Tools Guide",  "~360"),
-    ("26", "UI Design Principles",           "Refactoring UI (Wathan & Schoger)",                                 "~420"),
+# ── Stats banner ──────────────────────────────────────────────────────────────
+for i4, (val, lbl) in enumerate([
+    ("15,552", "lines"),
+    ("77",     "sections"),
+    ("86",     "books & docs"),
+    ("70+",    "quick answers"),
+]):
+    bx4 = 0.42 + i4 * 3.22
+    R(s, bx4, 1.12, 3.05, 0.58, fill=RED)
+    T(s, val, bx4, 1.14, 3.05, 0.36, size=22, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    T(s, lbl, bx4, 1.50, 3.05, 0.20, size=8, color=LIGHTRED, align=PP_ALIGN.CENTER)
+
+# ── Domain blocks — two columns of 5 ─────────────────────────────────────────
+domains = [
+    [  # Left column — x=0.42
+        (RED,     "Core Development",                   "§1–22",
+         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · Security · Pydantic · async · pytest"),
+        (RED,     "AI & Prompt Engineering",            "§20, §23–25, §58–65, §72–74",
+         "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
+        (RED,     "Banking · Payments · Open Banking",  "§35–41, §70–71",
+         "PSD2 · MTD HMRC · WCAG · FPS/BACS/CHAPS/SWIFT · KYC/AML · Companies House · Financial Inclusion"),
+        (RED,     "FCA Regulation",                     "§66–70",
+         "Consumer Duty PS22/9 · AML MLR 2017 · Ring-Fencing FSMA · BCOBS/CASS · SCA/UK-RTS exemptions"),
+        (RED,     "Data Protection",                    "§75, §77",
+         "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
+    ],
+    [  # Right column — x=6.68
+        (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56",
+         "React/JS patterns · Refactoring UI · Tailwind CSS v3 · CSS Animation · Vite/TS · React 19 · UX · Photoshop · KiCad"),
+        (DARK,    "Microsoft Ecosystem",                "§27–33, §64–65, §76",
+         "Power Teams · Power BI (×2) · PowerPoint (×2) · SharePoint · Dynamics 365 BC AL · Azure AI Engineer AI-102"),
+        (DARK,    "Employment & Equality Law",          "§34",
+         "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
+        (DARK,    "Electronics · Hardware · IoT",       "§43–49, §54, §57",
+         "MakerSpace · Electronics · Mechatronics · Digital Logic · Devices & Circuits · Arduino/IoT · Embedded Linux"),
+        (EMERALD, "Quick Lookup Decision Index",        "NEW — Jun 2026",
+         "70+ answers · 8 themed tables · Design rules · Payment rails · GDPR deadlines · FCA rules · SCA · AI prompt modes"),
+    ],
 ]
 
-# Two columns of 13 rows each
-col_defs = [(0.42, 6.05), (6.68, 6.05)]
-for ci3, col_range in enumerate(col_defs):
-    cx3, cw3 = col_range
-    start = ci3 * 13
-    end = start + 13
-    batch = sections[start:end]
-    # mini header
-    R(s, cx3, 1.12, cw3, 0.28, fill=DARK)
-    T(s, "§", cx3+0.08, 1.14, 0.3, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Section", cx3+0.38, 1.14, 2.2, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Source material", cx3+2.62, 1.14, 2.8, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Lines", cx3+cw3-0.5, 1.14, 0.5, 0.22, size=8, bold=True, color=STONE3, align=PP_ALIGN.RIGHT)
-    for ri3, (num, title, sources, lines) in enumerate(batch):
-        ry3 = 1.4 + ri3 * 0.37
-        bg3 = STONE1 if ri3 % 2 == 0 else WHITE
-        R(s, cx3, ry3, cw3, 0.37, fill=bg3, line=STONE2)
-        T(s, num, cx3+0.08, ry3+0.07, 0.28, 0.25, size=8, bold=True, color=RED)
-        T(s, title, cx3+0.38, ry3+0.07, 2.18, 0.25, size=8, bold=True, color=DARK)
-        T(s, sources, cx3+2.62, ry3+0.07, 2.75, 0.25, size=7.5, color=STONE5)
-        T(s, lines, cx3+cw3-0.5, ry3+0.07, 0.45, 0.25, size=8, color=STONE7, align=PP_ALIGN.RIGHT)
+col_xs = [0.42, 6.68]
+for ci5, col_domains in enumerate(domains):
+    cx5 = col_xs[ci5]
+    cw5 = 6.05
+    for di5, (hdr_col, domain, refs, desc) in enumerate(col_domains):
+        dy5 = 1.82 + di5 * 0.98
+        R(s, cx5, dy5, cw5, 0.26, fill=hdr_col)
+        T(s, domain, cx5+0.10, dy5+0.03, cw5-0.72, 0.22, size=8.5, bold=True, color=WHITE)
+        T(s, refs, cx5+cw5-0.60, dy5+0.04, 0.58, 0.20, size=7, bold=True,
+          color=LIGHTRED, align=PP_ALIGN.RIGHT)
+        bg5 = STONE1 if di5 % 2 == 0 else WHITE
+        R(s, cx5, dy5+0.26, cw5, 0.68, fill=bg5, line=STONE2)
+        T(s, desc, cx5+0.10, dy5+0.30, cw5-0.20, 0.60, size=7.5, color=STONE7)
 
 advisor_stamp(s)
 slide_num(s, 10)
@@ -802,7 +805,7 @@ decks = [
          ("Slide 10", "Design system tokens"),
      ]),
     ("Santander_Project_Record.pptx",
-     "Project Record · 12 slides (this deck)",
+     "Project Record · 13 slides (this deck)",
      STONE7,
      [
          ("Slide 1",  "Cover"),
@@ -814,7 +817,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (26 sections)"),
+         ("Slide 10", "Reference library (77 sections · Quick Lookup index)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Business case summary"),
      ]),
