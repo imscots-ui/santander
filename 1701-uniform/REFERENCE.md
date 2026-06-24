@@ -100,6 +100,137 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 
 ---
 
+## Quick Lookup — Common Decisions
+
+Scan this table before reading any section. Each row maps a decision question to the definitive answer and the section(s) that expand on it. Answers are exact values, not summaries.
+
+### App.jsx — Design System (HMS 1701 Prototype)
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Which text colour class for body copy? | `text-stone-*` — **never** `text-gray-*` or `text-zinc-*` | §42 |
+| Text on a dark card or red surface? | `text-white/65`, `text-stone-300`, or `text-red-100` — **never** `text-stone-400` or `text-stone-500` | §42 |
+| Brand red (CTA, active states, top bar)? | `#c8102e` | CLAUDE.md |
+| Page/body background? | `#faf6ef` (warm off-white) | CLAUDE.md |
+| How many primary CTAs per screen? | **One** — `bg-[#c8102e]` or `bg-stone-900` appears once per view | CLAUDE.md |
+| Class for monetary amounts? | `num-tab` (enables tabular figures) | CLAUDE.md |
+| Display font (large headings)? | Fraunces serif via `font-display` | CLAUDE.md |
+| Body font? | Geist sans (default / `font-body`) | CLAUDE.md |
+| Monospace font (account numbers, figures)? | Geist Mono via `font-mono` | CLAUDE.md |
+| Permitted spacing values? | 4·8·12·16·24·32·48·64·96·128 px → Tailwind `1·2·3·4·6·8·12·16·24·32` | CLAUDE.md |
+| Can I use arbitrary pixel spacing like `p-[14px]`? | **No** — spacing must come from the scale above | CLAUDE.md |
+| Can I use `focus:outline-none`? | **Only** if paired with `focus-visible:` — bare removal is an accessibility breach | CLAUDE.md |
+
+### App.jsx — Architecture & React
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Where do all hooks go? | Top of `App` function, before any logic — approximately lines 28–685 | CLAUDE.md |
+| Can I add hooks inside `renderXxx` functions? | **No** — they are closures, not components; hooks inside closures break React's rules | CLAUDE.md |
+| Can I add hooks inside `HomeScreen`, `ApproveScreen`, sheets? | **No** — same reason; all state lives at the top of `App` | CLAUDE.md |
+| What must I update when adding new workflow state? | `closeWorkflow()` — every new state variable must be reset there | CLAUDE.md |
+| Where is `closeWorkflow` defined? | ~line 744 in App.jsx | CLAUDE.md |
+| What drives screen selection? | `tab` state: `'home' \| 'approve' \| 'audit' \| 'mtd' \| 'statements'` | CLAUDE.md |
+| What drives workflow overlay? | `workflow` state: `null \| 'closure' \| 'biz' \| 'mandate' \| 'wages' \| 'lending' \| 'fx' \| 'dormancy' \| 'unlink' \| 'ringfence' \| 'idcheck' \| 'mtd-submit'` | CLAUDE.md |
+| Is key prop required on `.map()` output? | **Yes** — always; missing key is an engineering failure | §11 |
+| Which build tool? | Vite — `npm run dev` (port 5173), `npm run build`, `npm run preview` | §51 |
+
+### UK Payment Rails
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Instant retail payments (up to £1m)? | **Faster Payments (FPS)** — settles in seconds, 24/7/365 | §39 |
+| Same-day high-value / guaranteed settlement? | **CHAPS** — real-time gross settlement; cut-off ~2:30pm–5pm depending on bank | §39 |
+| Payroll / bulk crediting (3 working days)? | **BACS** — three-day cycle: Input Day, Processing Day, Entry Day | §39 |
+| International / cross-border? | **SWIFT** (MT103 for single, MT202 for bank-to-bank) | §39 |
+| FPS transaction limit? | £1,000,000 (individual banks may set lower limits) | §39 |
+| CHAPS transaction limit? | No statutory limit | §39 |
+| BACS payment types? | Direct Credit (payroll, benefits) and Direct Debit | §39 |
+| Who are the CMA9 banks? | Barclays, HSBC, Lloyds, Santander, NatWest, Nationwide, AIBG, Bank of Ireland, Danske | §70, §71 |
+
+### FCA Regulation & Consumer Duty
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Consumer Duty source documents? | PS22/9 (policy statement) and FG22/5 (final guidance) | §66 |
+| Consumer Duty four outcomes? | Products & Services · Price & Value · Consumer Understanding · Consumer Support | §66 |
+| Consumer Duty three cross-cutting rules? | Act in good faith · Avoid foreseeable harm · Enable customers to pursue good outcomes | §66 |
+| Consumer Duty annual requirement? | Board report assessing whether fair outcomes are being delivered | §66 |
+| AML designated function (Senior Manager)? | **SMF17** (MLRO) | §67 |
+| Beneficial ownership disclosure threshold? | **>25%** shares or voting rights | §67 |
+| SAR reports go to? | **NCA / UKFIU** (National Crime Agency / UK Financial Intelligence Unit) | §67 |
+| AML/KYC record retention? | **5 years** from end of business relationship (MLR 2017 Reg. 40) | §67 |
+| Ring-fencing deposit threshold? | **£25 billion** core deposits | §68 |
+| EDD required for? | PEPs, high-risk jurisdictions, complex/unusual transactions | §67 |
+| FCA guidance on PEPs? | FG17/6 | §67 |
+| CASS current account switch guarantee? | **7 working days** | §69 |
+
+### SCA & Open Banking
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Three SCA authentication factors? | Knowledge (PIN/password) · Possession (device/card) · Inherence (biometric) | §36, §70 |
+| SCA low-value contactless exemption? | Under **£100** cumulative or **5 transactions** since last SCA (UK, post-2023) | §70 |
+| SCA low-value online exemption? | Under **£30** per transaction | §70 |
+| SCA re-authentication interval for AISPs? | **90 days** | §70 |
+| Open Banking API availability SLA? | **99.5%** monthly average | §70 |
+| Pix (Brazil instant payment)? | Free, 24/7, mobile number / CPF / QR code; launched Nov 2020 | §71 |
+| Australia's open finance framework? | **Consumer Data Right (CDR)** — banking, energy, telecoms | §71 |
+| UK Open Banking governed by? | **Open Banking Limited (OBL)**, successor to OBIE | §70, §71 |
+
+### GDPR & Data Protection
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| DSAR response deadline? | **1 calendar month** from receipt; extendable by 2 months for complex requests | §75, §77 |
+| Breach notification to ICO deadline? | **72 hours** from becoming aware (if likely risk to individuals' rights and freedoms) | §75, §77 |
+| Breach notification to individuals? | "Without undue delay" — only where **high risk** (higher threshold than ICO notification) | §77 |
+| Cookies requiring consent (PECR)? | All except strictly necessary — analytics, advertising, tracking pixels all need consent | §77 |
+| Email marketing to existing customers without fresh consent? | Permitted via **PECR soft opt-in** — similar products, clear opt-out offered at collection | §75, §77 |
+| B2B email marketing (named individual)? | Same PECR rules apply as B2C | §77 |
+| UK international transfer mechanism (not SCCs)? | **IDTA** (International Data Transfer Agreement) — issued by ICO | §77 |
+| Six GDPR data protection principles? | Lawfulness/fairness/transparency · Purpose limitation · Data minimisation · Accuracy · Storage limitation · Integrity & confidentiality (+ Accountability) | §75 |
+| When is a DPO mandatory? | Public authority; large-scale systematic monitoring; large-scale special category data | §75, §77 |
+| Legitimate interest — data subject's override right? | **Absolute right to object** — must be honoured immediately; no competing grounds for direct marketing objections | §75 |
+| AML retention vs GDPR erasure right? | AML obligation (5–7 years) **overrides** the right to erasure | §67, §77 |
+| DPDI Act (UK post-Brexit GDPR changes)? | Replaces mandatory DPO with Senior Responsible Individual; recognised legitimate interests; browser-level cookie consent | §75 |
+
+### Companies & Entities (App.jsx Entity System)
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Companies House search API base URL? | `api.company-information.service.gov.uk/search/companies` | §41 |
+| Companies House filing history endpoint? | `/company/{number}/filing-history` | §41 |
+| Companies House PSC (beneficial owners) endpoint? | `/company/{number}/persons-with-significant-control` | §41 |
+| Charity Commission API base? | `api.charitycommission.gov.uk` | §41 |
+| Entity types in the prototype? | `sole-trader · partnership · limited · llp · charity · club · society` | CLAUDE.md |
+| Mandate rule types? | `any-1` · `any-2` · `all` — `getMandateFor()` picks strictest across selected accounts | CLAUDE.md |
+
+### HMRC Making Tax Digital
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| MTD VAT filing frequency? | **Quarterly** (some businesses monthly) | §37 |
+| MTD VAT payment deadline? | 1 month + 7 days after period end | §37 |
+| MTD VAT API auth? | OAuth 2.0 via HMRC Developer Hub | §37 |
+| MTD sandbox base URL? | `test-api.service.hmrc.gov.uk` | §37 |
+
+### AI & Prompt Engineering
+
+| Question | Answer | Section |
+|----------|--------|---------|
+| Copilot mode for writing code? | **Precise** — never Creative | §72 |
+| Copilot mode for brainstorming? | **Creative** | §72 |
+| CREATE framework letters? | **C**haracter · **R**equest · **E**xamples · **A**djustments · **T**ype · **E**xtras | §72 |
+| Hallucination mitigation pattern? | **Sandwich method**: Human (define) → AI (generate) → Human (verify) | §72 |
+| Consumer AI vs enterprise AI data privacy? | Consumer AI may train on your prompts; enterprise AI (Copilot M365, ChatGPT Enterprise) does not | §72 |
+| ChatGPT 80% rule? | If you get 80% of what you need, refine — don't restart | §73 |
+| Microsoft Foundry model catalog size (2025)? | **11,000+** models from Microsoft, OpenAI, Anthropic, xAI, Meta, Mistral, et al. | §76 |
+| RAG — what does retrieval layer do? | Fetches top-K relevant document chunks at query time; LLM generates response grounded in retrieved context | §76 |
+| Azure AI Search retrieval modes? | Keyword (BM25) · Vector (cosine similarity) · Hybrid · Semantic re-ranking | §76 |
+
+---
+
 ## Python Language Fundamentals
 
 ### Variables and Types
