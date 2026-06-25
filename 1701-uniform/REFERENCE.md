@@ -1,6 +1,6 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 97 books and regulatory documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 98 books and regulatory documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
@@ -14,7 +14,7 @@ certification, Microsoft Dynamics 365 Business Central AL programming, FCA Consu
 FCA AML/financial crime rules, FCA ring-fencing, FCA banking conduct (BCOBS), UK SCA/Open Banking,
 open banking & financial inclusion, Microsoft Copilot prompt engineering, ChatGPT prompt libraries,
 GDPR/UK GDPR marketing compliance, DPDI Bill, Azure AI Engineer (AI-102), and GDPR for startups & scaleups.
-Tailwind CSS utility-first mastery, React Hooks patterns and pitfalls, digital banking transformation (DBS), AI in financial services (autonomous banking), financial services compliance (UK FCA/FSMA), digital bank build playbooks (TMRW/UOB), UK bank payment rails (FPS/BACS/CHAPS/SWIFT) and PSR regulation, UK prudential regulation (PRA/PRC/Basel/Solvency II/resolution planning/MREL), UK post-trade infrastructure (LEI/SSI/KYC passporting/UMR/DLT).
+Tailwind CSS utility-first mastery, React Hooks patterns and pitfalls, digital banking transformation (DBS), AI in financial services (autonomous banking), financial services compliance (UK FCA/FSMA), digital bank build playbooks (TMRW/UOB), UK bank payment rails (FPS/BACS/CHAPS/SWIFT) and PSR regulation, UK prudential regulation (PRA/PRC/Basel/Solvency II/resolution planning/MREL), UK post-trade infrastructure (LEI/SSI/KYC passporting/UMR/DLT), ISO geometrical tolerancing (GD&T) for technical drawings.
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -109,6 +109,7 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 86. [UK Bank Payment Rails: FPS, BACS, CHAPS, SWIFT & PSR Regulation](#section-86--uk-bank-payment-rails)
 87. [UK Prudential Regulation: PRA, PRC and Bank Supervision](#section-87--uk-prudential-regulation-pra-prc-and-bank-supervision)
 88. [UK Post-Trade Infrastructure and Capital Markets Practices](#section-88--uk-post-trade-infrastructure-and-capital-markets-practices)
+89. [Geometrical Tolerancing: ISO GD&T for Technical Drawings — Paul Green (Elsevier)](#section-89--geometrical-tolerancing-iso-gdt-for-technical-drawings)
 
 ---
 
@@ -21686,4 +21687,443 @@ The report includes a forward-looking section on technology as an enabler of pos
 | Target onboarding time (recommended) | 10 business days | Task Force recommendation |
 | CSDR settlement fail penalty (equities) | 1 bp/day of trade value | UK CSDR (post-Brexit) |
 | ISO 20022 LEI field | 20-character alphanumeric | GLEIF standard |
+
+
+
+---
+
+## Section 89 — Geometrical Tolerancing: ISO GD&T for Technical Drawings — Paul Green (Elsevier)
+
+**Source:** *The Geometrical Tolerancing Desk Reference: Creating and Interpreting ISO Standard Technical Drawings* — Paul Green (Elsevier / Butterworth-Heinemann, 2006, ISBN 9780080460857). Author: experienced mechanical engineering designer and drawing-office practitioner. 22 chapters; based on ISO 1101:2004.
+
+### What Geometrical Tolerancing Is
+
+Geometrical tolerancing is a language of symbols placed on technical drawings to define the maximum allowable variation of **form**, **orientation**, and **location** of a feature. Engineering drawing practice divides into three areas: general principles (layout, line types, projection), dimensioning and size tolerancing (linear ± limits), and geometrical tolerancing. This book covers the third area only.
+
+A **geometrical tolerance** is the maximum allowable variation of form or position of a feature. The variation is controlled by defining the size and shape of a **tolerance zone** — the specified part of the feature must be entirely within that zone.
+
+### When to Use Geometrical Tolerancing vs ± Dimensional Tolerances
+
+A ± size tolerance on a dimension provides limited, incidental control over form and attitude: it prevents a shaft from being so bent that it would violate its size envelope, but it says nothing precise about flatness, circularity, or axial position. Use geometrical tolerancing when:
+
+- A better degree of form or attitude control is required than a size tolerance alone provides
+- The **position** of a feature (hole centre, boss axis, slot median plane) must be located relative to a datum
+- Two or more features must be controlled relative to each other (parallelism, perpendicularity, concentricity)
+- The part is non-rigid and some tolerances must apply in the free (unassembled) state
+
+Caution: geometrical tolerances increase manufacturing and inspection costs. Apply them only where functionally necessary.
+
+Both **first angle projection** (Europe and most of the world) and **third angle projection** (USA and Canada) are internationally approved. ISO 1101:2004 uses first angle projection throughout.
+
+---
+
+### The Tolerance Frame
+
+Geometrical tolerances are placed in a rectangular frame divided into compartments, read left to right:
+
+```
+| SYMBOL | TOLERANCE VALUE | DATUM REF 1 | DATUM REF 2 | DATUM REF 3 |
+```
+
+- **First compartment** — the geometric characteristic symbol (see master table below)
+- **Second compartment** — the tolerance value in millimetres; prefixed with `Ø` if the tolerance zone is cylindrical; prefixed with `S Ø` if spherical; may be followed by a modifier symbol such as `M` (maximum material requirement) or `L` (least material requirement)
+- **Third, fourth, fifth compartments** — datum reference letters in priority order (primary, secondary, tertiary). Omitted for single-feature (form) tolerances that need no datum.
+
+**Common tolerance frame variants:**
+
+| Frame form | Meaning |
+|------------|---------|
+| `[⊙ \| 0.05]` | Cylindricity 0.05 mm — no datum needed |
+| `[// \| 0.1 \| A]` | Parallelism 0.1 mm to datum A |
+| `[⊕ \| Ø0.05 \| A \| B]` | Position, cylindrical zone Ø0.05 mm, datums A and B |
+| `[⊥ \| 0.05 Ⓜ \| A]` | Perpendicularity 0.05 mm at MMC, datum A |
+| `[⊥ \| 0.05 \| A Ⓜ]` | Perpendicularity 0.05 mm, datum A at MMC |
+| `[// \| 0.1 \| A \| B \| C]` | Three-datum reference (primary A, secondary B, tertiary C) |
+
+When the tolerance is restricted to a **length** of the feature, a second tolerance frame is stacked below the first, showing the restricted value and the length (e.g., `/0.05/100` meaning 0.05 mm over any 100 mm).
+
+A **leader line with arrowhead** connects the tolerance frame to the toleranced feature. The arrowhead touches the surface outline (or its projection line) when the tolerance applies to a surface or generator line; it aligns with the dimension line when the tolerance applies to an axis or median plane.
+
+---
+
+### The Complete Geometric Symbol Table
+
+| Category | Characteristic | ISO text symbol | Tolerance zone shape | Datum needed | What it controls |
+|----------|---------------|-----------------|----------------------|-------------|------------------|
+| **Form** | Straightness | `—` | Between two parallel lines (2D) or inside a cylinder (axis) | No | Deviation of a line, edge, axis, or surface element from a perfect straight line |
+| **Form** | Flatness | `⬜` | Between two parallel planes | No | Divergence of a surface from a true plane |
+| **Form** | Circularity (Roundness) | `○` | Between two concentric circles | No | Deviation of a circular cross-section line from a true circle |
+| **Form** | Cylindricity | `⊙` | Between two coaxial cylinders | No | Combined straightness + circularity + parallelism of a cylindrical surface |
+| **Profile** | Profile of a line | `⌒` (arc) | Between two lines equidistant from the true profile | No (form) / Yes (orientation or location) | Deviation of a cross-section contour from its theoretically exact form |
+| **Profile** | Profile of a surface | `⌓` (surface arc) | Between two surfaces equidistant from the true profile | No (form) / Yes (orientation or location) | Deviation of a surface from its theoretically exact form |
+| **Orientation** | Parallelism | `//` | Between two parallel planes or inside a cylinder | Yes — axis or plane | Uniform distance of a surface or axis from a datum plane or axis |
+| **Orientation** | Perpendicularity (Squareness) | `⊥` | Between two parallel planes or inside a cylinder | Yes — plane or axis | Condition of being exactly 90° from a datum plane or axis |
+| **Orientation** | Angularity | `∠` | Between two parallel planes or inside a cylinder | Yes — axis or plane | Condition of being at a specified angle (not 90°) from a datum |
+| **Location** | Position | `⊕` | Inside a circle, cylinder, parallelepiped, or between parallel planes | Yes — axis, point, line, or plane | Deviation of axis, point, line, or surface from its theoretically exact position |
+| **Location** | Concentricity | `◎` | Inside a circle (2D, point deviation) | Yes — point | Deviation of a centre point from a datum point (2D cross-section control) |
+| **Location** | Coaxiality | `◎` | Inside a cylinder (3D, axis deviation) | Yes — axis | Deviation of an axis from a datum axis (3D control) |
+| **Location** | Symmetry | `≡` | Between two parallel planes | Yes — line or median plane | Condition of a median plane or axis being positioned symmetrically about a datum |
+| **Run-out** | Circular run-out | `↗` (single arrow) | Between two concentric circles (at each cross-section) | Yes — axis | Total indicator movement at any single cross-section during one full revolution |
+| **Run-out** | Total run-out | `↗↗` (double arrow) | Between two coaxial cylinders or two parallel planes | Yes — axis | Total indicator movement across entire surface during multiple revolutions |
+
+**Notes on the symbol column:** ISO 1101 uses graphical symbols that cannot be fully represented in ASCII. The text mnemonics above are conventional shorthand used in written descriptions; actual drawings use the standardised line-drawn symbols from the standard.
+
+---
+
+### Tolerance Zones
+
+The tolerance zone is the region within which all points of the toleranced feature must lie. The toleranced feature may be of any form or orientation within the zone unless further restricted. Zone shapes from ISO 1101:
+
+| Zone shape | Applies to |
+|------------|-----------|
+| Inside a circle | Centre point (concentricity) |
+| Between two concentric circles | Circularity, circular run-out |
+| Between two equidistant lines / parallel straight lines | Straightness of a line, parallelism |
+| Inside a sphere | Spherical position |
+| Inside a cylinder | Straightness of an axis, parallelism of an axis, position (cylindrical) |
+| Between two coaxial cylinders | Cylindricity, coaxiality, total run-out on a cylindrical surface |
+| Between two parallel planes | Flatness, parallelism, perpendicularity, symmetry |
+| Between two equidistant surfaces | Profile of a surface (form only) |
+| Inside a parallelepiped | Position, parallelism, perpendicularity (when applied in two directions simultaneously) |
+
+**Tolerance zone direction:** By default the zone width is always **normal (perpendicular) to the surface**. If the zone is to be at a different angle, this must be explicitly stated on the drawing by indicating the angle. A 90° indication drawn with a fixed angle reference is not the same as "normal to surface" — normal follows the local surface contour, while a fixed angle does not.
+
+The prefix `Ø` before the tolerance value in the tolerance frame indicates a **cylindrical** (rather than planar) tolerance zone. This is significant for hole-pattern position: a cylindrical zone of `Ø0.05` allows the same deviation in any direction, while a zone between two parallel planes of width `0.05` allows more deviation along the plane than across it.
+
+---
+
+### Datum Symbols and the Datum Reference Frame
+
+A **datum** is a theoretically exact geometric reference (plane, axis, or point) from which toleranced features are located or oriented. On the drawing it is represented by an **equilateral triangle** (filled or open) connected to a datum identifying letter in a square box (e.g., `[A]`).
+
+**Placement rules for the datum triangle:**
+
+| Situation | Rule |
+|-----------|------|
+| Datum is a plane or line | Triangle touches the surface outline or its extension line; the triangle is offset from the dimension line |
+| Datum is an axis | Triangle aligns with the dimension line of the feature (same line as the size dimension arrowheads) |
+| Datum is a median plane | Triangle aligns with the size dimension of the feature producing the median plane |
+| Insufficient space for two dimension arrowheads | One arrowhead replaced by the datum triangle |
+| Datum restricted to part of a feature | Chain line indicates the restricted portion; datum triangle references that portion |
+| Two features combine into one datum | Both features have the same datum letter; shown as `A–A` or `A` on each |
+| Datum without a letter | When the datum is unambiguous (single feature), the datum letter box may be omitted |
+| Toleranced feature and datum are the same feature | The arrowhead and the datum triangle share the same dimension line |
+
+**Datum priority order:** When more than one datum is listed in the tolerance frame, the sequence defines their priority — the letter in the third compartment is the **primary** datum, fourth is **secondary**, fifth is **tertiary**. The primary datum constrains the most degrees of freedom; the tertiary datum constrains the last remaining degree.
+
+#### The Three-Plane Datum System
+
+For complete location of a feature in three-dimensional space, a **three-plane datum system** is used. The three mutually perpendicular datum planes are:
+- **Primary datum plane** — the feature rests on this surface (three contact points minimum); constrains three degrees of freedom (one translation + two rotations)
+- **Secondary datum plane** — the feature is pushed against this surface (two contact points minimum); constrains two further degrees of freedom
+- **Tertiary datum plane** — the feature is pushed against this surface (one contact point minimum); constrains the final degree of freedom
+
+All three planes are at exactly 90° to each other. Orientation tolerances typically need only one or two datum references; position tolerances frequently require all three.
+
+---
+
+### Datum Targets
+
+When a part has an **irregular contour** — a casting, forging, or sheet-metal part — a datum target is used instead of referencing the full surface. A datum target is a specific point, line, or area on the workpiece that serves as the contact point for manufacturing and inspection fixtures.
+
+| Datum target type | Drawing representation | Description |
+|-------------------|----------------------|-------------|
+| Point | Cross inside a circle, number below | A single contact point (e.g., a locating pin tip) |
+| Line | Dashed line in the view showing the line end-on; cross-in-circle symbol at each end | A line contact (e.g., a V-block knife edge) |
+| Area | Cross-hatched region with a circle symbol; area size indicated (e.g., `Ø6`) | A finite contact area (e.g., a pad or locating foot) |
+
+**Notation:** Datum target symbols use a number combining the datum letter and a sequence number — `A1`, `A2`, `A3` (three points establishing datum plane A), `B1`, `B2` (two points establishing datum line B), `C1` (one point establishing datum C).
+
+A typical casting uses three datum targets for the primary plane (A1, A2, A3), two for the secondary (B1, B2), and one for the tertiary (C1) — matching the minimum contact count for each plane in the three-plane system.
+
+---
+
+### Theoretically Exact Dimensions (TEDs)
+
+A **theoretically exact dimension** — also called a **true dimension** or **boxed dimension** — is shown on the drawing enclosed in a rectangular box. It carries no tolerance of its own. The only variation permitted from a TED is the geometrical tolerance in the associated tolerance frame.
+
+TEDs must be used when dimensioning the theoretically exact location of features controlled by:
+- Angularity (the exact angle)
+- Position (the exact coordinates)
+- Profile of a line (the exact profile contour)
+- Profile of a surface (the exact surface contour)
+
+This is a critical distinction from conventional ± dimensioning: the boxed dimension is perfect by definition; the tolerance zone is the only departure allowed, and it is entirely defined by the geometric tolerance frame rather than the dimension itself.
+
+---
+
+### Projected Tolerance Zone
+
+In the case of orientation tolerances (angularity) and position tolerances, the tolerance zone can be applied to the **external projection** of the feature rather than to the feature itself. This is indicated by the symbol `P` (circled) in the tolerance frame after the tolerance value, together with the projected height dimension.
+
+**Why it matters:** A threaded hole for a bolt stud may be drilled and tapped within tolerance, but the stud that projects above the surface might lean beyond the acceptable range for the mating component. A projected tolerance zone controls the attitude of the stud in the space above the part surface rather than inside the hole itself.
+
+---
+
+### Maximum Material Condition (MMC) and the Maximum Material Principle
+
+**Maximum Material Condition (MMC)** is the state of a feature where it contains the maximum amount of material:
+- For a **shaft**: MMC = maximum diameter (upper limit of size)
+- For a **hole**: MMC = minimum diameter (lower limit of size)
+
+The MMC symbol `M` (circled) is placed in the tolerance frame after the tolerance value, after the datum letter, or both.
+
+**Maximum Material Principle:** Applies only to features with an axis or median plane. As the actual feature departs from MMC toward its other size limit (LMC), an additional geometrical tolerance becomes available equal to the departure from MMC. This bonus tolerance is added to the stated geometric tolerance.
+
+**Example (straightness at MMC):** Pin specified as `Ø20 –0/–0.04`, with straightness tolerance `0.1 Ⓜ`.
+
+| Actual pin diameter | Departure from MMC | Allowed straightness tolerance | Maximum virtual size |
+|--------------------|-------------------|-------------------------------|---------------------|
+| Ø20.00 (MMC) | 0 | 0.10 | Ø20.10 |
+| Ø19.99 | 0.01 | 0.11 | Ø20.10 |
+| Ø19.97 | 0.03 | 0.13 | Ø20.10 |
+| Ø19.96 (LMS) | 0.04 | 0.14 | Ø20.10 |
+
+The **Maximum Material Virtual Size (MMVS)** remains constant at `MMS + geometric tolerance` (for a shaft) or `MMS – geometric tolerance` (for a hole). This is the boundary that the pin's actual envelope must never violate.
+
+**MMC applied to datum features:** The datum axis (or datum median plane) is also allowed to float relative to the toleranced feature as the datum feature departs from MMC. This provides additional tolerance derived from both the toleranced feature and the datum feature simultaneously.
+
+**MMC at perfect form:** When a pin is at MMC (maximum diameter), it is assumed to be in perfect form — perfectly straight, no geometric error. As the pin reduces in size away from MMC, geometric error is permitted. This is equivalent to specifying a straightness tolerance of `0 Ⓜ`.
+
+---
+
+### Least Material Condition (LMC) and the Least Material Principle
+
+**Least Material Condition (LMC)** is the opposite extreme:
+- For a **shaft**: LMC = minimum diameter (lower limit of size)
+- For a **hole**: LMC = maximum diameter (upper limit of size)
+
+The LMC symbol `L` (circled) is used in the tolerance frame in the same positions as `M`.
+
+**Least Material Principle:** As the feature departs from LMC toward MMC, bonus geometric tolerance is accrued. LMC is used where maintaining minimum wall thickness is the functional priority — for example, ensuring a thin-walled tube never falls below a required wall thickness regardless of how bore and outer diameter vary.
+
+**Least Material Virtual Size (LMVS):**
+- For a shaft: `LMVS = LMS – geometric tolerance`
+- For a hole: `LMVS = LMS + geometric tolerance`
+
+**Worked example (minimum wall thickness):** A tube with outer diameter `Ø30 –0/–0.2` and bore `Ø9 –0/–0.1` with concentricity tolerance `0.2 Ⓛ` on the bore referenced to the outer diameter. The LMC principle ensures that even in the worst-case combination of sizes and eccentricity, the wall thickness cannot fall below the functional minimum.
+
+---
+
+### Envelope Requirement
+
+The **envelope requirement** (symbol `E` encircled, placed after the size tolerance) specifies that when a cylindrical surface or a feature with two parallel opposite plane surfaces is at its maximum material size, it must lie within a geometinary envelope of perfect form.
+
+In plain terms: at MMC the part must be geometrically perfect; deviations in form are only permitted as the feature departs from MMC. This makes MMC and the envelope requirement interrelated — the envelope requirement is equivalent to specifying a form tolerance of `0 Ⓜ` in the feature frame.
+
+The envelope requirement symbol is placed directly after the size tolerance value on the dimension: `Ø12 –0/–0.05 Ⓔ`.
+
+Under the **Principle of Independency** (the ISO default — see below), the envelope requirement must be explicitly stated. If not stated, size and form are independent.
+
+---
+
+### Free State Condition (Non-Rigid Parts)
+
+A **non-rigid part** (flexible part) adopts different dimensions when unassembled (free state) than when assembled under restraint. Examples include rubber O-rings, thin plastic sheets, and thin-walled cylinders.
+
+- When assembled, the part is under restraining forces that may change its shape; tolerances apply in the **restrained (assembled) condition** unless marked otherwise
+- The symbol `F` (circled) in the tolerance frame marks tolerances that apply in the **free state** (unassembled, no external forces)
+- The drawing must include `ISO 10579-NR` in or near the title block when this principle applies
+- The drawing must state the conditions of the free state (gravity direction, part orientation) and the conditions of restraint
+
+Average dimension note: on non-rigid parts, nominal diameters are sometimes calculated as the average of at least four measurements and marked "average" on the drawing.
+
+---
+
+### Principle of Independency
+
+Under **ISO standards** (including ISO 1101), the **Principle of Independency** (ISO 8015) applies by default: every dimensional and geometrical requirement is treated independently unless a specific relationship is indicated by MMR, LMR, or the envelope requirement.
+
+- Size tolerance controls size only; form tolerance controls form only; they are assessed separately
+- The title block must state `Tolerancing ISO 8015` to make independency explicit
+- **This is the opposite of ANSI (American National Standards)**, which applies the Taylor principle (envelope rule) by default — a size tolerance automatically controls form to the MMC boundary
+
+Practical consequence: under ISO independency, a shaft within its size tolerance may still fail a separately specified flatness or straightness tolerance. You must apply both the size check and the geometric check independently.
+
+---
+
+### Screw Threads, Gears, and Splines
+
+When a geometric tolerance or datum reference is applied to a **screw thread**, it applies to the axis of the thread derived from the **pitch cylinder** by default. To apply it to the major or minor diameter, state this explicitly.
+
+For **gears and splines**, the specific feature must be stated beneath the tolerance frame or datum frame:
+- `PD` — pitch diameter
+- `MD` — major diameter
+- `LD` — least (minor) diameter
+
+---
+
+### General Tolerances (ISO 2768)
+
+When no tolerance is stated on a dimension, **general tolerances** apply — these are the tolerances customary to a workshop's normal level of precision, stated once in the drawing title block.
+
+**ISO 2768** specifies four classes for linear and angular dimensions: fine (`f`), medium (`m`), coarse (`c`), very coarse (`v`). The title block entry is for example: `General Tolerances in accordance with ISO 2768-m`.
+
+**General tolerances for linear dimensions (normal precision example):**
+
+| Nominal size range (mm) | Tolerance |
+|------------------------|-----------|
+| 0.5 to 6 | ±0.1 |
+| Over 6 to 30 | ±0.2 |
+| Over 30 to 120 | ±0.3 |
+| Over 120 to 400 | ±0.5 |
+| Over 400 | ±0.8 (unless otherwise stated) |
+| Below 0.5 | Must be stated on the dimension |
+
+**General geometrical tolerances (normal precision example, ISO 2768-K class):**
+
+| Characteristic | Up to 10 | 10–30 | 30–100 | 100–300 | 300–1000 |
+|---------------|----------|-------|--------|---------|---------|
+| Circular run-out | 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |
+| Flatness | 0.05 | 0.1 | 0.2 | 0.4 | 0.6 |
+| Perpendicularity | 0.4 | 0.4 | 0.4 | 0.6 | 0.8 |
+| Roundness (Circularity) | Same as diameter size tolerance (max 0.2) | | | | |
+| Straightness | 0.05 | 0.1 | 0.2 | 0.4 | 0.6 |
+| Cylindricity | No general value — must be specified explicitly | | | | |
+| Total run-out | No general value — must be specified explicitly | | | | |
+| Angularity / Coaxiality / Concentricity / Parallelism / Position / Profile | No general values — must be specified explicitly | | | | |
+
+Symmetry general values (by nominal size): up to 3 → 0.6; 3–6 → 0.6; 6–30 → 0.6; 30–120 → 0.6; 120–400 → 0.8; 400–1000 → 1.
+
+**General angular tolerances (normal precision example):**
+
+| Nominal size of shorter leg (mm) | Angular tolerance |
+|----------------------------------|------------------|
+| Up to 10 | ±1° |
+| Over 10 to 50 | ±30′ |
+| Over 50 to 120 | ±20′ |
+| Over 120 to 400 | ±10′ |
+| Over 400 | ±5′ |
+
+---
+
+### Geometric Tolerance Values — Precision Reference (Normal Precision Firm)
+
+The following table gives example tolerance values to quote explicitly in tolerance frames (not general values — these must be stated on the drawing). Dimensions in mm.
+
+| Characteristic | Up to 10 | 10–30 | 30–100 | 100–300 | 300–1000 |
+|---------------|---------|-------|--------|---------|---------|
+| Angularity | 0.02 | 0.06 | 0.25 | 0.8 | 2 |
+| Circular run-out | 0.05 | 0.05 | 0.05 | 0.05 | 0.05 |
+| Coaxiality | 0.05 | 0.05 | 0.1 | 0.15 | 0.2 |
+| Concentricity | 0.05 | 0.05 | 0.1 | 0.15 | 0.2 |
+| Cylindricity | 0.25 | 0.25 | 0.25 | 0.3 | 0.4 |
+| Flatness | 0.01 | 0.02 | 0.05 | 0.15 | 0.3 |
+| Parallelism | 0.01 | 0.03 | 0.1 | 0.3 | 1 |
+| Perpendicularity | 0.01 | 0.03 | 0.1 | 0.2 | 0.5 |
+| Position | 0.05 | 0.05 | 0.1 | 0.15 | 0.2 |
+| Profile of a line | 0.05 | 0.05 | 0.1 | 0.15 | 0.2 |
+| Profile of a surface | 0.05 | 0.05 | 0.1 | 0.15 | 0.2 |
+| Roundness (Circularity) | 0.1 | 0.1 | 0.1 | 0.1 | 0.1 |
+| Straightness | 0.005 | 0.015 | 0.05 | 0.15 | 0.3 |
+| Total run-out | 0.05 | 0.05 | 0.05 | 0.05 | 0.05 |
+
+Symmetry (by nominal size): up to 3 → 0.05; 3–6 → 0.1; 6–30 → 0.2; 30–120 → 0.3; 120–400 → 0.5; 400–1000 → 0.8.
+
+---
+
+### Individual Characteristic Notes
+
+#### Form Tolerances (no datum required)
+
+**Straightness** — the most fundamental form control. Applies to: a line on a surface (tolerance zone between two parallel lines in the plane of measurement); a surface element (generator line of a cylinder); or an axis (cylindrical tolerance zone). For an axis, the cylindrical zone diameter is prefixed `Ø` in the tolerance frame. The axis straightness tolerance cannot exceed the size tolerance of the feature.
+
+**Flatness** — controls the divergence of a surface from a true plane. The zone is between two parallel planes separated by the tolerance value. No datum is referenced because the zone floats to the actual surface. A flatness tolerance on a surface must be less than the size tolerance of any dimension involving that surface.
+
+**Circularity (Roundness)** — controls the form of a circle at any single cross-section perpendicular to the axis. The zone is between two concentric circles. Controls all deviations including ovality, lobing, and polygonal distortion. Does not control the cylinder as a whole — that requires cylindricity. Applied at each cross-section independently.
+
+**Cylindricity** — the most demanding single-feature form control: the combined condition of straightness + circularity + parallelism of all surface elements of a cylinder simultaneously. The zone is between two coaxial cylinders. No general tolerance is specified for cylindricity in ISO 2768 — it must always be explicitly stated. Cylindricity = roundness + straightness of the axis + parallelism of the generator lines.
+
+#### Profile Tolerances (datum optional)
+
+**Profile of a line** — controls the perfect form of a cross-section contour (any shape, not just circular). Contour dimensions must be theoretically exact (boxed). Without a datum the tolerance applies to form only (single-feature); with a datum it controls orientation or location simultaneously.
+
+**Profile of a surface** — same as profile of a line but applied across the entire surface. The `all around` symbol (circle at the kink of the leader line) extends the tolerance to the entire outline of a cross-section; `all over` indicates the entire surface.
+
+#### Orientation Tolerances (datum always required)
+
+**Parallelism** — surface or axis at uniform distance from a datum plane or datum axis. Zone is between two parallel planes (surface-to-plane or axis-to-plane, if single direction) or inside a cylinder (axis-to-axis). When applied to an axis in two directions simultaneously, the zone is a parallelepiped.
+
+**Perpendicularity (Squareness)** — condition of exactly 90° from a datum. Surface-to-datum-plane, axis-to-datum-plane, axis-to-datum-axis. Same zone shapes as parallelism. The term "squareness" is used interchangeably with perpendicularity.
+
+**Angularity** — condition of a surface, axis, or median plane at a specified angle (other than 90°) from a datum. Angle dimension must be a theoretically exact (boxed) dimension. Zone is between two parallel planes or inside a cylinder (for axis control).
+
+#### Location Tolerances (datum required)
+
+**Position** — the most widely used location tolerance. Controls deviation of a surface, axis, point, or line from its theoretically exact (boxed) position relative to datums. Position dimensions must always be TEDs. A cylindrical tolerance zone (`Ø` prefix) is commonly used for hole axes — the equal-tolerance-in-all-directions cylindrical zone gives ~57% more area than a square zone of the same nominal size, improving manufacturing yield while maintaining functional assembly. Position may occasionally be applied without a datum (implied datum from a symmetric feature — noted as obsolete in ISO 1101:2004).
+
+**Concentricity** — controls deviation of a centre point from a datum point. Assessed in a single cross-section (2D). Uses the same symbol as coaxiality. The tolerance zone is a circle of diameter equal to the tolerance value.
+
+**Coaxiality** — controls deviation of an axis from a datum axis. Assessed through the full 3D length of the feature. The tolerance zone is a cylinder of diameter equal to the tolerance value. In ISO 1101:2004 the same symbol is used for both concentricity (centre point, 2D) and coaxiality (axis, 3D) — the specific feature determines which interpretation applies.
+
+**Symmetry** — controls a median plane or axis to be symmetrically positioned relative to a datum median plane or datum line. The zone is between two parallel planes equidistant from the datum. Like coaxiality, implied datum is noted as obsolete.
+
+#### Run-out Tolerances (datum axis always required)
+
+**Circular run-out** — defines how much a circular element can deviate during one complete revolution about the datum axis. Measured by a fixed indicator reading at a single cross-section (circular) or at a single axial position (face run-out). Total indicator movement (TIM) must not exceed the tolerance value. Circular run-out simultaneously controls circularity, concentricity, and the local effects of surface irregularity at that section.
+
+**Total run-out** — defines how much a complete surface can deviate during multiple revolutions about the datum axis. The indicator traverses the full length of the surface (for cylindrical surfaces: controls cylindricity + coaxiality; for face surfaces: controls flatness + perpendicularity). Total run-out is more stringent than circular run-out. Neither has a general tolerance in ISO 2768 — both must be explicitly stated.
+
+---
+
+### Quick Reference: Datum Needed?
+
+| Characteristic | Datum needed | Notes |
+|---------------|-------------|-------|
+| Straightness | No | Single feature |
+| Flatness | No | Single feature |
+| Circularity | No | Single feature |
+| Cylindricity | No | Single feature |
+| Profile of a line | Optional | No datum = form only; with datum = orientation/location |
+| Profile of a surface | Optional | As above |
+| Parallelism | Yes | Datum = axis or plane |
+| Perpendicularity | Yes | Datum = plane or axis |
+| Angularity | Yes | Datum = axis or plane; angle must be TED |
+| Position | Yes (normally) | Datum = axis, point, line, or plane; coordinates must be TEDs |
+| Concentricity | Yes | Datum = point |
+| Coaxiality | Yes | Datum = axis |
+| Symmetry | Yes | Datum = line or median plane |
+| Circular run-out | Yes | Datum = axis |
+| Total run-out | Yes | Datum = axis |
+
+---
+
+### Relevance to Hardware and KiCad PCB Design
+
+Geometrical tolerancing is not part of KiCad's native drawing language, but it directly governs the mechanical drawings that accompany electronic products. Knowing ISO GD&T is essential when:
+
+**Mechanical enclosure design**
+- Connector cutouts: position tolerance (`⊕`) with a cylindrical zone controls where a USB or D-sub cutout is located relative to the PCB mounting holes. A badly toleranced cutout that is "in spec" on coordinates but at the wrong angle (perpendicularity failure) will misalign with the PCB connector.
+- PCB mounting bosses and standoffs: parallelism and flatness of the seating surface prevent board warping under fastening forces. Typical flatness tolerance for a PCB mounting deck: 0.1–0.3 mm over the mounting span.
+- Snap-fit clips and press-fit features: the envelope requirement on shaft/hole features ensures fits are predictable at assembly.
+
+**PCB mechanical drawings**
+- Board outline accuracy: IPC-2221 references dimensional tolerancing; ISO GD&T position tolerances on holes (especially mounting holes and tooling holes) control drill accuracy. A `⊕ Ø0.1 A B` frame on a mounting hole means the hole axis must be within Ø0.1 mm of its theoretically exact position relative to primary and secondary datums.
+- Connector footprint keep-out zones: the tolerance zone concept maps directly — a footprint clearance zone is conceptually a tolerance zone within which no other copper or component shall appear.
+- Panel and stencil alignment: datum targets (fiducial marks in PCB terms) are the Gerber-layer analogue of datum target points. Three fiducials establish the primary datum plane for optical alignment equipment; this is a direct application of the three-plane datum system.
+
+**Component tolerances**
+- Connector and socket datasheets specify pin position tolerances as ± values; converting these to ISO GD&T position tolerances allows worst-case and statistical tolerance stack-ups using the MMVS/LMVS framework.
+- Through-hole pin straightness tolerances in component datasheets correspond directly to ISO straightness; bent pins at MMC must still fit within the tolerance zone.
+
+**Heat sink and thermal interface**
+- Flatness of heat-sink bases is critical for thermal interface material (TIM) effectiveness. A flatness tolerance of 0.05 mm over 50 mm is a typical requirement; this is stated in ISO GD&T flatness terms, not ± coordinates.
+- Circularity (roundness) of cylindrical heat-pipe bores affects heat-pipe press-fit interference.
+
+**Summary mapping:**
+
+| ISO GD&T concept | Hardware / PCB equivalent |
+|-----------------|--------------------------|
+| Datum targets | PCB fiducial marks (optical alignment) |
+| Position (cylindrical zone) | Drill tolerance on mounting / tooling holes |
+| Flatness | PCB mounting surface, heat-sink base |
+| Perpendicularity | Connector-to-board squareness, press-fit pin alignment |
+| Parallelism | Standoff height matching across a board |
+| Concentricity / Coaxiality | Circular connector shell to contact axis |
+| Total run-out | Shaft encoder or motor shaft quality |
+| Envelope requirement | Shaft/hole fit classification (H7/g6 etc.) |
+| MMC / LMC | Tolerance stack-up for clearance / interference fits |
+| Theoretically exact dimensions | Nominal coordinates on board outline drawings |
+
+---
 

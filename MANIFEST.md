@@ -152,9 +152,9 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 21,689 lines · 88 sections · 97 books & regulatory documents · Quick Lookup decision index (Jun 2026)
+**Size:** 22,128 lines · 89 sections · 98 books & regulatory documents · Quick Lookup decision index (Jun 2026)
 
-### Domain Groups (88 sections)
+### Domain Groups (89 sections)
 
 | Domain | Sections | Key sources |
 |--------|----------|-------------|
@@ -167,7 +167,7 @@ Contents:
 | Digital Banking Transformation | §82, §83, §85 | World's Best Bank — DBS (Speculand 2021), The Autonomous Bank — AI/ML (Dhillon 2025), Driving Digital Transformation — TMRW/UOB (Khoo 2021) |
 | Microsoft Ecosystem | §27–33, §64–65, §76 | Power Teams, Power BI (×2), PowerPoint (×2), SharePoint, Dynamics 365 BC AL, Azure AI Engineer |
 | Employment & Equality Law | §34 | Equality Act 2010, protected characteristics, WCAG legal duty, reasonable adjustments |
-| Electronics · Hardware · IoT | §43–49, §54, §57 | MakerSpace, Electronics, Mechatronics, Digital Logic, Devices & Circuits, Arduino/IoT, Embedded Linux |
+| Electronics · Hardware · IoT | §43–49, §54, §57, §89 | MakerSpace, Electronics, Mechatronics, Digital Logic, Devices & Circuits, Arduino/IoT, Embedded Linux, ISO GD&T Geometrical Tolerancing (Green, Elsevier) |
 | Quick Lookup Decision Index | — | 70+ answers · 8 themed tables · maps common questions to exact values · spans all 88 sections |
 
 ---
@@ -269,7 +269,7 @@ Contents:
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — 88 sections, 97 books & regulatory docs, 21,689 lines, Quick Lookup index |
+| 10 | Reference library — 89 sections, 98 books & regulatory docs, 22,128 lines, Quick Lookup index |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
 | 13 | Business case summary — £137M, metrics, differentiators, phase status |
