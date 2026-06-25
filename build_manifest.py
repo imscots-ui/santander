@@ -625,13 +625,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "15,552 lines · 77 sections · 86 books & regulatory documents · Quick Lookup decision index")
+               "21,689 lines · 88 sections · 97 books & regulatory documents · Quick Lookup decision index")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("15,552", "lines"),
-    ("77",     "sections"),
-    ("86",     "books & docs"),
+    ("21,689", "lines"),
+    ("88",     "sections"),
+    ("97",     "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -646,24 +646,24 @@ domains = [
          "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · Security · Pydantic · async · pytest"),
         (RED,     "AI & Prompt Engineering",            "§20, §23–25, §58–65, §72–74",
          "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
-        (RED,     "Banking · Payments · Open Banking",  "§35–41, §70–71",
-         "PSD2 · MTD HMRC · WCAG · FPS/BACS/CHAPS/SWIFT · KYC/AML · Companies House · Financial Inclusion"),
-        (RED,     "FCA Regulation",                     "§66–70",
-         "Consumer Duty PS22/9 · AML MLR 2017 · Ring-Fencing FSMA · BCOBS/CASS · SCA/UK-RTS exemptions"),
+        (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
+         "PSD2 · FPS/BACS/CHAPS/SWIFT · PSR · FCA Consumer Duty · AML · Ring-Fencing · SCA · BCOBS · FCA Compliance · UK Resolution · Post-Trade"),
+        (RED,     "Prudential & Market Regulation",     "§36–40, §87–88",
+         "PRA/PRC · Basel 3.1 · SS19/13 Resolution Planning · MREL · CNRF · Deposit Aggregators · LEI/SSI · KYC Passporting · Post-Trade Task Force"),
         (RED,     "Data Protection",                    "§75, §77",
          "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
     ],
     [  # Right column — x=6.68
-        (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56",
-         "React/JS patterns · Refactoring UI · Tailwind CSS v3 · CSS Animation · Vite/TS · React 19 · UX · Photoshop · KiCad"),
+        (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56, §78–81",
+         "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
         (DARK,    "Microsoft Ecosystem",                "§27–33, §64–65, §76",
          "Power Teams · Power BI (×2) · PowerPoint (×2) · SharePoint · Dynamics 365 BC AL · Azure AI Engineer AI-102"),
         (DARK,    "Employment & Equality Law",          "§34",
          "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
         (DARK,    "Electronics · Hardware · IoT",       "§43–49, §54, §57",
          "MakerSpace · Electronics · Mechatronics · Digital Logic · Devices & Circuits · Arduino/IoT · Embedded Linux"),
-        (EMERALD, "Quick Lookup Decision Index",        "NEW — Jun 2026",
-         "70+ answers · 8 themed tables · Design rules · Payment rails · GDPR deadlines · FCA rules · SCA · AI prompt modes"),
+        (EMERALD, "Digital Banking Transformation",      "§82, §83, §85",
+         "DBS World's Best Bank (Speculand) · The Autonomous Bank AI/ML (Dhillon) · TMRW Digital Bank Build (Khoo/UOB) · Quick Lookup Decision Index"),
     ],
 ]
 
@@ -817,7 +817,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (77 sections · Quick Lookup index)"),
+         ("Slide 10", "Reference library (88 sections · Quick Lookup index)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Business case summary"),
      ]),
