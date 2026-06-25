@@ -270,6 +270,15 @@ export default function App() {
   const [methodFilter, setMethodFilter] = useState('all'); // 'all' | 'card' | 'dd' | 'so' | 'fp' | 'bacs'
   const [paymentPending, setPaymentPending] = useState(null); // null | { kind, label, total, count, countdown }
 
+  // Complaint workflow state
+  const [complaintName, setComplaintName] = useState('');
+  const [complaintChannel, setComplaintChannel] = useState('');
+  const [complaintCategory, setComplaintCategory] = useState('');
+  const [complaintEligible, setComplaintEligible] = useState('');
+  const [complaintEscalFlags, setComplaintEscalFlags] = useState([]);
+  const [complaintDenialReason, setComplaintDenialReason] = useState('');
+  const [complaintGoodwill, setComplaintGoodwill] = useState(false);
+
   // Load fonts
   useEffect(() => {
     if (document.querySelector('link[data-fonts]')) return;
@@ -836,6 +845,9 @@ export default function App() {
     setPayeeSearch(''); setShowAddPayee(false);
     setNewPayeeName(''); setNewPayeeSort(''); setNewPayeeAcct(''); setNewPayeeAmount(''); setNewPayeeRole('');
     setLendingConfirm(false);
+    setComplaintName(''); setComplaintChannel(''); setComplaintCategory('');
+    setComplaintEligible(''); setComplaintEscalFlags([]);
+    setComplaintDenialReason(''); setComplaintGoodwill(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -2840,6 +2852,237 @@ export default function App() {
     </button>
   );
 
+  const renderComplaint = () => {
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const escalLookup = {
+      vulnerable: 'Vulnerable customer', highvalue: 'High-value redress',
+      regulatory: 'Regulatory reportable', fraud: 'Fraud / APP scam',
+      legal: 'Legal threat', media: 'Media risk', board: 'Board referral', repeat: 'Repeat complainant',
+    };
+    const escalLevel = complaintEscalFlags.includes('legal') || complaintEscalFlags.includes('board')
+      ? 'Executive / Legal'
+      : complaintEscalFlags.some(f => ['regulatory', 'media'].includes(f))
+        ? 'Compliance team'
+        : complaintEscalFlags.some(f => ['highvalue', 'vulnerable', 'fraud'].includes(f))
+          ? 'Senior Handler'
+          : 'Standard Handler';
+    const escalColour = escalLevel === 'Executive / Legal' ? 'bg-red-50 border-red-300 text-red-900'
+      : escalLevel === 'Compliance team' ? 'bg-amber-50 border-amber-300 text-amber-900'
+      : escalLevel === 'Senior Handler' ? 'bg-stone-100 border-stone-300 text-stone-800'
+      : 'bg-emerald-50 border-emerald-200 text-emerald-900';
+    const next = () => {
+      if (step === 3) {
+        fireToast('Case COMP-2026-0041 closed · Not upheld · FOS referral notice issued');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const titles = ['Complaint intake', 'Escalation triage', 'Decision — not upheld', 'Case outcome'];
+    const subs = [
+      'Log and check eligibility · FCA DISP 1.3',
+      'Assess severity and routing · FCA DISP 1.4',
+      'Record reasons and issue FOS rights · FCA DISP 1.6',
+      'COMP-2026-0041 · final response ready',
+    ];
+    const step0Disabled = !complaintName.trim() || !complaintChannel || !complaintCategory || !complaintEligible;
+    return (
+      <StepFrame onClose={closeWorkflow}
+        title={titles[step]} sub={subs[step]}
+        total={4} current={step}
+        onBack={back} onNext={next}
+        nextLabel={step === 3 ? 'Close case' : 'Continue'}
+        nextDisabled={step === 0 ? step0Disabled : step === 2 ? !complaintDenialReason : false}
+        replaces={{ form: 'Paper complaint form · postal follow-up rounds', savings: 'Digital log · instant triage · FCA DISP compliant' }}
+      >
+        {step === 0 && (
+          <div className="space-y-5">
+            <div className="bg-stone-900 rounded-2xl p-4 text-white">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-1">Case reference</div>
+              <div className="font-mono text-lg font-medium">COMP-2026-0041</div>
+              <div className="text-[11px] text-stone-400 mt-1.5">Received 25 Jun 2026 · D+56 deadline: 20 Aug 2026</div>
+            </div>
+            <Field label="Complainant name">
+              <Input value={complaintName} onChange={setComplaintName} placeholder="Full name or business name" />
+            </Field>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">How received</div>
+              <div className="grid grid-cols-3 gap-2">
+                {['Branch', 'Phone', 'Email', 'App', 'Letter', 'Social'].map(ch => (
+                  <button key={ch} onClick={() => setComplaintChannel(ch)}
+                    className={`py-2.5 rounded-xl text-xs font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintChannel === ch ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'}`}>{ch}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Complaint category</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'service', label: 'Poor service', desc: 'Delays, errors, unhelpful response' },
+                  { id: 'regulatory', label: 'Regulatory / compliance', desc: 'Mis-selling, unfair treatment, Principle breach' },
+                  { id: 'fraud', label: 'Fraud or scam', desc: 'Unauthorised transaction, APP fraud not reimbursed' },
+                  { id: 'conduct', label: 'Staff conduct', desc: 'Behaviour, discrimination, communication' },
+                  { id: 'accessibility', label: 'Accessibility', desc: 'Reasonable adjustments not made' },
+                  { id: 'product', label: 'Product or charges', desc: 'Unfair fees, wrong rate, suitability' },
+                ].map(cat => (
+                  <button key={cat.id} onClick={() => setComplaintCategory(cat.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintCategory === cat.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                    <div className="font-medium">{cat.label}</div>
+                    <div className={`mt-0.5 ${complaintCategory === cat.id ? 'text-stone-400' : 'text-stone-400'}`}>{cat.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Eligible complainant? (DISP 2.7)</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'individual', label: 'Individual / sole trader' },
+                  { id: 'micro', label: 'Micro-enterprise (< 10 staff · < £2m turnover)' },
+                  { id: 'charity', label: 'Charity (annual income < £1m)' },
+                  { id: 'trust', label: 'Small trust (net assets < £1m)' },
+                  { id: 'not-eligible', label: 'Not eligible — large corporate / institution' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setComplaintEligible(opt.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${
+                      complaintEligible === opt.id
+                        ? (opt.id === 'not-eligible' ? 'bg-amber-50 border-amber-400 text-amber-900' : 'bg-stone-900 text-white border-stone-900')
+                        : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'
+                    }`}>{opt.label}</button>
+                ))}
+              </div>
+              {complaintEligible === 'not-eligible' && (
+                <div className="mt-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                  <strong>Non-eligible complainant.</strong> FCA DISP procedures are not mandatory but Consumer Duty obligations still apply. Log and respond as standard.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-5">
+            <div className={`p-4 rounded-2xl border ${escalColour}`}>
+              <div className="text-[10px] uppercase tracking-[0.18em] mb-1 opacity-70">Escalation level</div>
+              <div className="font-medium text-base">{escalLevel}</div>
+              {complaintEscalFlags.length === 0
+                ? <div className="text-xs mt-1 opacity-70">No escalation flags selected — standard handler queue</div>
+                : <div className="text-xs mt-1.5 opacity-80">{complaintEscalFlags.map(f => escalLookup[f]).join(' · ')}</div>
+              }
+            </div>
+            <div className="bg-stone-50 rounded-xl px-4 py-3 text-xs text-stone-600 leading-relaxed border border-stone-200">
+              <strong className="text-stone-800">FCA DISP deadlines.</strong> Resolve within <strong>3 business days</strong> (summary resolution, no letter needed) or acknowledge within <strong>5 business days</strong> and issue final response within <strong>8 weeks</strong> (D+56 · <span className="font-mono">20 Aug 2026</span>). After D+56 or if unsatisfied, complainant may refer to FOS.
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Severity flags — tick all that apply</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'vulnerable', label: 'Vulnerable customer', desc: 'Mental health, bereavement, financial difficulty, age-related' },
+                  { id: 'highvalue', label: 'High-value redress likely', desc: '>£500 compensation or refund' },
+                  { id: 'regulatory', label: 'Regulatory / FCA reportable', desc: 'COBS, BCOBS, Principle 6 or Consumer Duty breach' },
+                  { id: 'fraud', label: 'Fraud / APP scam linked', desc: 'Unauthorised payment or PS23/3 potential mis-handling' },
+                  { id: 'legal', label: 'Legal threat received', desc: 'Solicitor letter or court action threatened' },
+                  { id: 'media', label: 'Media or reputational risk', desc: 'Social media, press enquiry, influencer involvement' },
+                  { id: 'board', label: 'Board or executive referral', desc: 'CEO / Chair office, NED involvement' },
+                  { id: 'repeat', label: 'Repeat complainant', desc: 'Same issue previously investigated and closed' },
+                ].map(flag => {
+                  const active = complaintEscalFlags.includes(flag.id);
+                  return (
+                    <button key={flag.id} onClick={() => setComplaintEscalFlags(prev =>
+                      prev.includes(flag.id) ? prev.filter(f => f !== flag.id) : [...prev, flag.id]
+                    )}
+                      className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 flex items-start gap-3 ${active ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                      <div className={`w-4 h-4 rounded flex-shrink-0 mt-0.5 border flex items-center justify-center ${active ? 'bg-white/20 border-white/40' : 'border-stone-300'}`}>
+                        {active && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <div>
+                        <div className="font-medium">{flag.label}</div>
+                        <div className={active ? 'text-stone-400 mt-0.5' : 'text-stone-400 mt-0.5'}>{flag.desc}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-5">
+            <div className="bg-stone-50 rounded-xl px-4 py-3 text-xs text-stone-600 leading-relaxed border border-stone-200">
+              <strong className="text-stone-800">Not upholding — regulatory requirements.</strong> A final response letter must be issued explaining why the complaint is not upheld, any redress offered, and the FOS referral notice with the 6-month window. (FCA DISP 1.6.2R)
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Reason not upheld</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'no-evidence', label: 'No evidence of service failure', desc: 'Our records confirm the service was delivered correctly and within agreed terms.' },
+                  { id: 'terms', label: 'Action within terms & conditions', desc: 'The action complained about was permitted under the terms agreed at account opening.' },
+                  { id: 'time-barred', label: 'Time-barred', desc: '>6 years since the event, or >3 years since the customer should reasonably have known (DISP 2.8.2R).' },
+                  { id: 'not-eligible', label: 'Not an eligible complainant', desc: 'The complainant does not meet the FCA DISP 2.7 eligible complainant definition.' },
+                  { id: 'duplicate', label: 'Duplicate — already investigated', desc: 'A final response was previously issued for this exact matter.' },
+                  { id: 'third-party', label: 'Third-party responsibility', desc: 'The complained-about event was caused by a third party outside our control.' },
+                  { id: 'out-of-scope', label: 'Outside regulatory perimeter', desc: 'The subject matter falls outside FCA regulation and our DISP obligations.' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setComplaintDenialReason(opt.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintDenialReason === opt.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                    <div className="font-medium">{opt.label}</div>
+                    <div className={`mt-0.5 ${complaintDenialReason === opt.id ? 'text-stone-400' : 'text-stone-400'}`}>{opt.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Toggle label="Offer goodwill gesture despite not upholding"
+              value={complaintGoodwill} onChange={setComplaintGoodwill}
+              sub="Ex-gratia gesture — does not constitute admission of liability" />
+          </div>
+        )}
+        {step === 3 && (
+          <div className="space-y-5">
+            <div className="bg-stone-900 rounded-2xl p-4 text-white space-y-3">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Case reference</div>
+                <div className="font-mono font-medium">COMP-2026-0041</div>
+              </div>
+              <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Complainant</div>
+                  <div className="font-medium">{complaintName || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Received via</div>
+                  <div className="font-medium">{complaintChannel || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Category</div>
+                  <div className="font-medium capitalize">{complaintCategory || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Decision</div>
+                  <div className="font-medium text-red-300">Not upheld</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Escalation</div>
+                  <div className="font-medium">{escalLevel}</div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex gap-3">
+              <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>FOS referral notice — mandatory.</strong> The final response letter must advise the complainant they may refer to the <strong>Financial Ombudsman Service</strong> within <strong>6 months</strong> of this response. FOS: 0800 023 4567 · financial-ombudsman.org.uk
+              </div>
+            </div>
+            {complaintGoodwill && (
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-700">
+                <strong>Goodwill gesture noted.</strong> Record any ex-gratia payment separately. Does not constitute admission of liability.
+              </div>
+            )}
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-600 leading-relaxed">
+              <strong className="text-stone-800">FCA DISP 1.10 reporting.</strong> This case is included in the next half-yearly aggregate complaints return. Apply root cause code before closure.
+            </div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -3174,6 +3417,7 @@ export default function App() {
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
           <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
           <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
+          <ActionTile icon={Scale} title="Log complaint" desc="DISP · triage · denial · FOS" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
         </div>
       </div>
 
@@ -5434,6 +5678,7 @@ export default function App() {
                 { id: 'idcheck', label: 'ID register', icon: UserCheck },
                 { id: 'closure', label: 'Close account', icon: Archive },
                 { id: 'dormancy', label: 'Dormant accounts', icon: Pause },
+                { id: 'complaint', label: 'Log complaint', icon: Scale },
               ].map(t => {
                 const I = t.icon;
                 return (
@@ -5570,6 +5815,7 @@ export default function App() {
         {workflow === 'ringfence' && renderRingfence()}
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
+        {workflow === 'complaint' && renderComplaint()}
 
         {showOTP && OTPSheet()}
         {showCompliance && ComplianceSheet()}
@@ -5749,6 +5995,7 @@ export default function App() {
       {workflow === 'ringfence' && renderRingfence()}
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
+      {workflow === 'complaint' && renderComplaint()}
 
       {showOTP && OTPSheet()}
       {showCompliance && ComplianceSheet()}
