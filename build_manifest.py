@@ -625,11 +625,11 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "22,590 lines · 89 sections · 98 books & regulatory documents · Quick Lookup decision index")
+               "22,692 lines · 89 sections · 98 books & regulatory documents · Quick Lookup decision index")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("22,590", "lines"),
+    ("22,692", "lines"),
     ("89",     "sections"),
     ("98",     "books & docs"),
     ("70+",    "quick answers"),

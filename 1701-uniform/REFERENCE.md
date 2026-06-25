@@ -21492,6 +21492,108 @@ The **Image Clearing System** (ICS) launched in 2019 changed how cheques are cle
 
 ---
 
+### 86.33 Digital and Mobile Wallets — PSR Context
+
+**Source:** *Ways of paying — Digital/mobile wallets* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+Digital/mobile wallets (Apple Pay, Google Pay, Samsung Pay, PayPal) are **not new payment systems** — they are interfaces that tokenise and transmit credentials to existing card rails (Visa, Mastercard). The PSR does not directly regulate wallets; the underlying card scheme regulation applies.
+
+---
+
+#### How They Work
+
+- The consumer stores card details in the wallet; the wallet generates a **token** (a one-time or device-specific proxy for the card number) that is used at the point of sale
+- Tokenisation means the real card PAN is never transmitted to the merchant — reduces data breach risk
+- Payment is processed via the card network (Visa/Mastercard), the card issuer, and the acquirer — the same rails as a physical card tap
+- Authentication: biometric (Face ID, fingerprint) or device PIN satisfies **Strong Customer Authentication (SCA)** requirements under PSD2/PSRs 2017
+
+#### Consumer Protections
+
+Because wallets use card rails, the **same protections as the underlying card apply**:
+
+| Wallet Payment Type | Chargeback | Section 75 (CCA) | FSCS |
+|---|---|---|---|
+| Debit card via wallet | Yes (voluntary) | No | Yes (via bank) |
+| Credit card via wallet | Yes | Yes (>£100) | Yes (via bank) |
+| BNPL integrated into wallet (e.g., Klarna in Apple Pay) | No (BNPL terms apply) | No | No |
+
+**Contactless limits:** Physical contactless: £100. Mobile wallet contactless with biometric: typically **no limit** (SCA satisfied by biometric — higher-risk threshold lifted).
+
+#### Regulatory Perimeter
+
+- **PSR:** No direct regulation of wallet providers (Apple, Google, Samsung, PayPal) — they are not designated payment systems
+- **FCA:** Wallets operating e-money functions (PayPal, some others) are FCA-regulated as Electronic Money Institutions (EMIs)
+- **Competition concern:** The PSR has examined whether Apple's NFC restriction (Apple Pay only on iPhone NFC hardware) creates anti-competitive conditions — this is an ongoing regulatory tension at EU and UK level
+- **Open Banking wallets:** Some wallets use PIS (Payment Initiation Services) to initiate A2A payments directly — these are FCA-regulated PISPs; protections differ from card-based wallets (no chargeback; PS23/3 may apply if FPS/CHAPS-routed)
+
+#### Prototype Relevance
+
+- The prototype is digital-only; its authentication flows (SCA, biometric, OTP) mirror the verification layer that wallets rely on
+- The NFC/SCA architecture in the prototype's OTP sheet is conceptually aligned with how mobile wallets satisfy PSD2 SCA: possession (device) + inherence (biometric)
+- BNPL integration into wallets is background context for the account closure workflow — identifying and migrating ongoing payment authorities
+
+---
+
+### 86.34 Cryptoassets — PSR Context and Regulatory Perimeter
+
+**Source:** *Ways of paying — Cryptoassets* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying; UK cryptoasset regulatory framework · FCA, HM Treasury, Bank of England · (current as of June 2026)
+
+Cryptoassets (Bitcoin, Ethereum, and thousands of others) are **not currently regulated as payment systems** by the PSR. The PSR's remit covers designated payment systems — cryptoassets do not meet this definition. Consumer protection for cryptoassets is minimal.
+
+---
+
+#### PSR Position
+
+- **Not a designated payment system** under the Financial Services (Banking Reform) Act 2013
+- PSR has no current powers over crypto exchanges, wallets, or crypto payment processors
+- The PSR's role may expand if **stablecoins** used for retail payments are brought into the designated payment systems regime (see below)
+
+#### FCA Regulation (Current)
+
+| Regulation | Scope |
+|---|---|
+| Money Laundering Regulations 2017 (MLR) | All UK cryptoasset businesses must register with FCA; AML/KYC obligations |
+| Financial Promotions Order | FCA approval required for crypto financial promotions (since October 2023) |
+| FSMA 2000 (specified investments) | Security tokens that constitute regulated investments are in scope |
+| Electronic Money Regulations | Stablecoins functioning as e-money may require EMI authorisation |
+
+**FSCS:** Cryptoassets are not FSCS-protected. If a crypto exchange fails, consumer funds are not guaranteed.
+
+#### Consumer Protection — Summary
+
+| Protection | Status |
+|---|---|
+| FSCS | **None** |
+| Chargeback | **None** (crypto transactions are irreversible by design) |
+| Section 75 (CCA) | **None** |
+| APP fraud reimbursement (PS23/3) | **None** — crypto is not FPS or CHAPS |
+| FOS complaints | **Very limited** — only if purchased via FCA-authorised firm for in-scope products |
+
+#### Stablecoins and the Emerging Regime
+
+**Stablecoins** (e.g., USDC, USDT, algorithmic stablecoins) aim to maintain a stable value (usually pegged to a fiat currency). HM Treasury and the FCA are developing a stablecoin regime under powers granted by the **Financial Services and Markets Act 2023 (FSMA 2023)**:
+
+- Payment stablecoins (those used as a means of payment) are to be brought within FCA regulation
+- Systemic stablecoins may be regulated by the Bank of England
+- PSR **may** be given oversight of stablecoin payment systems if they meet the designated system threshold
+- Timeline: FCA consulted in 2024; final rules expected 2025–2026
+
+#### Digital Pound (UK CBDC)
+
+The Bank of England and HM Treasury consulted in 2023 on a **retail Central Bank Digital Currency (CBDC)** — the "digital pound" (Project Rosalind, Britcoin). Key points:
+- Would be a liability of the Bank of England (like banknotes) — not commercial bank money
+- Would be PSR-relevance territory if it becomes a payment system
+- No decision to proceed; further consultation expected; not expected before 2030 at earliest
+
+#### Prototype Relevance
+
+- Cryptoassets are entirely outside the prototype's payment flows
+- The stablecoin and CBDC regulatory developments are background context for presentations about the future of UK payment infrastructure
+- The PSR's potential expansion into stablecoin regulation (via FSMA 2023 powers) is the bridge between §86's payment systems focus and the emerging crypto payment landscape
+- The FCA financial promotions regime for crypto (Oct 2023) is relevant to the prototype's compliance framing: Santander UK is an FCA-authorised firm and must not promote unregulated crypto products
+
+---
+
 ## Section 87 — UK Prudential Regulation: PRA, PRC and Bank Supervision
 **Source:** *Questionnaire on the reappointment of Antony Jenkins CBE to the Prudential Regulation Committee* · HM Treasury Select Committee · February 2024  
 **Relevance:** The Santander prototype sits inside the UK prudential regulatory perimeter (PRA-regulated firm). Understanding PRC/PRA thinking on capital adequacy, AI, technology risk, business model resilience, and the competitiveness objective directly informs how the app's compliance, ID-check, and signatory workflows are framed for internal presentations.
