@@ -1,6 +1,6 @@
 # Technical Reference — 1701 Uniform Inventory
 
-Synthesised from 86 books and regulatory documents across Python, JavaScript, SQL, HTTP, security, Docker,
+Synthesised from 94 books and regulatory documents across Python, JavaScript, SQL, HTTP, security, Docker,
 Git, authentication, AI prompting, prompt engineering, AI agent architecture, UI design,
 virtual team leadership, Power BI, data analytics, PowerPoint, SharePoint, employment law, banking integration architecture,
 PSD2/SCA regulation, HMRC Making Tax Digital, WCAG 2.1 accessibility, UK payment rails (FPS/BACS/CHAPS/SWIFT),
@@ -14,6 +14,7 @@ certification, Microsoft Dynamics 365 Business Central AL programming, FCA Consu
 FCA AML/financial crime rules, FCA ring-fencing, FCA banking conduct (BCOBS), UK SCA/Open Banking,
 open banking & financial inclusion, Microsoft Copilot prompt engineering, ChatGPT prompt libraries,
 GDPR/UK GDPR marketing compliance, DPDI Bill, Azure AI Engineer (AI-102), and GDPR for startups & scaleups.
+Tailwind CSS utility-first mastery, React Hooks patterns and pitfalls, digital banking transformation (DBS), AI in financial services (autonomous banking), financial services compliance (UK FCA/FSMA), and digital bank build playbooks (TMRW/UOB).
 Intended for AI coding agents to prevent recurring mistakes and encode hard-won patterns.
 
 ---
@@ -97,6 +98,14 @@ Intended for AI coding agents to prevent recurring mistakes and encode hard-won 
 75. [How to Use Customer Data: GDPR, DPDI & Marketing AI — Sachiko Scheuing (Kogan Page, 2024)](#section-75--how-to-use-customer-data-gdpr-dpdi--marketing-ai)
 76. [Azure AI Engineer AI-102 Certification Guide — Pablo Piovano](#section-76--azure-ai-engineer-ai-102-certification-guide)
 77. [GDPR for Startups and Scaleups — Ben Martin (Edward Elgar, 2023)](#section-77--gdpr-for-startups-and-scaleups)
+78. [Tailwind CSS: Utility-First Mastery — Ciprian Bocso (2024)](#section-78--tailwind-css-utility-first-mastery)
+79. [Tailwind CSS: Practical Reference — Ben De Quattro (2024)](#section-79--tailwind-css-practical-reference)
+80. [Tailwind CSS: Responsive Design Patterns — Mukul Joshi (2024)](#section-80--tailwind-css-responsive-design-patterns)
+81. [React Hooks: Patterns and Pitfalls — John Larsen (Manning, 2021)](#section-81--react-hooks-patterns-and-pitfalls)
+82. [World's Best Bank: DBS Digital Transformation — Robin Speculand (2021)](#section-82--worlds-best-bank-dbs-digital-transformation)
+83. [The Autonomous Bank: AI in Financial Services — Daljit Dhillon (Kogan Page, 2025)](#section-83--the-autonomous-bank-ai-in-financial-services)
+84. [Financial Services Compliance: UK FCA Framework — Annie Mills (Wiley, 2014)](#section-84--financial-services-compliance-uk-fca-framework)
+85. [Driving Digital Transformation: Building a Digital Bank from Scratch — Dennis Khoo (2021)](#section-85--driving-digital-transformation-building-a-digital-bank-from-scratch)
 
 ---
 
