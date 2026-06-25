@@ -5637,7 +5637,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="bg-stone-50 rounded-xl px-3 py-2.5 mb-5 text-xs text-stone-500 leading-relaxed text-left">
-                    Money moves when the countdown ends. Cancel now if the account or amount looks wrong.
+                    <strong className="text-stone-700">PSR cancel window</strong> — mandatory under APP fraud reimbursement rules (PS23/3, from 7 Oct 2024). Cancel if anything looks wrong: gross negligence bars your claim. Faster Payments and CHAPS covered up to £85,000, reimbursed within 5 business days.
                   </div>
                 )}
 

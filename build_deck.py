@@ -460,7 +460,7 @@ workflows = [
     ("Account Closure",          "4 steps", "FCA BCOBS 4A cooling-off"),
     ("Partner Unreachable",       "4 steps", "FCA PS22/9 · 4 regulatory branches"),
     ("Mandate Changes",           "6 steps", "MLR 2017 / GOV.UK One Login KYC"),
-    ("Bulk Payments / Wages",     "4 steps", "CoP · PSR 2017 payee verification"),
+    ("Bulk Payments / Wages",     "4 steps", "PSR PS20/1 Confirmation of Payee (CoP)"),
     ("Business Details Update",   "3 steps", "Companies House sync"),
     ("Dormant Reactivation",      "1 step",  "FSCS notice · 12-month threshold"),
     ("MTD VAT Submission",        "4 steps", "HMRC MTD API v1.0 direct"),

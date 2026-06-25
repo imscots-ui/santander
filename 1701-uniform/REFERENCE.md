@@ -20692,14 +20692,75 @@ Under PSD2 and the UK's Open Banking Implementation Entity (OBIE) framework, lic
 CoP is an account name-checking service overlaid on FPS and CHAPS. When a payer enters account details, their bank queries the payee's bank via the CoP API and receives one of four responses: Match, Close Match, No Match, or Unavailable. The PSR mandated CMA9 implementation by 30 June 2020 (CoP Phase 1). Phase 2 extended to ~400 further payment service providers from October 2023. CoP uses the Legal Entity Identifier (LEI) or business name held at the payee bank. For the Santander wages workflow, CoP is shown in the payee list as "cleared" / "verifying" status — this reflects real-world behaviour where CoP runs asynchronously when a payee is added. The PSR's APP (Authorised Push Payment) fraud reimbursement requirement (effective 7 October 2023) makes CoP an essential fraud defence: sending banks and receiving banks share liability 50/50 for APP fraud losses.
 
 ### 86.10 APP Fraud and Mandatory Reimbursement
-Authorised Push Payment (APP) fraud occurs when a customer is deceived into sending a legitimate FPS or CHAPS payment to a fraudster. **Timeline of the reimbursement regime:**
 
-- **June 2023:** PSR published final policy statement (PS23/3) requiring FPS PSPs to reimburse APP fraud victims; original maximum reimbursement level set at £415,000 per claim.
-- **7 October 2023:** FPS APP reimbursement requirement took effect. Sending and receiving PSPs split liability 50/50; banks may apply a £100 excess. "Gross negligence" is a narrow exception.
-- **6 September 2024:** PSR published PS24/5 setting out final CHAPS APP reimbursement requirement, effective 7 October 2024 — the Bank of England (as CHAPS operator) published corresponding CHAPS reimbursement rules as an annex to the CHAPS Reference Manual.
-- **26 September 2024:** Following a PSR review of high-value APP fraud claims, the PSR's Board decided to **lower the maximum reimbursement level from £415,000 to £85,000** — aligned with the Financial Services Compensation Scheme (FSCS) limit. The Bank of England simultaneously set the CHAPS retail reimbursement limit at £85,000 for consistency. The PSR committed to reviewing the limit in twelve months.
+**What is APP fraud:** A customer is deceived into authorising a legitimate FPS or CHAPS payment to a fraudster. Unlike unauthorised fraud (card stolen, account hacked), the customer themselves initiates the payment — making it harder to reverse. All types are covered: impersonation scams, romance scams, investment fraud, purchase fraud, CEO fraud.
 
-All in-scope PSPs must register for access to a directory to manage claims with other PSPs. APP scam reporting uses a standardised XLSX template. The regulatory backdrop makes the app's 10-second cancel countdown and biometric SCA commercially and legally justified: documented friction demonstrating reasonable steps reduces liability exposure under the gross negligence carve-out.
+**Who is covered:** Individuals, microenterprises, and charities. The regime does NOT cover credit unions, municipal banks, or national savings banks. It applies only to UK bank-to-bank transfers (FPS and CHAPS) — card, cash, and cheque have separate protections.
+
+---
+
+#### Timeline of the Reimbursement Regime
+
+- **June 2023:** PSR published PS23/3 requiring FPS PSPs to reimburse APP fraud victims; original maximum reimbursement level set at £415,000 per claim.
+- **6 September 2024:** PSR published PS24/5 — final CHAPS APP reimbursement requirement, effective 7 October 2024. Bank of England published CHAPS reimbursement rules as an annex to the CHAPS Reference Manual.
+- **26 September 2024:** PSR Board reduced maximum reimbursement from £415,000 to **£85,000** — aligned with the FSCS limit. Covers over 99% of claims by volume. PSR committed to reviewing in 12 months.
+- **7 October 2024:** Full regime in force for both FPS and CHAPS payments made on or after this date.
+
+---
+
+#### Key Terms of the Regime
+
+| Term | Detail |
+|------|--------|
+| **Reimbursement deadline** | 5 business days from claim submission |
+| **Stop-the-clock maximum** | 35 business days (firms can pause clock to gather information — e.g. to assess victim vulnerability) |
+| **Claim window** | 13 months from date of fraudulent payment |
+| **Maximum reimbursement** | £85,000 per claim (individual firms may choose to pay more) |
+| **FOS escalation limit** | £430,000 — Financial Ombudsman Service if claim exceeds £85,000 or firm disputes |
+| **Optional excess** | Up to £100 per claim — firms may apply, reduce, or waive; cannot be applied to vulnerable consumers |
+| **Gross negligence bar** | Narrow exception — high bar, does not apply to vulnerable consumers; complicit customers get nothing |
+| **Liability split** | 50/50 between sending PSP and receiving PSP |
+| **Reporting** | Victim must report to police or consent to bank reporting on their behalf |
+
+---
+
+#### PSR Performance Scorecard (Pre-7 Oct 2024 Baseline)
+
+The PSR published a performance scorecard for the 14 largest UK banking groups covering the period before the mandatory regime, measuring three metrics across sending and receiving institutions:
+
+**Metric A — Reimbursement rate (cases closed in 2024, pre-Oct transactions):**
+- Measures what percentage of APP scam losses was reimbursed before the mandatory regime took effect
+- **Nationwide** was the strongest performer: reimbursed **85%** of total loss value; fully reimbursed **97%** of cases, partially reimbursed a further 2%
+- Significant variation across the 14 firms — demonstrates why mandatory rules were needed
+
+**Metric B — APP scams sent (fraud originating at the firm's customers):**
+- Measures value of APP scam losses per £1 million of outbound transactions
+- **Metro Bank:** £377 lost to APP scams per £1m sent — worst by value among the 14
+- **Starling Bank:** 131 APP scam payments per million transactions sent — worst by volume
+- This is the metric the Santander prototype's 10-second cancel window and CoP integration directly addresses: reducing Metric B by creating a mandatory pause before funds leave
+
+**Metric C — APP scams received (fraudster accounts held at the firm):**
+- Measures value/volume of APP scam proceeds received into accounts at each firm
+- **Prepay Technologies:** £3,132 received per £1m inbound — worst by value among 20 highest-risk firms
+- **Guavapay:** 109,744 scam payments per million transactions received — worst by volume (note: actual count <10,000; figure scaled to per-million basis for comparability)
+- The 50/50 liability split means receiving PSPs now have direct financial incentive to detect and reject mule accounts
+
+---
+
+#### CoP as the First Line of Defence
+
+Confirmation of Payee (CoP) checks run before Metric B events occur. Over **2 billion CoP checks** were performed in 2024. The PSR mandated CMA9 banks from June 2020 (Phase 1); ~350 additional firms joined by October 2024 (Phase 2). CoP responses: Match / Close Match / No Match / Unavailable — a No Match is not a block but generates a warning the customer must acknowledge, creating documented friction.
+
+---
+
+#### Prototype Relevance
+
+The 10-second cancel countdown and biometric SCA are not UX decoration — they are commercially and legally load-bearing:
+- The cancel window creates **documented friction** that directly supports the gross negligence defence
+- Biometric confirmation establishes the customer's awareness at the moment of authorisation
+- CoP "verified" status on payees demonstrates the bank ran the mandatory check
+- Together these reduce Metric B exposure and limit the bank's 50% reimbursement liability
+- The £85,000 cap shown in the dormancy FSCS notice (app line 2177) is the same figure as the APP fraud maximum — deliberate alignment, not coincidence
 
 ### 86.11 CHAPS Direct Participants (38 institutions as of 2025)
 Both Santander entities are CHAPS direct participants — Banco Santander S.A. (London branch) and Santander UK plc.
@@ -21028,6 +21089,406 @@ PSR reviewing Mastercard and Visa scheme/processing fees (market review) and cro
 
 **Relevance to prototype:** The assimilated law SCA reform (agentic AI payments, stablecoin) and Open Banking LTRF directly affect the authentication and payment initiation flows in the app. The FOS reform and Consumer Duty vulnerable customer work underlie the prototype's escalation and RM sheet features (vulnerable customer detection). The AML SI and Home Office Fraud Strategy are regulatory backdrop to the ID register and signatory verification workflows.
 
+---
+
+### 86.26 APP Fraud Platform Intelligence — PSR Report (December 2024, 2023 Data)
+
+**Source:** *Unmasking how fraudsters target UK consumers in the digital age* · Payment Systems Regulator · December 2024 · Covers 14 PSPs, 2023 reported APP fraud data
+
+**Overview.** The PSR's first platform-level intelligence report maps where APP fraud originates — by platform sector, by scam type, and by platform — for the 14 banking groups required to report APP fraud data. Total reported losses: **£340,583,091** across **222,534 incidents** in 2023.
+
+**14 PSPs covered** (includes Santander UK plc): Bank of Ireland UK, Barclays, Co-operative Bank, Danske Bank, HSBC Group, Lloyds Banking Group, Metro Bank, Nationwide, NatWest Group, Santander UK, Starling Bank, TSB, Virgin Money, Wise.
+
+---
+
+#### Platform Sector Breakdown — Volume and Value
+
+| Platform Sector | % of APP Fraud Volume | Approximate Cases | % of APP Fraud Value | Approximate Value |
+|---|---|---|---|---|
+| Social media (total) | 56% | 124,057 | 20% | £67.4m |
+| — Meta platforms (Facebook, Instagram, WhatsApp) | 54% | 119,338 | 18% | £62.7m |
+| — Facebook alone | 34% | ~75,661 | — | — |
+| Telecoms (phone calls, SMS) | 12% | 26,975 | 31.5% | £107.2m |
+| Email | 2% | 3,955 | 10% | £35m |
+| Other / unattributed | ~30% | ~67,547 | ~38.5% | ~£131m |
+
+**Key insight:** Social media generates more than half of all APP fraud cases but only £1 in every £5 by value. Telecoms generate far fewer cases (12%) but account for nearly one third of all losses by value — reflecting that phone-based scams (impersonation, investment) target higher-value victims.
+
+---
+
+#### Scam Type Overview — Volume vs Value Inversion
+
+| Scam Type | % Volume | % Value | Approx. Value | Notes |
+|---|---|---|---|---|
+| Purchase scams | 68% | 21% | ~£71m | High volume, low value per incident |
+| Impersonation (other) | 10% | 13% | ~£44m | Includes HMRC, delivery, utility |
+| Advance fee | 9% | — | — | Lottery, inheritance, loan fee fraud |
+| Investment scams | 6% | 24% | £80.3m | Low volume, highest value per incident |
+| Police/bank impersonation | 4% | 19% | ~£65m | 90% via telecoms; £57.7m via phone |
+| Romance scams | 2% | — | — | Long-duration, relationship-based |
+
+**Volume–value inversion:** Investment scams are 6% of cases but 24% of value. Purchase scams are 68% of cases but only 21% of value. This means the "typical" APP fraud case (purchase scam on a social media marketplace) is low-value and easy to dispute; the tail (investment/impersonation) is catastrophic and harder to detect at point of payment.
+
+---
+
+#### Platform × Scam Type — Key Data Points
+
+**Social media (Meta/Facebook) — dominated by purchase scams:**
+- Facebook purchase scams: **44% of all APP fraud cases** — 67,337 incidents
+- Facebook purchase scams: highest single category by volume in the entire dataset
+- Instagram and WhatsApp contribute the remainder of Meta's 54% share
+- Meta's high volume / low value profile means average loss per case is low (~£526)
+
+**Telecoms — dominated by high-value impersonation:**
+- 90% of police/bank impersonation scams originated via telecoms
+- £57.7m lost to police/bank impersonation via telecoms
+- Average loss per telecoms-originated fraud is ~£3,974 vs ~£526 for social media
+- Telecoms as vector: SIM swap, spoofed calls, SMS smishing
+
+**Email — invoice and mandate fraud:**
+- Invoice/mandate scams: 66% of volume originated via email
+- Invoice/mandate scams: **80% of value** originated via email
+- Email-based invoice fraud is the dominant high-value business payment fraud channel
+- Directly relevant to business banking mandate change workflows
+
+---
+
+#### Victim and Consumer Trust Data
+
+| Metric | Finding |
+|---|---|
+| Satisfied with how their bank handled the fraud | **74%** of victims |
+| Satisfied with how the originating platform responded | **22%** of victims |
+| Lost trust in social media platforms | **41%** of victims |
+| Lost trust in their bank | ~10% of victims |
+
+Victims are far more satisfied with bank handling (74%) than with platform response (22%), reflecting the PSR reimbursement regime and bank-side friction measures. The 3:1 trust gap underlines the policy tension: banks bear the reimbursement cost; platforms bear the origination responsibility but face no direct financial liability under PS23/3.
+
+---
+
+#### Regulatory Context and Prototype Relevance
+
+**Why this matters for PS23/3:** The PSR published this data to inform a potential **platform liability** extension. The current PS23/3 regime places 50/50 liability on sending and receiving PSPs — platforms (Meta, telecoms) bear no direct cost despite originating the majority of fraud. The December 2024 report is the PSR's evidentiary basis for future platform-liability intervention.
+
+**Relevance to prototype:**
+- **Cancel countdown (PSR cancel window):** Directly addresses the 68% purchase scam volume — friction at point of payment when a victim is in the "too good to be true" moment on a social media marketplace.
+- **Mandate change workflow friction:** 80% of invoice/mandate fraud value originates via email — the prototype's multi-signatory mandate change workflow (cooling-off period, co-signatory confirmation) is precisely calibrated for this vector.
+- **RM escalation (Priya's card):** High-value impersonation scams (police/bank, investment) require human escalation; the stalled-request RM sheet mirrors how banks identify and intervene in ongoing impersonation fraud.
+- **SCA and phone-based fraud:** 90% of police/bank impersonation via telecoms — the prototype's SCA flows prevent authorisation via a compromised phone call session.
+- **Santander UK plc** is one of the 14 PSPs whose data underpins this report, making it directly relevant to the firm's own fraud and compliance positioning.
+
+---
+
+### 86.27 PSR Payment Types — Consumer Protections and Regulated Systems
+
+**Source:** *Ways of paying* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+This is the PSR's official consumer-facing taxonomy of UK payment types, their protections, and the regulated systems that underpin them.
+
+---
+
+#### Regular Payment Types
+
+**Direct Debit**
+- Authorised by the payer; amount and frequency controlled by the collecting organisation
+- Protections: **Direct Debit Guarantee** — refund available if payment taken on incorrect date or for wrong amount
+- Cancellation: payer must notify the recipient *or* their bank
+- Risk: insufficient funds can cause missed payments or overdraft; billing errors not automatically reversed
+- Used for: utility bills, subscriptions, variable recurring bills
+- Popular: thousands of organisations use it; utility companies incentivise via small discounts
+
+**Standing Order**
+- Instruction from payer to bank; fixed amount at regular intervals
+- Set up and controlled entirely by the payer — only the payer can alter it
+- Protections: **none equivalent to Direct Debit Guarantee** — once sent, payment cannot be recalled; payer must request refund from recipient (not guaranteed)
+- Cancellation: payer can cancel at any time (self-service or via bank)
+- Risk: account holder must keep beneficiary details current; no bank-side protection if details change
+- Used for: rent payments, charity donations, fixed recurring amounts
+
+**Card Subscription Payments (Continuous Payment Authorities / Recurring Payments)**
+- Set up using card details (not sort code/account number); organisation takes payment when due
+- Also called: *recurring payments*, *continuous payment authorities (CPAs)*
+- Protections: any payment taken after cancellation request is an **unauthorised transaction** — card issuer must refund it and any related charges
+- Cancellation: notify both the company *and* the card issuer (belt-and-braces)
+- Risk: company has flexibility over timing and amount — less predictable than direct debit or standing order
+- Used for: gym memberships, streaming platforms (Spotify, Netflix), payday loan repayments
+
+---
+
+#### PSR-Regulated Payment Systems (Official List)
+
+| System | Purpose | Operator |
+|---|---|---|
+| **Bacs** | Direct Debits; Bacs Direct Credits (salaries, wages) | Pay.UK |
+| **Cheque and Credit** | Paper cheques and credit clearing (including Image Clearing System) | Pay.UK |
+| **CHAPS** | High-value transactions (property purchases, wholesale, lending, trading) | Bank of England |
+| **Faster Payments Scheme (FPS)** | Near-instant payments; standing orders; internet/telephone banking below £100k | Pay.UK |
+| **LINK** | UK cash machine network | LINK |
+| **Mastercard** | Connects card issuers with acquirers and merchants in the UK | Mastercard |
+| **Visa Europe** | Connects card issuers with acquirers and merchants in the UK | Visa |
+| **Sterling Fnality Payment System** | Wholesale/high-value payments using Distributed Ledger Technology; backed by central bank money | Fnality International |
+
+*Sterling Fnality designated: 31 August 2022*
+
+---
+
+#### Regulated Participants
+
+The PSR regulates three categories of participant across these systems:
+
+1. **System operators** — Pay.UK (Bacs, FPS, Cheque & Credit), Visa, Mastercard, LINK, Bank of England (CHAPS), Fnality (Sterling Fnality)
+2. **Payment service providers (PSPs)** — banks, building societies, merchant acquirers, payment institutions
+3. **Infrastructure providers** — Vocalink (provides infrastructure for LINK, Bacs and Faster Payments)
+
+---
+
+#### Prototype Relevance
+
+- **Bacs/Direct Credits** underpin the prototype's Wages (bulk payment) workflow — employer payroll is a Bacs Direct Credit batch.
+- **FPS** is the rail for the prototype's standard payments, mandate change triggers, and the APP fraud cancel-countdown flow (PS23/3 applies to FPS and CHAPS).
+- **CHAPS** is the rail for property-related or high-value business payments — relevant to the lending workflow.
+- **Direct Debit Guarantee vs Standing Order gap** — the prototype's mandate change workflow specifically addresses the vulnerability of standing orders (no recall protection), which is the most common business payment type affected by invoice/mandate fraud.
+- **Card subscription / CPA distinction** — relevant to the prototype's account closure workflow where ongoing CPAs must be identified and migrated.
+- **LINK / cash** — outside scope of current prototype; prototype is digital-only.
+- **Mastercard/Visa** — outside scope; prototype uses bank transfer / FPS flows, not card rails.
+
+---
+
+### 86.28 PSR Card Payment Types — Consumer Protections
+
+**Source:** *Ways of paying — Cards* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+Cards are the most popular consumer payment method in the UK: **£884 billion** in card payments in 2021. The PSR regulates Mastercard and Visa Europe as designated payment systems; card protections sit across PSR, FCA, and the Consumer Credit Act 1974.
+
+---
+
+#### Debit Card
+
+- Linked directly to the payer's account; funds debited shortly after purchase
+- Contactless limit: **£100** (tap to pay, no PIN required below threshold)
+- Accepted almost universally; retailers pay interchange/scheme fees (may be reflected in prices)
+- **Protection — Chargeback:** voluntary scheme operated by Visa/Mastercard. If goods/services are faulty or not received, payer can raise a chargeback via their card issuer. Not guaranteed — scheme rules vary and claims can be rejected.
+- **Protection — lost/stolen card:** cancellation and replacement process exists (unlike cash)
+- **No Consumer Credit Act protection** (debit is not credit)
+- Funds: requires sufficient balance or agreed overdraft
+
+#### Credit Card
+
+- Not linked to bank account; card company pays retailer; payer repays card company
+- Pay in full each month (no interest) or minimum payment (interest accrues on balance)
+- Contactless limit: **£100**; cash withdrawals possible but typically expensive (fees + immediate interest)
+- Requires creditworthiness assessment; not available to all applicants
+- **Protection — Section 75, Consumer Credit Act 1974:** for purchases **over £100**, the credit card company is jointly liable with the retailer. If goods/services are defective or not delivered, the card company must reimburse — regardless of whether the retailer is contactable or has ceased trading.
+- **Protection — Chargeback:** same voluntary scheme as debit; applies for amounts **under £100** where Section 75 does not
+- Debt risk: easy to accumulate high-interest debt if balance not cleared monthly
+
+#### Prepaid Card
+
+- Pre-loaded with a fixed amount; topped up when exhausted; no bank account required
+- No upfront fee on most cards; fees charged per transaction or per ATM withdrawal
+- Accepted where the underlying card network (Visa, Mastercard, Amex) is accepted
+- **Protection — FSCS:** prepaid card providers are **often not FSCS members** — funds on the card may not be protected up to £85,000 as with a bank deposit. Recommendation: load only the amount needed for immediate spending.
+- **No Consumer Credit Act protection** (prepaid is not credit)
+- Use case: foreign travel spending, budgeting, unbanked consumers
+
+#### Charge Card
+
+- Spend like a credit card but **must pay full balance every month** — no revolving credit
+- No interest rates advertised (no rollover balance); typically high annual fee and late-payment penalties
+- Uncapped spending limit in principle; issuer still has criteria for acceptance
+- Less widely accepted than credit cards
+- **No Consumer Credit Act Section 75 protection** (charge cards excluded from CCA definition of credit)
+- May offer proprietary purchase protection or extended warranty cover instead
+
+---
+
+#### Card Protection Summary
+
+| Card Type | Section 75 (CCA) | Chargeback | FSCS | Contactless |
+|---|---|---|---|---|
+| Debit card | No | Yes (voluntary) | Yes (via bank) | Yes, £100 |
+| Credit card | Yes (>£100) | Yes (<£100) | Yes (via bank) | Yes, £100 |
+| Prepaid card | No | Partial | Often no | Yes (scheme-dependent) |
+| Charge card | No | Possibly | Yes (if bank-issued) | Yes |
+
+---
+
+#### Prototype Relevance
+
+- **Chargeback vs APP fraud reimbursement:** Chargeback is a card-rail protection; APP fraud reimbursement (PS23/3) applies only to FPS and CHAPS bank transfers. The prototype's payment flows are bank-transfer-based — Section 75 and chargeback do not apply, making the PSR cancel-countdown and mandatory reimbursement regime the relevant protection layer.
+- **Section 75 for >£100 purchases:** relevant context for the prototype's purchase scam education — if a victim was defrauded via a card payment for goods >£100, Section 75 is the remedy; if via bank transfer, PS23/3 applies. The two regimes are mutually exclusive by payment rail.
+- **Prepaid cards / FSCS gap:** the prototype's dormancy and account closure workflows include identification of prepaid card exposure; the FSCS non-membership risk is regulatory context for those flows.
+- **£884 billion card total vs FPS/CHAPS scale:** Card payments by value (£884bn) are comparable in scale to FPS (£3.2tn) and CHAPS (£93tn) — reinforcing that the prototype focuses on the business banking segment where bank transfers dominate.
+
+---
+
+### 86.29 Buy Now, Pay Later (BNPL) — PSR Consumer Overview
+
+**Source:** *Ways of paying — Buy Now, Pay Later* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+BNPL (e.g., Klarna, Clearpay, Laybuy) is **neither a payment system nor a payment service** — it is a **credit product** typically offered by a single provider that allows a consumer to purchase now and pay at a future date.
+
+---
+
+#### Key Characteristics
+
+- **Access:** Easier to access than a credit card; fewer creditworthiness checks at point of use
+- **Cost:** Often free to use — no interest or fees charged — but fees apply for late or missed payments
+- **Market size:** Rapidly growing; thousands of retailers, millions of customers; available online and in stores
+- **Exclusivity:** Some retailers work exclusively with one BNPL provider, limiting consumer choice
+- **Regulation (as of 2026):** Government has proposed FCA regulation of BNPL providers, with:
+  - Complaints handled by the Financial Ombudsman Service (FOS)
+  - Creditworthiness checks similar to credit card or loan applications
+  - Until implemented: BNPL providers are not required to carry out affordability checks
+
+#### Consumer Protection — Current Position
+
+| Protection | Status |
+|---|---|
+| Consumer Credit Act | **No** — BNPL currently exempt |
+| FCA regulation | **Proposed** — not yet enacted |
+| FOS complaints | **Proposed** — not yet available |
+| Proprietary purchase protection | May be offered by individual providers |
+| FSCS | No |
+
+**Key risk:** Consumers can accumulate significant debt across multiple BNPL providers without any single lender conducting a full affordability assessment. The absence of Section 75 protection means disputes over defective goods have no statutory backstop.
+
+#### Prototype Relevance
+
+- BNPL sits outside the PSR's direct regulation perimeter (not a payment system or PSP) — relevant as context for the account closure and dormancy workflows, where ongoing BNPL obligations may appear as recurring card charges.
+- The proposed FCA regulation (if enacted) would bring BNPL into the consumer credit regime, aligning its protections with credit cards for the first time.
+- The prototype's payment flows (FPS/CHAPS) are bank-transfer-based — BNPL and its lack of Section 75 protection is background regulatory context, not a direct prototype concern.
+
+---
+
+### 86.30 Bank Transfer / Account-to-Account (A2A) Payments — PSR Consumer Overview
+
+**Source:** *Ways of paying — Bank transfer* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+Also called: **'pay by bank'**, **'interbank'**, or **'account-to-account' payments**. Moves money directly from one account to another, often using open banking infrastructure. The instruction always comes from the payer.
+
+---
+
+#### Key Characteristics
+
+- **Speed:** Usually sent instantly; received within a few hours depending on amount and recipient's bank location
+- **Control:** Payer decides when and how much — no third party controls timing or amount (unlike direct debit)
+- **Retail use:** Works well for person-to-person payments; **less commonly used for retail transactions**
+- **Open banking:** A2A payments can be initiated via open banking Payment Initiation Service Providers (PISPs)
+
+#### Consumer Protection Position (at time of writing)
+
+| Protection | Status |
+|---|---|
+| Chargeback | **None** — no card-rail chargeback mechanism applies |
+| Section 75 (Consumer Credit Act) | **None** — not a credit product |
+| Contingent Reimbursement Model (CRM) | **Voluntary** — UK banks can sign up; reimburses victims who acted appropriately |
+| PS23/3 mandatory reimbursement | **In effect from 7 Oct 2024** — FPS and CHAPS; see §86.10 |
+
+**CRM context:** The CRM Code was the pre-mandatory-reimbursement voluntary framework. The PSR noted that the CRM resulted in approximately **56% of APP fraud victims receiving reimbursement** — leaving 44% uncompensated. PS23/3 (effective 7 Oct 2024) replaced this with mandatory reimbursement, requiring banks to reimburse the majority of APP fraud victims regardless of voluntary sign-up.
+
+#### PSR Actions on A2A / APP Fraud
+
+The PSR identified areas for improvement around A2A payments for retail transactions:
+- **Consumer protection** — ensuring people feel safe making account-to-account payments
+- **Functional capability** — ensuring retail payment systems can support A2A at scale
+- **APP fraud reduction** measures:
+  - Improved intelligence sharing between PSPs to spot and prevent fraudulent transactions
+  - Publication of PSP-level data on how well firms protect customers from scams
+  - Continued widespread rollout of **Confirmation of Payee (CoP)** (see §86.9)
+
+#### Confirmation of Payee (CoP) Role
+
+CoP checks whether the payee account name matches the name and details provided by the payer. More banks adopting CoP helps stop:
+- **APP fraud** — victim directed to fraudster's account
+- **Misdirected payments** — wrong account details entered by payer
+
+*Cross-reference:* See §86.9 (CoP detail) and §86.10 (APP fraud mandatory reimbursement regime).
+
+#### Prototype Relevance
+
+- **Every payment workflow in the prototype runs on A2A rails** (FPS/CHAPS). This section is the foundational consumer protection context for the entire app.
+- **CRM → PS23/3 transition** is the regulatory backstory behind the cancel-countdown (`PSR cancel window`) in the wages/payments workflow.
+- **56% → mandatory** reimbursement increase directly motivates why Santander (and all major banks) need documented friction workflows — the cancel-countdown, co-signatory requirements, and RM escalation are all mitigation evidence in the event of a PS23/3 claim.
+- The PSR's retail A2A expansion agenda (making A2A work for retail checkout) is background context for why CoP was mandated at scale via PS20/1.
+
+---
+
+### 86.31 Cash — PSR Consumer Overview and Financial Inclusion Role
+
+**Source:** *Ways of paying — Cash* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+Physical notes and coins. Despite the rapid growth of digital payments, cash remains critical for a significant portion of the population — particularly the most vulnerable in society.
+
+---
+
+#### Key Characteristics
+
+- **Access:** Immediate; no internet, smartphone, or bank account required
+- **Inclusion:** Benefits people with limited digital or financial skills; preferred by some for budgeting (physically handling money increases spending awareness, particularly useful for financially vulnerable or those with uncertain incomes)
+- **Acceptance decline:** COVID-19 pandemic and digital payment growth have caused fewer businesses to accept cash
+- **Retailer cost:** No transaction fees at point of sale (unlike cards), but costs for accepting, counting, and banking cash exist
+- **Risk:** No cancellation or refund mechanism if lost or stolen — unlike cards
+
+#### PSR's Cash Access Mandate
+
+The PSR's priority is ensuring **LINK** (the UK's main ATM network) remains **sustainable and resilient** and continues to provide access to consumers who need it. Key commitments:
+- Welcome Government proposals giving the FCA powers to oversee the cash system
+- The PSR and Bank of England will continue existing roles overseeing LINK
+- Focus on supporting delivery of cash access for consumers and SMEs
+
+#### Digital Exclusion
+
+The PSR published a **PSR Panel report** on challenges to digital payments take-up and potential regulatory responses. The PSR acknowledges it **cannot tackle the root causes of digital exclusion** but has a role in:
+- Challenging payment systems to consider people with limited digital and financial inclusion when designing digital services
+- Ensuring the transition to digital payments does not leave vulnerable consumers without access
+
+#### Prototype Relevance
+
+- Cash is entirely outside the scope of the prototype (digital-only business banking app).
+- The cash access and digital exclusion context informs the prototype's **accessibility sheet (A11ySheet)** — the regulatory expectation that digital banking products consider users with limited digital skills.
+- The PSR's cash/LINK oversight role is separate from its APP fraud and payment system regulation roles — useful context when framing the PSR as a multi-mandate regulator in presentations.
+
+---
+
+### 86.32 Cheque — PSR Consumer Overview
+
+**Source:** *Ways of paying — Cheque* · Payment Systems Regulator · psr.org.uk/information-for-consumers/ways-of-paying · (current as of June 2026)
+
+Cheques have been in decline for many years. A cheque is a written instruction to a bank or building society to pay a specified person or organisation from a current or company account. The account must hold sufficient funds for the cheque to clear.
+
+---
+
+#### Image Clearing System (ICS) — 2019 Reform
+
+The **Image Clearing System** (ICS) launched in 2019 changed how cheques are cleared:
+- **Before ICS:** Physical cheques exchanged between banks — slow, manual, expensive
+- **After ICS:** Digital images of cheques exchanged between UK banks and building societies
+- **Effect:** Faster clearing; enables mobile cheque deposit (photograph via banking app)
+- **Operator:** Pay.UK (which also operates Bacs and Faster Payments)
+
+#### Key Characteristics
+
+| Feature | Detail |
+|---|---|
+| Processing trigger | Begins when **payee deposits** the cheque — not when written |
+| Funds timing | Leaves payer's account when cheque is **cashed** — not immediately |
+| Acceptance | **Not widely accepted** — declining use across retail and commercial |
+| Deposit restrictions | Can only be deposited by the **named payee** |
+| Stop payment | Possible **before cashing** — contact bank to stop if not yet deposited |
+| Lost/stolen | Notify bank immediately; stop can be placed |
+
+#### Budgeting and Flexibility
+
+- Payment amount doesn't leave the payer's account until the cheque is cashed — can complicate cash flow management
+- Flexibility: if something unexpected happens before the payee deposits, the payer may be able to agree a stop with their bank
+
+#### Prototype Relevance
+
+- Cheques are outside the scope of the prototype's payment flows (FPS/CHAPS only)
+- The ICS is operated by Pay.UK — the same operator as Bacs and Faster Payments; relevant as background to the prototype's mandate change and wages workflows, which run on Bacs and FPS respectively
+- The account closure workflow in the prototype should prompt customers to identify any outstanding cheques that may clear after account closure — a rare but genuine closure risk
+- The "Cheque and Credit" clearing system is a PSR-designated payment system — relevant when explaining the full scope of PSR regulation in presentations
 
 ---
 

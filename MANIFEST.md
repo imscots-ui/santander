@@ -152,7 +152,7 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 22,128 lines · 89 sections · 98 books & regulatory documents · Quick Lookup decision index (Jun 2026)
+**Size:** 22,590 lines · 89 sections · 98 books & regulatory documents · Quick Lookup decision index (Jun 2026)
 
 ### Domain Groups (89 sections)
 
@@ -269,7 +269,7 @@ Contents:
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — 89 sections, 98 books & regulatory docs, 22,128 lines, Quick Lookup index |
+| 10 | Reference library — 89 sections, 98 books & regulatory docs, 22,590 lines, Quick Lookup index |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
 | 13 | Business case summary — £137M, metrics, differentiators, phase status |
