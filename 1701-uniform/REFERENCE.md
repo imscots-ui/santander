@@ -22690,3 +22690,246 @@ Geometrical tolerancing is not part of KiCad's native drawing language, but it d
 
 ---
 
+
+## Section 90 — Santander Complaint Handling Framework — Stage 1 and Escalation
+
+**Source:** Internal Santander Business Banking complaint writing guidance · June 2026  
+**Relevance:** Regulatory complaint handling under FCA DISP. Stage 1 and escalation form structures, four letter templates, and three worked examples (ISA transfer delay — upheld, declined, escalation with resolution change). Written to support handler drafting and to demonstrate how complaint data can be structured for automated letter generation.
+
+---
+
+### 90.1 Stage 1 Complaint Form — Five-Section Structure
+
+The Stage 1 complaint form requires five sections. Sections 1 and 3 must be written in a way that allows automated extraction directly into letter templates.
+
+---
+
+**1 — What is the customer saying has happened?**
+*Purpose: the customer's claim, written to allow a system to pull the content directly into a letter response.*
+
+Describe in plain language: what the customer says happened, when they say it happened, what they say they lost or experienced, and what they are seeking. Write in the third person. Do not include internal jargon or system references. This section should be self-contained enough that a letter template can reference it without further context.
+
+---
+
+**2 — What have you done to investigate the issue raised by the customer?**
+*Purpose: the handler's evidence — what was reviewed and what it showed.*
+
+Describe: what records, systems, or third-party confirmations were reviewed; what the records showed; any discrepancies found; any contact made with internal teams or third parties (e.g. previous provider, operations team). Be specific about dates and findings. This is the evidence base for the decision.
+
+---
+
+**3 — What actions have you taken for this customer as a result of their complaint?**
+*Purpose: the resolution — written to allow a system to pull the content directly into a letter template.*
+
+Describe: what was done to fix the issue (e.g. transfer confirmed complete, funds confirmed credited); any compensation offered; any signposting given. Write in a way that can be lifted directly into the letter. Do not explain the rationale here — that belongs in section 4.
+
+---
+
+**4 — Why did you take the action detailed above?**
+*Purpose: the handler's rationale — Santander error or no Santander error, goodwill reasoning.*
+
+State clearly: whether this is a Santander error or not; what caused the error (if applicable); why no error was found (if declined); whether goodwill was offered and why (only include goodwill reasoning if goodwill was given). This section is the handler's professional judgement and regulatory justification.
+
+---
+
+**5 — Payments:**
+*Purpose: compensation breakdown — figure and reasoning.*
+
+State: what compensation is being offered; the calculation method (e.g. lost interest formula); any goodwill element and the rationale; total figure. If no compensation: state why and direct customer to the responsible party if applicable.
+
+---
+
+### 90.2 Escalation Complaint Form — Four-Section Structure
+
+Used when a customer re-contacts to dispute a previous Stage 1 decision. Fewer sections required as the original complaint record provides the base.
+
+---
+
+**1 — Why has the customer come back to discuss this complaint again?**
+*Purpose: what the customer disagreed with or disputed about the previous decision.*
+
+Describe: what aspect of the Stage 1 decision the customer is unhappy with; any new information or evidence the customer has provided; the specific point of disagreement.
+
+---
+
+**2 — What actions have you completed for the customer?**
+*Purpose: what was reviewed on escalation and what decision was reached.*
+
+Describe: what additional records or evidence were reviewed; whether any new information was found; whether the decision has changed or been maintained. Be specific.
+
+---
+
+**3 — What changes have you made to the resolution, and why?**
+*Purpose: what changed and what caused the change.*
+
+If resolution changed: describe what new evidence justified the change and what the new resolution is.  
+If no change: describe why the original decision stands despite the escalation review.
+
+---
+
+**4 — Payments:**
+Same structure as Stage 1 section 5. Include revised calculation if compensation changed, or confirm original offer stands.
+
+---
+
+### 90.3 Letter Templates — Four Outcome Types
+
+#### Upheld — Stage 1 Letter
+
+Personalise the two variable paragraphs. The remainder is a business-set template.
+
+> I'm sorry you've had to contact us about **[what the complaint is about]**.
+>
+> I've looked into what happened and I can see the issue(s) you've raised was / were caused by **[root cause]**. I understand this has caused you **[impact — inconvenience / worry / upset / stress — use customer's own language where possible]**, and for this I'm truly sorry.
+>
+> To fix this for you I've **[resolution — what action was taken and how the issue was fixed]**.
+
+---
+
+#### Declined — Stage 1 Letter
+
+> I'm sorry you've had to contact us about **[what the complaint is about]**.
+>
+> I understand this situation has caused you problems, but I've looked into your case and this wasn't because of a mistake we made. This is because **[brief one-line reason — two to three words — elaborated below]**.
+>
+> To explain this further **[full explanation of the evidence found and why Santander was not at fault]**.
+
+---
+
+#### Escalation — Resolution Changed Letter
+
+> I've looked at the details of your complaint and I agree that our original decision **[explain why the previous decision was incorrect and what actions have been taken to resolve it]**.
+
+---
+
+#### Escalation — No Change in Original Resolution Letter
+
+> I'm sorry you don't agree with the resolution previously offered about **[brief explanation of what the complaint was about]**.
+>
+> **[Edit / delete as needed: explain why the decision was not changed; what the review found; whether the original compensation offer remains fair:]**
+>
+> Taking all the circumstances of your complaint into consideration, I believe our original offer of £**[AMOUNT]** is fair and reasonable.
+>
+> *Or, reiterate the original decision, e.g.:* The delay in transferring the funds from your ISA happened after **[explanation]**.
+
+---
+
+### 90.4 Worked Examples — ISA Transfer Delay
+
+The three scenarios below use the ISA transfer delay complaint type. Bracketed placeholders should be substituted with real case details. All amounts, dates, and provider names are illustrative.
+
+**Assumed facts across all three:**
+- Transfer amount: £[AMOUNT]
+- Transfer requested: [DATE OF REQUEST]
+- Industry standard deadline (Cash ISA): 15 working days — expected completion [DATE]
+- Actual completion: [ACTUAL COMPLETION DATE] — delay of [X] working days
+- ISA rate: [RATE]%
+
+---
+
+#### Worked Example A — Stage 1 · Upheld (Santander processing error)
+
+**1 — What is the customer saying has happened?**
+The customer states that they requested the transfer of their Cash ISA to Santander on [DATE OF REQUEST]. They advise that the transfer was not completed within the expected 15 working day timeframe and that as of [DATE CUSTOMER CONTACTED US] their funds of £[AMOUNT] had not been credited to their Santander Cash ISA. The customer states that as a result of this delay they have lost interest on their savings during the period the funds were unavailable and are seeking resolution and compensation.
+
+**2 — What have you done to investigate the issue raised by the customer?**
+I have reviewed the customer's ISA account and confirmed that a transfer request was submitted on [DATE]. The expected completion date under the 15 working day industry standard was [DATE]. I reviewed our internal ISA operations logs and confirmed that a processing error on our side caused the transfer instruction to fail and re-enter the queue without the customer being notified. I confirmed the transfer completed on [ACTUAL COMPLETION DATE], representing a delay of [X] working days beyond the expected timeframe. I calculated the interest lost on £[AMOUNT] over the delay period at the customer's agreed ISA rate of [RATE]%.
+
+**3 — What actions have you taken for this customer as a result of their complaint?**
+I have confirmed to the customer that their ISA transfer is now complete and their funds of £[AMOUNT] are held in their Santander Cash ISA as of [DATE]. I have calculated the interest lost during the delay period and arranged a compensation payment to cover this, along with a goodwill gesture in recognition of the inconvenience and distress caused.
+
+**4 — Why did you take the action detailed above?**
+This complaint has been upheld as a Santander error. Our investigation confirmed that an internal processing error caused the transfer instruction to fail and re-enter our processing queue without notification to the customer. This resulted in the transfer completing [X] working days beyond the 15 working day industry standard. As the delay was caused by our error I have compensated the customer for the interest lost during the delay period. I have also offered a goodwill gesture in recognition of the worry and inconvenience this caused.
+
+**5 — Payments:**
+Lost interest: £[AMOUNT] × [RATE]% ÷ 365 × [X working days] = £[CALCULATED INTEREST]  
+Goodwill gesture: £[AMOUNT] — in recognition of the inconvenience and distress caused by our error  
+**Total: £[TOTAL]**
+
+**Letter — Upheld Stage 1:**
+> I'm sorry you've had to contact us about the delay in transferring your Cash ISA to Santander.
+>
+> I've looked into what happened and I can see the issue you've raised was caused by an internal processing error on our side, which meant your transfer instruction failed and re-entered our queue without us notifying you. I understand this has caused you worry about the whereabouts of your savings and inconvenience during the delay, and for this I'm truly sorry.
+>
+> To fix this for you I've confirmed your ISA transfer is now complete and your funds of £[AMOUNT] are in your Santander Cash ISA. I've also arranged a payment of £[TOTAL] to cover the interest you lost during the delay and to recognise the inconvenience this has caused you.
+
+---
+
+#### Worked Example B — Stage 1 · Declined (previous provider caused the delay)
+
+**1 — What is the customer saying has happened?**
+The customer states that they requested the transfer of their Cash ISA from [PREVIOUS PROVIDER] to Santander on [DATE OF REQUEST]. They advise the transfer was not completed within the expected 15 working day timeframe and are holding Santander responsible for the delay. The customer is requesting compensation for the inconvenience and any interest lost during the delay period.
+
+**2 — What have you done to investigate the issue raised by the customer?**
+I have reviewed the customer's ISA account and confirmed that a transfer request was submitted on [DATE], with an expected completion date of [DATE]. I reviewed our internal ISA operations records and confirmed that Santander submitted the transfer instruction to [PREVIOUS PROVIDER] within the required timeframe on [DATE]. I obtained confirmation from our ISA operations team that [PREVIOUS PROVIDER] did not respond to or action the transfer request within the 15 working day industry standard. Santander was not responsible for any part of the delay. The transfer completed on [DATE] following our team chasing [PREVIOUS PROVIDER].
+
+**3 — What actions have you taken for this customer as a result of their complaint?**
+I have confirmed to the customer that their ISA transfer is now complete. I have explained that the delay was caused by [PREVIOUS PROVIDER] failing to release the funds within the required 15 working day timeframe and that Santander acted correctly and within our obligations throughout. I have advised the customer to raise the matter directly with [PREVIOUS PROVIDER] as the responsible party and signposted them to the Financial Ombudsman Service should they remain dissatisfied with [PREVIOUS PROVIDER]'s response.
+
+**4 — Why did you take the action detailed above?**
+This complaint has not been upheld as there is no Santander error. Our investigation confirmed Santander submitted the transfer instruction to [PREVIOUS PROVIDER] within the required timeframe and that the delay was caused solely by [PREVIOUS PROVIDER] failing to act within the 15 working day industry standard. As Santander did not cause the delay we are not in a position to offer compensation for the interest lost. The customer has been directed to [PREVIOUS PROVIDER] to seek redress.
+
+**5 — Payments:**
+No compensation offered — the delay was not caused by a Santander error. Customer directed to [PREVIOUS PROVIDER] to seek redress for the delay period.
+
+**Letter — Declined Stage 1:**
+> I'm sorry you've had to contact us about the delay in transferring your Cash ISA to Santander.
+>
+> I understand this situation has caused you problems, but I've looked into your case and this wasn't because of a mistake we made. This is because the delay was caused by your previous provider, not by Santander.
+>
+> To explain this further, I can confirm that Santander submitted the transfer instruction to [PREVIOUS PROVIDER] on [DATE], within the required timeframe. Our records show that [PREVIOUS PROVIDER] did not release your funds within the 15 working day industry standard, which is what caused the delay you experienced. As we were not responsible for this delay we are unable to offer compensation on this occasion. I would recommend contacting [PREVIOUS PROVIDER] directly to raise a complaint and seek any compensation for interest lost during the delay period.
+
+---
+
+#### Worked Example C — Escalation · Resolution Changed (new evidence found — Santander error identified)
+
+*Context: the customer was originally declined (Scenario B above) but escalated with evidence from the previous provider. On review, Santander's processing is found to have contributed to the delay.*
+
+**1 — Why has the customer come back to discuss this complaint again?**
+The customer disagrees with the original decision to decline their complaint regarding the delay in their Cash ISA transfer. The customer maintains that Santander bears some responsibility for the delay and has provided correspondence from [PREVIOUS PROVIDER] confirming the date their funds were released, which they believe contradicts the basis of the original decision.
+
+**2 — What actions have you completed for the customer?**
+On escalation I conducted a more detailed review of the ISA transfer records, including a review of transfer instruction timestamps in our internal systems. I also reviewed the correspondence provided by the customer from [PREVIOUS PROVIDER] confirming the date the funds were released. This review identified that [PREVIOUS PROVIDER] released the funds on [DATE], within the required 15 working day timeframe, and that the subsequent delay of [X] working days occurred within Santander's own processing systems. On the basis of this new evidence I have changed the decision from declined to upheld.
+
+**3 — What changes have you made to the resolution, and why?**
+I have changed the resolution from declined to upheld. The original decision was based on the assumption that the delay was entirely caused by [PREVIOUS PROVIDER]. The escalation review identified that [PREVIOUS PROVIDER] released the funds within the required timeframe and that the delay occurred within Santander's own processing. As a Santander error has now been identified I have arranged a compensation payment to cover the interest lost during the delay period and a goodwill gesture to recognise both the delay and the inconvenience of an incorrect initial decision.
+
+**4 — Payments:**
+Lost interest: £[AMOUNT] × [RATE]% ÷ 365 × [X working days] = £[CALCULATED INTEREST]  
+Goodwill gesture: £[AMOUNT] — in recognition of the original processing error and the inconvenience of the incorrect initial decision  
+**Total: £[TOTAL]**
+
+**Letter — Escalation · Resolution Changed:**
+> I've looked at the details of your complaint and I agree that our original decision was incorrect. Having reviewed your case in more detail and considered the correspondence you provided from [PREVIOUS PROVIDER], I can see that your previous provider released your funds within the required timeframe and that the delay in completing your ISA transfer was in fact caused by an error in our own processing. I have therefore changed our decision and upheld your complaint. I have arranged a payment of £[TOTAL] to cover the interest you lost during the delay and to recognise the inconvenience caused by both the original error and our initial incorrect decision.
+
+---
+
+### 90.5 Interest Compensation Calculation — Standard Formula
+
+For complaints involving loss of interest during a payment delay:
+
+```
+Compensation = Principal × (Annual Rate ÷ 100) ÷ 365 × Number of calendar days delayed
+```
+
+**Example:** £8,500 at 3.5% for 10 calendar days = £8,500 × 0.035 ÷ 365 × 10 = **£8.15**
+
+Where the customer held a fixed-rate ISA, use the fixed rate. Where variable, use the rate applicable during the delay period. Round to the nearest penny. Document the calculation in section 5 of the form.
+
+---
+
+### 90.6 FCA DISP Quick Reference
+
+| Rule | Requirement |
+|---|---|
+| DISP 1.3 | Complaint must be acknowledged promptly |
+| DISP 1.6.1R | Summary resolution: within **3 business days** (no letter required if customer accepts) |
+| DISP 1.6.2R | Full investigation: final response within **8 weeks (56 days)** |
+| DISP 1.6.4R | If no final response by D+56: must write to customer explaining delay and right to go to FOS |
+| DISP 2.7 | Eligible complainants: individuals, micro-enterprises, charities <£1m income, small trusts |
+| DISP 2.8.2R | Time bar: >6 years from event, or >3 years from when customer reasonably should have known |
+| DISP 1.10 | Half-yearly aggregate complaints data return to FCA |
+| FOS referral | Customer has **6 months** from final response to refer to FOS — must be stated in every final response letter |
+| FOS contact | 0800 023 4567 · financial-ombudsman.org.uk |
+
+---
