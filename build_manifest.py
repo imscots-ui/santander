@@ -140,7 +140,7 @@ ML(s, [
 ], 0.6, 4.85, 7, 1.0, size=11, color=STONE3, leading=6)
 
 # Stat boxes
-stats = [("21", "Features"), ("11", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
+stats = [("21", "Features"), ("12", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
 for i, (num, lbl) in enumerate(stats):
     bx = 8.2 + i * 1.28
     R(s, bx, 4.6, 1.15, 1.1, fill=RGBColor(0x2C, 0x27, 0x24))
@@ -163,7 +163,7 @@ T(s, "WHAT WAS BUILT", 0.5, 1.15, 5.5, 0.28, size=9, bold=True, color=RED)
 ML(s, [
     "App.jsx — ~5,300 lines · ~300KB source · Single React component",
     "5 main screens accessible from the bottom nav / sidebar",
-    "11 step-based workflow wizards covering every key banking operation",
+    "12 step-based workflow wizards covering every key banking operation",
     "5 sheet overlays for quick-access tasks (notifications, receipts, PIN, open banking, voice)",
     "7 entity types — every compliance path forks by entity",
     "21 features across dashboard intelligence, paperless workflows, security, and compliance",
@@ -300,7 +300,7 @@ slide_num(s, 3)
 # ═══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
-section_header(s, "Eleven Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
+section_header(s, "Twelve Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
 
 workflows = [
     ("Account Closure",
@@ -336,6 +336,9 @@ workflows = [
     ("International FX Payment",
      "3 steps",
      "Amount + currency + IBAN + beneficiary → live rate + FCA fee disclosure (Consumer Rights Act 2015) → biometric confirm. 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref to audit trail."),
+    ("Complaint Handling",
+     "4 steps",
+     "Intake → escalation triage → denial → case outcome. FCA DISP-compliant. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen Log complaint tile."),
 ]
 
 pw = 3.9
@@ -625,13 +628,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "22,935 lines · 90 sections · 99 books & regulatory documents · Quick Lookup decision index")
+               "22,935 lines · 90 sections · 99 books & regulatory documents · §90 complaint handling framework")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
     ("22,935", "lines"),
-    ("89",     "sections"),
-    ("98",     "books & docs"),
+    ("90",     "sections"),
+    ("99",     "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -731,9 +734,11 @@ cmds = [
     ("npm run dev",              "Dev server at localhost:5173 with hot reload"),
     ("npm run build",            "Production build to dist/ — 832KB HTML"),
     ("npm run preview",          "Serve dist/ locally for final testing"),
-    ("python3 build_deck.py",    "Regenerate pitch deck (16 slides)"),
-    ("python3 build_architecture.py", "Regenerate architecture deck (10 slides)"),
-    ("python3 build_manifest.py",     "Regenerate this project record (13 slides)"),
+    ("python3 build_deck.py",           "Regenerate pitch deck (16 slides)"),
+    ("python3 build_architecture.py",   "Regenerate architecture deck (10 slides)"),
+    ("python3 build_manifest.py",       "Regenerate this project record (14 slides)"),
+    ("python3 build_complaint_guide.py","Regenerate Santander_Complaint_Guide.docx"),
+    ("python3 complaint_letter_writer.py", "Interactive FCA DISP letter writer (Evelyn/Angus)"),
 ]
 for i2, (cmd, desc) in enumerate(cmds):
     ry2 = 4.84 + i2 * 0.30
@@ -805,21 +810,23 @@ decks = [
          ("Slide 10", "Design system tokens"),
      ]),
     ("Santander_Project_Record.pptx",
-     "Project Record · 13 slides (this deck)",
+     "Project Record · 14 slides (this deck)",
      STONE7,
      [
          ("Slide 1",  "Cover"),
          ("Slide 2",  "Project overview — stats, tech stack, deployment"),
          ("Slide 3",  "Five screens"),
-         ("Slide 4",  "Eleven workflows"),
+         ("Slide 4",  "Twelve workflows"),
          ("Slide 5",  "Entity types & mandate rules"),
          ("Slide 6",  "Security & compliance — part 1"),
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (90 sections · Quick Lookup index)"),
+         ("Slide 10", "Reference library (90 sections · §90 complaints)"),
          ("Slide 11", "Deployment & build"),
-         ("Slide 12", "Business case summary"),
+         ("Slide 12", "Presentation deliverables"),
+         ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),
+         ("Slide 14", "Business case summary"),
      ]),
 ]
 
@@ -846,7 +853,92 @@ slide_num(s, 12)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 13 — BUSINESS CASE SUMMARY
+# SLIDE 13 — COMPLAINT HANDLING TOOLS
+# ═══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+R(s, 0, 0, 13.33, 7.5, fill=WARM)
+section_header(s, "Complaint Handling Tools — Evelyn Workflow (Angus)",
+               "FCA DISP-compliant complaint record, letter writing, and Copilot agent — built alongside the in-app workflow")
+
+# ── Four tool panels ──────────────────────────────────────────────────────────
+tools = [
+    ("complaint_letter_writer.py",
+     "Interactive Letter Writer",
+     RED,
+     [
+         "Trigger-phrase driven — Evelyn's exact workflow",
+         "Stage 1 record: 5 verbatim questions",
+         "Escalation record: 4 verbatim questions",
+         "Uphold letter: Sorry → Cause → Impact → Fix → Payment",
+         "Declined letter: Sorry → Not our fault → Reason → Explanation",
+         "Escalation: resolution changed / no change",
+         "Dual mode: complaint record + letter in one doc",
+         "Output: [REF]_[SURNAME]_[TRIGGER]_[DATE].docx",
+     ]),
+    ("Santander_Complaint_Guide.docx",
+     "Complaint Reference Guide",
+     RGBColor(0x1D, 0x4E, 0xD8),
+     [
+         "7 complaint types × Stage 1 + escalation scenarios",
+         "ISA Transfer Delay — 3 scenarios (upheld/declined/escalation)",
+         "Incorrect Charge / Fee",
+         "Payment Error",
+         "APP Fraud — PSR PS23/3 reimbursement",
+         "Mandate Change Error",
+         "Poor Service / Communication",
+         "Account Closure Delay",
+         "Full letter templates, interest formula, DISP table",
+     ]),
+    ("Evelyn_Complaint_Agent_Angus.md",
+     "Microsoft Copilot Agent",
+     EMERALD,
+     [
+         "Complete system prompt for Copilot / Copilot Studio",
+         "All 9 trigger phrases with output definitions",
+         "Verbatim Stage 1 (5Q) and escalation (4Q) headings",
+         "Upheld and declined letter templates with exact language",
+         "FOS referral block — copy-exact text",
+         "Standard sign-off block",
+         "System behaviour rules (vault-ready, consistency)",
+         "Paste into Copilot custom instructions or Copilot Studio",
+     ]),
+    ("In-app: renderComplaint()",
+     "App.jsx Workflow",
+     STONE7,
+     [
+         "4-step workflow wizard built into the prototype",
+         "Step 1: Intake — category, date, eligible complainant check",
+         "Step 2: Escalation triage — flag selection",
+         "Step 3: Denial reason (if not upheld)",
+         "Step 4: Case outcome — goodwill gesture option",
+         "Triggered from Home screen 'Log complaint' action tile",
+         "FCA DISP-compliant flow throughout",
+         "State reset in closeWorkflow() — no ghost state",
+     ]),
+]
+
+pw5 = 3.08
+ph5 = 5.38
+for ci6, (filename, subtitle, acol6, pts6) in enumerate(tools):
+    x6 = 0.3 + ci6 * (pw5 + 0.19)
+    y6 = 1.12
+    R(s, x6, y6, pw5, ph5, fill=WHITE, line=STONE2)
+    R(s, x6, y6, pw5, 0.07, fill=acol6)
+    T(s, subtitle, x6+0.12, y6+0.10, pw5-0.2, 0.30, size=10, bold=True, color=acol6)
+    T(s, filename, x6+0.12, y6+0.42, pw5-0.2, 0.22, size=7.5, color=STONE5, italic=True)
+    R(s, x6+0.12, y6+0.66, pw5-0.22, 0.016, fill=STONE3)
+    ML(s, ["· " + p for p in pts6], x6+0.12, y6+0.72, pw5-0.22, ph5-0.86, size=8, color=STONE7, leading=4)
+
+# Bottom note
+T(s, "Trigger phrases: 'evidence to support complaint stage 1' · 'Uphold - stage 1 letter' · 'Declined - stage 1 letter' · 'Escalation - resolution changed' and 5 more",
+  0.3, 6.68, 12.7, 0.25, size=7.5, color=STONE5, italic=True)
+
+advisor_stamp(s)
+slide_num(s, 13)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SLIDE 14 — BUSINESS CASE SUMMARY
 # ═══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=DARK)
@@ -862,7 +954,7 @@ metrics_top = [
     ("£137M", "Annualised opportunity\n(280,000 customers)"),
     ("£4.9M", "Cost saving per 10k\ncustomers · Year 1"),
     ("21",    "Features built\nacross 4 areas"),
-    ("11",    "Paper workflows\ndigitised"),
+    ("12",    "Paper workflows\ndigitised"),
     ("5",     "Paper forms\nretired"),
     ("8",     "Compliance\nframeworks"),
 ]
@@ -910,7 +1002,7 @@ T(s, "Alan Davidson · Business Banking Advisor · Santander · June 2026",
 T(s, "£137M", 10.1, 5.48, 2.8, 0.75, size=48, bold=True, color=RED, align=PP_ALIGN.RIGHT)
 T(s, "annualised opportunity", 10.1, 6.18, 2.8, 0.28, size=9, color=STONE5, align=PP_ALIGN.RIGHT)
 
-slide_num(s, 13)
+slide_num(s, 14)
 
 prs.save("Santander_Project_Record.pptx")
 print("Saved → /home/user/santander/Santander_Project_Record.pptx")

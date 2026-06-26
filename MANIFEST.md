@@ -25,7 +25,7 @@
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (11 step-based wizards · 5 sheet overlays)
+### Workflows (12 step-based wizards · 5 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -40,6 +40,7 @@
 | Credit Ring-Fence | Risk overview + legal basis → Declaration | Formal instruction: personal account data excluded from business credit decisioning. GDPR Art.5(1)(c) purpose limitation. Persistent state — survives workflow close |
 | Pre-approved Business Lending | Offer/term selector → Terms & cooling-off rights → Confirm & draw down | CCA 1974 regulated. 3 term options 12/24/36 months with live monthly repayment calculator. lendingCompleted persists |
 | International FX Payment | Amount + currency + IBAN + beneficiary → Rate & FCA fee disclosure → Confirm & sign | 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref logged to audit trail |
+| Complaint Handling | Intake → Escalation triage → Denial → Case outcome | FCA DISP-compliant 4-step flow. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen "Log complaint" tile |
 
 ### Entity Types (7 — all compliance paths diverge)
 
@@ -284,7 +285,34 @@ Contents:
 
 ---
 
-## 7. Git History (this project)
+## 7. Complaint Handling Tools
+
+Three standalone tools for FCA DISP-compliant complaint handling, built alongside the in-app workflow.
+
+| File | Purpose |
+|------|---------|
+| `complaint_letter_writer.py` | Interactive letter writer — Evelyn workflow (Angus format). Trigger-phrase driven: Stage 1 record (5 questions), escalation record (4 questions), upheld/declined/escalation letters, dual mode. Saves `[REF]_[SURNAME]_[TRIGGER]_[DATE].docx` |
+| `Santander_Complaint_Guide.docx` | Comprehensive reference guide — 7 complaint types × Stage 1 upheld/declined/escalation scenarios. Full letter templates, interest formula, FCA DISP quick reference. For use on work laptop |
+| `build_complaint_guide.py` | Rebuilds `Santander_Complaint_Guide.docx` — run `python3 build_complaint_guide.py` |
+| `Evelyn_Complaint_Agent_Angus.md` | Microsoft Copilot instruction file — complete system prompt for the Angus agent. All trigger phrases, verbatim Stage 1/escalation headings, letter templates with exact language patterns, FOS block, sign-off. Paste into Copilot custom instructions or Copilot Studio |
+
+### Trigger Phrases (complaint_letter_writer.py / Angus Copilot agent)
+
+| Trigger | Output |
+|---------|--------|
+| `evidence to support complaint stage 1` | 5-question Stage 1 complaint record |
+| `evidence to support complaint escalation` | 4-question escalation record |
+| `Uphold - stage 1 letter` | Letter: Sorry → Cause → Impact → Fix → Payment |
+| `Declined - stage 1 letter` | Letter: Sorry → Not our fault → One-line reason → Full explanation |
+| `Escalation - resolution changed` | Escalation final response — decision changed |
+| `Escalation - no change in original resolution` | Escalation final response — decision maintained |
+| `Escalation - no change in escalated complaint` | Escalation final response — escalated decision maintained |
+| `evidence to support complaint stage 1 + Uphold - stage 1 letter` | Dual mode: complaint record + upheld letter |
+| `evidence to support complaint stage 1 + Declined - stage 1 letter` | Dual mode: complaint record + declined letter |
+
+---
+
+## 8. Git History (this project)
 
 | Commit | Description |
 |--------|-------------|
@@ -299,7 +327,7 @@ Contents:
 
 ---
 
-## 8. Business Case Summary
+## 9. Business Case Summary
 
 | Metric | Value |
 |--------|-------|
