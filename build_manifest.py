@@ -639,13 +639,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "23,427 lines · 98 sections · 107 books & regulatory documents · §97 Senior Managers Regime · §98 Prezi")
+               "23,496 lines · 99 sections · 108 books & regulatory documents · §97 SMR · §98 Prezi · §99 WCAG contrast")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("23,427", "lines"),
-    ("98",     "sections"),
-    ("107",    "books & docs"),
+    ("23,496", "lines"),
+    ("99",     "sections"),
+    ("108",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -672,8 +672,8 @@ domains = [
          "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
         (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96, §98",
          "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice · KDP · PDF→EPUB · Mastering Prezi (Anderson-Williams)"),
-        (DARK,    "Employment & Equality Law",          "§34",
-         "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
+        (DARK,    "Equality & Accessibility",           "§34, §99",
+         "Equality Act 2010 · Protected characteristics · Reasonable adjustments · WCAG 2.1 colour contrast (4.5:1) · WebAIM/CCA testing"),
         (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
          "MakerSpace · Electronics · Mechatronics · Digital Logic · Arduino/IoT · Embedded Linux · ISO GD&T (Green) · CAMSS Materials Selection (NMAB-467)"),
         (EMERALD, "Digital Banking Transformation",      "§82, §83, §85",
@@ -833,7 +833,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (98 sections · 107 books)"),
+         ("Slide 10", "Reference library (99 sections · 108 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),

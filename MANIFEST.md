@@ -153,9 +153,9 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 23,427 lines · 98 sections · 107 books & regulatory documents · Quick Lookup decision index (Jun 2026)
+**Size:** 23,496 lines · 99 sections · 108 books & regulatory documents · Quick Lookup decision index (Jun 2026)
 
-### Domain Groups (98 sections)
+### Domain Groups (99 sections)
 
 | Domain | Sections | Key sources |
 |--------|----------|-------------|
@@ -169,9 +169,10 @@ Contents:
 | Microsoft Ecosystem | §27–33, §64–65, §76, §92 | Power Teams, Power BI (×2), PowerPoint (×3 — incl. PowerPoint 365 Pro / Lemmings), SharePoint, Dynamics 365 BC AL, Azure AI Engineer |
 | Document Production & Publishing | §92, §94–96, §98 | PowerPoint 365 Pro (Lemmings), LibreOffice Extensions (Weber/TDF), KDP Formatting (Heliose), PDF→EPUB with Calibre (Frobnitz), Mastering Prezi for Business (Anderson-Williams/Sylvia) |
 | Employment & Equality Law | §34 | Equality Act 2010, protected characteristics, WCAG legal duty, reasonable adjustments |
+| Accessibility & WCAG | §99 | WCAG 2.1 colour contrast (4.5:1 / 3:1 / 7:1), large-text thresholds, WebAIM Contrast Checker / CCA, don't-rely-on-colour, mapped to Bosun's Law |
 | Electronics · Hardware · IoT | §43–49, §54, §57, §89 | MakerSpace, Electronics, Mechatronics, Digital Logic, Devices & Circuits, Arduino/IoT, Embedded Linux, ISO GD&T Geometrical Tolerancing (Green, Elsevier) |
 | Engineering Design & Decision Systems | §93 | Computer-Aided Materials Selection During Structural Design (NMAB-467, National Research Council) — knowledge-base / expert-system design, concurrent engineering |
-| Quick Lookup Decision Index | — | 70+ answers · 8 themed tables · maps common questions to exact values · spans all 98 sections |
+| Quick Lookup Decision Index | — | 70+ answers · 8 themed tables · maps common questions to exact values · spans all 99 sections |
 
 ---
 
@@ -272,7 +273,7 @@ Contents:
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — 98 sections, 107 books & regulatory docs, 23,427 lines, Quick Lookup index |
+| 10 | Reference library — 99 sections, 108 books & regulatory docs, 23,496 lines, Quick Lookup index |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
 | 13 | Business case summary — £137M, metrics, differentiators, phase status |

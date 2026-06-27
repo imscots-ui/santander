@@ -23425,3 +23425,72 @@ Prezi auto-adapts to unusual projection (even full-wall). **Beware overlapping c
 Prezi's non-linear, zoom-to-detail model is an alternative delivery channel for the prototype's stakeholder pitch and the limited-company walkthrough — the BIG Picture technique mirrors how the project's own decks open with a headline conclusion then drill into detail. The raster-vs-vector, branding-template, and aspect-ratio lessons reinforce the same design discipline (§92, Bosun's Law) applied across the project's PowerPoint deliverables.
 
 ---
+
+## Section 99 — Accessibility: WCAG Colour Contrast & Inclusive Text/Graphics (W3C WCAG 2.1 · WebAIM · Wix Accessibility guidance)
+
+The accessibility standard behind the project's strictest standing orders. The prototype's Bosun's Law already mandates contrast ≥4.5:1, `focus-visible` on every interactive element, and `num-tab` on figures — this section is the *why* and the *how to verify*. Source basis: W3C WCAG 2.1 success criteria (1.4.3, 1.4.6, 1.4.11), the WebAIM Contrast Checker, and Colour Contrast Analyser tooling.
+
+### 99.1 The Problem
+
+Visitors with low vision or colour-vision deficiencies struggle to distinguish foreground from background when contrast is weak. Insufficient contrast is the single most common automated accessibility failure on the web — and the easiest to fix at design time.
+
+### 99.2 Required Contrast Ratios
+
+| Content | AA (target) | AAA (enhanced) |
+|---|---|---|
+| **Normal text** | **4.5 : 1** | **7 : 1** |
+| **Large text** | **3 : 1** | **4.5 : 1** |
+| **Graphics & UI components** (input borders, placeholders, icons, focus rings, chart elements) | **3 : 1** | — |
+
+- **WCAG 1.4.3** (AA) — minimum contrast for text.
+- **WCAG 1.4.6** (AAA) — enhanced contrast.
+- **WCAG 1.4.11** (AA) — non-text contrast (UI components & graphical objects ≥ 3:1).
+
+### 99.3 What Counts as "Large Text"
+
+Large text = **≥ 18.66px (14pt) bold**, OR **≥ 24px (18pt)** regardless of weight. Anything below those thresholds must meet the *normal text* ratio (4.5:1 for AA).
+
+### 99.4 Testing Tools & Output
+
+- **WebAIM Contrast Checker** — https://webaim.org/resources/contrastchecker/ — paste foreground + background hex, get the ratio and pass/fail per level. Returns a result like:
+  ```json
+  { "ratio": "8.59", "AA": "pass", "AALarge": "pass", "AAA": "pass", "AAALarge": "pass" }
+  ```
+  A ratio of **8.59:1** passes every level (AA, AA-Large, AAA, AAA-Large). The four flags map to: normal-text AA, large-text AA, normal-text AAA, large-text AAA.
+- **Colour Contrast Analyser (CCA)** — best for **text over a background image** (eyedropper-pick the actual background pixel, then test).
+- **Browser plugins / builder wizards** (e.g. Wix Accessibility Wizard, Contrast Checker add-on) — scan a whole site and surface low-contrast elements; note that some app/embedded elements aren't auto-detected and need a **manual review**.
+
+### 99.5 Don't Rely on Colour Alone
+
+For graphs and data visualisations, high contrast is necessary but not sufficient — colour-blind users still can't separate series by hue. **Add a second channel**: textures, patterns, direct labels, dashed vs solid lines, or shape markers. (WCAG 1.4.1 *Use of Colour*.)
+
+### 99.6 Verifying a Hex Pair (the maths)
+
+Contrast ratio = (L1 + 0.05) / (L2 + 0.05), where L1/L2 are the relative luminances of the lighter/darker colour. You rarely compute this by hand — use the checkers above — but knowing the formula explains why pure black on white is 21:1 (the maximum) and why mid-greys on warm backgrounds fail so easily.
+
+### 99.7 Application to This Project (Bosun's Law in WCAG terms)
+
+The project's standing orders are direct implementations of these criteria:
+
+| Standing order | WCAG basis |
+|---|---|
+| Contrast ≥ 4.5:1 throughout | 1.4.3 (AA normal text) |
+| `focus-visible:ring` on every interactive element; no bare `focus:outline-none` | 2.4.7 Focus Visible + 1.4.11 (focus ring ≥ 3:1) |
+| Never `text-stone-400/500` on dark or red surfaces — use `text-white/65`, `text-stone-300`, `text-red-100` | 1.4.3 — those greys fail 4.5:1 on `#c8102e`/dark cards |
+| `num-tab` tabular figures on all monetary amounts | Readability (supports 1.4.8 visual presentation) |
+| Brand red `#c8102e` reserved for CTAs/active states | Ensures the one high-contrast accent isn't diluted |
+
+**Worked check for the brand palette:**
+- White `#FFFFFF` on brand red `#c8102e` → ~**4.8:1** → passes AA for normal text. ✓ (This is why CTA labels are white, not light grey.)
+- `text-stone-500` `#78716c` on warm bg `#faf6ef` → ~**4.0:1** → *fails* AA normal text, passes only as large text — which is exactly why Bosun's Law restricts where stone-400/500 may appear.
+
+### 99.8 Quick Workflow
+
+1. Pick foreground + background hex from the design tokens.
+2. Run through WebAIM Contrast Checker (or CCA for image backgrounds).
+3. Confirm **≥4.5:1** for body, **≥3:1** for large text / UI / focus rings.
+4. If it fails, darken/lighten one colour until it passes — then add the new value to the palette.
+5. For data, add a non-colour indicator (pattern/label) as well.
+6. Re-run `/ship-ready` — the Security and Bosun stations enforce these at commit time.
+
+---
