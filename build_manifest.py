@@ -639,13 +639,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "23,260 lines · 96 sections · 105 books & regulatory documents · §94–96 LibreOffice, KDP, PDF→EPUB")
+               "23,427 lines · 98 sections · 107 books & regulatory documents · §97 Senior Managers Regime · §98 Prezi")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("23,260", "lines"),
-    ("96",     "sections"),
-    ("105",    "books & docs"),
+    ("23,427", "lines"),
+    ("98",     "sections"),
+    ("107",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -662,16 +662,16 @@ domains = [
          "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
         (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
          "PSD2 · FPS/BACS/CHAPS/SWIFT · PSR · FCA Consumer Duty · AML · Ring-Fencing · SCA · BCOBS · FCA Compliance · UK Resolution · Post-Trade"),
-        (RED,     "Prudential & Market Regulation",     "§36–40, §87–88",
-         "PRA/PRC · Basel 3.1 · SS19/13 Resolution Planning · MREL · CNRF · Deposit Aggregators · LEI/SSI · KYC Passporting · Post-Trade Task Force"),
+        (RED,     "Prudential & Market Regulation",     "§36–40, §87–88, §97",
+         "PRA/PRC · Basel 3.1 · SS19/13 Resolution · MREL · CNRF · Deposit Aggregators · Post-Trade Task Force · Senior Managers Regime (Berman)"),
         (RED,     "Data Protection",                    "§75, §77",
          "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
     ],
     [  # Right column — x=6.68
         (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56, §78–81",
          "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
-        (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96",
-         "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice Extensions · KDP Formatting · PDF→EPUB (Calibre)"),
+        (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96, §98",
+         "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice · KDP · PDF→EPUB · Mastering Prezi (Anderson-Williams)"),
         (DARK,    "Employment & Equality Law",          "§34",
          "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
         (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
@@ -833,7 +833,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (96 sections · 105 books)"),
+         ("Slide 10", "Reference library (98 sections · 107 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),

@@ -23258,3 +23258,170 @@ Note: regex flavours differ between tools — expressions written for the Altern
 This is the inverse of how the reference library was assembled (EPUBs → text → REFERENCE.md sections). The regex paragraph-rejoining and header-stripping techniques are exactly what's needed to clean OCR'd or PDF-extracted regulatory documents before they can be added to the library, and the Styles-first / Heading-1-as-structure discipline underpins any clean document or EPUB the project produces.
 
 ---
+
+## Section 97 — Individual Accountability Under the Senior Managers Regime: A Practical Guide — David Berman (Macfarlanes / Thomson Reuters, 2016)
+
+A practitioner's guide to personal regulatory liability for senior individuals in UK-regulated financial institutions under the FCA/PRA Senior Managers Regime (SMR). Directly load-bearing for a Santander business-banking context: it governs how the bank's directors, senior managers, and NEDs are held individually accountable, and how the dual-authorisation, audit-trail, and compliance controls in this prototype map to real regulatory duties. (The term **Regulator** throughout means the FCA and PRA, as appropriate.)
+
+### 97.1 Background — Why the SMR Exists
+
+After the banking crisis and the LIBOR/FX scandals, the Regulator was criticised for failing to hold senior individuals to account — culpability was hard to prove when the senior manager sat many operational levels from the misconduct. The **Parliamentary Commission on Banking Standards (PCBS, 2012)** recommended a new framework, enacted via the **Financial Services (Banking Reform) Act 2013** amending **FSMA 2000**. The Act created the SMR and gave the Regulator power to impose conditions/time limits on approvals, a new **Duty of Responsibility**, and a criminal offence for reckless decisions causing a bank to fail. The SMR was extended across all FSMA-authorised firms from 2018 (proportionately).
+
+### 97.2 The Three Pillars
+
+1. **Senior Managers Regime (SMR)** — pre-approval and accountability for the most senior individuals holding Senior Management Functions (SMFs).
+2. **Certification Regime** — firms certify other staff whose actions could significantly harm the firm/customers (no pre-approval, annual fitness certification).
+3. **Conduct Rules** — enforceable rules replacing the old Statements of Principle, applying to a wide population.
+
+### 97.3 Senior Management Functions (SMFs)
+
+An SMF requires its holder to manage one or more aspects of the firm's regulated affairs where those aspects could pose a risk of serious consequences. Designated SMFs include: Chief Executive (SMF1), Chief Finance (SMF2), Executive Director, **Group Entity Senior Manager (SMF7)**, Chair, **Head of Key Business Area (SMF6)** (area with gross assets ≥£10bn and ≥20% of group revenue), and **Other Overall Responsibility (SMF18)** for anyone with ultimate responsibility not otherwise captured. Individuals performing multiple SMFs need separate approvals; **shared SMFs** mean each holder is accountable for *all* the responsibilities of that function.
+
+### 97.4 The Core Documents
+
+- **Statement of Responsibilities (SoR)** — sets out exactly what each Senior Manager is responsible for; must be resubmitted on any *significant change*.
+- **Responsibilities Map** — the firm's overall framework allocating responsibilities and governance arrangements.
+- **Prescribed Responsibilities** — ~30 fundamental responsibilities that must be allocated to SMF holders (e.g. compliance with the SMR itself, the certification regime, the responsibilities map, financial-crime systems, culture, whistleblowing independence, CASS oversight, ring-fencing compliance). The combined intent of SoR + Map is to eliminate **overlaps and underlaps** in accountability.
+
+### 97.5 Three Avenues of Personal Regulatory Exposure
+
+The Regulator can pursue a Senior Manager where they:
+1. were **knowingly concerned** in a firm's contravention; or
+2. were **personally culpable** for a breach of the Conduct Rules; or
+3. breached the **Duty of Responsibility** — failed to take reasonable steps to prevent/stop a contravention in their area.
+
+A criminal offence also exists for a reckless decision causing the institution to fail. Any case must generally be brought within **six years** of the Regulator becoming aware. In practice the Conduct Rules and the Duty of Responsibility are the two most likely routes.
+
+### 97.6 The Conduct Rules
+
+**Individual Conduct Rules (apply broadly):**
+1. Act with integrity.
+2. Act with due skill, care and diligence.
+3. Be open and cooperative with the FCA, PRA and other regulators.
+4. Pay due regard to the interests of customers and treat them fairly.
+5. Observe proper standards of market conduct.
+
+**Senior Manager Conduct Rules (SC1–SC4):**
+- **SC1** — take reasonable steps to ensure the business you are responsible for is **controlled effectively**.
+- **SC2** — take reasonable steps to ensure it **complies** with the relevant requirements and standards of the regulatory system.
+- **SC3** — take reasonable steps to ensure any **delegation** is to an appropriate person and that you oversee it effectively.
+- **SC4** — **disclose appropriately** any information the FCA/PRA would reasonably expect notice of (including proactively, absent any request).
+
+### 97.7 Personal Culpability and "Reasonable Steps"
+
+Personal culpability arises where conduct was **deliberate** or fell **below the standard reasonable in all the circumstances** (an objective test — best intentions are no defence). Most Conduct Rule cases turn on whether the Senior Manager's conduct was *reasonable in all the circumstances* — assessed, in practice, with hindsight.
+
+**The Duty of Responsibility** is made out where (i) the firm breached a relevant requirement; (ii) at the time the Senior Manager was responsible for the relevant area; and (iii) they failed to take such steps as a person in that position could reasonably be expected to take. "Reasonable steps" = those a *competent Senior Manager* would have taken, at that time, in that individual's position, with their role and responsibilities, in all the existing circumstances. The Regulator assesses steps actually taken against steps reasonably expected — **not retrospectively or with hindsight** (per the rules), though in practice hindsight intrudes.
+
+**Critical practical point:** although the burden of proof formally sits with the Regulator, *as soon as an allegation is made the practical burden shifts* — the Senior Manager must be able to **evidence** reasonable steps. **Demonstrability is everything**: minutes, file notes, management information, assurances received, and decision rationale. "The Regulator may doubt whether an event really happened if there is no supporting documentary evidence." → This is the direct regulatory rationale for the prototype's FCA SYSC 9 **audit trail** and immutable action logging.
+
+### 97.8 Risk-Management Toolkit for Senior Managers
+
+The book consolidates PRA/FCA expectations into self-assessment questions across: board relationship; scope of responsibility (review your SoR vs reality — substance over form); management information quality ("is it too good to be true?"); the **3 Lines of Defence** model; risk appetite and conduct-risk frameworks; delegation protocols (you can delegate the task, never the responsibility); regulatory awareness; competence; use of external experts; robust reactivity to issues; orderly transitions/handover notes; and the compliance function's independence, resourcing and stature.
+
+### 97.9 Non-Executive Directors (NEDs)
+
+The Regulator distinguishes **in-scope (non-notified) NEDs** — Chairman, Senior Independent Director, Committee Chairs (these *are* Senior Managers) — from **Notified NEDs** (not Senior Managers but still bound by Conduct Rules 1–5). NEDs' core role is **independent oversight and challenge** of the executive, ensuring clients' interests are weighed. Their SoRs are typically narrower than executives'. Their personal exposure is more limited because it hinges on the (narrower) scope of their responsibility — but they must still evidence reasonable steps and demonstrable challenge.
+
+### 97.10 Culture and "Cultural Attribution"
+
+Culture is a sustained area of regulatory focus. A new enforcement threat is **cultural attribution** — the Regulator attributing misconduct to cultural failings and turning the spotlight on senior management (CEO and Chair carry Prescribed Responsibilities for culture). Manage this with demonstrable evidence of a strong tone from the top *and* middle, periodic independent **cultural assessment/audit**, and monitoring of cultural indicators (response to incidents, complaints handling, incentive structures, performance management, MI quality, training, breach registers). The Group of 30 question-set is offered as a self-assessment framework.
+
+### 97.11 Attestations
+
+An **attestation** is a personal commitment to the Regulator that specific action has been/will be taken or that the firm is compliant. Types: notification, undertaking, self-certification, verification. Refusing is effectively not an option (treated as failure to cooperate under Principle 11). Attestations are arguably the single greatest avenue of direct personal exposure. Mitigate by: delegating underlying work to appropriate functions, obtaining back-to-back assurances, challenging them, documenting a clear audit trail, framing/contextualising the wording, and monitoring post-attestation for any change that renders it misleading.
+
+### 97.12 The Directors' Dilemma
+
+A director owes statutory duties (Companies Act 2006) primarily to **shareholders**, but regulatory expectations prioritise **customers**. These can conflict (e.g. a cost-cutting programme that weakens control functions). The **Preferred Solution**: strike a balance — proceed only to the extent customers' interests remain appropriately safeguarded — and **document** that both stakeholder groups were considered, with assurances received and challenges minuted.
+
+### 97.13 Key Enforcement Cases
+
+- **John Pottage v FSA (Upper Tribunal, 2012)** — CEO of UBS Wealth Management *overturned* the FSA's finding: he had conducted a reasonable **initial assessment** on appointment and proactively remediated issues → he took reasonable steps. The seminal "reasonable steps" precedent.
+- **John Cummings (HBOS Corporate)** — *contrast* to Pottage: passive, failed to heed Group Risk warnings, subordinated risk to revenue → not reasonable.
+- **HomeServe (2014, £30m)** — largest retail conduct fine; culture of profit-first, weak compliance voice.
+- **Swinton (Halpin, Clare, Bowyer, 2014, >£900k)** — directors allowed a profit-centred culture at customers' expense.
+- **Caplin / RP Martins (2015, £210k)** — CEO sanctioned for presiding over an extremely weak compliance culture (cultural attribution in action).
+- **Angela Burns (2013)** — NED fined and banned for integrity failings (undisclosed conflicts) — NEDs are not immune.
+
+### 97.14 Application to This Project
+
+Every control in the prototype maps to an SMR duty: **dual authorisation** (PSR/effective control, SC1) · **audit trail** (the demonstrability imperative — SYSC 9) · **KYC/KYB and mandate rules** (compliance, SC2) · **cooling-off** (reasonable steps to prevent harm) · **complaint handling** (§90 — customer-interest Conduct Rule 4) · **ring-fencing/data separation** (Prescribed Responsibility for ring-fenced bodies). The recurring lesson — *document the reasonable steps* — is precisely why this app timestamps and attributes every action.
+
+---
+
+## Section 98 — Mastering Prezi for Business Presentations (2nd Ed) — Russell Anderson-Williams & J.J. Sylvia IV (Packt, 2015)
+
+A guide to non-linear, zoom-based presentations using Prezi. Complements the PowerPoint references (§92) and the project's own deck-building practice: where python-pptx produces linear slide decks, Prezi offers an infinite-canvas alternative — useful for the prototype's stakeholder pitches and customer-research walkthroughs.
+
+### 98.1 The Prezi Frame of Mind
+
+The biggest learning curve is conceptual, not technical: thinking **non-linearly**. Prezi uses an **infinite 3D canvas** with **frames** (not slides) connected by **paths**. *Forget slides* — the vocabulary (canvas, frames) reframes the approach.
+- **Linear** presentations have fixed start/end (driving lessons, step-by-step) — use a path.
+- **Non-linear** presentations let the audience choose where to start — more conversational and engaging.
+- **Best of both:** join non-linear sections with paths where a logical order helps.
+
+### 98.2 The Three Design Steps
+
+1. **Plan your Prezi** — most important. Answer: overall message? what must they know by the end? smaller key messages? presenter-led or online?
+2. **Get the style right** — purposeful **zooming** (zoom to communicate, not to show off) and **frames** (Bracket, Circle, Rectangle, Invisible; layouts available).
+3. **Build in layers** ("like a Victoria sponge") — background image first, then content (text/images/graphs/video/frames), then paths last. Test in show mode.
+
+### 98.3 Mind Mapping & the BIG Picture
+
+**Mind Mapping** plans a Prezi non-linearly (words + images, associations) — matching how the brain builds **neural networks**. The **BIG Picture technique**: reveal individual details one at a time, then zoom out to show all relationships in one view (or reverse — show the whole first, then zoom into detail). This helps the audience connect the dots and retain the message.
+
+### 98.4 Mechanics
+
+- **Templates** — fast start; editable.
+- **Paths** — create motion (zoom between path points; rotating an element spins the canvas). Add by clicking content; reorder by drag-drop; "Add current view" for precise framing.
+- **Shapes / lines / arrows** — draw custom doodles; edit points, colour, size; curve lines by dragging the centre.
+- **Styled symbols** & **Highlighter**.
+- **Grouping** — Ctrl/Cmd-click or Shift-drag; group to move/animate together.
+- **Text editor** — spell-check, drag-apart, per-word font colours, bullets/indents.
+- **Animations** — fade-in only (click elements in fade order; group for multi-fade; no native fade-out — workaround with a background-colour shape).
+- **3D backgrounds** — single (parallax) or multiple (layered by zoom level); use images ≥3000px.
+- **Present button** — show mode; auto-advance timings (4/10/20s) for unattended playback.
+
+### 98.5 Branding & CSS
+
+- **Color schemes** via Customize → Advanced; enter exact **RGB/HEX** brand values (Theme Wizard limited to ~30 colours).
+- **CSS editor** (Theme Wizard) — edit fonts (`@font-face` / `font-class`), frame borders (`borderAlpha`, `borderColor`, `gradStartColor`/`gradEndColor`, `thickness`) — no undo, so copy code out first.
+- **My Content** — favourite frames/elements for reuse across Prezis; pull from past Prezis.
+- **Custom logos** (paid accounts) — appears bottom-corner in present mode.
+
+### 98.6 Importing PowerPoint
+
+Slides are "a necessary evil" — businesses run on them. **Insert → PowerPoint**: insert all (with a path) or drag individual slides; elements become editable, but formatting often shifts and graphs may import as garbled text (fix by screenshotting/exporting the slide as an image). For speed with zero editing, **import as PDF** (perfect fidelity, but each slide is one non-editable element). Either way: **Prezify** — reposition, zoom into details, use invisible frames; "slides linked by a path are still slides." Always spell-check and supply high-res imagery before importing; PowerPoint animations do not transfer.
+
+### 98.7 Imagery — Raster vs Vector
+
+- **Raster** (JPEG/GIF/PNG/PDF) — pixels; photographs; **pixelates when zoomed**; abundant online (Prezi's built-in Google image search, with "licensed for commercial use" checkbox; advanced search for size/type/usage rights; paid libraries: Shutterstock, Getty, iStock).
+- **Vector** (PDF/SWF in Prezi) — points/curves; **infinite zoom, no pixelation**, tiny file size, cartoon-like feel.
+- **Vectorize** raster images free with **Inkscape** (Trace Bitmap) or quickly via **Vector Magic** (paid). Max image 2880×2880px in Prezi. Crop and layer (Bring Forward/Send Backward) as needed.
+
+### 98.8 Audio & Video
+
+- **Audio** — background music (loops) vs **voice-over** (per path step; Prezi auto-ducks music under voice-overs). Source from libraries or record/edit free with **Audacity** (+ LAME for MP3); **normalize** and **amplify** for even levels. Mobile recording via Smart/Easy Voice Recorder (Android) or Voice Memos (iPhone). Supported: MP3, M4A, FLAC, WMA, WAV, OGG, AAC, MP4, 3GP.
+- **Video** — built-in player (FLV/WMV/MOV/AVI/MPG/MP4/M4V/3GP/YouTube). Pro/EduPro: no size limit; Public/Enjoy: 50MB. **YouTube** is easiest (insert link; needs reliable internet) — upload your own as **Unlisted**; edit on YouTube (enhancements, filters, audio, annotations, captions). Play along a path (link the actual video, not its frame) or let users play.
+
+### 98.9 Projectors & Aspect Ratios
+
+Prezi auto-adapts to unusual projection (even full-wall). **Beware overlapping content** — frames too close show neighbouring content at the edges. Use **Ctrl/Cmd+Shift+M** to switch the preview aspect ratio. Most projectors are **4:3** while laptops are 16:9 — design in **4:3** (Prezi's default bracket frame) to avoid empty space/overlap. **Screen blackout**: press **B**. Build a DIY **Interactive Whiteboard** with a Wii remote + infrared pen + Smoothboard (<$200).
+
+### 98.10 Online Delivery, API & Devices
+
+- **Online** — privacy levels: Private / Hidden / Public / Public & reusable. Embed via HTML (≤800×600 recommended); choose pan-zoom-free vs constrained. Online viewers have ~8s attention — give instructions, narration, highlight with frames/colour, keep ≤10 min, open with the BIG Picture hook.
+- **API** (`prezi-player`) — embed the player and build an interactive **menu/table of contents** with `player.flyToStep(n)` (remember: paths are **0-indexed** — subtract 1 from the editor's path number). Requires HTML/CSS/JavaScript and your own web host.
+- **Tablets/phones** — iPad app can view *and edit*; iPhone/Android apps are view-only companions (download for offline; last ~10 Prezis cached; YouTube needs Wi-Fi). Gestures: pinch-zoom, two-finger rotate, double-tap, shake for overview. Present from a tablet for an engaging, mouse-free pitch.
+
+### 98.11 Collaboration & Adoption
+
+- **Shared folders**, **co-editing** (up to 10 simultaneous editors, shown as **avatars**), **remote presenting** (up to 30 viewers, no account needed; hand over control), and **video presentations** (screen-capture + narration via QuickTime/Screenr/Camtasia → YouTube).
+- **Getting Prezi adopted:** PowerPoint has a deep grip; don't expect overnight switchover. Win colleagues by Prezifying their slides, building a **branded company template** (logo + RGB brand colours + reusable frame templates), and subtly introducing zoom inside otherwise-linear decks — or embedding a Prezi inside PowerPoint via the **Slide Dynamic** plugin.
+
+### 98.12 Relevance to This Project
+
+Prezi's non-linear, zoom-to-detail model is an alternative delivery channel for the prototype's stakeholder pitch and the limited-company walkthrough — the BIG Picture technique mirrors how the project's own decks open with a headline conclusion then drill into detail. The raster-vs-vector, branding-template, and aspect-ratio lessons reinforce the same design discipline (§92, Bosun's Law) applied across the project's PowerPoint deliverables.
+
+---
