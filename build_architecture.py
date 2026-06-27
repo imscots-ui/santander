@@ -1,582 +1,607 @@
 """
 build_architecture.py
-Generates a 12-slide technical architecture report for the
-Santander Business Banking prototype using python-pptx.
+Generates a 12-slide technical architecture report for the Santander Business
+Banking prototype using python-pptx.
+
+Rebuilt to PowerPoint best-practice standards (REFERENCE.md §30–33, §92):
+  · Panels, stat boxes, and cards — never raw bullet dumps
+  · Dark / warm alternation for visual rhythm
+  · One clear idea per slide; generous whitespace
+  · Consistent slide furniture: red bar, title, red rule, footer chrome
+  · INTERNAL · CONFIDENTIAL classification on every slide
 """
 
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
-# ---------------------------------------------------------------------------
-# Colour constants
-# ---------------------------------------------------------------------------
-RED        = RGBColor(0xc8, 0x10, 0x2e)   # Santander brand red
-DARK       = RGBColor(0x1c, 0x19, 0x17)   # dark stone #1c1917
-WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
-LIGHT_GREY = RGBColor(0xE5, 0xE5, 0xE4)   # subtle separator
-MID_GREY   = RGBColor(0x78, 0x71, 0x6C)   # stone-500 equivalent
-BODY_DARK  = RGBColor(0x1C, 0x19, 0x17)   # near-black body text on white
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def new_prs():
-    prs = Presentation()
-    prs.slide_width  = Inches(13.33)
-    prs.slide_height = Inches(7.5)
-    return prs
-
-
-def blank_slide(prs):
-    layout = prs.slide_layouts[6]
-    return prs.slides.add_slide(layout)
-
-
-def set_bg(slide, color):
-    bg   = slide.background
-    fill = bg.fill
-    fill.solid()
-    fill.fore_color.rgb = color
-
-
-def add_textbox(slide, left, top, width, height):
-    return slide.shapes.add_textbox(left, top, width, height)
-
-
-def add_rect(slide, left, top, width, height, color):
-    shape = slide.shapes.add_shape(1, left, top, width, height)
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = color
-    shape.line.fill.background()
-    return shape
-
-
-def add_title(slide, text, dark=False):
-    tb = add_textbox(slide, Inches(0.6), Inches(0.45), Inches(12.1), Inches(0.75))
-    tf = tb.text_frame
-    p = tf.paragraphs[0]
-    p.text = text
-    r = p.runs[0]
-    r.font.name  = "Calibri"
-    r.font.size  = Pt(32)
-    r.font.bold  = True
-    r.font.color.rgb = WHITE if dark else BODY_DARK
-    return tb
-
-
-def add_red_rule(slide):
-    add_rect(slide, Inches(0.6), Inches(1.25), Inches(12.1), Inches(0.03), RED)
-
-
-def red_bar(slide, top=True):
-    bar_h = Inches(0.08)
-    top_  = Inches(0) if top else Inches(7.5) - bar_h
-    add_rect(slide, Inches(0), top_, Inches(13.33), bar_h, RED)
-
-
-LIGHTRED = RGBColor(0xFE, 0xCA, 0xCA)
+# ── Colour tokens ───────────────────────────────────────────────────────────────
+RED      = RGBColor(0xC8, 0x10, 0x2E)
+RED_DARK = RGBColor(0xA0, 0x0D, 0x24)
+DARK     = RGBColor(0x1C, 0x19, 0x17)
+WARM     = RGBColor(0xFA, 0xF6, 0xEF)
+WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
+STONE1   = RGBColor(0xF5, 0xF5, 0xF4)
+STONE2   = RGBColor(0xE7, 0xE5, 0xE4)
 STONE3   = RGBColor(0xD6, 0xD3, 0xD1)
+STONE5   = RGBColor(0x78, 0x71, 0x6C)
+STONE7   = RGBColor(0x44, 0x40, 0x3C)
+LIGHTRED = RGBColor(0xFE, 0xCA, 0xCA)
+LIGHTRED2= RGBColor(0xFE, 0xF2, 0xF2)
+GREEN    = RGBColor(0x05, 0x96, 0x69)
+AMBER    = RGBColor(0xD9, 0x77, 0x06)
+BLUE     = RGBColor(0x1D, 0x4E, 0xD8)
 
-def _txt(slide, text, l, t, w, h, size, color, bold=False, align=PP_ALIGN.LEFT, italic=False):
-    tb = add_textbox(slide, Inches(l), Inches(t), Inches(w), Inches(h))
-    tb.text_frame.word_wrap = True
-    p = tb.text_frame.paragraphs[0]; p.alignment = align
+prs = Presentation()
+prs.slide_width  = Inches(13.33)
+prs.slide_height = Inches(7.5)
+BLANK = prs.slide_layouts[6]
+
+
+# ── Drawing helpers ─────────────────────────────────────────────────────────────
+
+def R(s, l, t, w, h, fill=None, line=None, lw=0.75):
+    sh = s.shapes.add_shape(1, Inches(l), Inches(t), Inches(w), Inches(h))
+    sh.line.fill.background()
+    if fill:
+        sh.fill.solid(); sh.fill.fore_color.rgb = fill
+    else:
+        sh.fill.background()
+    if line:
+        sh.line.color.rgb = line; sh.line.width = Pt(lw)
+    return sh
+
+def T(s, text, l, t, w, h, size=12, bold=False, color=DARK,
+      align=PP_ALIGN.LEFT, italic=False, font="Calibri"):
+    tb = s.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+    tb.word_wrap = True
+    tf = tb.text_frame; tf.word_wrap = True; tf.auto_size = MSO_AUTO_SIZE.NONE
+    p = tf.paragraphs[0]; p.alignment = align
     r = p.add_run(); r.text = text
-    r.font.name = "Calibri"; r.font.size = Pt(size); r.font.bold = bold
-    r.font.italic = italic; r.font.color.rgb = color
+    r.font.size = Pt(size); r.font.bold = bold; r.font.italic = italic
+    r.font.color.rgb = color; r.font.name = font
     return tb
 
-def chrome(slide, n, is_cover=False):
-    """Professional footer: classification + credit + slide number. Cover gets a tag."""
-    if is_cover:
-        add_rect(slide, Inches(10.95), Inches(0.30), Inches(1.95), Inches(0.34), RED)
-        _txt(slide, "INTERNAL · CONFIDENTIAL", 10.95, 0.34, 1.95, 0.26,
-             7.5, WHITE, bold=True, align=PP_ALIGN.CENTER)
-        return
-    add_rect(slide, Inches(0), Inches(7.22), Inches(13.33), Inches(0.28), DARK)
-    _txt(slide, "INTERNAL · CONFIDENTIAL", 0.5, 7.24, 3.0, 0.22,
-         8, LIGHTRED, bold=True, align=PP_ALIGN.LEFT)
-    _txt(slide, "Alan Davidson · Business Banking Advisor · Self-initiated · Own time · June 2026",
-         3.5, 7.24, 8.6, 0.22, 8, STONE3, align=PP_ALIGN.RIGHT, italic=True)
-    _txt(slide, str(n), 12.85, 7.24, 0.4, 0.22, 8, STONE3, align=PP_ALIGN.RIGHT)
-
-def bullets_box(slide, bullets, left, top, width, height, size=13):
-    tb = add_textbox(slide, left, top, width, height)
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.auto_size = MSO_AUTO_SIZE.NONE
+def TML(s, lines, l, t, w, h, size=11, color=DARK, leading=4, font="Calibri"):
+    tb = s.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+    tb.word_wrap = True
+    tf = tb.text_frame; tf.word_wrap = True; tf.auto_size = MSO_AUTO_SIZE.NONE
     first = True
-    for bullet in bullets:
-        para = tf.paragraphs[0] if first else tf.add_paragraph()
-        first = False
-        para.text = bullet
-        para.space_before = Pt(5)
-        r = para.runs[0]
-        r.font.name  = "Calibri"
-        r.font.size  = Pt(size)
-        r.font.color.rgb = BODY_DARK
-    return tb
+    for line in lines:
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False; p.space_after = Pt(leading)
+        r = p.add_run(); r.text = line
+        r.font.size = Pt(size); r.font.color.rgb = color; r.font.name = font
 
 
-# ---------------------------------------------------------------------------
-# Slide 1 — Cover
-# ---------------------------------------------------------------------------
+# ── Slide furniture ─────────────────────────────────────────────────────────────
+
+def warm_bg(s):
+    R(s, 0, 0, 13.33, 7.5, fill=WARM)
+    R(s, 0, 0, 13.33, 0.07, fill=RED)
+
+def dark_bg(s):
+    R(s, 0, 0, 13.33, 7.5, fill=DARK)
+    R(s, 0, 0, 13.33, 0.07, fill=RED)
+
+def title(s, text, sub=None, eyebrow=None, on_dark=False):
+    tc = WHITE if on_dark else DARK
+    y = 0.18
+    if eyebrow:
+        T(s, eyebrow.upper(), 0.5, 0.16, 12, 0.26, size=9.5, bold=True, color=RED)
+        y = 0.40
+    T(s, text, 0.5, y, 12.3, 0.55, size=26, bold=True, color=tc)
+    if sub:
+        T(s, sub, 0.5, y+0.52, 12.3, 0.3, size=11, color=STONE3 if on_dark else STONE5, italic=True)
+    R(s, 0.5, (y+0.92 if sub else y+0.62), 12.33, 0.018, fill=RED if on_dark else STONE3)
+
+def footer(s, n, is_cover=False):
+    if is_cover:
+        R(s, 10.95, 0.30, 1.95, 0.34, fill=RED)
+        T(s, "INTERNAL · CONFIDENTIAL", 10.95, 0.34, 1.95, 0.26, size=7.5,
+          bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+        return
+    R(s, 0, 7.22, 13.33, 0.28, fill=DARK)
+    T(s, "INTERNAL · CONFIDENTIAL", 0.5, 7.24, 3.0, 0.22, size=8, bold=True,
+      color=LIGHTRED, align=PP_ALIGN.LEFT)
+    T(s, "Alan Davidson · Business Banking Advisor · Self-initiated · Own time · June 2026",
+      3.5, 7.24, 8.6, 0.22, size=8, color=STONE3, align=PP_ALIGN.RIGHT, italic=True)
+    T(s, str(n), 12.85, 7.24, 0.4, 0.22, size=8, color=STONE3, align=PP_ALIGN.RIGHT)
+
+
+# ── Component helpers ───────────────────────────────────────────────────────────
+
+def stat_box(s, num, label, x, y, w=2.7, h=1.55, bg=DARK, nc=WHITE, lc=STONE3,
+             ns=40, ls=9.5):
+    R(s, x, y, w, h, fill=bg)
+    R(s, x, y, w, 0.05, fill=RED)
+    T(s, num, x+0.1, y+0.12, w-0.2, h*0.56, size=ns, bold=True, color=nc, align=PP_ALIGN.CENTER)
+    T(s, label, x+0.12, y+h*0.58, w-0.24, h*0.4, size=ls, color=lc, align=PP_ALIGN.CENTER)
+
+def panel(s, title_txt, body, x, y, w, h, bg=WHITE, tc=DARK, bc=STONE5,
+          accent=RED, line=STONE3, tsize=11, bsize=9):
+    R(s, x, y, w, h, fill=bg, line=line)
+    R(s, x, y, w, 0.055, fill=accent)
+    T(s, title_txt, x+0.16, y+0.13, w-0.32, 0.32, size=tsize, bold=True, color=tc)
+    if body:
+        TML(s, body if isinstance(body, list) else [body],
+            x+0.16, y+0.5, w-0.32, h-0.6, size=bsize, color=bc, leading=3)
+
+def dark_panel(s, title_txt, body, x, y, w, h, accent=RED, tsize=11, bsize=9):
+    panel(s, title_txt, body, x, y, w, h, bg=STONE7, tc=WHITE, bc=STONE3,
+          accent=accent, line=None, tsize=tsize, bsize=bsize)
+
+def numbered_card(s, num, label, desc, x, y, w, h, on_dark=False):
+    bg = STONE7 if on_dark else WHITE
+    R(s, x, y, w, h, fill=bg, line=None if on_dark else STONE3)
+    R(s, x, y, 0.5, h, fill=RED)
+    T(s, num, x, y+h/2-0.22, 0.5, 0.44, size=16, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    T(s, label, x+0.62, y+0.1, w-0.72, 0.3, size=10.5, bold=True,
+      color=WHITE if on_dark else DARK)
+    T(s, desc, x+0.62, y+0.40, w-0.72, h-0.46, size=7.8,
+      color=STONE3 if on_dark else STONE5)
+
+def flow_box(s, lines, x, y, w, h, accent=RED):
+    R(s, x, y, w, h, fill=WHITE, line=STONE3)
+    R(s, x, y, 0.06, h, fill=accent)
+    TML(s, lines, x+0.22, y+0.12, w-0.34, h-0.2, size=10.5, color=DARK, leading=2)
+
+def arrow_down(s, cx, y):
+    T(s, "▼", cx-0.2, y, 0.4, 0.3, size=16, bold=True, color=RED, align=PP_ALIGN.CENTER)
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 1 — COVER
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_01_cover(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, DARK)
+    s = prs.slides.add_slide(BLANK)
+    dark_bg(s)
+    R(s, 0, 6.95, 13.33, 0.55, fill=RED_DARK)
+    R(s, 0.55, 1.30, 0.5, 0.5, fill=RED)
 
-    red_bar(slide, top=True)
-    red_bar(slide, top=False)
+    T(s, "Architecture Report", 0.55, 1.95, 11, 0.9, size=50, bold=True, color=WHITE)
+    T(s, "Santander Business Banking Prototype", 0.55, 2.95, 11, 0.55, size=22, color=LIGHTRED)
+    R(s, 0.55, 3.62, 8.5, 0.04, fill=RED)
 
-    tb = add_textbox(slide, Inches(0.7), Inches(1.6), Inches(11.9), Inches(2.2))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = "Architecture Report"
-    r = p.runs[0]
-    r.font.name = "Calibri"; r.font.size = Pt(54); r.font.bold = True
-    r.font.color.rgb = WHITE
+    chips = [("5,700", "lines · 1 file"), ("12", "workflows"),
+             ("7", "entity types"), ("16:9", "deck")]
+    for i, (num, lbl) in enumerate(chips):
+        cx = 0.55 + i * 2.7
+        R(s, cx, 3.85, 2.5, 0.9, fill=STONE7)
+        R(s, cx, 3.85, 2.5, 0.05, fill=RED)
+        T(s, num, cx+0.12, 3.92, 2.3, 0.5, size=24, bold=True, color=WHITE)
+        T(s, lbl, cx+0.14, 4.42, 2.2, 0.28, size=9, color=STONE3)
 
-    tb2 = add_textbox(slide, Inches(0.7), Inches(3.85), Inches(11.9), Inches(0.9))
-    tf2 = tb2.text_frame
-    p2 = tf2.paragraphs[0]
-    p2.text = "Santander Business Banking Prototype"
-    r2 = p2.runs[0]
-    r2.font.name = "Calibri"; r2.font.size = Pt(24)
-    r2.font.color.rgb = LIGHT_GREY
-
-    tb3 = add_textbox(slide, Inches(0.7), Inches(4.75), Inches(6), Inches(0.5))
-    tf3 = tb3.text_frame
-    p3 = tf3.paragraphs[0]
-    p3.text = "June 2026"
-    r3 = p3.runs[0]
-    r3.font.name = "Calibri"; r3.font.size = Pt(14)
-    r3.font.color.rgb = RED
+    T(s, "Technical deep-dive  ·  single-file React architecture  ·  state model  ·  entity & mandate logic  ·  design system",
+      0.55, 5.05, 11.5, 0.4, size=11, color=STONE3, italic=True)
+    T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  June 2026",
+      0.55, 7.05, 11, 0.34, size=10, color=LIGHTRED)
 
 
-# ---------------------------------------------------------------------------
-# Slide 2 — The Single-File Architecture
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 2 — THE SINGLE-FILE ARCHITECTURE
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_02_single_file(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "The Single-File Architecture")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "The Single-File Architecture", eyebrow="Why one file",
+          sub="App.jsx — one React function component, read top-to-bottom")
 
-    bullets = [
-        "• App.jsx — ~5,700 lines, one React function component",
-        "• Intentional choice: read the entire product top-to-bottom without navigating modules",
-        "• No backend, no real API calls (except Google Fonts)",
-        "• Build output: single self-contained HTML file",
-        "• Bundle size: ~870 KB total, ~190 KB gzip",
-        "• Deployed to GitHub Pages",
-        "• Trade-off: monolith size vs. navigation simplicity for a prototype context",
+    stats = [("5,700", "lines of code"), ("870 KB", "self-contained HTML"),
+             ("190 KB", "gzipped — fast on 3G")]
+    for i, (num, lbl) in enumerate(stats):
+        stat_box(s, num, lbl, 0.5 + i*4.28, 1.35, w=4.05, h=1.55,
+                 bg=DARK, ns=34, ls=10)
+
+    panels = [
+        ("Intentional monolith", "One file means the entire product reads top-to-bottom with no module navigation — ideal for a prototype meant to be understood at a glance."),
+        ("No backend", "No real API calls except Google Fonts. All data is in-memory, fictional, and front-end only."),
+        ("Single HTML output", "viteSingleFile inlines all JS and CSS into one portable file — runs from any browser, no install."),
+        ("GitHub Pages", "Static hosting, zero server cost. Deployed and live at imscots-ui.github.io/santander."),
+        ("The trade-off", "Monolith size vs. navigation simplicity — a deliberate choice for a demo/research context, not a production pattern."),
+        ("Composition", "Sub-components are closures inside App — they share state directly without prop-drilling or context."),
     ]
-    bullets_box(slide, bullets, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.5))
+    pw, ph = 4.05, 1.5
+    for i, (t, b) in enumerate(panels):
+        col, row = i % 3, i // 3
+        panel(s, t, b, 0.5 + col*4.28, 3.18 + row*1.66, pw, ph)
+
+    footer(s, 2)
 
 
-# ---------------------------------------------------------------------------
-# Slide 3 — Internal Component Order (dark section divider)
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 3 — INTERNAL COMPONENT ORDER
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_03_component_order(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, DARK)
-    red_bar(slide, top=True)
-
-    # Section label
-    lbl = add_textbox(slide, Inches(0.6), Inches(0.35), Inches(10), Inches(0.4))
-    tf_l = lbl.text_frame
-    p_l = tf_l.paragraphs[0]; p_l.text = "INTERNAL STRUCTURE"
-    r_l = p_l.runs[0]; r_l.font.name = "Calibri"; r_l.font.size = Pt(10)
-    r_l.font.bold = True; r_l.font.color.rgb = RED
-
-    add_title(slide, "Internal Component Order", dark=True)
+    s = prs.slides.add_slide(BLANK)
+    dark_bg(s)
+    title(s, "Internal Component Order", eyebrow="Internal structure",
+          sub="The fixed top-to-bottom order inside the App() component", on_dark=True)
 
     items = [
-        ("1", "Hooks",                  "lines ~28–685 (120+ state variables)"),
-        ("2", "Static data",            "ENTITY_INFO, accounts (useMemo), mtdData, statementsData (useMemo)"),
-        ("3", "Inline CSS",             "css template literal: brand colours, animations, glass effects"),
-        ("4", "Primitive components",   "ProgressDots, StepFrame, Input, Field, Toggle (closures, no hooks)"),
-        ("5", "Workflow renderers",     "renderClosure, renderBiz, renderMandate, renderWages, renderLending, renderFX, renderDormancy, renderUnlink, renderRingfence, renderIdCheck, renderMtdSubmit"),
-        ("6", "Screen components",      "HomeScreen, ApproveScreen, AuditScreen, StatementsScreen, MTDScreen"),
-        ("7", "Sheet/modal components", "15 sheets: OTPSheet, ComplianceSheet, SavingsSheet, RMSheet, EntitySheet, CancelSheet, ReceiptSheet, PinSheet, OBSheet, VoiceMemoSheet, SequencerSheet, VoiceIdSheet, NotificationsSheet, CounterpartySheet, A11ySheet"),
-        ("8", "Main render",            "desktop sidebar + mobile bottom nav code paths"),
+        ("1", "Hooks", "120+ state variables, lines ~28–685"),
+        ("2", "Static data", "ENTITY_INFO, accounts/mtdData/statementsData (useMemo)"),
+        ("3", "Inline CSS", "css template literal: brand, animations, glass effects"),
+        ("4", "Primitives", "ProgressDots, StepFrame, Input, Field, Toggle (closures)"),
+        ("5", "Workflow renderers", "renderClosure … renderMtdSubmit (12 closures)"),
+        ("6", "Screen components", "Home, Approve, Audit, Statements, MTD"),
+        ("7", "Sheets / modals", "15 overlay sheets (OTP, Compliance, VoiceId, A11y …)"),
+        ("8", "Main render", "desktop sidebar + mobile bottom-nav code paths"),
     ]
+    cw, ch = 6.1, 1.18
+    for i, (num, lbl, desc) in enumerate(items):
+        col, row = i % 2, i // 2
+        numbered_card(s, num, lbl, desc, 0.5 + col*6.28, 1.55 + row*1.3, cw, ch, on_dark=True)
 
-    col1_x = Inches(0.6)
-    col2_x = Inches(3.1)
-    row_h  = Inches(0.62)
-    start_y = Inches(1.6)
-
-    for i, (num, label, desc) in enumerate(items):
-        y = start_y + i * row_h
-
-        nb = add_textbox(slide, col1_x, y, Inches(0.4), Inches(0.5))
-        tf_nb = nb.text_frame
-        p_nb = tf_nb.paragraphs[0]; p_nb.text = num
-        p_nb.alignment = PP_ALIGN.CENTER
-        r_nb = p_nb.runs[0]; r_nb.font.name = "Calibri"; r_nb.font.size = Pt(11)
-        r_nb.font.bold = True; r_nb.font.color.rgb = RED
-
-        lb = add_textbox(slide, Inches(1.05), y, Inches(1.9), Inches(0.5))
-        tf_lb = lb.text_frame
-        p_lb = tf_lb.paragraphs[0]; p_lb.text = label
-        r_lb = p_lb.runs[0]; r_lb.font.name = "Calibri"; r_lb.font.size = Pt(11)
-        r_lb.font.bold = True; r_lb.font.color.rgb = WHITE
-
-        db = add_textbox(slide, col2_x, y, Inches(10.1), Inches(0.55))
-        tf_db = db.text_frame; tf_db.word_wrap = True
-        p_db = tf_db.paragraphs[0]; p_db.text = desc
-        r_db = p_db.runs[0]; r_db.font.name = "Calibri"; r_db.font.size = Pt(11)
-        r_db.font.color.rgb = LIGHT_GREY
+    footer(s, 3)
 
 
-# ---------------------------------------------------------------------------
-# Slide 4 — Hook Discipline
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 4 — HOOK DISCIPLINE
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_04_hook_discipline(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Hook Discipline")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Hook Discipline", eyebrow="The one hard rule",
+          sub="Why closures cannot hold hooks — and how the boundary is enforced")
 
-    bullets = [
-        "• 120+ state variables declared at the top of App (lines ~28–685)",
-        "• Strict rule: no hook may appear after line ~744 (the closeWorkflow boundary)",
-        "• All renderXxx functions and screen components are closures — they cannot hold their own hooks",
-        "• All workflow state must be reset in closeWorkflow() to prevent ghost state between workflows",
-        "• useEffect used sparingly: tick timer (30s interval), font loading, scroll resets",
-        "• useMemo for accounts and statementsData — derived from entityType and payment history",
+    # Big rule callout
+    R(s, 0.5, 1.4, 12.33, 1.0, fill=RED)
+    T(s, "No hook may appear after line ~744 — the closeWorkflow() boundary.",
+      0.7, 1.52, 9.5, 0.45, size=17, bold=True, color=WHITE)
+    T(s, "Everything below that line is a closure. Closures can't call useState / useEffect / useMemo.",
+      0.7, 2.0, 11.8, 0.35, size=11, color=LIGHTRED)
+
+    panels = [
+        ("State at the top", "120+ state variables declared at the top of App (lines ~28–685), before any logic."),
+        ("Closures, not components", "renderXxx functions and screen/sheet components are closures inside App — they read/write top-level state directly."),
+        ("closeWorkflow() resets all", "Every workflow-specific state must be reset in closeWorkflow() — ghost state between workflows is a known failure mode."),
+        ("useEffect, sparingly", "Only: 30s tick timer, font loading, scroll resets. No data fetching — there is no backend."),
+        ("useMemo for derived data", "accounts and statementsData are memoised from entityType and payment history — recompute only when inputs change."),
+        ("The awk caveat", "The /ship-ready hook flags hooks past line 120 — a known false positive at this file size; the real boundary is line ~744."),
     ]
-    bullets_box(slide, bullets, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.5))
+    pw, ph = 4.05, 1.78
+    for i, (t, b) in enumerate(panels):
+        col, row = i % 3, i // 3
+        panel(s, t, b, 0.5 + col*4.28, 2.7 + row*1.94, pw, ph)
+
+    footer(s, 4)
 
 
-# ---------------------------------------------------------------------------
-# Slide 5 — Navigation Model
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 5 — NAVIGATION MODEL
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_05_navigation(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Navigation Model")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Navigation Model", eyebrow="State drives the screen",
+          sub="Three layers of state compose every view")
 
-    ascii_diagram = (
-        "┌─────────────────────────────────────────────┐\n"
-        "│  tab state (main screen)                    │\n"
-        "│  'home' | 'approve' | 'audit' | 'mtd'       │\n"
-        "│  | 'statements'                             │\n"
-        "└─────────────────────────────────────────────┘\n"
-        "              │\n"
-        "              ▼\n"
-        "┌─────────────────────────────────────────────┐\n"
-        "│  workflow state (full-screen overlay)        │\n"
-        "│  null | 'closure' | 'biz' | 'mandate'       │\n"
-        "│  | 'wages' | 'lending' | 'fx' | 'dormancy' │\n"
-        "│  | 'unlink' | 'ringfence' | 'idcheck'       │\n"
-        "│  | 'mtd-submit'                             │\n"
-        "└─────────────────────────────────────────────┘\n"
-        "              │\n"
-        "              ▼\n"
-        "┌─────────────────────────────────────────────┐\n"
-        "│  step state (0-based position in workflow)  │\n"
-        "└─────────────────────────────────────────────┘"
-    )
+    # Flow column (left)
+    flow_box(s, ["tab  —  main screen",
+                 "'home' · 'approve' · 'audit' · 'mtd' · 'statements'"],
+             0.5, 1.5, 7.7, 1.05, accent=RED)
+    arrow_down(s, 4.35, 2.58)
+    flow_box(s, ["workflow  —  full-screen overlay",
+                 "null · closure · biz · mandate · wages · lending · fx ·",
+                 "dormancy · unlink · ringfence · idcheck · mtd-submit · complaint"],
+             0.5, 2.95, 7.7, 1.5, accent=AMBER)
+    arrow_down(s, 4.35, 4.48)
+    flow_box(s, ["step  —  0-based position within the active workflow"],
+             0.5, 4.85, 7.7, 0.85, accent=GREEN)
 
-    tb_d = add_textbox(slide, Inches(0.6), Inches(1.4), Inches(7.8), Inches(5.7))
-    tf_d = tb_d.text_frame; tf_d.word_wrap = False
-    first = True
-    for line in ascii_diagram.split("\n"):
-        para = tf_d.paragraphs[0] if first else tf_d.add_paragraph()
-        first = False
-        para.text = line
-        run = para.runs[0] if para.runs else para.add_run()
-        run.font.name  = "Courier New"
-        run.font.size  = Pt(10)
-        run.font.color.rgb = BODY_DARK
+    # Side panel (right)
+    panel(s, "viewMode",
+          ["'mobile' (default) | 'desktop'",
+           "Toggles bottom-nav vs. sidebar layout.",
+           "",
+           "All state is shared between shells —",
+           "switching mobile ↔ desktop preserves any",
+           "workflow already in progress."],
+          8.5, 1.5, 4.33, 2.95, bsize=10.5)
+    panel(s, "Why this matters",
+          ["A workflow overlay renders on top of the",
+           "current screen; closing it returns you",
+           "exactly where you were. One state tree,",
+           "two render paths, zero duplication."],
+          8.5, 4.6, 4.33, 1.1, accent=BLUE, bsize=10.5)
 
-    extra = [
-        "• viewMode: 'mobile' (default) | 'desktop'",
-        "  → toggles sidebar vs bottom nav layout",
-        "",
-        "• All state is shared — switching mobile↔desktop",
-        "  preserves workflow in progress",
-    ]
-    tb_e = add_textbox(slide, Inches(8.6), Inches(1.8), Inches(4.5), Inches(3.5))
-    tf_e = tb_e.text_frame; tf_e.word_wrap = True
-    first = True
-    for line in extra:
-        para = tf_e.paragraphs[0] if first else tf_e.add_paragraph()
-        first = False
-        para.text = line; para.space_before = Pt(5)
-        run = para.runs[0] if para.runs else para.add_run()
-        run.font.name  = "Calibri"
-        run.font.size  = Pt(12)
-        run.font.color.rgb = BODY_DARK
+    footer(s, 5)
 
 
-# ---------------------------------------------------------------------------
-# Slide 6 — Entity System
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 6 — ENTITY SYSTEM
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_06_entity_system(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Entity System")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Entity System", eyebrow="One switch reshapes everything",
+          sub="ENTITY_INFO (~line 264) — entityType drives all derived config")
 
-    bullets = [
-        "• 7 entity types: sole-trader, partnership, limited, llp, charity, club, society",
-        "• ENTITY_INFO static map (~line 264) — each type configures:",
-        "    → Entity object: labels ('director' vs 'trustee'), required documents",
-        "    → Registration numbers: Companies House / Charity Commission",
-        "    → accounts array (via useMemo ~line 334): different accounts per entity",
-        "    → UI copy throughout: mandate rules, workflow steps, compliance requirements",
-        "• Active entity: entityType state — switching entity changes everything derived from it",
+    entities = ["Sole Trader", "Partnership", "Limited", "LLP", "Charity", "Club", "Society"]
+    for i, e in enumerate(entities):
+        x = 0.5 + i*1.79
+        R(s, x, 1.45, 1.65, 0.6, fill=DARK)
+        R(s, x, 1.45, 1.65, 0.05, fill=RED)
+        T(s, e, x+0.05, 1.58, 1.55, 0.4, size=10.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+
+    T(s, "Switching entityType re-derives all of the following:", 0.5, 2.3, 12, 0.3,
+      size=11, bold=True, color=STONE7)
+
+    panels = [
+        ("Entity object", "Labels (‘director’ vs ‘trustee’), required documents, and the principal terminology used throughout the UI."),
+        ("Registration numbers", "Companies House number, LLP number, or Charity Commission number — shown and validated per type."),
+        ("accounts array", "useMemo (~line 334) returns a different set of accounts and mandate rules for each entity type."),
+        ("Mandate defaults", "Sole trader → any-1; limited/LLP → any-2; charity/club/society → all signatories required."),
+        ("Board minutes", "Clubs, charities, and societies require board-minute upload on every change; companies do not."),
+        ("UI copy", "Workflow steps, compliance prompts, and document checklists all re-render from the active entity."),
     ]
+    pw, ph = 4.05, 1.5
+    for i, (t, b) in enumerate(panels):
+        col, row = i % 3, i // 3
+        panel(s, t, b, 0.5 + col*4.28, 2.7 + row*1.66, pw, ph)
 
-    tb2 = add_textbox(slide, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.5))
-    tf2 = tb2.text_frame; tf2.word_wrap = True
-    first = True
-    for bullet in bullets:
-        para = tf2.paragraphs[0] if first else tf2.add_paragraph()
-        first = False
-        para.text = bullet; para.space_before = Pt(6)
-        r = para.runs[0]; r.font.name = "Calibri"
-        is_indent = bullet.startswith("    ")
-        r.font.size  = Pt(11) if is_indent else Pt(13)
-        r.font.color.rgb = MID_GREY if is_indent else BODY_DARK
+    footer(s, 6)
 
 
-# ---------------------------------------------------------------------------
-# Slide 7 — Mandate Rules
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 7 — MANDATE RULES
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_07_mandate_rules(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Mandate Rules")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Mandate Rules", eyebrow="Who must authorise",
+          sub="getMandateFor(accountNos) — line ~420 — picks the strictest rule across selected accounts")
 
-    rows = [
-        ("• Per-account mandate rule: 'any-1' | 'any-2' | 'all'",                                           False),
-        ("• getMandateFor(accountNos) — line ~420 — picks the STRICTEST rule across selected accounts",       False),
-        ("• Strictness order: 'all' > 'any-2' > 'any-1'",                                                   False),
-        ("• 'any-1'  → single authoriser sufficient",                                                         False),
-        ("• 'any-2'  → two authorisers required → triggers co-signer workflow",                               False),
-        ("• 'all'    → every signatory must approve → cooling-off period enforced",                            False),
-        ("• Impact: determines whether workflow requires co-signer and/or 24h cooling-off",                    True),
+    rules = [
+        ("any-1", "Single authoriser", "One signatory is sufficient. No co-signer, no cooling-off.", GREEN),
+        ("any-2", "Two authorisers", "Two signatories required → triggers the co-signer workflow and 48h window.", AMBER),
+        ("all", "Every signatory", "All signatories must approve → 24h cooling-off period is enforced.", RED),
     ]
+    cw = 4.05
+    for i, (code, name, desc, col) in enumerate(rules):
+        x = 0.5 + i*4.28
+        R(s, x, 1.5, cw, 2.5, fill=WHITE, line=STONE3)
+        R(s, x, 1.5, cw, 0.7, fill=col)
+        T(s, code, x+0.2, 1.6, cw-0.4, 0.5, size=22, bold=True, color=WHITE)
+        T(s, name, x+0.2, 2.35, cw-0.4, 0.4, size=13, bold=True, color=DARK)
+        T(s, desc, x+0.2, 2.85, cw-0.4, 1.0, size=10.5, color=STONE5)
 
-    tb2 = add_textbox(slide, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.5))
-    tf2 = tb2.text_frame; tf2.word_wrap = True
-    first = True
-    for text, highlight in rows:
-        para = tf2.paragraphs[0] if first else tf2.add_paragraph()
-        first = False
-        para.text = text; para.space_before = Pt(7)
-        r = para.runs[0]; r.font.name = "Calibri"; r.font.size = Pt(15)
-        r.font.bold  = highlight
-        r.font.color.rgb = RED if highlight else BODY_DARK
+    # Strictness + impact callout
+    R(s, 0.5, 4.3, 12.33, 0.7, fill=STONE1, line=STONE3)
+    T(s, "Strictness order:   all  >  any-2  >  any-1", 0.72, 4.45, 6, 0.4,
+      size=13, bold=True, color=DARK)
+    T(s, "Select multiple accounts → the toughest rule wins.", 6.8, 4.47, 5.8, 0.4,
+      size=11, color=STONE5, italic=True)
+
+    R(s, 0.5, 5.25, 12.33, 0.95, fill=RED)
+    T(s, "Impact", 0.72, 5.36, 2, 0.35, size=12, bold=True, color=WHITE)
+    T(s, "The chosen rule determines whether a workflow requires a co-signer and/or a 24-hour cooling-off period before execution — the core control behind dual authorisation.",
+      0.72, 5.68, 12, 0.45, size=11, color=LIGHTRED)
+
+    footer(s, 7)
 
 
-# ---------------------------------------------------------------------------
-# Slide 8 — Cooling-off & Stalled Requests
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 8 — COOLING-OFF & STALLED
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_08_cooling_stalled(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Cooling-off & Stalled Requests")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Cooling-off & Stalled Requests", eyebrow="Time-based safeguards",
+          sub="Two live mechanisms that keep high-risk actions reversible")
 
-    col_w = Inches(5.8)
+    # Left — Cooling-off
+    R(s, 0.5, 1.5, 6.05, 4.9, fill=WHITE, line=STONE3)
+    R(s, 0.5, 1.5, 6.05, 0.6, fill=RED)
+    T(s, "Cooling-off", 0.7, 1.6, 5.6, 0.42, size=16, bold=True, color=WHITE)
+    TML(s, [
+        "cooling array — requests pending a 24-hour",
+        "execution delay (working days only, bank",
+        "holidays skipped).",
+        "",
+        "tick state refreshes every 30 seconds —",
+        "keeps the progress bars live and accurate.",
+        "",
+        "The user can Cancel or Fast-Track any",
+        "request while it sits in the cooling window.",
+        "",
+        "Regulatory basis: FCA BCOBS 4A.",
+    ], 0.72, 2.3, 5.6, 3.9, size=11.5, color=STONE7, leading=4)
 
-    # Left: Cooling-off
-    hdr1 = add_textbox(slide, Inches(0.6), Inches(1.5), col_w, Inches(0.45))
-    p_h1 = hdr1.text_frame.paragraphs[0]; p_h1.text = "Cooling-off"
-    r_h1 = p_h1.runs[0]; r_h1.font.name = "Calibri"; r_h1.font.size = Pt(18)
-    r_h1.font.bold = True; r_h1.font.color.rgb = RED
+    # Right — Stalled
+    R(s, 6.78, 1.5, 6.05, 4.9, fill=WHITE, line=STONE3)
+    R(s, 6.78, 1.5, 6.05, 0.6, fill=STONE7)
+    T(s, "Stalled", 6.98, 1.6, 5.6, 0.42, size=16, bold=True, color=WHITE)
+    TML(s, [
+        "stalled array — a co-signer missed the",
+        "approval window.",
+        "",
+        "The system auto-escalates to the",
+        "Relationship Manager (Priya Desai).",
+        "",
+        "The UI shows a “Priya’s on it” card with a",
+        "direct ‘Call Priya’ action button.",
+        "",
+        "Escalation path:",
+        "failed co-sign → RM notification → manual",
+        "override and resolution.",
+    ], 7.0, 2.3, 5.6, 3.9, size=11.5, color=STONE7, leading=4)
 
-    cooling = [
-        "• cooling array: requests pending 24h execution delay (working days only)",
-        "• tick state refreshes every 30s — keeps progress bars live",
-        "• User can Cancel or Fast-Track a cooling request",
-    ]
-    bullets_box(slide, cooling, Inches(0.6), Inches(2.05), col_w, Inches(2.8), size=14)
-
-    # Right: Stalled
-    hdr2 = add_textbox(slide, Inches(7.1), Inches(1.5), col_w, Inches(0.45))
-    p_h2 = hdr2.text_frame.paragraphs[0]; p_h2.text = "Stalled"
-    r_h2 = p_h2.runs[0]; r_h2.font.name = "Calibri"; r_h2.font.size = Pt(18)
-    r_h2.font.bold = True; r_h2.font.color.rgb = RED
-
-    stalled = [
-        "• stalled array: co-signer missed the approval window",
-        "• System auto-escalates to Relationship Manager (Priya)",
-        "• UI shows 'Priya's on it' card with direct 'Call Priya' button",
-        "• Escalation path: failed co-sign → RM notification → manual override",
-    ]
-    bullets_box(slide, stalled, Inches(7.1), Inches(2.05), col_w, Inches(3.0), size=14)
-
-    # Vertical divider
-    add_rect(slide, Inches(6.67), Inches(1.45), Inches(0.02), Inches(5.5), LIGHT_GREY)
+    footer(s, 8)
 
 
-# ---------------------------------------------------------------------------
-# Slide 9 — Workflow Architecture
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 9 — WORKFLOW ARCHITECTURE
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_09_workflows(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Workflow Architecture")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Workflow Architecture", eyebrow="12 step-based wizards",
+          sub="Each is a renderXxx closure reading and writing top-level App state")
 
-    bullets = [
-        "• 11 workflows, each a renderXxx closure reading/writing top-level App state",
-        "• renderClosure (~1021) — account closure with regulatory compliance steps",
-        "• renderBiz (~1332) — business KYC/KYB verification",
-        "• renderMandate (~1428) — signatory mandate changes with cooling-off",
-        "• renderWages (~1630) — bulk wages payment (CSV import + approval)",
-        "• renderLending (~1915) — business lending application",
-        "• renderFX (~2018) — foreign exchange payments",
-        "• renderDormancy (~2149) — dormant account reactivation",
-        "• renderUnlink (~2177) — account unlinking",
-        "• renderRingfence (~2310) — ring-fencing workflow",
-        "• renderIdCheck (~2390) — identity verification (Voice ID, biometrics)",
-        "• renderMtdSubmit (~4998) — Making Tax Digital HMRC submission",
+    wf = [
+        ("renderClosure", "~1021", "Account closure + compliance"),
+        ("renderBiz", "~1332", "Business KYC / KYB verification"),
+        ("renderMandate", "~1428", "Signatory mandate changes"),
+        ("renderWages", "~1630", "Bulk wages (CSV + approval)"),
+        ("renderLending", "~1915", "Business lending application"),
+        ("renderFX", "~2018", "Foreign exchange payments"),
+        ("renderDormancy", "~2149", "Dormant account reactivation"),
+        ("renderUnlink", "~2177", "Personal/business unlinking"),
+        ("renderRingfence", "~2310", "Credit ring-fencing"),
+        ("renderIdCheck", "~2390", "Identity / Voice ID checks"),
+        ("renderMtdSubmit", "~4998", "Making Tax Digital submission"),
+        ("renderComplaint", "new", "FCA DISP complaint handling"),
     ]
+    cw, ch = 4.05, 1.12
+    for i, (name, line, desc) in enumerate(wf):
+        col, row = i % 3, i // 3
+        x = 0.5 + col*4.28
+        y = 1.5 + row*1.27
+        R(s, x, y, cw, ch, fill=WHITE, line=STONE3)
+        R(s, x, y, 0.055, ch, fill=RED)
+        T(s, name, x+0.18, y+0.12, cw-1.1, 0.3, size=11, bold=True, color=DARK, font="Consolas")
+        T(s, line, x+cw-0.95, y+0.12, 0.85, 0.26, size=8.5, bold=True, color=RED, align=PP_ALIGN.RIGHT)
+        T(s, desc, x+0.18, y+0.5, cw-0.3, 0.5, size=9, color=STONE5)
 
-    tb2 = add_textbox(slide, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.7))
-    tf2 = tb2.text_frame; tf2.word_wrap = True
-    first = True
-    for i, bullet in enumerate(bullets):
-        para = tf2.paragraphs[0] if first else tf2.add_paragraph()
-        first = False
-        para.text = bullet; para.space_before = Pt(5)
-        r = para.runs[0]; r.font.name = "Calibri"
-        r.font.size  = Pt(14) if i == 0 else Pt(13)
-        r.font.bold  = (i == 0)
-        r.font.color.rgb = BODY_DARK
+    footer(s, 9)
 
 
-# ---------------------------------------------------------------------------
-# Slide 10 — Design System
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 10 — DESIGN SYSTEM
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_10_design_system(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Design System")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Design System", eyebrow="Bosun's Law",
+          sub="Brand tokens, spacing scale, and the colour rules enforced on every commit")
 
-    bullets = [
-        "• Brand red: #c8102e (CTAs, active states, top bar)",
-        "• Background: #faf6ef (warm off-white, page/body)",
-        "• Fonts: Fraunces (display headings, Google Fonts), Geist (body), Geist Mono (account numbers)",
-        "• Spacing scale: 4·8·12·16·24·32·48·64·96·128 px  →  Tailwind: 1·2·3·4·6·8·12·16·24·32",
-        "• Never text-gray-* or text-zinc-* — always text-stone-*",
-        "• Never text-stone-400/500 on dark/red surfaces — use text-white/65 or text-red-100",
-        "• One primary CTA per view: bg-[#c8102e] or bg-stone-900",
-        "• num-tab CSS class: font-variant-numeric: tabular-nums — used on all monetary amounts",
-        "• Inline CSS template literal (~line 779): hero-card, cool-card, anim-fade, anim-slide, shimmer, stagger-1 through stagger-7",
+    # Colour swatches
+    swatches = [("#c8102e", "Brand red", RED, WHITE),
+                ("#faf6ef", "Warm bg", WARM, DARK),
+                ("#1c1917", "Stone-900", DARK, WHITE),
+                ("#78716c", "Stone-500", STONE5, WHITE)]
+    for i, (hexv, name, col, tc) in enumerate(swatches):
+        x = 0.5 + i*3.09
+        R(s, x, 1.45, 2.95, 0.95, fill=col, line=STONE3)
+        T(s, hexv, x+0.15, 1.55, 2.6, 0.35, size=13, bold=True, color=tc)
+        T(s, name, x+0.15, 1.95, 2.6, 0.3, size=9.5, color=tc)
+
+    # Spacing scale strip
+    R(s, 0.5, 2.6, 12.33, 0.75, fill=STONE1, line=STONE3)
+    T(s, "Spacing scale", 0.7, 2.7, 2.2, 0.3, size=11, bold=True, color=RED)
+    T(s, "4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128 px      →      Tailwind  1 · 2 · 3 · 4 · 6 · 8 · 12 · 16 · 24 · 32",
+      2.9, 2.78, 9.8, 0.45, size=12, bold=True, color=DARK, font="Consolas")
+
+    panels = [
+        ("Typography", "Fraunces — display headings (Google Fonts). Geist — body. Geist Mono — account numbers and figures."),
+        ("Colour law", "Never text-gray-* or text-zinc-* — always text-stone-*. Never stone-400/500 on dark or red surfaces."),
+        ("One primary CTA", "Exactly one bg-[#c8102e] or bg-stone-900 primary button per view — hierarchy stays clear."),
+        ("Tabular figures", "num-tab class (font-variant-numeric: tabular-nums) on every monetary amount for clean alignment."),
+        ("Inline CSS", "css template literal (~line 779): hero-card, cool-card, anim-fade, anim-slide, shimmer, stagger-1…7."),
+        ("Enforcement", "Bosun station in /ship-ready scans for spacing, colour, and CTA violations before every push."),
     ]
-    bullets_box(slide, bullets, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.7))
+    pw, ph = 4.05, 1.4
+    for i, (t, b) in enumerate(panels):
+        col, row = i % 3, i // 3
+        panel(s, t, b, 0.5 + col*4.28, 3.55 + row*1.56, pw, ph)
+
+    footer(s, 10)
 
 
-# ---------------------------------------------------------------------------
-# Slide 11 — Tech Stack
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 11 — TECH STACK
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_11_tech_stack(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Tech Stack")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Tech Stack", eyebrow="Build & deploy",
+          sub="Minimal, modern, front-end only — no backend, no database, no API server")
 
-    left_bullets = [
-        "• React 18.3 — single large function component, closures as sub-components",
-        "• Vite 5 — fast dev server (http://localhost:5173), production build to dist/",
-        "• Tailwind CSS 3 — utility-first styling, custom stone-* palette",
-        "• viteSingleFile plugin — inlines all JS/CSS into one self-contained HTML file",
-        "• Lucide React — icon library",
+    # Left column — Frontend
+    T(s, "FRONTEND", 0.5, 1.45, 6, 0.3, size=10, bold=True, color=RED)
+    fe = [
+        ("React 18.3", "Single large function component; closures as sub-components."),
+        ("Tailwind CSS 3", "Utility-first styling with a custom stone-* palette."),
+        ("Lucide React", "Icon library used throughout the UI."),
     ]
-    right_bullets = [
-        "• python-pptx — documentation tooling only (not in the app)",
-        "• Build output: ~870 KB HTML, ~190 KB gzip",
-        "• Deployment: GitHub Pages (static hosting)",
-        "• No backend, no database, no API server",
-        "• Dev commands: npm run dev | npm run build | npm run preview",
+    for i, (t, b) in enumerate(fe):
+        panel(s, t, b, 0.5, 1.8 + i*1.55, 6.05, 1.4)
+
+    # Right column — Build & deploy
+    T(s, "BUILD & DEPLOY", 6.78, 1.45, 6, 0.3, size=10, bold=True, color=RED)
+    be = [
+        ("Vite 5 + viteSingleFile", "Fast dev server; inlines all JS/CSS into one HTML file."),
+        ("Output", "~870 KB HTML · ~190 KB gzip · GitHub Pages static hosting."),
+        ("Commands", "npm run dev · npm run build · npm run preview."),
     ]
+    for i, (t, b) in enumerate(be):
+        panel(s, t, b, 6.78, 1.8 + i*1.55, 6.05, 1.4, accent=BLUE)
 
-    bullets_box(slide, left_bullets,  Inches(0.6), Inches(1.45), Inches(6.1), Inches(5.5), size=13)
-    bullets_box(slide, right_bullets, Inches(7.1), Inches(1.45), Inches(6.1), Inches(5.5), size=13)
-    add_rect(slide, Inches(6.67), Inches(1.45), Inches(0.02), Inches(5.5), LIGHT_GREY)
+    # Bottom note
+    R(s, 0.5, 6.45, 12.33, 0.6, fill=STONE7)
+    T(s, "python-pptx is documentation tooling only — it builds these decks, it is not part of the app.",
+      0.7, 6.55, 12, 0.4, size=10.5, color=WHITE, italic=True)
+
+    footer(s, 11)
 
 
-# ---------------------------------------------------------------------------
-# Slide 12 — Security & Accessibility
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════════
+# SLIDE 12 — SECURITY & ACCESSIBILITY
+# ════════════════════════════════════════════════════════════════════════════════
 def slide_12_security(prs):
-    slide = blank_slide(prs)
-    set_bg(slide, WHITE)
-    red_bar(slide, top=True)
-    add_title(slide, "Security & Accessibility Decisions")
-    add_red_rule(slide)
+    s = prs.slides.add_slide(BLANK)
+    warm_bg(s)
+    title(s, "Security & Accessibility Decisions", eyebrow="Standing orders",
+          sub="The non-negotiable rules enforced before every commit")
 
-    bullets = [
-        "• No dangerouslySetInnerHTML on any dynamic content — static strings only",
-        "• No focus:outline-none without focus-visible: — every bare removal is an accessibility breach",
-        "• WCAG 2.1 AA compliance target — focus rings preserved for keyboard navigation",
-        "• No real credentials, account numbers, API keys, or secrets in source",
-        "• No git push --force — ever",
-        "• Git hooks: run /ship-ready before every push — one RED finding = stand down and fix",
-        "• Prototype data only — all account numbers, names, and amounts are fictional",
-        "• Google Fonts is the only external network request in production",
+    panels = [
+        ("No dangerous HTML", "No dangerouslySetInnerHTML on dynamic content — hardcoded static strings only."),
+        ("Focus visible", "No focus:outline-none without a focus-visible: companion — every bare removal is an a11y breach."),
+        ("WCAG 2.1 AA", "Contrast ≥ 4.5:1, focus rings preserved for keyboard navigation, ARIA labels where needed."),
+        ("No secrets in source", "No real credentials, account numbers, API keys, or emails beyond the author credit."),
+        ("No force push", "git push --force is forbidden — ever. History stays intact."),
+        ("/ship-ready gate", "Seven-station pre-commit checklist — one RED finding and the ship stands down to fix."),
+        ("Fictional data only", "Every account number, name, and amount in the prototype is invented."),
+        ("One external call", "Google Fonts is the only external network request in production — nothing else leaves the browser."),
     ]
-    bullets_box(slide, bullets, Inches(0.6), Inches(1.45), Inches(12.1), Inches(5.7))
+    pw, ph = 6.05, 1.18
+    for i, (t, b) in enumerate(panels):
+        col, row = i % 2, i // 2
+        panel(s, t, b, 0.5 + col*6.28, 1.5 + row*1.3, pw, ph, bsize=9.5)
+
+    footer(s, 12)
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
+# ── Main ────────────────────────────────────────────────────────────────────────
 def main():
     output_path = "/home/user/santander/Santander_Architecture.pptx"
-    prs = new_prs()
-
     builders = [
-        ("Slide 1  — Cover",                     slide_01_cover),
-        ("Slide 2  — Single-File Architecture",   slide_02_single_file),
-        ("Slide 3  — Internal Component Order",   slide_03_component_order),
-        ("Slide 4  — Hook Discipline",            slide_04_hook_discipline),
-        ("Slide 5  — Navigation Model",           slide_05_navigation),
-        ("Slide 6  — Entity System",              slide_06_entity_system),
-        ("Slide 7  — Mandate Rules",              slide_07_mandate_rules),
-        ("Slide 8  — Cooling-off & Stalled",      slide_08_cooling_stalled),
-        ("Slide 9  — Workflow Architecture",      slide_09_workflows),
-        ("Slide 10 — Design System",              slide_10_design_system),
-        ("Slide 11 — Tech Stack",                 slide_11_tech_stack),
-        ("Slide 12 — Security & Accessibility",   slide_12_security),
+        ("Slide 1  — Cover",                    slide_01_cover),
+        ("Slide 2  — Single-File Architecture", slide_02_single_file),
+        ("Slide 3  — Internal Component Order",  slide_03_component_order),
+        ("Slide 4  — Hook Discipline",           slide_04_hook_discipline),
+        ("Slide 5  — Navigation Model",          slide_05_navigation),
+        ("Slide 6  — Entity System",             slide_06_entity_system),
+        ("Slide 7  — Mandate Rules",             slide_07_mandate_rules),
+        ("Slide 8  — Cooling-off & Stalled",     slide_08_cooling_stalled),
+        ("Slide 9  — Workflow Architecture",     slide_09_workflows),
+        ("Slide 10 — Design System",             slide_10_design_system),
+        ("Slide 11 — Tech Stack",                slide_11_tech_stack),
+        ("Slide 12 — Security & Accessibility",  slide_12_security),
     ]
-
-    for idx, (label, builder) in enumerate(builders, start=1):
+    for label, builder in builders:
         try:
             builder(prs)
             print(f"  [OK] {label}")
         except Exception as exc:
             print(f"  [ERROR] {label}: {exc}")
             import traceback; traceback.print_exc()
-            blank_slide(prs)
 
-    # Apply professional chrome to every slide (cover gets a tag instead of footer)
-    for idx, slide in enumerate(prs.slides, start=1):
-        chrome(slide, idx, is_cover=(idx == 1))
+    # Cover classification tag
+    footer(prs.slides[0], 1, is_cover=True)
 
     prs.save(output_path)
     print(f"\nSaved: {output_path}")
