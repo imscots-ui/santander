@@ -23110,3 +23110,151 @@ The CAMSS blueprint generalises to any rules/knowledge-driven decision system �
 - **Optimise for total life-cycle cost, done "right and once"** — the paperless-workflow business case (£137M opportunity) rests on the same logic: do the process correctly first time, archive it, and avoid costly rework
 
 ---
+
+## Section 94 — Installing Extensions in LibreOffice — Jean Weber et al. (The Document Foundation)
+
+The official LibreOffice documentation chapter on extending the suite. An extension is a package that adds new functionality to LibreOffice (Writer, Calc, Impress, Draw, Base). Directly relevant to this project: the PowerPoint decks are built with python-pptx, but anyone polishing or repurposing them on a LibreOffice install (as the user does, on LibreOffice 26.2) benefits from the extension ecosystem — templates, gallery items, language tools, and import/export filters.
+
+### 94.1 What an Extension Is
+
+An extension is a tool that can be added to or removed from LibreOffice to add new functionality, packaged as an `.oxt` file. Extensions can provide: additional Gallery content, document templates, AutoText, macros and scripts, dictionaries and language tools, new filters, and dialog/UI additions. Extensions are installed per-user (available to one user) or shared (available to all users of that installation — requires admin rights).
+
+### 94.2 The Extension Manager
+
+Installed and managed via **Tools → Extension Manager**. From here you can:
+- **Add** — browse to an `.oxt` file and install it
+- **Remove / Disable / Enable** — manage installed extensions
+- **Update** — check for newer versions
+- **Options** — configure extensions that expose settings
+
+Display filter: choose to show bundled extensions (shipped with LibreOffice), shared extensions (installation-wide), or user extensions (current user only).
+
+### 94.3 Installing an Extension
+
+1. Download the `.oxt` file (from extensions.libreoffice.org or a trusted source)
+2. Either double-click the `.oxt`, or open **Tools → Extension Manager → Add**
+3. Browse to the file and confirm
+4. Choose **For all users** (needs admin/root and LibreOffice started with elevated rights) or **Only for me**
+5. Accept the licence if prompted
+6. Restart LibreOffice when asked so the extension registers
+
+Alternatively, place the extension where LibreOffice scans, or install from the command line via `unopkg add file.oxt` (and `unopkg remove`, `unopkg list`).
+
+### 94.4 Notable / Popular Extension Categories
+
+- **Templates** — ready-made document/presentation templates (relevant to deck production)
+- **Gallery** — additional clip art, backgrounds, and graphics for Impress/Draw
+- **Language tools** — dictionaries, thesauri, grammar checkers (e.g. LanguageTool), hyphenation
+- **Import/Export filters** — additional file-format support
+- **Productivity macros** — Alternative Find & Replace (regex in the replace field — see §96), template builders
+
+### 94.5 Mac Keystroke Note
+
+On macOS, menu/keystrokes differ: `Tools → Options` becomes `LibreOffice → Preferences`; `Ctrl` is generally `⌘ (Cmd)`; right-click is `Ctrl+click`. Consult in-app Help for the full substitution list.
+
+### 94.6 Relevance to This Project
+
+The decks are generated programmatically, but the **Alternative Find & Replace** extension (regex-capable) is the linchpin of the PDF→EPUB workflow (§96), and template/gallery extensions speed up any manual deck polish on the user's LibreOffice 26.2 install. Extensions are also how a LibreOffice-based document pipeline would gain corporate templates and brand assets.
+
+---
+
+## Section 95 — KDP Formatting with LibreOffice: Build Your Own Templates for Amazon Paperback and Hardcover — Heliose Publishing
+
+A practical guide to formatting print-ready books for Amazon Kindle Direct Publishing (KDP) using only free LibreOffice Writer — no Word, InDesign, or paid tools. Relevant to this project's document-production discipline: the same page-style, margin/gutter, and print-ready-PDF-export skills that produce a KDP interior also produce professional internal reports and the kind of polished `.docx`/PDF deliverables built earlier in this project (complaint guide, letters).
+
+### 95.1 KDP Trim Sizes
+
+The **trim size** is the final printed page dimensions (width × height after trimming). It is the first technical decision and drives every later layout choice.
+
+**Paperback:**
+| Trim | Typical use |
+|---|---|
+| 6" × 9" | Most popular/versatile — novels, nonfiction, self-help, memoir |
+| 5" × 8" | Compact fiction, poetry |
+| 5.25" × 8" | Modern fiction, language-learning, smaller nonfiction |
+| 7" × 10" | Journals, planners, formatted nonfiction |
+| 8.5" × 11" | Workbooks, activity/educational, visual content |
+
+**Hardcover:**
+| Trim | Typical use |
+|---|---|
+| 6.14" × 9.21" | Hardcover counterpart to 6"×9" paperback |
+| 8.25" × 11" | Textbooks, reports, premium nonfiction |
+
+**Choosing:** default to 6"×9" if unsure; match hardcover (6.14"×9.21") to a 6"×9" paperback; remember smaller trims need more pages (affecting spine width and print cost). Always test in **Amazon's Print Previewer** before submitting.
+
+### 95.2 Paperback vs. Hardcover Layout
+
+- **Paperback** — perfect binding (pages glued at the spine)
+- **Hardcover** — case binding; different gutter/margin requirements
+The binding method affects gutter (inner margin) and how much space the spine consumes, so templates must differ between the two formats.
+
+### 95.3 LibreOffice Writer Techniques for Print
+
+- **Page styles** — define trim size, margins, and gutter per section (the core mechanism; not manual per-page tweaks)
+- **Margins & gutter** — set generous inner (gutter) margins so text doesn't disappear into the binding; KDP rejects files with insufficient margins
+- **Headers & footers** — running heads and page numbers via page styles; mirror for odd/even pages
+- **Justified text** — professional body text justification with hyphenation
+- **Spine width** — calculated from trim size × page count × paper type (for the cover, not interior)
+- **Export print-ready PDF** — `File → Export As → Export as PDF` with correct settings (embed fonts, PDF/A or high-quality print) — no third-party software needed
+
+### 95.4 Reusable Templates
+
+The book's thesis: build a personal library of `.ott` templates, one per trim size and format, so every future book starts from correct specs. The same discipline applies to corporate document production — a branded template (margins, styles, headers, fonts) reused across every deliverable guarantees consistency, exactly as the python-pptx build scripts guarantee consistency across the project's decks.
+
+### 95.5 Relevance to This Project
+
+Page-style mastery, mirrored margins, justified body text, and print-ready PDF export are the same skills behind professional internal reports. The "build a template once, reuse forever" principle mirrors this project's generated-deck architecture and the reusable `.docx` complaint templates (§90).
+
+---
+
+## Section 96 — Converting PDF Books to EPUB with Calibre and LibreOffice — R. Frobnitz
+
+A field-tested workflow for converting PDF books into clean, well-structured EPUB using free tools (Calibre + LibreOffice Writer + a regex-capable Find & Replace). Directly useful to this project: the reference library itself is built from EPUBs, and this is the reverse/repair pipeline — plus it is a concise, practical regex tutorial in a real document-cleanup context.
+
+### 96.1 Why It's Hard, Why EPUB
+
+Converting PDF to other ebook formats is notoriously messy — PDF encodes layout, not document structure, so paragraphs, headings, and flow must be reconstructed. **EPUB** is the target because it is an open international standard, easy to edit, well-supported by tools, and handled excellently by Calibre. Do EPUB first, then convert onward to MOBI/AZW3 if needed (and always re-check the EPUB if the secondary conversion misbehaves).
+
+### 96.2 The Toolchain
+
+- **Calibre** — "the Swiss Army Chainsaw of ebook management"; library, initial PDF→text conversion, and final ODT→EPUB conversion
+- **LibreOffice Writer** — the cleanup workhorse, using **Styles** for structure
+- **Alternative Find & Replace** extension — because LibreOffice's native Find & Replace will **not** accept regex in the *replace* field (see §94); this extension supplies that
+- **A text/HTML editor** (e.g. gedit) — optional finer edits
+- **Jutoh** — optional, paid, gives a near-WYSIWYG intermediate
+
+### 96.3 The Process
+
+1. **Calibre: PDF → text/ODT.** Add the PDF to Calibre, convert to get raw text out (Calibre/Okular extract text Adobe Reader won't).
+2. **LibreOffice cleanup.** Open the text in Writer. Turn on formatting marks (¶ icon) to see non-printing characters. Open the Sidebar (View → Sidebar) for the Navigator (jump between chapters) and Styles.
+3. **Front matter by hand.** Title page, copyright, dedication — these are unique; format manually to resemble the original.
+4. **Body via Styles.** Apply **Heading 1** to each chapter title (find each "Chapter"/roman numeral with Ctrl+F, then set Heading 1 from the Styles box). Ensure Tools → (Chapter/Outline) Numbering maps level 1 → Heading 1 so chapters appear in the Navigator and become the EPUB's table of contents.
+5. **Regex repairs.** Remove page headers/footers/numbers and rejoin broken paragraphs using regex (next section).
+6. **Calibre: ODT → EPUB.** Save the ODT, add it to Calibre, set cover/metadata, convert to EPUB (default settings work well). Correct Heading 1 use yields an automatic, well-structured TOC. Verify in Calibre's book viewer.
+
+### 96.4 Regex — the Core Skill
+
+Regex ("wildcards on steroods") is what makes the cleanup tractable. The signature problem: PDF text breaks one paragraph across many lines, so you must **find paragraphs that end mid-sentence (e.g. a line ending in a lowercase letter) and join them to the next line**.
+
+| Need | Approach |
+|---|---|
+| Join a line ending in a lowercase letter to the next line | Match `([a-z])\n` → replace with `\1 ` (capture group + space) |
+| Lowercase class | `[a-z]` (POSIX `[:lower:]` is equivalent, just harder to type) |
+| Remove running headers like `Monica's Mystery . . . . 6` | Match the repeating header/footer pattern with regex and replace with nothing |
+| Find chapter markers | Straight find for "Chapter", or `I, II, III…` roman numerals |
+
+Note: regex flavours differ between tools — expressions written for the Alternative Find & Replace extension may need adjustment elsewhere.
+
+### 96.5 Handy LibreOffice Tips from the Book
+
+- An ebook is HTML under the skin — `<h1>title</h1>` is what "Heading 1" becomes
+- **Ctrl+M** on highlighted text removes direct (non-style) formatting — useful for stripping stray formatting (caveat: it also removes italics)
+- Leave formatting marks (¶) on while working so you can see paragraph breaks and spaces
+- Keep ALL formatting in Styles (the one hand-formatted exception being unique front matter)
+
+### 96.6 Relevance to This Project
+
+This is the inverse of how the reference library was assembled (EPUBs → text → REFERENCE.md sections). The regex paragraph-rejoining and header-stripping techniques are exactly what's needed to clean OCR'd or PDF-extracted regulatory documents before they can be added to the library, and the Styles-first / Heading-1-as-structure discipline underpins any clean document or EPUB the project produces.
+
+---

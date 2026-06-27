@@ -639,13 +639,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "23,112 lines · 93 sections · 102 books & regulatory documents · §91–93 system design, PowerPoint, materials")
+               "23,260 lines · 96 sections · 105 books & regulatory documents · §94–96 LibreOffice, KDP, PDF→EPUB")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("23,112", "lines"),
-    ("93",     "sections"),
-    ("102",    "books & docs"),
+    ("23,260", "lines"),
+    ("96",     "sections"),
+    ("105",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -670,8 +670,8 @@ domains = [
     [  # Right column — x=6.68
         (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56, §78–81",
          "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
-        (DARK,    "Microsoft Ecosystem",                "§27–33, §64–65, §76, §92",
-         "Power Teams · Power BI (×2) · PowerPoint (×3 — incl. 365 Pro/Lemmings) · SharePoint · Dynamics 365 BC AL · Azure AI Engineer AI-102"),
+        (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96",
+         "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice Extensions · KDP Formatting · PDF→EPUB (Calibre)"),
         (DARK,    "Employment & Equality Law",          "§34",
          "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
         (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
@@ -833,7 +833,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (93 sections · 102 books)"),
+         ("Slide 10", "Reference library (96 sections · 105 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),
