@@ -60,7 +60,7 @@ The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This 
 
 `App` is one large React function component. Its internal structure follows this order:
 
-1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks. As of June 2026 the file has 120+ state variables; hooks run from line ~28 to ~685. The `/ship-ready` awk check flags any hook past line 120 — this is a known false positive on this file size. The architectural rule to enforce is: **no hook may appear after line ~744 (first closure, `closeWorkflow`)**. The awk threshold is stale; the boundary is not.
+1. **All hooks at the top** — every `useState`/`useEffect`/`useMemo` call is declared at the top of `App` before any logic, because sub-components are closures (not separate components) and cannot hold their own hooks. As of June 2026 the file has 120+ state variables; hooks run from line ~28 to ~765 (the last two `useMemo`s — `currentMonthCategories`/`currentMonthSummary` — sit at ~751/763, still above the boundary). The `/ship-ready` awk check flags any hook past line 120 — this is a known false positive on this file size. The architectural rule to enforce is: **no hook may appear after `closeWorkflow` (the first closure, now at line ~831)**. The awk threshold is stale; the boundary is not.
 2. **Static data** — `ENTITY_INFO`, `signatories`, `accounts` (via `useMemo`), `mtdData`, `statementsData` (via `useMemo`)
 3. **Inline CSS** — a `css` template literal variable holds brand-specific styles, animations, and glass effects. Injected via `<style>{css}</style>` in the render
 4. **Primitive components** — `ProgressDots`, `StepFrame`, `Input`, `Field`, `Toggle` — small JSX helpers defined as closures. **No hooks inside these.**
@@ -114,7 +114,7 @@ Each account has a `rule`: `'any-1'`, `'any-2'`, or `'all'`. The `getMandateFor(
 | `getMandateFor` helper | ~420 |
 | `mtdData` (Making Tax Digital) | ~442 |
 | `statementsData` useMemo (transaction history) | ~485 |
-| `closeWorkflow` (resets workflow state) | ~744 |
+| `closeWorkflow` (resets workflow state) | ~831 |
 | Inline CSS (`css` template literal) | ~779 |
 | Primitive components (`ProgressDots`, `StepFrame`, `Input`, etc.) | ~950 |
 | `renderClosure` | ~1021 |
