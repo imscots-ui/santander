@@ -23494,3 +23494,319 @@ The project's standing orders are direct implementations of these criteria:
 6. Re-run `/ship-ready` — the Security and Bosun stations enforce these at commit time.
 
 ---
+
+## Section 100 — UX Management Methods — Jon Binder
+
+A practitioner's guide to *leading* UX teams (not just doing UX), by an MIT-trained UX researcher/manager. Relevant to this project because the prototype exists explicitly "for internal presentations and customer research" — this section covers how that research function is run, measured, and justified to stakeholders.
+
+### 100.1 What UX Management Is
+UX is how someone interacts with and experiences an organisation's products/services/systems — perception of ease of use and ability to deliver value. UX is subjective but its underpinning principles are objective. Because an organisation's success tracks the quality of the experiences it provides, UX managers are central to commercial outcomes.
+
+### 100.2 Core Topics
+- **What great UX managers have in common** — vision, advocacy, process discipline, empathy for both users and team.
+- **Hiring and growing a UX team** — finding "UX unicorns", balancing researchers vs designers, skills matrix.
+- **Standard UX processes** — a repeatable roadmap of key deliverables so projects ship on time and on budget.
+- **Communicating effectively** with the team and upward to stakeholders.
+- **Building a strong UX culture** — embedding user-centricity beyond the UX team.
+- **Measuring ROI of UX** — using analytics to prove value (conversion, task success, support-cost reduction, retention).
+- **Managing without micromanaging** — autonomy plus clear deliverables.
+- **Inspiring great design / morale**, and **managing remote UX teams** post-COVID.
+- **Becoming a UX leader, not just a manager.**
+
+### 100.3 Application to This Project
+The prototype's customer-research purpose, its design-system discipline (Bosun's Law), and the deck-driven stakeholder pitches all sit inside this management frame: define deliverables, run research, measure ROI, and communicate findings upward — exactly the loop a Santander UX function would run around a paperless-workflow prototype.
+
+---
+
+## Section 101 — Introduction to Design Thinking for UX Beginners — Uijun Park
+
+A concise primer framing UX through the **Design Thinking** process. Pairs with §100 (managing UX) and §102 (UX research methods) to give the project a complete UX foundation.
+
+### 101.1 Design Thinking in 5 Steps
+1. **Empathise** — understand users through research (interviews, observation); set aside assumptions.
+2. **Define** — synthesise findings into a clear, human-centred problem statement.
+3. **Ideate** — generate a wide range of solutions before converging.
+4. **Prototype** — build cheap, fast, testable artefacts (exactly what this React prototype is).
+5. **Test** — put prototypes in front of users, learn, and iterate. The process is non-linear — loop back as needed.
+
+### 101.2 UX vs UI
+UX = the whole experience and problem-solving; UI = the visual/interaction surface. Good UX needs both, but UX design precedes and frames UI decisions.
+
+### 101.3 UX Design Principles for Beginners
+Clarity, consistency, hierarchy, feedback, error prevention/recovery, accessibility, and reducing cognitive load — all directly reflected in the prototype's StepFrame pattern, one-primary-CTA rule, and confirmation/cooling-off flows.
+
+### 101.4 Application to This Project
+The prototype is the *Prototype* stage of design thinking made concrete; the "customer research" purpose is the *Empathise*/*Test* loop. The 5-step model is the methodology behind iterating the paperless workflows.
+
+---
+
+## Section 102 — UX Research Methods (UX Series 1) — Eric Schmidt
+
+A focused handbook of UX *research* techniques — the practical methods behind the "customer research" purpose of this prototype.
+
+### 102.1 UX vs UI Roles & Project Phases
+UX designers solve problems and shape the whole journey; UI designers craft the visual surface. UX projects run in three phases: **plan → design → validate**.
+
+### 102.2 Stakeholder Interviews
+Conducted at project start to surface business goals, constraints, success metrics, and assumptions. Ask open questions, capture conflicting views, and reconcile them into agreed objectives (mirrors §97's emphasis on documenting decisions).
+
+### 102.3 UX Workshops & Usability Testing
+- **UX workshop** — collaborative session to align the team and generate/prioritise ideas.
+- **Usability test** — observe real users attempting real tasks; measure task success, time-on-task, errors, and satisfaction. The single most valuable method for validating a prototype like this one.
+
+### 102.4 Competitive UX Benchmarking
+Define competitors, score their experiences against criteria, and track over time — when/how to start benchmark testing.
+
+### 102.5 Contextual Research (Contextual Inquiry)
+Observe users in their real environment. Use when you need to understand actual workflows (not stated ones). Guiding principles: partnership, context, interpretation, focus. Pros (rich, real insight) and cons (time-intensive, small samples).
+
+### 102.6 Tracking & Analysing User Behaviour
+Why behaviour matters; benefits of behavioural analysis; metrics to collect (clicks, paths, drop-off, task completion, funnels). The quantitative complement to qualitative methods.
+
+### 102.7 Application to This Project
+Every method maps to validating the prototype: stakeholder interviews to set the brief, usability tests on the mandate/wages/closure workflows, benchmarking against rival business-banking apps, and behavioural analytics on the demo to see where users hesitate.
+
+---
+
+## Section 103 — Instructional Design Unleashed — Ankita Jiyani Mangtani (Apress, 2024)
+
+A guide to designing learning experiences — the science and art of instructional design. Relevant to the project's training-deliverable side: the narration-driven Prezis (§98), the complaint-handling guide (§90), and the Copilot agent file are all *instructional* artefacts that benefit from these principles.
+
+### 103.1 The Science of Instructional Design
+- **Anatomy of instructional design** and the **science of learning** (cognitive load, memory, retrieval).
+- **Learning theories** — behaviourism, cognitivism, constructivism — and **learning modalities**.
+- **Learner attributes** and how they shape design.
+- **Pedagogy / Andragogy / Heutagogy** — teaching children vs adults vs self-directed learners.
+- **Universal Design for Learning (UDL)** — designing for the full range of learners (ties to §99 accessibility).
+
+### 103.2 The Art of Instructional Design
+- **Instructional Design models** (e.g. ADDIE: Analyse, Design, Develop, Implement, Evaluate).
+- **Objective taxonomy** — Bloom's Taxonomy for writing measurable learning objectives.
+- **Storyboarding fundamentals** — planning the learning journey before building (the Prezi/deck planning discipline).
+- **Assessment, feedback, and evaluation** approaches.
+- **Publishing the learning journey** — going from theory to a deliverable course.
+- **AI in instructional design** — foundations, innovations, and ethical considerations.
+
+### 103.3 Application to This Project
+Staff-training Prezis, the complaint-handling guide, and onboarding walkthroughs are instructional products — ADDIE, Bloom's objectives, and storyboarding make them effective rather than just informative.
+
+---
+
+## Section 104 — Ultimate Node.js for Cross-Platform App Development — Ramesh Kumar
+
+A comprehensive Node.js reference. Directly relevant: the prototype is front-end only, but its production back-end (the "Phase 2" implied by every workflow) would most naturally be a Node.js service.
+
+### 104.1 Node.js Fundamentals
+- **What Node.js is** — server-side JavaScript on Chrome's **V8 engine**; single-threaded, event-driven, non-blocking I/O.
+- **Why it's popular** — one language across stack, huge npm ecosystem, fast I/O, great for APIs and real-time.
+- **Node vs browser JavaScript** — no DOM; has filesystem, networking, processes.
+- **Install / NVM** — manage Node versions with NVM.
+
+### 104.2 Core Concepts
+- **Blocking vs non-blocking** operations and the **event loop**.
+- **Callbacks → callback hell → Promises → async/await** — the evolution of async control flow.
+- Modules (CommonJS / ESM), streams, buffers, EventEmitter.
+
+### 104.3 Application to This Project
+The prototype's workflows imply Node services: a payments API (idempotent, rate-limited — see §91 system design), an append-only audit log, KYC/CoP lookups, and HMRC MTD submission. async/await + non-blocking I/O is the right model for these I/O-bound banking integrations.
+
+---
+
+## Section 105 — Fullstack Node.js — Nate Murray (newline)
+
+A project-based guide to building complete Node.js back-ends — complements §104's fundamentals with end-to-end server construction.
+
+### 105.1 What It Covers
+- **Your first Node API** — routing, request/response.
+- **Async** patterns in practice.
+- **A complete server**, built up in stages:
+  - **Getting started** — structure and framework.
+  - **Persistence** — database layer.
+  - **Authentication** — sessions/tokens (JWT — see §10).
+  - **Deployment** — shipping to production.
+- **Command-line interfaces**, and **testing Node.js applications**.
+
+### 105.2 Application to This Project
+This is the practical recipe for the prototype's missing back-end: an authenticated API with persistence and deployment. Authentication maps to the app's SCA/dual-auth model; the staged build mirrors how the front-end workflows would be wired to real endpoints.
+
+---
+
+## Section 106 — Total TypeScript: The Essentials — Matt Pocock & Taylor Bell
+
+The definitive practical TypeScript guide. Relevant if the JS prototype (`App.jsx`) is ever migrated to type safety — the natural hardening step for a production banking front-end.
+
+### 106.1 Why TypeScript
+TypeScript adds static types to JavaScript, catching errors at author-time, powering autocomplete, and documenting intent. It compiles to plain JS; types are erased at runtime.
+
+### 106.2 Setup & Tooling
+- Install Node + **pnpm**, then TypeScript; configure `tsconfig.json`.
+- **IDE superpowers** — autocomplete, inline errors, go-to-definition, refactoring.
+- `@ts-expect-error` for asserting expected type errors; **Vitest** for testing.
+
+### 106.3 The Essentials (book arc)
+- Kickstart a TypeScript setup; high-level model of how TS works.
+- Core types, objects, arrays, functions; unions and narrowing; generics; utility types; modules and declaration files.
+- Practical, exercise-driven — each concept paired with a hands-on exercise.
+
+### 106.4 Application to This Project
+Migrating `App.jsx` → `App.tsx` would type the 120+ state variables, the `ENTITY_INFO` map, mandate rules (`'any-1' | 'any-2' | 'all'` as a union), and workflow states (`null | 'closure' | ... | 'complaint'`) — turning several whole classes of runtime bug into compile errors. A strong Phase-2 hardening move.
+
+---
+
+## Section 107 — Financial Shenanigans (4th Ed): How to Detect Accounting Gimmicks & Fraud in Financial Reports — Howard M. Schilit, Jeremy Perler & Yoni Engelhart
+
+The classic on spotting manipulated financial statements. Highly relevant to business banking: lending decisions, supplier-risk assessment, and KYB all depend on reading customer accounts critically — and the prototype's supplier-risk radar is exactly this instinct in miniature.
+
+### 107.1 The Framework — Three Families of Shenanigans
+**Earnings Manipulation Shenanigans (EM):**
+1. Recording revenue **too soon**.
+2. Recording **bogus** revenue.
+3. Boosting income via **one-time/unsustainable** activities.
+4. Shifting **current expenses to a later** period.
+5. Employing other techniques to **hide expenses/losses**.
+6. Shifting **current income to a later** period (cookie-jar reserves).
+7. Shifting **future expenses to the current** period.
+
+**Cash Flow Shenanigans (CF):**
+1. Shifting **financing inflows** into the operating section.
+2. Moving **operating outflows** to other sections.
+3. Boosting operating cash flow with **unsustainable** activities.
+
+**Key Metric Shenanigans (KM):**
+1. Showcasing **misleading metrics** that overstate performance.
+2. **Distorting balance-sheet metrics** to hide deterioration.
+
+**Acquisition Accounting Shenanigans** — boosting revenue/earnings, inflating cash flow, manipulating key metrics around M&A.
+
+### 107.2 How to Detect
+Read the footnotes, compare cash flow vs net income, watch receivables/inventory growing faster than sales, scrutinise non-GAAP "adjusted" metrics, and track changes in accounting policy. "Just touch up the X-rays" — small distortions are early warnings of bigger ones.
+
+### 107.3 Application to This Project
+Directly informs **lending** (§ the prototype's pre-approved lending workflow), **KYB**, and the **supplier-risk radar** (Companies House filing health is a real-world shenanigan tripwire — late filings + overdue accounts are classic red flags). A credit decision should never rest on headline earnings alone.
+
+---
+
+## Section 108 — Financial Crime and Corporate Misconduct — Chris Monaghan & Nicola Monaghan (eds., Routledge)
+
+A critical legal commentary on the UK **Fraud Act 2006** and corporate financial-crime law — the statutory backdrop to the prototype's fraud, complaint, and AML controls.
+
+### 108.1 The Fraud Act 2006
+A decade-plus critical review: the Act's three core offences —
+1. **Fraud by false representation** (s.2),
+2. **Fraud by failing to disclose** information (s.3),
+3. **Fraud by abuse of position** (s.4) —
+plus possessing/making articles for fraud. Assessment of how effective the Act has been ("a decade of deception?"), a judge's perspective, and criminal-fraud legislation since 2006.
+
+### 108.2 Failure to Prevent Fraud
+The debate over (and subsequent introduction of) a corporate **"failure to prevent fraud"** offence — holding organisations liable where they lacked reasonable prevention procedures. This mirrors the SMR's reasonable-steps logic (§97): the defence is having demonstrable preventative controls.
+
+### 108.3 Specialist Topics
+Food fraud and the Fraud Act (complementarity/limits); **Brexit and financial crime** (cross-border enforcement, lost EU mechanisms).
+
+### 108.4 Application to This Project
+Underpins the APP-fraud reimbursement framework (§86 PSR PS23/3), the complaint-handling fraud category (§90), KYC/KYB (MLR), and Confirmation of Payee. "Failure to prevent" is the corporate analogue of the SMR duty — both reward demonstrable, documented controls, which is precisely what the prototype's audit trail provides.
+
+---
+
+## Section 109 — Research Agenda for Test Methods and Models to Simulate the Accelerated Aging of Infrastructure Materials — National Research Council (NMAB, National Academy Press)
+
+*(Tangential to the banking project — included for completeness of the engineering-design domain alongside §93 CAMSS.)* A National Materials Advisory Board workshop report on predicting and testing the long-term durability of infrastructure materials.
+
+### 109.1 Core Themes
+- **Life-prediction modelling** — forecasting how materials degrade over decades.
+- **Accelerated-testing methods** — compressing years of ageing into lab timeframes, and the **limitations and barriers** of doing so reliably.
+- Cross-domain briefings: infrastructure ageing/deterioration, surgical implant longevity, integrated-circuit reliability, durable glass, electric-utility life-cycle performance.
+
+### 109.2 Findings & Recommendations
+The committee calls for better validated life-prediction models, standardised accelerated-test protocols correlated to real-world ageing, and recognition that no single accelerated test captures all degradation mechanisms — extrapolation must be done cautiously.
+
+### 109.3 Transferable Principle
+The one genuinely portable lesson for any domain (including risk modelling in banking): **accelerated/simulated tests must be validated against real-world outcomes before their predictions are trusted** — the same caution that applies to back-testing financial stress models. Otherwise tangential to this project.
+
+---
+
+## Section 110 — A Tour of C++ (3rd Ed) — Bjarne Stroustrup (Addison-Wesley)
+
+A concise tour of modern C++ (C++20/23) by the language's creator. *General CS reference — not specific to this front-end banking project, but a foundational systems-programming text for the broader library.*
+
+### 110.1 Programs & Compilation
+C++ is **compiled** and **statically typed** — source → compiler → object files → linker → executable. The type of every entity must be known at its point of use; a type defines the set of valid operations and the object's memory layout. The ISO standard defines **core language features** (built-in types, loops) and the **standard library** (containers, I/O) — the latter itself written in C++.
+
+```cpp
+import std;                 // C++20 module form (or #include <iostream>)
+int main() { std::cout << "Hello, World!\n"; }
+```
+Every program has exactly one global `main()`; its `int` return goes to the system (nonzero = failure).
+
+### 110.2 Functions
+Declare name, return type, and argument types; a function must be declared before use. Argument passing has **initialization semantics** (types checked, implicit conversions applied). **Overloading** — same name, different argument types; the compiler picks the best match; ambiguous calls are errors. Keep functions short and single-purpose; if you can't name it, you likely have a design problem.
+
+### 110.3 Types, Variables, Arithmetic
+- **Definitions:** a *type* = values + operations; an *object* = memory holding a typed value; a *value* = bits interpreted by a type; a *variable* = a named object.
+- Fundamentals: `bool`, `char`, `int`, `double`, `unsigned`; sizes are implementation-defined (`sizeof`); use `int32_t` etc. for fixed sizes.
+- Operators: arithmetic (`+ - * / %`), comparison (`== != < > <= >=`), logical (`&& || !`), bitwise (`& | ^ ~`); compound (`+= ++ --` …). The **usual arithmetic conversions** compute at the highest operand precision.
+
+### 110.4 Initialization
+Prefer the **`{}` list form** — it rejects narrowing conversions (`int i {7.8};` is an error, but `int i = 7.8;` silently truncates to 7). Use **`auto`** to deduce the type from the initializer and avoid redundancy. Never use an uninitialized variable; don't introduce a name before you have a value for it.
+
+### 110.5 Scope & Lifetime
+Local / class-member / namespace / global scopes. An object is constructed before use and destroyed at the end of its scope; `new` objects live until `delete`. Minimise variable scope.
+
+### 110.6 Constants
+- **`const`** — "I won't change this" (value may be computed at run time; used for interfaces).
+- **`constexpr`** — evaluated at compile time (constants, read-only data, performance).
+- **`consteval`** — *must* be evaluated at compile time.
+`constexpr`/`consteval` functions are C++'s **pure functions** — no side effects, may loop, only use their arguments.
+
+### 110.7 Pointers, Arrays, References
+- `char v[6];` array · `char* p;` pointer (`*p` contents, `&x` address) · `char& r = x;` reference (no `*` needed; can't be rebound).
+- **range-for**: `for (auto x : v)` (copy) or `for (auto& x : v)` (modify in place).
+- **References** for arguments avoid copies; **`const&`** when you won't modify but want no copy.
+- **`nullptr`** is the single null pointer for all pointer types — prefer it over `0`/`NULL`. There is no null reference.
+
+### 110.8 Tests & Hardware Mapping
+`if` / `switch` (case-labels distinct, `break` to fall through to after, `default`) / `while` / `for`. `if`/`for` can declare-and-test in one (`if (auto n = v.size())`). Fundamental operations map directly to single machine instructions — the basis of C/C++ low-level performance. **Assignment** copies values (independent objects); **initialization** turns raw memory into a valid object — a distinction that matters enormously for resource-owning types (string, vector).
+
+### 110.9 Key Advice (from the Core Guidelines)
+Prefer libraries over raw built-ins; prefer `{}`-init and `auto`; avoid narrowing conversions and uninitialised variables; keep scopes/functions small; prefer immutable data and range-for; use `nullptr`; state intent (not mechanics) in comments.
+
+---
+
+## Section 111 — Professional UX & Accessibility Designer: Become a Professional UX & Accessibility Designer in Just One Month
+
+A combined UX + accessibility practitioner guide. Pairs §99 (WCAG contrast) with §100–102 (UX management/research) to complete the project's user-experience foundation — and reinforces accessibility as a first-class design concern, exactly as the project's standing orders demand.
+
+### 111.1 Start With "Why"
+Borrowing Simon Sinek: always start with the *why*. Without a clear business "why", the UX designer can't define the "how". UX is a multi-disciplinary practice, not just making things look good.
+
+### 111.2 What UX Is
+Per ISO: *"a person's perceptions and responses resulting from the use and/or anticipated use of a product, system, or service."* It covers all interactions — and the ideas, emotions, and memories they create — plus the feelings that attach to your **brand** in the real world. The UX professional's job: take a 0/5 experience and make it 5/5.
+
+### 111.3 The Three Legs of Any Software
+**UX · Security · Performance** — all three are required. Strong UX and performance with weak security → data breaches and lost credibility; great UX that can't keep pace (4G→5G) frustrates users (who at minimum need *feedback* that processing is happening). *This maps directly to the project's own three pillars — the prototype invests in all three.*
+
+### 111.4 The Seven UX Factors (Morville's Honeycomb)
+A quality experience must be: **Usable · Useful · Desirable · Findable · Valuable · Credible · Accessible.** Many teams hit six and miss **accessibility** — which is why this book (and §99) treat it as essential, not optional.
+
+### 111.5 Desired Outcomes
+- **Happy** users → word-of-mouth → sales.
+- **Satisfied** users → loyalty, fewer support requests, constructive suggestions.
+- **Productive** users → become **MVPs (Most Valuable Proponents)** giving testimonials/references.
+
+### 111.6 The Iceberg: UI Is Just the Tip
+**UI** = colour, typography, icons, photography, visual design. **UX** = usability testing, psychology, interaction design, content strategy, wireframes, information architecture, prototypes, problem understanding, and research. Focus only on UI and products become "shipwrecks" — design, technology, science, and research must all be worked through.
+
+### 111.7 Areas of UX Practice
+- **UX/Information architecture** — high-level journey (A→B), how content is organised and discovered.
+- **Interaction design** — the interface and behaviour.
+- **Visual design** — graphics, icons, colour, look-and-feel (intersecting human factors).
+- **Sound design** — subtle, attention-appropriate tones for notifications/emails.
+- Rooted in **Human-Computer Interaction (HCI)** — human factors, cognitive science, psychology, linguistics, neuroscience.
+
+### 111.8 ROI of UX
+Investing in UX up front reduces costly later redevelopment (fixing the seven factors after negative feedback is expensive) and raises revenue over time — "sowing a seed and tending it". Give the UX designer room to explore multiple ideas (e.g. five mockups) and validate via stakeholder/user interviews before building; instant results are the exception.
+
+### 111.9 Application to This Project
+The prototype embodies this: accessibility is a *standing order* not an afterthought (the 7th honeycomb factor, §99); UX/Security/Performance are the same three legs the app balances; and the "customer research" purpose is the iceberg's hidden mass — research, IA, and usability beneath the visible UI. The MVP/word-of-mouth outcome is the business case the pitch deck argues.
+
+---

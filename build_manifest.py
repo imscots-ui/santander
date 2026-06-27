@@ -639,13 +639,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "23,496 lines · 99 sections · 108 books & regulatory documents · §97 SMR · §98 Prezi · §99 WCAG contrast")
+               "23,812 lines · 111 sections · 120 books & regulatory documents · §100–111 UX, Node.js, TypeScript, C++, financial crime")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("23,496", "lines"),
-    ("99",     "sections"),
-    ("108",    "books & docs"),
+    ("23,812", "lines"),
+    ("111",    "sections"),
+    ("120",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -656,14 +656,14 @@ for i4, (val, lbl) in enumerate([
 # ── Domain blocks — two columns of 5 ─────────────────────────────────────────
 domains = [
     [  # Left column — x=0.42
-        (RED,     "Core Development",                   "§1–22, §91",
-         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · Security · Pydantic · async · pytest · System Design Interview (King)"),
+        (RED,     "Core Development",                   "§1–22, §91, §104–106, §110",
+         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · pytest · System Design (King) · Node.js · TypeScript (Pocock) · A Tour of C++ (Stroustrup)"),
         (RED,     "AI & Prompt Engineering",            "§20, §23–25, §58–65, §72–74",
          "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
         (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
          "PSD2 · FPS/BACS/CHAPS/SWIFT · PSR · FCA Consumer Duty · AML · Ring-Fencing · SCA · BCOBS · FCA Compliance · UK Resolution · Post-Trade"),
-        (RED,     "Prudential & Market Regulation",     "§36–40, §87–88, §97",
-         "PRA/PRC · Basel 3.1 · SS19/13 Resolution · MREL · CNRF · Deposit Aggregators · Post-Trade Task Force · Senior Managers Regime (Berman)"),
+        (RED,     "Prudential · Conduct · Financial Crime", "§36–40, §87–88, §97, §107–108",
+         "PRA/PRC · Basel 3.1 · Resolution · MREL · Senior Managers Regime (Berman) · Financial Shenanigans (Schilit) · Fraud Act 2006 / Corporate Misconduct (Monaghan)"),
         (RED,     "Data Protection",                    "§75, §77",
          "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
     ],
@@ -672,8 +672,8 @@ domains = [
          "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
         (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96, §98",
          "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice · KDP · PDF→EPUB · Mastering Prezi (Anderson-Williams)"),
-        (DARK,    "Equality & Accessibility",           "§34, §99",
-         "Equality Act 2010 · Protected characteristics · Reasonable adjustments · WCAG 2.1 colour contrast (4.5:1) · WebAIM/CCA testing"),
+        (DARK,    "UX · Accessibility · Equality",      "§34, §99–103, §111",
+         "Equality Act 2010 · WCAG 2.1 contrast (4.5:1) · WebAIM/CCA · UX Management (Binder) · Design Thinking (Park) · UX Research (Schmidt) · Pro UX & Accessibility Designer"),
         (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
          "MakerSpace · Electronics · Mechatronics · Digital Logic · Arduino/IoT · Embedded Linux · ISO GD&T (Green) · CAMSS Materials Selection (NMAB-467)"),
         (EMERALD, "Digital Banking Transformation",      "§82, §83, §85",
@@ -833,7 +833,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (99 sections · 108 books)"),
+         ("Slide 10", "Reference library (111 sections · 120 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),
