@@ -22933,3 +22933,180 @@ Where the customer held a fixed-rate ISA, use the fixed rate. Where variable, us
 | FOS contact | 0800 023 4567 · financial-ombudsman.org.uk |
 
 ---
+
+## Section 91 — System Design Interview: Scalable Systems Analysis and Design — Groks King (Mastership Books)
+
+A practical primer on the system-design interview: the framework for approaching open-ended "design X" questions, capacity estimation, and a worked catalogue of classic large-scale systems. Relevant to the Santander prototype as the bridge from a single-file front-end to a production, distributed banking platform — every workflow in the app maps to a back-end system that must scale, stay available, and remain consistent.
+
+### 91.1 What System Design Is
+
+System design is the process of defining a system's architecture, modules, components, the interfaces between them, and the data that flows through it, to meet specific organisational requirements. It can proceed top-down or bottom-up but is always systematic, covering everything from architecture and hardware/software through to how data moves and evolves. The terms *system design*, *systems analysis*, *systems engineering*, and *systems architecture* are often used interchangeably. The discipline arose from pre-WWII control and communications problems, formalised through information theory, operations research, and computer science.
+
+A system-design interview assesses whether a candidate can take a vague, open-ended problem and produce a well-structured, scalable architecture — the skill needed as engineers move from junior (coding-focused) to senior (architecture-focused) roles. The hardest part is the deliberate vagueness; the antidote is structure.
+
+### 91.2 The Framework (how to run the interview)
+
+1. **Clarify requirements first.** Spend the opening minutes asking questions. Starting down the wrong path because you failed to clarify is the worst-case outcome. Classify requirements into three buckets:
+   - **Functional** — what capabilities the system must provide (e.g. on Twitter: follow, tweet, like, retweet, share). Pick 3–5 core features; don't dive into advanced ones.
+   - **Non-functional** — scalability, latency, availability, reliability, consistency, durability.
+   - **Out-of-scope** — explicitly state what you are *not* designing.
+2. **Capacity estimation.** Use the gathered facts (number of users, mean data per request, retention period, availability targets) to estimate storage and bandwidth with simple arithmetic. Traffic volume drives complexity: don't over-engineer for low traffic, but don't design something that can't scale. Capacity estimation tells you whether a design is even viable.
+3. **High-level design.** Sketch the major components and data flow before detailing any one piece.
+4. **Detailed design.** Drill into the components that matter most for the stated requirements.
+5. **Identify bottlenecks and trade-offs.** Single points of failure, hot partitions, consistency vs availability.
+
+### 91.3 Worked System Designs (the catalogue)
+
+| System | Core problem | Key techniques |
+|---|---|---|
+| **ID Generator** | Unique global IDs in a distributed system | 64-bit limit, timestamp-based for sortability (sort by ID = sort by registration date), distributed sequence generation, scalability |
+| **Web Crawler** | Index the web politely at scale | Downloader → URL extractor → duplicate tester; distributed/decentralised; politeness, minimal latency, must not crash |
+| **Distributed Key-Value Store** | Scalable storage with consistency guarantees | Partitioning, replication, consistency models |
+| **Notification Service** | Fan-out messages across channels | Queues, push/pull, deduplication, rate control |
+| **Google Drive** | File storage, sync, sharing | Chunking, metadata service, conflict resolution |
+| **Autocomplete / Typeahead** | Fast prefix suggestions | Trie structures, caching, ranking |
+| **API Rate Limiter** | Protect services from overload | Token bucket / leaky bucket, distributed counters |
+| **Facebook Newsfeed** | Personalised feed at scale | Fan-out on write vs read, ranking, caching |
+| **Chat Messenger** | Real-time messaging | WebSockets, presence, message ordering, delivery guarantees |
+| **YouTube** | Video upload, transcode, stream | CDN, blob storage, adaptive bitrate, metadata DB |
+| **URL Shortener** | Map long URLs to short codes | Hashing, base-62 encoding, collision handling, redirect service |
+
+### 91.4 Consistent Hashing
+
+A core technique appearing throughout the book: consistent hashing distributes data across nodes so that adding or removing a node only remaps a small fraction of keys (rather than nearly all of them, as with naive modulo hashing). Essential for distributed key-value stores, caches, and load balancers — it keeps the system scalable and minimises rebalancing churn.
+
+### 91.5 Application to the Santander Prototype
+
+The prototype is front-end only, but every workflow implies a production back-end:
+- **Bulk payments / wages** → notification service + rate limiter + idempotent ID generation per payment instruction
+- **Audit trail** → append-only distributed log (consistent hashing for partitioning by account)
+- **Statements search** → autocomplete/typeahead patterns for counterparty search
+- **Confirmation of Payee** → low-latency key-value lookup with high availability
+- **Mandate / dual-auth** → strong consistency requirements (a co-signer's approval must never be lost)
+
+The framework — clarify requirements, estimate capacity, design high-level then detailed, find bottlenecks — is exactly how to scope Phase 2 of the prototype into a real system.
+
+---
+
+## Section 92 — Microsoft PowerPoint 365 Pro: Designing Dynamic Presentations — Isaac Lemmings
+
+A step-by-step guide to PowerPoint 365 from basics to advanced presentation craft. Directly relevant to this project's deliverables — the five `.pptx` decks (pitch, architecture, project record, changes, walkthrough) are built with python-pptx, and this reference governs the manual polish, presenting, and design principles applied on top.
+
+### 92.1 The PowerPoint Environment
+
+- **Backstage view** (File tab) — new, open, save, export, print, share, account
+- **Ribbon tabs** — Home, Insert, Design, Transitions, Animations, Slide Show, Review, View
+- **Panes** — Slides pane (thumbnails), Notes pane (speaker notes), main editing canvas
+- **Views** — Normal, Outline, Slide Sorter, Notes Page, Reading View; Slide Show for presenting
+
+### 92.2 Working with Slides
+
+Adding, selecting, moving, deleting, copying/pasting, duplicating slides. Changing slide layout, removing placeholders, **creating sections** to organise large decks, hiding/unhiding slides for audience-specific versions. The Photo Album feature builds picture-driven decks (themes, B&W, framing, captions, layout).
+
+### 92.3 Themes, Masters, and Slide Backgrounds
+
+- **Apply a theme** for consistent colour, font, and effect across the deck
+- **Adjust slide size** (4:3 vs 16:9 — the project decks use 13.33×7.5in = 16:9)
+- **Slide Master view** — edit the master slide and master styles once to propagate brand styling to every slide. This is the manual equivalent of the shared `R()`/`T()`/`section_header()` helpers in the python-pptx build scripts.
+
+### 92.4 Typography
+
+Working with fonts, text boxes and text-box shapes, **AutoFit** behaviour (shrink text to fit, resize shape to text, or do neither — the build scripts deliberately use `MSO_AUTO_SIZE.NONE` to clip rather than auto-shrink), bullets and numbering, header/footer insertion.
+
+### 92.5 Tables, Transitions, Animations, Media
+
+- **Tables** — create and style for data-heavy slides (the project decks favour drawn rectangles over native tables for precise control)
+- **Transitions** — slide-to-slide effects; keep subtle and consistent
+- **Animations** — the Animation Panel sequences element entrance/emphasis/exit; use sparingly for clarity, not decoration
+- **Audio & video** — insert with playback options (autoplay, loop, trim)
+
+### 92.6 Presenting
+
+Timing a presentation, speaker Notes, Presenter View, creating a blank screen mid-presentation (B = black, W = white), and recording/exporting a presentation to deliver without being physically present.
+
+### 92.7 Key Shortcut Keys
+
+| Action | Shortcut |
+|---|---|
+| Start slideshow from beginning | F5 |
+| Start from current slide | Shift+F5 |
+| End slideshow | Esc |
+| Next / previous slide | N / P (or arrows) |
+| Black screen toggle | B |
+| White screen toggle | W |
+| Go to slide *n* | *n* + Enter |
+| New slide | Ctrl+M |
+| Duplicate | Ctrl+D |
+| Bold / Italic / Underline | Ctrl+B / Ctrl+I / Ctrl+U |
+| Group / Ungroup | Ctrl+G / Ctrl+Shift+G |
+
+### 92.8 Design Principles for Powerful Presentations
+
+The book's "simple yet powerful" guidelines align with this project's Bosun design discipline: one idea per slide, consistent theme and master styling, restrained colour (brand palette), legible typography, minimal animation, and speaker notes carrying detail so slides stay clean. Every project deck carries the advisor credit and a consistent red brand bar — exactly the master-driven consistency this reference advocates.
+
+---
+
+## Section 93 — Computer-Aided Materials Selection During Structural Design — National Materials Advisory Board (National Research Council, NMAB-467, 1995)
+
+A National Research Council committee report on building a Computer-Aided Materials Selection System (CAMSS) — an expert/knowledge-based system to support engineers selecting materials during structural design. Though written for aerospace/structural engineering, it is a rich case study in **knowledge-base and decision-support system design**, concurrent engineering, and the database/knowledge-base architecture that underpins any expert system — directly transferable to building rules-based decision systems (such as the complaint-handling and mandate-rule engines in this project).
+
+### 93.1 The Core Problem
+
+Selecting the proper materials for a structural component is critical and governed by many, often opposing, factors:
+- Service requirements and design life of the product
+- Availability of candidate materials and application-specific property data
+- The company's make-or-buy decision for components
+- Customer preferences
+- **Total life-cycle cost** (the most important factor)
+
+Many designs fail initially from lack of relevant experience or absence of the right experts — leading to costly rework and requalification that inflates cost and time-to-market. The three main drivers for improvement are **quality, life-cycle cost, and time-to-market**.
+
+### 93.2 Vision of a CAMSS
+
+A Computer-Aided Materials Selection System would give design teams:
+- The most current materials-property data
+- Knowledge of materials options, life-cycle costs, and available materials based on prior product experience
+- **Learning capabilities** — proper archiving of materials-selection decisions for future reference (institutional memory)
+- An expanded range of possible materials and manufacturing methods for a given set of cost-performance criteria
+
+This accelerates the application of new materials and processing technologies. The conceptual architecture (Figure 3-1) centres on databases, knowledge bases, and modelling/analysis systems feeding an integrated design environment.
+
+### 93.3 Concurrent Engineering and Concurrent Enterprise
+
+- **Sequential engineering** — the structure is broken into sections, each designed and modified in sequence (slow, rework-prone). Illustrated via Boeing 777 and Grumman X-29 case studies.
+- **Concurrent engineering** — simultaneous design of products and manufacturing processes within a company (Design-Build Teams / DBTs).
+- **Concurrent enterprise processing** — the next step: simultaneous design of products and processes across internal *and external* partners, preferred suppliers, and corporate alliances. Materials selection becomes broad-based and must be done "fast, right, at the correct time, and once."
+
+### 93.4 Information Technologies for the System
+
+**Databases and Knowledge Bases** — levels of knowledge representation:
+- Basic level: electronic library (electronically stored documents)
+- Higher levels: structured databases of material properties, then knowledge bases encoding rules, heuristics, and relationships
+- Issues: knowledge-base definition, development, and construction; database development; keeping data current
+
+**Modeling and Analysis Systems**:
+- Geometric reasoning (wireframe vs surface model vs solid model representational domains)
+- Finite element analysis integration
+- Process models (steps in developing a process model)
+
+### 93.5 Knowledge Representation Techniques (Appendix C)
+
+The report reviews knowledge-representation methods relevant to any expert system: rule-based systems, frames, the LOOS system for defining layout topology, and knowledge-based integrated design systems (Appendix D, e.g. blade design assistant with defined roles and control flow). These are the foundations of decision-support and recommendation engines.
+
+### 93.6 Strategies for Overcoming Barriers
+
+| Barrier | Strategy |
+|---|---|
+| Database and knowledge-base barriers | Standardised data formats, shared property databases, ongoing curation |
+| Structural design modelling technology barriers | Better geometric reasoning, integration of analysis tools, concurrent-engineering data flow |
+| Tasks demanding creative insight | Keep humans in the loop — full automation is weak at creative tasks; systems should *aid* design teams, not replace them |
+
+### 93.7 Transferable Principles
+
+The CAMSS blueprint generalises to any rules/knowledge-driven decision system — including the regulatory decision engines in this project:
+- **Separate data, knowledge (rules), and reasoning** — exactly how `ENTITY_INFO` (data), `getMandateFor()` (rules), and the workflow logic (reasoning) are separated in App.jsx
+- **Archive decisions for institutional memory** — mirrors the FCA SYSC 9 audit trail and the complaint case-record templates (§90)
+- **Keep humans in the loop for judgement calls** — the complaint workflow surfaces a recommendation but a handler makes the final decision
+- **Optimise for total life-cycle cost, done "right and once"** — the paperless-workflow business case (£137M opportunity) rests on the same logic: do the process correctly first time, archive it, and avoid costly rework
+
+---

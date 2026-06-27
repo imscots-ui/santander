@@ -628,13 +628,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "22,935 lines · 90 sections · 99 books & regulatory documents · §90 complaint handling framework")
+               "23,112 lines · 93 sections · 102 books & regulatory documents · §91–93 system design, PowerPoint, materials")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("22,935", "lines"),
-    ("90",     "sections"),
-    ("99",     "books & docs"),
+    ("23,112", "lines"),
+    ("93",     "sections"),
+    ("102",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -645,8 +645,8 @@ for i4, (val, lbl) in enumerate([
 # ── Domain blocks — two columns of 5 ─────────────────────────────────────────
 domains = [
     [  # Left column — x=0.42
-        (RED,     "Core Development",                   "§1–22",
-         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · Security · Pydantic · async · pytest"),
+        (RED,     "Core Development",                   "§1–22, §91",
+         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · Security · Pydantic · async · pytest · System Design Interview (King)"),
         (RED,     "AI & Prompt Engineering",            "§20, §23–25, §58–65, §72–74",
          "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
         (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
@@ -659,12 +659,12 @@ domains = [
     [  # Right column — x=6.68
         (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56, §78–81",
          "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
-        (DARK,    "Microsoft Ecosystem",                "§27–33, §64–65, §76",
-         "Power Teams · Power BI (×2) · PowerPoint (×2) · SharePoint · Dynamics 365 BC AL · Azure AI Engineer AI-102"),
+        (DARK,    "Microsoft Ecosystem",                "§27–33, §64–65, §76, §92",
+         "Power Teams · Power BI (×2) · PowerPoint (×3 — incl. 365 Pro/Lemmings) · SharePoint · Dynamics 365 BC AL · Azure AI Engineer AI-102"),
         (DARK,    "Employment & Equality Law",          "§34",
          "Equality Act 2010 · Nine protected characteristics · WCAG accessibility legal duty · Reasonable adjustments"),
-        (DARK,    "Electronics · Hardware · IoT",       "§43–49, §54, §57, §89",
-         "MakerSpace · Electronics · Mechatronics · Digital Logic · Devices & Circuits · Arduino/IoT · Embedded Linux · ISO GD&T (Green)"),
+        (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
+         "MakerSpace · Electronics · Mechatronics · Digital Logic · Arduino/IoT · Embedded Linux · ISO GD&T (Green) · CAMSS Materials Selection (NMAB-467)"),
         (EMERALD, "Digital Banking Transformation",      "§82, §83, §85",
          "DBS World's Best Bank (Speculand) · The Autonomous Bank AI/ML (Dhillon) · TMRW Digital Bank Build (Khoo/UOB) · Quick Lookup Decision Index"),
     ],
@@ -822,7 +822,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (90 sections · §90 complaints)"),
+         ("Slide 10", "Reference library (93 sections · 102 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),
