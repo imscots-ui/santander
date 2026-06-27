@@ -94,11 +94,19 @@ def section_header(s, title, subtitle=None):
 
 def advisor_stamp(s):
     R(s, 0, 7.22, 13.33, 0.28, fill=DARK)
-    T(s, "Alan Davidson · Business Banking Advisor · Self-initiated · Completed out of hours in own time · June 2026",
-      0.5, 7.24, 12.33, 0.22, size=8, color=STONE3, align=PP_ALIGN.CENTER)
+    T(s, "INTERNAL · CONFIDENTIAL", 0.5, 7.24, 3.0, 0.22, size=8, bold=True,
+      color=LIGHTRED, align=PP_ALIGN.LEFT)
+    T(s, "Alan Davidson · Business Banking Advisor · Self-initiated · Own time · June 2026",
+      3.5, 7.24, 9.33, 0.22, size=8, color=STONE3, align=PP_ALIGN.RIGHT)
 
 def slide_num(s, n):
     T(s, str(n), 12.9, 7.2, 0.35, 0.25, size=8, color=STONE5, align=PP_ALIGN.RIGHT)
+
+def classification_tag(s, x=10.95, y=0.30):
+    """Small classification chip for cover slides."""
+    R(s, x, y, 1.95, 0.34, fill=RED)
+    T(s, "INTERNAL · CONFIDENTIAL", x, y+0.04, 1.95, 0.26,
+      size=7.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 def tag(s, text, x, y, w=1.8, fill=STONE1, color=STONE7):
     R(s, x, y, w, 0.27, fill=fill, line=STONE3)
@@ -121,6 +129,9 @@ s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=DARK)
 R(s, 0, 0, 13.33, 0.08, fill=RED)
 R(s, 0, 7.42, 13.33, 0.08, fill=RED)
+
+# Classification tag (top-right)
+classification_tag(s)
 
 # Santander flamingo logo mark
 R(s, 0.6, 1.6, 0.55, 0.55, fill=RED)

@@ -96,8 +96,18 @@ def red_bg(s):
 
 def stamp(s, on_dark=False):
     c = STONE3 if on_dark else STONE5
+    # Confidentiality classification (left) — standard for internal bank decks
+    T(s, "INTERNAL · CONFIDENTIAL",
+      0.45, 7.24, 4.0, 0.22, size=7.5, bold=True,
+      color=RED if not on_dark else LIGHTRED, align=PP_ALIGN.LEFT)
     T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  Own time  ·  June 2026",
-      0.45, 7.24, 12.43, 0.22, size=7.5, color=c, align=PP_ALIGN.CENTER, italic=True)
+      4.0, 7.24, 8.88, 0.22, size=7.5, color=c, align=PP_ALIGN.RIGHT, italic=True)
+
+def classification_tag(s, x=10.95, y=0.32):
+    """Small classification chip for cover / section slides."""
+    R(s, x, y, 1.95, 0.34, fill=RED)
+    T(s, "INTERNAL · CONFIDENTIAL", x, y+0.04, 1.95, 0.26,
+      size=7.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 def pg(s, n, on_dark=False):
     T(s, str(n), 12.82, 7.18, 0.38, 0.24, size=8.5,
@@ -162,6 +172,9 @@ def workflow_card(s, name, steps, reg, x, y, w=3.9, h=0.9):
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 dark_bg(s)
+
+# Classification tag (top-right)
+classification_tag(s)
 
 # Red accent bar bottom
 R(s, 0, 6.95, 13.33, 0.55, fill=RED_DARK)

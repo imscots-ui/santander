@@ -77,6 +77,32 @@ def red_bar(slide, top=True):
     add_rect(slide, Inches(0), top_, Inches(13.33), bar_h, RED)
 
 
+LIGHTRED = RGBColor(0xFE, 0xCA, 0xCA)
+STONE3   = RGBColor(0xD6, 0xD3, 0xD1)
+
+def _txt(slide, text, l, t, w, h, size, color, bold=False, align=PP_ALIGN.LEFT, italic=False):
+    tb = add_textbox(slide, Inches(l), Inches(t), Inches(w), Inches(h))
+    tb.text_frame.word_wrap = True
+    p = tb.text_frame.paragraphs[0]; p.alignment = align
+    r = p.add_run(); r.text = text
+    r.font.name = "Calibri"; r.font.size = Pt(size); r.font.bold = bold
+    r.font.italic = italic; r.font.color.rgb = color
+    return tb
+
+def chrome(slide, n, is_cover=False):
+    """Professional footer: classification + credit + slide number. Cover gets a tag."""
+    if is_cover:
+        add_rect(slide, Inches(10.95), Inches(0.30), Inches(1.95), Inches(0.34), RED)
+        _txt(slide, "INTERNAL · CONFIDENTIAL", 10.95, 0.34, 1.95, 0.26,
+             7.5, WHITE, bold=True, align=PP_ALIGN.CENTER)
+        return
+    add_rect(slide, Inches(0), Inches(7.22), Inches(13.33), Inches(0.28), DARK)
+    _txt(slide, "INTERNAL · CONFIDENTIAL", 0.5, 7.24, 3.0, 0.22,
+         8, LIGHTRED, bold=True, align=PP_ALIGN.LEFT)
+    _txt(slide, "Alan Davidson · Business Banking Advisor · Self-initiated · Own time · June 2026",
+         3.5, 7.24, 8.6, 0.22, 8, STONE3, align=PP_ALIGN.RIGHT, italic=True)
+    _txt(slide, str(n), 12.85, 7.24, 0.4, 0.22, 8, STONE3, align=PP_ALIGN.RIGHT)
+
 def bullets_box(slide, bullets, left, top, width, height, size=13):
     tb = add_textbox(slide, left, top, width, height)
     tf = tb.text_frame
@@ -539,7 +565,7 @@ def main():
         ("Slide 12 — Security & Accessibility",   slide_12_security),
     ]
 
-    for label, builder in builders:
+    for idx, (label, builder) in enumerate(builders, start=1):
         try:
             builder(prs)
             print(f"  [OK] {label}")
@@ -547,6 +573,10 @@ def main():
             print(f"  [ERROR] {label}: {exc}")
             import traceback; traceback.print_exc()
             blank_slide(prs)
+
+    # Apply professional chrome to every slide (cover gets a tag instead of footer)
+    for idx, slide in enumerate(prs.slides, start=1):
+        chrome(slide, idx, is_cover=(idx == 1))
 
     prs.save(output_path)
     print(f"\nSaved: {output_path}")

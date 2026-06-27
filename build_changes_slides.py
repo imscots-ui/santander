@@ -157,8 +157,13 @@ def build_slide(prs, slide_num, total_slides, title, session_label,
     # ── Footer bar ────────────────────────────────────────────────────────────
     add_rect(slide, MARGIN_L, FOOTER_TOP, BODY_W, FOOTER_H, FOOTERBG)
     add_textbox(slide, MARGIN_L + 182880, FOOTER_TOP + 45720,
-                TEXT_W, 365760,
+                6400000, 365760,
                 footer_note, 10, color=MUTED)
+    # Classification + credit (right side of footer bar)
+    add_textbox(slide, MARGIN_L + BODY_W - 4500000, FOOTER_TOP + 45720,
+                4318000, 365760,
+                "INTERNAL · CONFIDENTIAL   ·   A. Davidson · June 2026",
+                9, bold=True, color=RED, align=PP_ALIGN.RIGHT)
 
     return slide
 

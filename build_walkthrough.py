@@ -113,6 +113,12 @@ def cover_slide(prs, title, subtitle, date_str):
     # Red accent strip (bottom)
     add_rect(slide, 0, H - Inches(0.12), W, Inches(0.12), fill=RED)
 
+    # Classification tag (top-right)
+    add_rect(slide, Inches(10.95), Inches(0.30), Inches(1.95), Inches(0.34), fill=RED)
+    add_textbox(slide, Inches(10.95), Inches(0.34), Inches(1.95), Inches(0.26),
+                "INTERNAL · CONFIDENTIAL", font_size=7.5, bold=True,
+                color=WHITE, align=PP_ALIGN.CENTER)
+
     # Company wordmark area
     add_textbox(slide, Inches(0.5), Inches(0.5), Inches(5), Inches(0.5),
                 "Santander Business Banking",
@@ -163,6 +169,18 @@ def section_divider(prs, section_label, section_title, section_sub=""):
                     section_sub, font_size=16, color=RGBColor(0xA8,0xA2,0x99))
     return slide
 
+
+LIGHTRED = RGBColor(0xFE, 0xCA, 0xCA)   # light red for dark footer
+STONE3   = RGBColor(0xD6, 0xD3, 0xD1)   # stone-300
+
+def add_confidential_footer(slide):
+    """Dark footer bar: classification (left) + credit (right). Standard for internal bank decks."""
+    add_rect(slide, 0, H - Inches(0.30), W, Inches(0.30), fill=DARK)
+    add_textbox(slide, Inches(0.3), H - Inches(0.275), Inches(4), Inches(0.22),
+                "INTERNAL · CONFIDENTIAL", font_size=8, bold=True, color=LIGHTRED)
+    add_textbox(slide, W - Inches(7.0), H - Inches(0.275), Inches(6.7), Inches(0.22),
+                "Santander Business Banking · Limited Company Walkthrough · June 2026",
+                font_size=8, color=STONE3, align=PP_ALIGN.RIGHT)
 
 def content_slide(prs, section_label, title, bullets, notes=""):
     """
@@ -255,6 +273,7 @@ def content_slide(prs, section_label, title, bullets, notes=""):
     if notes:
         slide.notes_slide.notes_text_frame.text = notes
 
+    add_confidential_footer(slide)
     return slide
 
 
@@ -334,6 +353,7 @@ def two_col_slide(prs, section_label, title, left_bullets, right_bullets, notes=
 
     if notes:
         slide.notes_slide.notes_text_frame.text = notes
+    add_confidential_footer(slide)
     return slide
 
 
