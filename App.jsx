@@ -279,6 +279,18 @@ export default function App() {
   const [complaintDenialReason, setComplaintDenialReason] = useState('');
   const [complaintGoodwill, setComplaintGoodwill] = useState(false);
 
+  // Standing orders / Direct Debits workflow state
+  const [recurringAction, setRecurringAction] = useState(null); // null | 'new-so' | 'cancel-dd'
+  const [soPayee, setSoPayee] = useState('');
+  const [soSortCode, setSoSortCode] = useState('');
+  const [soAcct, setSoAcct] = useState('');
+  const [soAmount, setSoAmount] = useState('');
+  const [soFrequency, setSoFrequency] = useState('monthly'); // 'weekly' | 'monthly' | 'quarterly' | 'annually'
+  const [soStartDate, setSoStartDate] = useState('');
+  const [soReference, setSoReference] = useState('');
+  const [cancelDdId, setCancelDdId] = useState(null);
+  const [recurringConfirm, setRecurringConfirm] = useState(false);
+
   // Load fonts
   useEffect(() => {
     if (document.querySelector('link[data-fonts]')) return;
@@ -848,6 +860,9 @@ export default function App() {
     setComplaintName(''); setComplaintChannel(''); setComplaintCategory('');
     setComplaintEligible(''); setComplaintEscalFlags([]);
     setComplaintDenialReason(''); setComplaintGoodwill(false);
+    setRecurringAction(null); setSoPayee(''); setSoSortCode(''); setSoAcct('');
+    setSoAmount(''); setSoFrequency('monthly'); setSoStartDate(''); setSoReference('');
+    setCancelDdId(null); setRecurringConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -3083,6 +3098,222 @@ export default function App() {
     );
   };
 
+  const renderRecurring = () => {
+    // Active recurring payments on the account (demo data)
+    const directDebits = [
+      { id: 'dd1', name: 'British Gas Business', ref: 'Energy · A/C 8841-220', amount: 340.00, freq: 'Monthly', next: '3 Oct', protected: true },
+      { id: 'dd2', name: 'Sage Accounting', ref: 'Software subscription', amount: 79.00, freq: 'Monthly', next: '12 Oct', protected: true },
+      { id: 'dd3', name: 'Aviva Insurance', ref: 'Commercial cover', amount: 512.40, freq: 'Quarterly', next: '1 Nov', protected: true },
+    ];
+    const standingOrders = [
+      { id: 'so1', name: 'Pendle Estates', ref: 'Office rent', amount: 2400.00, freq: 'Monthly', next: '1 Oct' },
+      { id: 'so2', name: 'NEST Pensions', ref: 'Employer contributions', amount: 1150.00, freq: 'Monthly', next: '28 Sep' },
+    ];
+
+    const a = recurringAction;
+    const stepDefs = [{ id: 'overview', t: 'Recurring payments', s: 'Direct Debits and standing orders' }];
+    if (a === 'new-so') {
+      stepDefs.push({ id: 'payee', t: 'Who are you paying?', s: 'You control standing orders — push, not pull' });
+      stepDefs.push({ id: 'details', t: 'Amount & schedule', s: 'Fixed amount on a fixed date' });
+      stepDefs.push({ id: 'review', t: 'Review & authorise', s: 'Confirm the standing order' });
+    } else if (a === 'cancel-dd') {
+      stepDefs.push({ id: 'choose', t: 'Cancel a Direct Debit', s: 'Select the one to stop' });
+      stepDefs.push({ id: 'confirm', t: 'Direct Debit Guarantee', s: 'Your protection explained' });
+    }
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        if (a === 'new-so') fireToast('Standing order set up. First payment scheduled — confirmation in your audit log.');
+        else if (a === 'cancel-dd') fireToast("Direct Debit cancelled. We'll notify the originator. You're covered by the Guarantee.");
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'overview') return !!a;
+      if (sd.id === 'payee') return soPayee && soSortCode && soAcct;
+      if (sd.id === 'details') return soAmount && soStartDate;
+      if (sd.id === 'choose') return !!cancelDdId;
+      if (sd.id === 'confirm') return recurringConfirm;
+      return true;
+    };
+
+    const freqOpts = [
+      { id: 'weekly', label: 'Weekly' }, { id: 'monthly', label: 'Monthly' },
+      { id: 'quarterly', label: 'Quarterly' }, { id: 'annually', label: 'Annually' },
+    ];
+    const chosenDd = directDebits.find(d => d.id === cancelDdId);
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Authorise' : sd.id === 'confirm' ? 'Cancel Direct Debit' : 'Continue'}
+        replaces={{ form: 'Paper standing-order mandate / DDM cancellation letter', savings: 'Self-serve · instant · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'overview' && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <RefreshCw className="w-4 h-4 text-blue-600" />
+                <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Direct Debits · {directDebits.length}</span>
+              </div>
+              <div className="space-y-2">
+                {directDebits.map(d => (
+                  <div key={d.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-stone-200">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900 truncate">{d.name}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{d.ref} · {d.freq} · next {d.next}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <div className="font-mono text-sm num-tab">{fmt(d.amount)}</div>
+                      <div className="text-[10px] text-blue-600 inline-flex items-center gap-0.5"><ShieldCheck className="w-3 h-3" /> Guaranteed</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-indigo-600" />
+                <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Standing Orders · {standingOrders.length}</span>
+              </div>
+              <div className="space-y-2">
+                {standingOrders.map(o => (
+                  <div key={o.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-stone-200">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900 truncate">{o.name}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{o.ref} · {o.freq} · next {o.next}</div>
+                    </div>
+                    <div className="font-mono text-sm num-tab flex-shrink-0 ml-3">{fmt(o.amount)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="pt-1">
+              <div className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-2">What would you like to do?</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'new-so', label: 'Set up a standing order', desc: 'Pay a fixed amount on a fixed date', icon: Calendar },
+                  { id: 'cancel-dd', label: 'Cancel a Direct Debit', desc: "Stop a payment you're being charged", icon: X },
+                ].map(o => {
+                  const I = o.icon;
+                  return (
+                    <button key={o.id} onClick={() => setRecurringAction(o.id)}
+                      className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${a === o.id ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                      <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><I className="w-4 h-4" /></div>
+                      <div><div className="font-medium text-sm">{o.label}</div><div className="text-xs text-stone-500 mt-0.5">{o.desc}</div></div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'payee' && (
+          <div className="space-y-4">
+            <Field label="Payee name"><Input value={soPayee} onChange={setSoPayee} placeholder="e.g. Pendle Estates" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Sort code"><Input value={soSortCode} onChange={setSoSortCode} placeholder="20-32-71" /></Field>
+              <Field label="Account number"><Input value={soAcct} onChange={setSoAcct} placeholder="12345678" /></Field>
+            </div>
+            <Field label="Reference (optional)"><Input value={soReference} onChange={setSoReference} placeholder="Shown on their statement" /></Field>
+            <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-900 text-xs leading-relaxed flex gap-2">
+              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>We'll run a <strong>Confirmation of Payee</strong> check on the name before the first payment leaves.</span>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'details' && (
+          <div className="space-y-4">
+            <Field label="Amount"><Input value={soAmount} onChange={setSoAmount} placeholder="0.00" /></Field>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Frequency</div>
+              <div className="grid grid-cols-2 gap-2">
+                {freqOpts.map(f => (
+                  <button key={f.id} onClick={() => setSoFrequency(f.id)}
+                    className={`p-3 rounded-xl border text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${soFrequency === f.id ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200'}`}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Field label="First payment date"><Input type="date" value={soStartDate} onChange={setSoStartDate} /></Field>
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              A standing order pays a <strong>fixed amount</strong> you set. You can change or cancel it anytime — no one else can vary it.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Payee', soPayee || '—'],
+                ['Account', soSortCode && soAcct ? `${soSortCode} · ${soAcct}` : '—'],
+                ['Amount', soAmount ? fmt(parseFloat(soAmount) || 0) : '—'],
+                ['Frequency', freqOpts.find(f => f.id === soFrequency)?.label || '—'],
+                ['First payment', soStartDate || '—'],
+                ['Reference', soReference || '—'],
+              ].map(([k, v], i) => (
+                <div key={k} className={`flex justify-between px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-stone-50'}`}>
+                  <span className="text-stone-500">{k}</span><span className="font-medium text-right">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-900 text-white">
+              <div className="flex items-center gap-2 mb-1.5"><FileSignature className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Authorisation</span></div>
+              <div className="text-sm leading-relaxed">I authorise Santander to set up this standing order and make payments as instructed above.</div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'choose' && (
+          <div className="space-y-2">
+            {directDebits.map(d => (
+              <button key={d.id} onClick={() => setCancelDdId(d.id)}
+                className={`w-full text-left p-4 rounded-2xl border flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${cancelDdId === d.id ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{d.name}</div>
+                  <div className="text-[11px] text-stone-500 mt-0.5">{d.ref} · {d.freq} · next {d.next}</div>
+                </div>
+                <div className="font-mono text-sm num-tab flex-shrink-0 ml-3">{fmt(d.amount)}</div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {sd.id === 'confirm' && (
+          <div className="space-y-4">
+            {chosenDd && (
+              <div className="p-4 rounded-2xl bg-white border border-stone-200">
+                <div className="text-xs text-stone-500 mb-0.5">Cancelling</div>
+                <div className="font-medium">{chosenDd.name} · {fmt(chosenDd.amount)} {chosenDd.freq.toLowerCase()}</div>
+              </div>
+            )}
+            <div className="p-4 rounded-2xl bg-blue-50 text-blue-900">
+              <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider font-medium">The Direct Debit Guarantee</span></div>
+              <ul className="text-xs leading-relaxed space-y-1.5 list-disc pl-4">
+                <li>Cancelling here stops Santander taking future payments — we'll also tell the originator, but you should contact them too.</li>
+                <li>If an error is ever made by the originator or the bank, you're entitled to an <strong>immediate refund</strong> from Santander.</li>
+                <li>This won't cancel your contract with the company — any sum still owed remains due.</li>
+              </ul>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={recurringConfirm} onChange={e => setRecurringConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <span className="text-sm text-stone-700">I understand and want to cancel this Direct Debit.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -3417,6 +3648,7 @@ export default function App() {
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
           <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
           <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
+          <ActionTile icon={RefreshCw} title="Standing orders & DDs" desc="View · set up · cancel" onClick={() => { setWorkflow('recurring'); setStep(0); }} />
           <ActionTile icon={Scale} title="Log complaint" desc="DISP · triage · denial · FOS" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
         </div>
       </div>
@@ -5678,6 +5910,7 @@ export default function App() {
                 { id: 'idcheck', label: 'ID register', icon: UserCheck },
                 { id: 'closure', label: 'Close account', icon: Archive },
                 { id: 'dormancy', label: 'Dormant accounts', icon: Pause },
+                { id: 'recurring', label: 'Standing orders & DDs', icon: RefreshCw },
                 { id: 'complaint', label: 'Log complaint', icon: Scale },
               ].map(t => {
                 const I = t.icon;
@@ -5816,6 +6049,7 @@ export default function App() {
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
         {workflow === 'complaint' && renderComplaint()}
+        {workflow === 'recurring' && renderRecurring()}
 
         {showOTP && OTPSheet()}
         {showCompliance && ComplianceSheet()}
@@ -5996,6 +6230,7 @@ export default function App() {
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
       {workflow === 'complaint' && renderComplaint()}
+      {workflow === 'recurring' && renderRecurring()}
 
       {showOTP && OTPSheet()}
       {showCompliance && ComplianceSheet()}
