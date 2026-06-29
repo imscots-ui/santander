@@ -3631,25 +3631,51 @@ export default function App() {
 
       {/* Actions */}
       <div className="px-5 mb-7 anim-fade">
-        <div className="flex items-end justify-between mb-3">
+        <div className="flex items-end justify-between mb-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">No more posting to Sunderland</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Paperless actions</h2>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          <ActionTile icon={Banknote} title="Bulk payments" desc="CSV · BACS, FP, CHAPS" onClick={() => { setWorkflow('wages'); setStep(0); }} highlight />
-          <ActionTile icon={Globe} title="International" desc="FX · SWIFT · SEPA" onClick={() => { setWorkflow('fx'); setStep(0); }} />
-          <ActionTile icon={Users} title={entity.isTreasurer ? "Mandate & members" : "Change mandate"} desc="Add, remove, signing rule" onClick={() => { setWorkflow('mandate'); setStep(0); }} />
-          <ActionTile icon={Briefcase} title={entity.isTreasurer ? "Org details" : "Business details"} desc="Name, address, contact" onClick={() => { setWorkflow('biz'); setStep(0); }} />
-          <ActionTile icon={Camera} title="Scan receipt" desc="Auto-categorise for MTD" onClick={() => setShowReceiptSheet(true)} />
-          <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
-          <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
-          <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
-          <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
-          <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
-          <ActionTile icon={RefreshCw} title="Standing orders & DDs" desc="View · set up · cancel" onClick={() => { setWorkflow('recurring'); setStep(0); }} />
-          <ActionTile icon={Scale} title="Log complaint" desc="DISP · triage · denial · FOS" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
+
+        {/* Payments */}
+        <div className="mb-5">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Payments</div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <ActionTile icon={Banknote} title="Bulk payments" desc="CSV · BACS, FP, CHAPS" onClick={() => { setWorkflow('wages'); setStep(0); }} highlight />
+            <ActionTile icon={Globe} title="International" desc="FX · SWIFT · SEPA" onClick={() => { setWorkflow('fx'); setStep(0); }} />
+            <ActionTile icon={RefreshCw} title="Standing orders & DDs" desc="View · set up · cancel" onClick={() => { setWorkflow('recurring'); setStep(0); }} />
+          </div>
+        </div>
+
+        {/* Business & people */}
+        <div className="mb-5">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Business & people</div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <ActionTile icon={Users} title={entity.isTreasurer ? "Mandate & members" : "Change mandate"} desc="Add, remove, signing rule" onClick={() => { setWorkflow('mandate'); setStep(0); }} />
+            <ActionTile icon={Briefcase} title={entity.isTreasurer ? "Org details" : "Business details"} desc="Name, address, contact" onClick={() => { setWorkflow('biz'); setStep(0); }} />
+            <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
+          </div>
+        </div>
+
+        {/* Tax & expenses */}
+        <div className="mb-5">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Tax & expenses</div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <ActionTile icon={Camera} title="Scan receipt" desc="Auto-categorise for MTD" onClick={() => setShowReceiptSheet(true)} />
+            <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
+            <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
+          </div>
+        </div>
+
+        {/* Accounts & support */}
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Accounts & support</div>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
+            <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
+            <ActionTile icon={Scale} title="Log complaint" desc="DISP · triage · denial · FOS" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
+          </div>
         </div>
       </div>
 
