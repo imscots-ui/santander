@@ -167,7 +167,7 @@ export default function App() {
   // Voice ID biometric authentication
   const [voiceIdEnrolled, setVoiceIdEnrolled] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
-  const [biometricType, setBiometricType] = useState('face-id'); // 'face-id' | 'fingerprint' | 'face-android'
+  const [biometricType, setBiometricType] = useState('pin'); // 'pin' | 'face-id' | 'fingerprint' | 'face-android'
   const [voiceIdTab, setVoiceIdTab] = useState('enrol');
   const [voicePhrasesDone, setVoicePhrasesDone] = useState(new Set());
   const [voiceRecordingPhrase, setVoiceRecordingPhrase] = useState(null);
@@ -195,6 +195,15 @@ export default function App() {
   const [otpResend, setOtpResend] = useState(30);
   const [otpVerifying, setOtpVerifying] = useState(false);
   const otpRefs = useRef([null,null,null,null,null,null]);
+
+  // Sign-with-PIN sheet (personal 4-digit PIN to authorise a signature)
+  const [showSignPin, setShowSignPin] = useState(false);
+  const [signPinDigits, setSignPinDigits] = useState(['','','','']);
+  const [signPinContext, setSignPinContext] = useState('');
+  const [signPinCallback, setSignPinCallback] = useState(null);
+  const [signPinError, setSignPinError] = useState(false);
+  const [signPinVerifying, setSignPinVerifying] = useState(false);
+  const signPinRefs = useRef([null,null,null,null]);
 
   // Accessibility / neurodiversity panel
   const [showA11ySheet, setShowA11ySheet] = useState(false);
@@ -822,7 +831,18 @@ export default function App() {
     setTimeout(() => otpRefs.current[0]?.focus(), 100);
   };
 
+  const triggerSignPin = (context, callback) => {
+    setSignPinDigits(['','','','']);
+    setSignPinError(false);
+    setSignPinVerifying(false);
+    setSignPinContext(context);
+    setSignPinCallback(() => callback);
+    setShowSignPin(true);
+    setTimeout(() => signPinRefs.current[0]?.focus(), 100);
+  };
+
   const BIOMETRIC_OPTIONS = [
+    { id: 'pin',          label: 'Personal PIN',       sub: '4-digit code',    Icon: Lock        },
     { id: 'face-id',      label: 'Face ID',           sub: 'Apple · iOS',     Icon: ScanFace    },
     { id: 'fingerprint',  label: 'Fingerprint',        sub: 'Android · iOS',   Icon: Fingerprint },
     { id: 'face-android', label: 'Face recognition',   sub: 'Android',         Icon: ScanFace    },
@@ -869,6 +889,7 @@ export default function App() {
     setShowSequencer(false); setSequencerOptimised(false);
     setShowVoiceSetup(false); setVoiceIdTab('enrol'); setVoiceRecordingPhrase(null);
     setShowOTP(false); setOtpDigits(['','','','','','']); setOtpCallback(null);
+    setShowSignPin(false); setSignPinDigits(['','','','']); setSignPinCallback(null);
     // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
     // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
   };
@@ -2563,6 +2584,106 @@ export default function App() {
     );
   };
 
+  const SignPinSheet = () => {
+    const filled = signPinDigits.filter(d => d !== '').length;
+    const complete = filled === 4;
+
+    const handleInput = (index, raw) => {
+      const digits = raw.replace(/\D/g, '');
+      if (digits.length > 1) {
+        const spread = digits.slice(0, 4 - index).split('');
+        const next = [...signPinDigits];
+        spread.forEach((d, i) => { next[index + i] = d; });
+        setSignPinDigits(next);
+        setSignPinError(false);
+        const focusIdx = Math.min(index + spread.length, 3);
+        setTimeout(() => signPinRefs.current[focusIdx]?.focus(), 0);
+        return;
+      }
+      const d = digits.slice(-1);
+      const next = [...signPinDigits];
+      next[index] = d;
+      setSignPinDigits(next);
+      setSignPinError(false);
+      if (d && index < 3) setTimeout(() => signPinRefs.current[index + 1]?.focus(), 0);
+    };
+
+    const handleKey = (index, e) => {
+      if (e.key === 'Backspace' && !signPinDigits[index] && index > 0) {
+        const next = [...signPinDigits];
+        next[index - 1] = '';
+        setSignPinDigits(next);
+        setTimeout(() => signPinRefs.current[index - 1]?.focus(), 0);
+      }
+      if (e.key === 'Enter' && complete) verify();
+    };
+
+    const verify = () => {
+      if (!complete || signPinVerifying) return;
+      setSignPinVerifying(true);
+      setTimeout(() => {
+        setSignPinVerifying(false);
+        setShowSignPin(false);
+        signPinCallback?.();
+      }, 800);
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black/60 anim-fade flex items-end justify-center" onClick={() => setShowSignPin(false)}>
+        <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 anim-slide" onClick={e => e.stopPropagation()}>
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
+              <h2 className="font-display-tight text-2xl text-stone-900">Enter your PIN</h2>
+            </div>
+            <button onClick={() => setShowSignPin(false)} className="p-1 text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
+            <Lock className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <span className="text-sm text-stone-600">Your personal 4-digit signing PIN — known only to you</span>
+          </div>
+          <p className="text-[10px] text-stone-400 mb-6 px-1">{signPinContext}</p>
+
+          {/* 4 masked PIN boxes */}
+          <div className="flex gap-2.5 justify-center mb-5">
+            {signPinDigits.map((d, i) => (
+              <input key={i}
+                ref={el => { signPinRefs.current[i] = el; }}
+                type="password" inputMode="numeric" maxLength={4}
+                value={d}
+                onChange={e => handleInput(i, e.target.value)}
+                onKeyDown={e => handleKey(i, e)}
+                onFocus={e => e.target.select()}
+                aria-label={`PIN digit ${i + 1} of 4`}
+                autoComplete="off"
+                className={`w-14 h-16 text-center text-2xl font-bold rounded-2xl border-2 transition-colors focus:outline-none focus-visible:ring-0
+                  ${signPinError
+                    ? 'border-red-400 bg-red-50 text-red-700'
+                    : d
+                    ? 'border-stone-900 bg-stone-50 text-stone-900'
+                    : 'border-stone-200 bg-white text-stone-900'}`}
+              />
+            ))}
+          </div>
+
+          <button onClick={verify} disabled={!complete || signPinVerifying}
+            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-400 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            {signPinVerifying
+              ? <><RefreshCw className="w-4 h-4 animate-spin" /> Confirming…</>
+              : complete ? 'Sign' : `${filled} of 4 digits entered`}
+          </button>
+
+          <div className="text-center mt-4">
+            <span className="text-[11px] text-stone-400 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Never share your PIN. Santander will never ask for it.</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const ComplianceSheet = () => (
     <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={() => setShowCompliance(false)}>
       <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto anim-slide">
@@ -3972,11 +4093,11 @@ export default function App() {
                 <bm.Icon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm">Device biometric</div>
+                <div className="font-medium text-sm">How you sign</div>
                 <div className="text-[11px] text-stone-500">Currently: {bm.label} · {bm.sub}</div>
               </div>
             </div>
-            <div className="bg-stone-100 rounded-2xl p-1.5 grid grid-cols-3 gap-1">
+            <div className="bg-stone-100 rounded-2xl p-1.5 grid grid-cols-2 gap-1">
               {BIOMETRIC_OPTIONS.map(o => (
                 <button key={o.id} onClick={() => setBiometricType(o.id)}
                   className={`py-2.5 px-2 rounded-xl text-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-white shadow-sm border border-stone-200/60 text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}>
@@ -4080,9 +4201,9 @@ export default function App() {
   );
 
   const ApproveScreen = () => {
-    const sign = (id) => triggerOTP(
-      `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`,
-      () => {
+    const sign = (id) => {
+      const context = `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`;
+      const complete = () => {
         const p = pendingApprovals.find(a => a.id === id);
         setApprovalState({ ...approvalState, [id]: 'signed' });
         if (p?.amount) {
@@ -4096,8 +4217,11 @@ export default function App() {
         } else {
           fireToast('Signed. Releasing now.');
         }
-      }
-    );
+      };
+      // Personal PIN if chosen, otherwise device biometric → SCA code
+      if (biometricType === 'pin') triggerSignPin(context, complete);
+      else triggerOTP(context, complete);
+    };
     const reject = (id) => { setApprovalState({ ...approvalState, [id]: 'rejected' }); fireToast("Rejected. We've let them know."); };
     return (
       <div className="pb-24">
@@ -6078,6 +6202,7 @@ export default function App() {
         {workflow === 'recurring' && renderRecurring()}
 
         {showOTP && OTPSheet()}
+        {showSignPin && SignPinSheet()}
         {showCompliance && ComplianceSheet()}
         {showSavings && SavingsSheet()}
         {showRMSheet && RMSheet()}
@@ -6259,6 +6384,7 @@ export default function App() {
       {workflow === 'recurring' && renderRecurring()}
 
       {showOTP && OTPSheet()}
+      {showSignPin && SignPinSheet()}
       {showCompliance && ComplianceSheet()}
       {showSavings && SavingsSheet()}
       {showRMSheet && RMSheet()}
