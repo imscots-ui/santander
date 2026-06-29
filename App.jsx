@@ -300,6 +300,9 @@ export default function App() {
   const [cancelDdId, setCancelDdId] = useState(null);
   const [recurringConfirm, setRecurringConfirm] = useState(false);
 
+  // Home action accordion — which group is expanded (null = all collapsed)
+  const [openActionGroup, setOpenActionGroup] = useState(null);
+
   // Load fonts
   useEffect(() => {
     if (document.querySelector('link[data-fonts]')) return;
@@ -3759,45 +3762,54 @@ export default function App() {
           </div>
         </div>
 
-        {/* Payments */}
-        <div className="mb-5">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Payments</div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-            <ActionTile icon={Banknote} title="Bulk payments" desc="CSV · BACS, FP, CHAPS" onClick={() => { setWorkflow('wages'); setStep(0); }} highlight />
-            <ActionTile icon={Globe} title="International" desc="FX · SWIFT · SEPA" onClick={() => { setWorkflow('fx'); setStep(0); }} />
-            <ActionTile icon={RefreshCw} title="Standing orders & DDs" desc="View · set up · cancel" onClick={() => { setWorkflow('recurring'); setStep(0); }} />
-          </div>
-        </div>
-
-        {/* Business & people */}
-        <div className="mb-5">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Business & people</div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-            <ActionTile icon={Users} title={entity.isTreasurer ? "Mandate & members" : "Change mandate"} desc="Add, remove, signing rule" onClick={() => { setWorkflow('mandate'); setStep(0); }} />
-            <ActionTile icon={Briefcase} title={entity.isTreasurer ? "Org details" : "Business details"} desc="Name, address, contact" onClick={() => { setWorkflow('biz'); setStep(0); }} />
-            <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
-          </div>
-        </div>
-
-        {/* Tax & expenses */}
-        <div className="mb-5">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Tax & expenses</div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-            <ActionTile icon={Camera} title="Scan receipt" desc="Auto-categorise for MTD" onClick={() => setShowReceiptSheet(true)} />
-            <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
-            <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
-          </div>
-        </div>
-
-        {/* Accounts & support */}
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium mb-2">Accounts & support</div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-            <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
-            <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
-            <ActionTile icon={Scale} title="Log complaint" desc="DISP · triage · denial · FOS" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
-          </div>
-        </div>
+        {/* Filofax-style accordion — headers collapsed; tap one to reveal its actions */}
+        {[
+          { id: 'payments', label: 'Payments', icon: Banknote, sub: 'Wages, FX, recurring', tiles: [
+            { icon: Banknote, title: 'Bulk payments', desc: 'CSV · BACS, FP, CHAPS', onClick: () => { setWorkflow('wages'); setStep(0); }, highlight: true },
+            { icon: Globe, title: 'International', desc: 'FX · SWIFT · SEPA', onClick: () => { setWorkflow('fx'); setStep(0); } },
+            { icon: RefreshCw, title: 'Standing orders & DDs', desc: 'View · set up · cancel', onClick: () => { setWorkflow('recurring'); setStep(0); } },
+          ] },
+          { id: 'business', label: 'Business & people', icon: Users, sub: 'Mandate, details, ID', tiles: [
+            { icon: Users, title: entity.isTreasurer ? 'Mandate & members' : 'Change mandate', desc: 'Add, remove, signing rule', onClick: () => { setWorkflow('mandate'); setStep(0); } },
+            { icon: Briefcase, title: entity.isTreasurer ? 'Org details' : 'Business details', desc: 'Name, address, contact', onClick: () => { setWorkflow('biz'); setStep(0); } },
+            { icon: UserCheck, title: 'ID register', desc: 'Lists 1, 2 & 3', onClick: () => setWorkflow('idcheck') },
+          ] },
+          { id: 'tax', label: 'Tax & expenses', icon: Receipt, sub: 'MTD, receipts, cash flow', tiles: [
+            { icon: Camera, title: 'Scan receipt', desc: 'Auto-categorise for MTD', onClick: () => setShowReceiptSheet(true) },
+            { icon: Mic, title: 'Voice memo', desc: 'Speak → expense auto-tagged', onClick: () => setShowVoiceMemo(true) },
+            { icon: Wand2, title: 'Optimise payments', desc: '30-day sequencer', onClick: () => setShowSequencer(true) },
+          ] },
+          { id: 'accounts', label: 'Accounts & support', icon: Archive, sub: 'Dormancy, closure, complaints', badge: '1', tiles: [
+            { icon: Pause, title: 'Dormant accounts', desc: 'Reactivate or close', onClick: () => setWorkflow('dormancy'), badge: '1' },
+            { icon: Archive, title: 'Close account', desc: 'Form ANB9 0370', onClick: () => { setWorkflow('closure'); setStep(0); } },
+            { icon: Scale, title: 'Log complaint', desc: 'DISP · triage · denial · FOS', onClick: () => { setWorkflow('complaint'); setStep(0); } },
+          ] },
+        ].map(g => {
+          const open = openActionGroup === g.id;
+          const GI = g.icon;
+          return (
+            <div key={g.id} className="mb-2.5">
+              <button onClick={() => setOpenActionGroup(open ? null : g.id)}
+                aria-expanded={open}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${open ? 'border-stone-900' : 'border-stone-200 hover:border-stone-300'}`}>
+                <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${open ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                  <GI className="w-4 h-4" />
+                  {g.badge && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#c8102e] text-white text-[9px] font-bold flex items-center justify-center">{g.badge}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-stone-900">{g.label}</div>
+                  <div className="text-[11px] text-stone-500">{open ? `${g.tiles.length} actions` : g.sub}</div>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-stone-400 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+              </button>
+              {open && (
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 mt-2.5 mb-1 anim-fade">
+                  {g.tiles.map(t => <ActionTile key={t.title} icon={t.icon} title={t.title} desc={t.desc} onClick={t.onClick} highlight={t.highlight} badge={t.badge} />)}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Accounts */}
