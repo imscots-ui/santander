@@ -25,6 +25,19 @@ You are a rated member of HMS 1701's AI agent crew. Read your orders, know your 
 
 A front-end-only React prototype of a Santander Business Banking app. No backend, no real data, no API calls (except Google Fonts). Built to demo paperless workflows — mandate changes, bulk payments (wages), KYC/KYB, MTD HMRC, account closures, lending, FX payments, account unlinking, and ring-fencing — for internal presentations and customer research.
 
+## Two projects co-located in this repo
+
+This repository physically contains **two separate, unrelated projects** under one "HMS 1701" theme. Do not wire them together — they share the folder, not the runtime.
+
+1. **Santander Business Banking prototype** *(the primary project these orders govern)* — `App.jsx`, `main.jsx`, `index.html`, `vite.config.js`, the `build_*.py` deck/doc generators, and the `Santander_*.pptx` / `.docx` deliverables. Front-end only; this is what `npm run build` ships and what deploys to Vercel/GitHub Pages.
+2. **1701 Squadron Uniform Inventory System** *(a separate app that lives alongside)* — `1701-uniform/backend/` is its own **Python FastAPI / SQLAlchemy** backend (routers: `stock`, `items`, `badges`, `cadets`, `kit_list`, `transactions`, `auth`, `audit`, `users`, `dashboard`; `models`, `schemas`, `database`, `demo.db`). The Santander prototype does **not** use this backend in any way.
+
+**Shared between them:** `1701-uniform/REFERENCE.md` (titled *"Technical Reference — 1701 Uniform Inventory"*) and `1701-uniform/SHIP-COMPANY.md` serve as the common **reference library / ship's doctrine** for both projects. The reference library originated with the inventory system; book/reference sections added over time apply to the whole "ship", not to Santander specifically.
+
+**Not in this comparison:** the *Super Agent Builder* website-build meta-agent (its `frontend-builder` / `ui-designer` / `site-architect` subagents) is a different project entirely and shares **nothing** with this repo. The only agents here are the ship's-company review officers (`/xo`, `/security`, `/engineer`, `/bosun`, `/signals`, `/ship-ready`).
+
+> **Note:** `1701-uniform/backend/` is not currently tracked in git (only build artefacts like `.pyc`/`demo.db` are present locally). It is not committed or deployed by anything in the Santander pipeline.
+
 ## Commands
 
 ```bash
