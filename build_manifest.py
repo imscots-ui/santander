@@ -639,13 +639,13 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "23,812 lines · 111 sections · 120 books & regulatory documents · §100–111 UX, Node.js, TypeScript, C++, financial crime")
+               "23,846 lines · 112 sections · 121 books & regulatory documents · §100–112 UX, Node.js, TypeScript, C++, financial crime & ML detection")
 
 # ── Stats banner ──────────────────────────────────────────────────────────────
 for i4, (val, lbl) in enumerate([
-    ("23,812", "lines"),
-    ("111",    "sections"),
-    ("120",    "books & docs"),
+    ("23,846", "lines"),
+    ("112",    "sections"),
+    ("121",    "books & docs"),
     ("70+",    "quick answers"),
 ]):
     bx4 = 0.42 + i4 * 3.22
@@ -662,8 +662,8 @@ domains = [
          "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
         (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
          "PSD2 · FPS/BACS/CHAPS/SWIFT · PSR · FCA Consumer Duty · AML · Ring-Fencing · SCA · BCOBS · FCA Compliance · UK Resolution · Post-Trade"),
-        (RED,     "Prudential · Conduct · Financial Crime", "§36–40, §87–88, §97, §107–108",
-         "PRA/PRC · Basel 3.1 · Resolution · MREL · Senior Managers Regime (Berman) · Financial Shenanigans (Schilit) · Fraud Act 2006 / Corporate Misconduct (Monaghan)"),
+        (RED,     "Prudential · Conduct · Financial Crime", "§36–40, §87–88, §97, §107–108, §112",
+         "PRA/PRC · Resolution · MREL · Senior Managers Regime (Berman) · Financial Shenanigans (Schilit) · Fraud Act (Monaghan) · ML Fraud Detection (Ma & Wu)"),
         (RED,     "Data Protection",                    "§75, §77",
          "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
     ],
@@ -833,7 +833,7 @@ decks = [
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (111 sections · 120 books)"),
+         ("Slide 10", "Reference library (112 sections · 121 books)"),
          ("Slide 11", "Deployment & build"),
          ("Slide 12", "Presentation deliverables"),
          ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),

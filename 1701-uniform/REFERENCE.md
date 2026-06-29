@@ -23810,3 +23810,37 @@ Investing in UX up front reduces costly later redevelopment (fixing the seven fa
 The prototype embodies this: accessibility is a *standing order* not an afterthought (the 7th honeycomb factor, §99); UX/Security/Performance are the same three legs the app balances; and the "customer research" purpose is the iceberg's hidden mass — research, IA, and usability beneath the visible UI. The MVP/word-of-mouth outcome is the business case the pitch deck argues.
 
 ---
+
+## Section 112 — Financial Fraud Detection Using Machine Learning — Xiyuan Ma & Desheng Wu (Springer, 2025)
+
+The AI/ML detection counterpart to §107 (Financial Shenanigans — *what* to look for) and §108 (Fraud Act — *the law*). Where those cover the gimmicks and the offences, this covers *how modern systems detect them* — directly relevant to the prototype's fraud, supplier-risk, and AML instincts, and to the AI-domain sections (§20, §23–25, §83).
+
+### 112.1 The Field at a Glance (bibliometric findings)
+Built from a bibliometric study (CiteSpace + VOSviewer) of ~5,100 international + ~460 Chinese papers (2000–2025). Financial-fraud research is dominated by the **US and China** (~49% of output; US leads on citations/impact). Publication volume rose sharply after the **Enron scandal (2001)** and continues climbing (peak 707 articles in 2024). Research clusters into three perspectives: **audit practice, legal regulation, and corporate governance**.
+
+### 112.2 The Detection Arc — Statistics → AI
+- **1992 — AUDITCHECK**: early "neural network" microcomputer system checking consistency between income-statement and balance-sheet accounts.
+- **1995 — Benford's Law** applied to accounting data (first-digit distribution anomalies); **ANN** for audit-signal pattern recognition.
+- **1996–97** — qualitative-response models (probit/logit), Expert Systems + Neural Networks for audit-risk assessment.
+- **2010s–2020s** — modern ML: **neural networks, random forests, XGBoost**, plus **attention mechanisms and LSTM**; text mining of **MD&A** sections and even **financial social-media data**; LLMs and multi-source heterogeneous datasets at the frontier.
+
+### 112.3 The Fraud Theories (the "why")
+Fraud arises from a mix of **motivation/pressure**, **rationalisation/excuse**, and **opportunity**. Classic frameworks build on this:
+- **Fraud Triangle** — pressure + opportunity + rationalisation.
+- **GONE** — Greed, Opportunity, Need, Exposure.
+- **Diamond** (adds Capability), **Pentagon** (adds Arrogance/Competence), **Hexagon** (adds Collusion).
+
+### 112.4 Five Research Categories
+1. **Detection methods** — from auditor judgement/professional skepticism → data-driven anomaly detection (ML/DL, blockchain, real-time systems, feature extraction).
+2. **Concept & origins** — defining fraud (no single authoritative definition), white-collar crime, materiality, the theories above.
+3. **Fraud & corporate governance** — ownership structure, board independence, executive compensation, internal-control quality as predictors; effects on reputation, stock price, financing cost.
+4. **Victimisation** — fraud targeting vulnerable groups (e.g. the elderly) — relevant to APP-fraud and Consumer Duty.
+5. **Audit/legal** — enforcement actions, securities litigation, restatements.
+
+### 112.5 Foundational References Worth Knowing
+Dechow et al. (predicting material accounting misstatements; detecting earnings management); Beasley (board composition vs fraud); Dyck et al. (who blows the whistle); Karpoff et al. (the cost to firms of cooking the books); Bao et al. 2020 (ML fraud prediction for US public companies, *J. Accounting Research*).
+
+### 112.6 Application to This Project
+This is the engine behind a real version of the prototype's risk features: the **supplier-risk radar** (anomaly detection on filing/financial signals), **APP-fraud** scoring (PSR PS23/3, §86), and transaction-monitoring/**AML**. The progression — rules/judgement → statistical models → ML/DL with text and alternative data — is exactly the Phase-2 path for turning the app's static RAG badges into live, learned fraud scores. Pairs with §91 (system design) for the serving architecture and §107–108 for the domain/legal grounding.
+
+---
