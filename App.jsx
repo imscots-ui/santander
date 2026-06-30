@@ -3008,10 +3008,12 @@ export default function App() {
                 </div>
                 <div className="font-medium text-[13px] text-stone-900 leading-tight">{s.name}</div>
                 <div className="text-[10px] text-stone-500 mt-0.5">{s.role}</div>
-                <div className="mt-2 flex items-center justify-between">
+                <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between">
                   <span className="text-[9px] text-stone-400">{LAST_ACTIVE[i]}</span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${s.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {s.status === 'verified' ? 'KYC ✓' : 'Review'}
+                  <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.1em] font-semibold"
+                    style={{ color: s.status === 'verified' ? '#059669' : '#d97706' }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.status === 'verified' ? '#059669' : '#d97706' }} />
+                    {s.status === 'verified' ? 'KYC verified' : 'Review'}
                   </span>
                 </div>
               </div>
@@ -5064,17 +5066,17 @@ export default function App() {
               <p className="text-sm text-stone-500 mt-0.5">30 days · {sorted.length} payments · {fmt(totalScheduled)}</p>
             </div>
             <button onClick={() => setSequencerOptimised(o => !o)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${sequencerOptimised ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
-              {sequencerOptimised ? '✓ Optimised' : 'Optimise'}
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border inline-flex items-center gap-1.5 ${sequencerOptimised ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+              {sequencerOptimised && <Check className="w-3.5 h-3.5" />}{sequencerOptimised ? 'Optimised' : 'Optimise'}
             </button>
           </div>
           <div className="mb-4">
             <svg viewBox="0 0 310 56" className="w-full" style={{ height: 56 }}>
               {dailyBal.map((b, i) => {
                 const h = Math.max(2, (b / maxBal) * 48);
-                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#f59e0b' : '#c8102e'} opacity="0.75" />;
+                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#d97706' : '#c8102e'} opacity="0.78" />;
               })}
-              <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#ef4444" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
+              <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#dc2626" strokeWidth="1" strokeDasharray="4 3" opacity="0.55" />
             </svg>
             <div className="flex justify-between text-[9px] text-stone-400 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
           </div>
