@@ -2918,37 +2918,66 @@ export default function App() {
     );
   };
 
-  const SupplierRadar = () => (
-    <div className="px-5 mb-7 anim-fade">
-      <div className="flex items-end justify-between mb-3">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Companies House · live</div>
-          <h2 className="font-display-tight text-2xl text-stone-900">Supplier risk radar</h2>
+  const SupplierRadar = () => {
+    const totalSpend = SUPPLIER_RISK.reduce((s, x) => s + x.spend, 0);
+    const cnt = { red: 0, amber: 0, green: 0 };
+    SUPPLIER_RISK.forEach(s => { cnt[s.risk]++; });
+    const meta = {
+      red:   { c: '#dc2626', label: 'Critical' },
+      amber: { c: '#d97706', label: 'Watch'    },
+      green: { c: '#059669', label: 'Current'  },
+    };
+    return (
+      <div className="px-5 mb-7 anim-fade">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Companies House · live</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">Supplier risk radar</h2>
+          </div>
+          {cnt.red > 0 && (
+            <span className="text-[10px] uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mb-1">{cnt.red} critical</span>
+          )}
         </div>
-        {SUPPLIER_RISK.some(s => s.risk === 'red') && (
-          <span className="text-[10px] uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mb-1">1 critical</span>
-        )}
-      </div>
-      <div className="space-y-2">
-        {SUPPLIER_RISK.map(s => (
-          <div key={s.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border lift-1 ${s.risk === 'red' ? 'border-red-200 bg-red-50/30' : s.risk === 'amber' ? 'border-amber-200 bg-amber-50/20' : 'bg-white border-stone-200/80'}`}>
-            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${s.risk === 'red' ? 'bg-red-500' : s.risk === 'amber' ? 'bg-amber-400' : 'bg-emerald-500'}`} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
-              <div className="text-[10px] text-stone-400 mt-0.5">
-                CH {s.reg} · Filed {s.lastFiled}{s.daysOverdue > 0 ? ` · ⚠ ${s.daysOverdue}d overdue` : ''}
-              </div>
+        <div className="bg-white rounded-2xl border border-stone-200/80 lift-1 overflow-hidden">
+          {/* Summary strip */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium mb-0.5">Monitored spend</div>
+              <div className="font-mono num-tab text-sm text-stone-900">{fmt(totalSpend)}<span className="text-stone-400 text-[11px] font-sans"> / yr · {SUPPLIER_RISK.length} suppliers</span></div>
             </div>
-            <div className="text-right flex-shrink-0">
-              <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
-              <div className="text-[9px] text-stone-400">annual spend</div>
+            <div className="flex items-center gap-3">
+              {['green', 'amber', 'red'].map(r => cnt[r] > 0 && (
+                <span key={r} className="inline-flex items-center gap-1.5 text-[11px] text-stone-500">
+                  <span className="w-2 h-2 rounded-full" style={{ background: meta[r].c }} />{cnt[r]} {meta[r].label.toLowerCase()}
+                </span>
+              ))}
             </div>
           </div>
-        ))}
+          {/* Rows */}
+          {SUPPLIER_RISK.map((s, i) => {
+            const m = meta[s.risk];
+            return (
+              <div key={s.id} className={`flex items-center gap-3.5 px-5 py-3.5 ${i !== SUPPLIER_RISK.length - 1 ? 'border-b border-stone-100' : ''}`}>
+                <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: m.c }} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
+                  <div className="text-[10px] text-stone-400 mt-0.5">
+                    CH {s.reg} · Filed {s.lastFiled}
+                    {s.daysOverdue > 0 && <span className="font-medium" style={{ color: m.c }}> · {s.daysOverdue} days overdue</span>}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
+                  <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mt-0.5" style={{ color: m.c }}>{m.label}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[10px] text-stone-400 mt-2 px-1">Companies House API · refreshed daily · red = filing &gt;180 days overdue</p>
       </div>
-      <p className="text-[10px] text-stone-400 mt-2 px-1">Data sourced from Companies House API · refreshed daily</p>
-    </div>
-  );
+    );
+  };
 
   const DirectorCentre = () => {
     const LAST_ACTIVE = ['Today, 09:14', 'Today, 08:31', '2 days ago', 'Today, 07:55'];
