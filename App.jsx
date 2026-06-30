@@ -750,7 +750,7 @@ export default function App() {
     return {
       total,
       grade: total >= 80 ? 'A' : total >= 65 ? 'B' : total >= 50 ? 'C' : 'D',
-      colour: total >= 80 ? '#22c55e' : total >= 65 ? '#f59e0b' : '#ef4444',
+      colour: total >= 80 ? '#059669' : total >= 65 ? '#d97706' : '#dc2626',
       factors: [
         { label: 'Liquidity',      score: liqScore,  max: 20, desc: totalBal >= 400000 ? 'Strong reserves'          : 'Below target' },
         { label: 'Tax compliance', score: mtdScore,  max: 20, desc: overdueObs === 0    ? 'All submissions on time'  : `${overdueObs} overdue` },
