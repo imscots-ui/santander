@@ -151,7 +151,7 @@ ML(s, [
 ], 0.6, 4.85, 7, 1.0, size=11, color=STONE3, leading=6)
 
 # Stat boxes
-stats = [("21", "Features"), ("12", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
+stats = [("21", "Features"), ("13", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
 for i, (num, lbl) in enumerate(stats):
     bx = 8.2 + i * 1.28
     R(s, bx, 4.6, 1.15, 1.1, fill=RGBColor(0x2C, 0x27, 0x24))
@@ -174,7 +174,7 @@ T(s, "WHAT WAS BUILT", 0.5, 1.15, 5.5, 0.28, size=9, bold=True, color=RED)
 ML(s, [
     "App.jsx — ~5,300 lines · ~300KB source · Single React component",
     "5 main screens accessible from the bottom nav / sidebar",
-    "12 step-based workflow wizards covering every key banking operation",
+    "13 step-based workflow wizards covering every key banking operation",
     "5 sheet overlays for quick-access tasks (notifications, receipts, PIN, open banking, voice)",
     "7 entity types — every compliance path forks by entity",
     "21 features across dashboard intelligence, paperless workflows, security, and compliance",
@@ -311,7 +311,7 @@ slide_num(s, 3)
 # ═══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
-section_header(s, "Twelve Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
+section_header(s, "Thirteen Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
 
 workflows = [
     ("Account Closure",
@@ -346,24 +346,27 @@ workflows = [
      "£45,000 offer with live monthly repayment calculator (12/24/36 months) → CCA 1974 terms and 14-day cooling-off rights → biometric confirm and draw-down. lendingCompleted state persists."),
     ("International FX Payment",
      "3 steps",
-     "Amount + currency + IBAN + beneficiary → live rate + FCA fee disclosure (Consumer Rights Act 2015) → biometric confirm. 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref to audit trail."),
+     "Amount + currency + IBAN + beneficiary → live rate + FCA fee disclosure → biometric confirm. 5 currencies (EUR/USD/CHF/AUD/CAD). MLR 2017 screening flag ≥£50k. SWIFT ref to audit trail."),
+    ("Standing Orders & Direct Debits",
+     "up to 3 steps",
+     "Overview of active DDs (Guarantee-protected) and standing orders → set up a standing order (payee + CoP, amount, frequency, start date) or cancel a Direct Debit under the Direct Debit Guarantee."),
     ("Complaint Handling",
      "4 steps",
-     "Intake → escalation triage → denial → case outcome. FCA DISP-compliant. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen Log complaint tile."),
+     "Intake → escalation triage → denial → case outcome. FCA DISP-compliant. Eligible-complainant check (DISP 2.7), escalation flags, denial reason, optional goodwill. From the Log complaint tile."),
 ]
 
-pw = 3.9
+pw = 2.95
 ph = 1.38
 for i, (name, steps, desc) in enumerate(workflows):
-    col = i % 3
-    row = i // 3
-    x = 0.42 + col * (pw + 0.19)
+    col = i % 4
+    row = i // 4
+    x = 0.42 + col * (pw + 0.18)
     y = 1.12 + row * (ph + 0.16)
     R(s, x, y, pw, ph, fill=WHITE, line=STONE2)
     R(s, x, y, 0.055, ph, fill=RED)
-    T(s, name, x+0.18, y+0.1, pw-0.28, 0.28, size=9.5, bold=True, color=DARK)
-    T(s, steps, x+0.18, y+0.36, 1.2, 0.2, size=7.5, bold=True, color=RED)
-    ML(s, [desc], x+0.18, y+0.55, pw-0.3, 0.78, size=8, color=STONE5, leading=3)
+    T(s, name, x+0.16, y+0.1, pw-0.24, 0.4, size=9, bold=True, color=DARK)
+    T(s, steps, x+0.16, y+0.46, pw-0.24, 0.2, size=7, bold=True, color=RED)
+    ML(s, [desc], x+0.16, y+0.66, pw-0.28, 0.66, size=7, color=STONE5, leading=2)
 
 advisor_stamp(s)
 slide_num(s, 4)
@@ -827,7 +830,7 @@ decks = [
          ("Slide 1",  "Cover"),
          ("Slide 2",  "Project overview — stats, tech stack, deployment"),
          ("Slide 3",  "Five screens"),
-         ("Slide 4",  "Twelve workflows"),
+         ("Slide 4",  "Thirteen workflows"),
          ("Slide 5",  "Entity types & mandate rules"),
          ("Slide 6",  "Security & compliance — part 1"),
          ("Slide 7",  "Security & compliance — part 2"),

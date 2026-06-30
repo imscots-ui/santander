@@ -20,12 +20,12 @@
 | Screen | Key Features |
 |--------|-------------|
 | Home Dashboard | Balance hero card, business health score gauge, session anomaly alert, supplier risk radar, director command centre, 13-week forecast, cards, pending approvals, cooling-off progress bars, MTD VAT alert, RM card (Priya Desai), accounts list with mandate badges, Voice ID security, demo controls |
-| Signature Queue | Dual-authorisation — sign with Face ID or reject pending mandates/closures/payments, status display per item |
+| Signature Queue | Dual-authorisation — sign with a personal PIN (or Face ID / Fingerprint) or reject pending mandates/closures/payments, status display per item |
 | Financial Statements | 6 months transactions, chronological + category views, counterparty search, detail sheets, PDF/CSV/Excel export, method filter |
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (12 step-based wizards · 5 sheet overlays)
+### Workflows (13 step-based wizards · 5 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -40,6 +40,7 @@
 | Credit Ring-Fence | Risk overview + legal basis → Declaration | Formal instruction: personal account data excluded from business credit decisioning. GDPR Art.5(1)(c) purpose limitation. Persistent state — survives workflow close |
 | Pre-approved Business Lending | Offer/term selector → Terms & cooling-off rights → Confirm & draw down | CCA 1974 regulated. 3 term options 12/24/36 months with live monthly repayment calculator. lendingCompleted persists |
 | International FX Payment | Amount + currency + IBAN + beneficiary → Rate & FCA fee disclosure → Confirm & sign | 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref logged to audit trail |
+| Standing Orders & Direct Debits | Overview → set up standing order (payee + CoP, amount, frequency, start) **or** cancel a Direct Debit | Distinguishes customer-pushed standing orders from originator-pulled DDs. Direct Debit Guarantee notice on cancellation. Triggers from Home "Standing orders & DDs" tile |
 | Complaint Handling | Intake → Escalation triage → Denial → Case outcome | FCA DISP-compliant 4-step flow. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen "Log complaint" tile |
 
 ### Entity Types (7 — all compliance paths diverge)
@@ -269,7 +270,7 @@ Contents:
 | 1 | Cover — title, author, prototype link, 4 headline stats |
 | 2 | Project overview — tech stack, deployment, live link |
 | 3 | Five screens — detailed feature breakdown per tab |
-| 4 | Eleven workflows — step counts, logic, regulatory basis |
+| 4 | Thirteen workflows — step counts, logic, regulatory basis |
 | 5 | Entity types — 7 types × mandate rules × compliance divergence |
 | 6 | Security & compliance part 1 — features 1–10 with regulation |
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
