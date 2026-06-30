@@ -2875,26 +2875,42 @@ export default function App() {
           </span>
         </div>
         <div className="bg-white rounded-2xl border border-stone-200/80 p-5 lift-1">
-          <div className="flex items-center gap-5">
-            <svg width="100" height="100" viewBox="0 0 120 120" className="flex-shrink-0">
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#f5f5f4" strokeWidth="10" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke={healthScore.colour} strokeWidth="10"
-                strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
-              <text x="60" y="55" textAnchor="middle" fontSize="26" fontWeight="700" fill={healthScore.colour}>{healthScore.total}</text>
-              <text x="60" y="71" textAnchor="middle" fontSize="11" fill="#a8a29e">out of 100</text>
-            </svg>
-            <div className="flex-1 space-y-2.5">
-              {healthScore.factors.map(f => (
-                <div key={f.label}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[11px] text-stone-600">{f.label}</span>
-                    <span className="text-[11px] font-medium" style={{ color: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }}>{f.score}/{f.max}</span>
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            {/* Overall gauge */}
+            <div className="flex items-center gap-4 sm:flex-col sm:gap-2 flex-shrink-0 sm:w-32 sm:pr-6 sm:border-r sm:border-stone-100">
+              <svg width="104" height="104" viewBox="0 0 120 120" className="flex-shrink-0">
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#f1f0ee" strokeWidth="8" />
+                <circle cx="60" cy="60" r="46" fill="none" stroke={healthScore.colour} strokeWidth="8"
+                  strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
+                <text x="60" y="56" textAnchor="middle" fontSize="30" fontWeight="700" fill="#1c1917" className="num-tab">{healthScore.total}</text>
+                <text x="60" y="74" textAnchor="middle" fontSize="10" letterSpacing="1" fill="#a8a29e">/ 100</text>
+              </svg>
+              <div className="sm:text-center">
+                <div className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Overall</div>
+                <div className="text-sm font-medium" style={{ color: healthScore.colour }}>Grade {healthScore.grade}</div>
+              </div>
+            </div>
+            {/* Factor breakdown — KPI grid */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-7 gap-y-4 w-full">
+              {healthScore.factors.map(f => {
+                const c = f.score >= 16 ? '#059669' : f.score >= 10 ? '#d97706' : '#dc2626';
+                const status = f.score >= 16 ? 'Strong' : f.score >= 10 ? 'Watch' : 'Action';
+                return (
+                  <div key={f.label}>
+                    <div className="flex items-baseline justify-between mb-1.5">
+                      <span className="text-[12px] font-medium text-stone-700">{f.label}</span>
+                      <span className="text-[11px] font-mono num-tab text-stone-500">{f.score}<span className="text-stone-300">/{f.max}</span></span>
+                    </div>
+                    <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${(f.score / f.max) * 100}%`, background: c }} />
+                    </div>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[10px] text-stone-400 truncate pr-2">{f.desc}</span>
+                      <span className="text-[9px] uppercase tracking-[0.12em] font-semibold flex-shrink-0" style={{ color: c }}>{status}</span>
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${(f.score / f.max) * 100}%`, background: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
