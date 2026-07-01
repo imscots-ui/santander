@@ -13,9 +13,15 @@ _Prepared July 2026 · Alan Davidson._
 PSD2/SCA-RTS, PSR 2017, MLR 2017, FCA DISP/BCOBS/SYSC, Consumer Duty, CoP, Direct Debit Guarantee, CCA 1974,
 UK GDPR, HMRC MTD, WCAG.
 
-**Why it matters:** the reports currently cite these from my own knowledge. I'm confident, but for a document
-that reaches risk & compliance, **a wrong SI number or clause reference is worse than none.** I can't verify a
-statute against a primary source I don't have.
+**Status (updated):** the citations are now marked **high-confidence (knowledge-verified)** in `CITATIONS.md`
+and are suitable for internal drafts. Only two carry a residual flag: the **Data Use and Access Act 2025
+commencement dates** (ref 15) and the **exact wording/scope of the ICO vetting guidance** (ref 17). The primary
+sources you pointed to (`legislation.gov.uk`, `ico.org.uk`, `gov.uk`) are **blocked by this session's egress
+policy**, so I could not machine-verify against them.
+
+**Why it still matters:** for a document that reaches risk & compliance, **a wrong SI number or clause reference
+is worse than none.** Knowledge-verified is fine internally; source-verified is what you'd want before anything
+external or formal.
 
 **What it unlocks:** precise, defensible citations in every report and deck; the ability to remove the
 "pending verification" caveat in `CITATIONS.md`; and confidence to take a document beyond internal draft.
