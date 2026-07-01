@@ -314,6 +314,17 @@ export default function App() {
   const [disputeEvidenceUp, setDisputeEvidenceUp] = useState(false);
   const [disputeConfirm, setDisputeConfirm] = useState(false);
 
+  // International beneficiary onboarding (add + screen a cross-border payee)
+  const [benName, setBenName] = useState('');
+  const [benCountry, setBenCountry] = useState(null); // ISO code from COUNTRIES list
+  const [benBank, setBenBank] = useState('');
+  const [benAccount, setBenAccount] = useState('');   // IBAN / account number
+  const [benSwift, setBenSwift] = useState('');        // SWIFT / BIC
+  const [benAddress, setBenAddress] = useState('');
+  const [benPurpose, setBenPurpose] = useState(null);  // purpose-of-payment code
+  const [benScreened, setBenScreened] = useState(false); // sanctions/PEP/CoP screening run
+  const [benConfirm, setBenConfirm] = useState(false);
+
   // Home action accordion — which group is expanded (null = all collapsed)
   const [openActionGroup, setOpenActionGroup] = useState(null);
 
@@ -913,6 +924,8 @@ export default function App() {
     setCancelDdId(null); setRecurringConfirm(false);
     setDisputeTxnId(null); setDisputeReason(null); setDisputeMerchantTried(false);
     setDisputeDetail(''); setDisputeEvidenceUp(false); setDisputeConfirm(false);
+    setBenName(''); setBenCountry(null); setBenBank(''); setBenAccount(''); setBenSwift('');
+    setBenAddress(''); setBenPurpose(null); setBenScreened(false); setBenConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -3672,6 +3685,173 @@ export default function App() {
     );
   };
 
+  const renderBeneficiary = () => {
+    const COUNTRIES = [
+      { code: 'FR', name: 'France',        ccy: 'EUR', scheme: 'iban' },
+      { code: 'DE', name: 'Germany',       ccy: 'EUR', scheme: 'iban' },
+      { code: 'ES', name: 'Spain',         ccy: 'EUR', scheme: 'iban' },
+      { code: 'US', name: 'United States', ccy: 'USD', scheme: 'aba'  },
+      { code: 'CH', name: 'Switzerland',   ccy: 'CHF', scheme: 'iban' },
+      { code: 'IN', name: 'India',         ccy: 'INR', scheme: 'ifsc' },
+    ];
+    const PURPOSES = ['Goods / trade', 'Professional services', 'Intercompany transfer', 'Salary / payroll', 'Property purchase', 'Other'];
+    const country = COUNTRIES.find(c => c.code === benCountry) || null;
+    const accountLabel = !country ? 'IBAN / account number'
+      : country.scheme === 'iban' ? 'IBAN'
+      : country.scheme === 'ifsc' ? 'Account number (+ IFSC)'
+      : 'Account number (+ ABA routing)';
+    const checks = [
+      { label: 'Sanctions lists', sub: 'OFSI · OFAC · UN · EU consolidated', result: 'Clear' },
+      { label: 'PEP screening', sub: 'Politically exposed persons', result: 'Clear' },
+      { label: 'Adverse media', sub: 'Financial-crime press check', result: 'Clear' },
+      { label: 'Confirmation of Payee', sub: 'Account-name match', result: 'Matched' },
+    ];
+
+    const stepDefs = [
+      { id: 'who', t: 'Who are you paying?', s: 'Add an overseas beneficiary' },
+      { id: 'account', t: 'Their account', s: 'Where the money will go' },
+      { id: 'screen', t: 'Purpose & screening', s: 'Required checks before the first payment' },
+      { id: 'review', t: 'Review & add', s: 'Confirm the beneficiary' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(`${benName || 'Beneficiary'} added and screened — ready for international payments · logged to audit trail`);
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'who') return benName && benCountry && benBank;
+      if (sd.id === 'account') return benAccount && benSwift && benAddress;
+      if (sd.id === 'screen') return benPurpose && benScreened;
+      if (sd.id === 'review') return benConfirm;
+      return true;
+    };
+
+    // Editing any identity detail invalidates a prior screening pass —
+    // the checks must match exactly what gets added (sanctions/CoP integrity).
+    const withRescreen = (setter) => (v) => { setter(v); if (benScreened) setBenScreened(false); };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Add beneficiary' : 'Continue'}
+        replaces={{ form: 'Faxed IBAN + wet-ink beneficiary verification', savings: 'Screened & verified in-app · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'who' && (
+          <div className="space-y-4">
+            <Field label="Beneficiary name"><Input value={benName} onChange={withRescreen(setBenName)} placeholder="Exact name on their account" /></Field>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Country</div>
+              <div className="grid grid-cols-3 gap-2">
+                {COUNTRIES.map(c => (
+                  <button key={c.code} onClick={() => { setBenCountry(c.code); if (benScreened) setBenScreened(false); }}
+                    className={`p-3 rounded-xl border text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benCountry === c.code ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                    <div className="text-sm font-medium text-stone-900">{c.code}</div>
+                    <div className="text-[10px] text-stone-500 mt-0.5">{c.name}</div>
+                  </button>
+                ))}
+              </div>
+              {country && <div className="text-[11px] text-stone-500 mt-2">Payments to {country.name} settle in <strong className="text-stone-700">{country.ccy}</strong>.</div>}
+            </div>
+            <Field label="Bank name"><Input value={benBank} onChange={withRescreen(setBenBank)} placeholder="e.g. BNP Paribas" /></Field>
+          </div>
+        )}
+
+        {sd.id === 'account' && (
+          <div className="space-y-4">
+            <Field label={accountLabel}><Input value={benAccount} onChange={withRescreen(setBenAccount)} placeholder={country && country.scheme === 'iban' ? 'FR76 3000 6000 0112 3456 7890 189' : 'Account number'} /></Field>
+            <Field label="SWIFT / BIC"><Input value={benSwift} onChange={withRescreen(setBenSwift)} placeholder="BNPAFRPPXXX" /></Field>
+            <Field label="Beneficiary address"><Input value={benAddress} onChange={withRescreen(setBenAddress)} placeholder="Street, city, country" /></Field>
+            <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-900 text-xs leading-relaxed flex gap-2">
+              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Under the <strong>Funds Transfer Regulation</strong> we send the beneficiary’s name and address with the payment. Match them exactly to the account to avoid delays.</span>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'screen' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Purpose of payment</div>
+              <div className="grid grid-cols-2 gap-2">
+                {PURPOSES.map(p => (
+                  <button key={p} onClick={() => setBenPurpose(p)}
+                    className={`p-3 rounded-xl border text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose === p ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200 text-stone-700'}`}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {!benScreened ? (
+              <div className="p-4 rounded-2xl border border-stone-200 bg-white space-y-3">
+                <div className="flex gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-[12px] text-stone-600 leading-relaxed">
+                    We screen every new overseas payee against sanctions and PEP lists (<strong>Money Laundering Regulations 2017</strong>) and verify the account name. Required before your first payment.
+                  </div>
+                </div>
+                <button onClick={() => setBenScreened(true)} disabled={!benPurpose}
+                  className={`w-full py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-400 cursor-default'}`}>
+                  <Search className="w-4 h-4" /> Run screening checks
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <CircleCheck className="w-4 h-4 text-emerald-600" />
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 font-medium">Screening complete · no matches</span>
+                </div>
+                {checks.map(c => (
+                  <div key={c.label} className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900">{c.label}</div>
+                      <div className="text-[11px] text-stone-500">{c.sub}</div>
+                    </div>
+                    <span className="text-[11px] font-medium text-emerald-700 inline-flex items-center gap-1 flex-shrink-0 ml-3"><Check className="w-3.5 h-3.5" /> {c.result}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Beneficiary', benName || '—'],
+                ['Country', country ? `${country.name} · ${country.ccy}` : '—'],
+                ['Bank', benBank || '—'],
+                [accountLabel, benAccount || '—'],
+                ['SWIFT / BIC', benSwift || '—'],
+                ['Purpose', benPurpose || '—'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0 gap-3">
+                  <span className="text-xs text-stone-500 flex-shrink-0">{k}</span>
+                  <span className={`text-sm font-medium text-stone-900 text-right truncate ${k === accountLabel || k === 'SWIFT / BIC' ? 'font-mono num-tab' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Sanctions, PEP and Confirmation-of-Payee checks all passed. This beneficiary will be ready to pay as soon as you add them.</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={benConfirm} onChange={e => setBenConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <span className="text-sm text-stone-700">I confirm these details are correct and this is a genuine beneficiary.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -4001,6 +4181,7 @@ export default function App() {
           { id: 'payments', label: 'Payments', icon: Banknote, sub: 'Wages, FX, recurring', tiles: [
             { icon: Banknote, title: 'Bulk payments', desc: 'CSV · BACS, FP, CHAPS', onClick: () => { setWorkflow('wages'); setStep(0); }, highlight: true },
             { icon: Globe, title: 'International', desc: 'FX · SWIFT · SEPA', onClick: () => { setWorkflow('fx'); setStep(0); } },
+            { icon: UserPlus, title: 'Add intl. beneficiary', desc: 'Screen & verify an overseas payee', onClick: () => { setWorkflow('beneficiary'); setStep(0); } },
             { icon: RefreshCw, title: 'Standing orders & DDs', desc: 'View · set up · cancel', onClick: () => { setWorkflow('recurring'); setStep(0); } },
           ] },
           { id: 'business', label: 'Business & people', icon: Users, sub: 'Mandate, details, ID', tiles: [
@@ -6583,6 +6764,7 @@ export default function App() {
         {workflow === 'complaint' && renderComplaint()}
         {workflow === 'recurring' && renderRecurring()}
         {workflow === 'dispute' && renderDispute()}
+        {workflow === 'beneficiary' && renderBeneficiary()}
 
         {showOTP && OTPSheet()}
         {showSignPin && SignPinSheet()}
@@ -6767,6 +6949,7 @@ export default function App() {
       {workflow === 'complaint' && renderComplaint()}
       {workflow === 'recurring' && renderRecurring()}
       {workflow === 'dispute' && renderDispute()}
+      {workflow === 'beneficiary' && renderBeneficiary()}
 
       {showOTP && OTPSheet()}
       {showSignPin && SignPinSheet()}
