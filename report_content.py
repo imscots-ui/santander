@@ -26,7 +26,10 @@ FOOTER_NOTE = ("Concept prototype — front-end only. No backend, no live system
 # ── Shared reference list (cited by [n] in both documents) ──────────────────
 REFERENCES = [
     (1,  "FCA, A New Consumer Duty — Policy Statement PS22/9 (July 2022); FCA Principle 12 and PRIN 2A."),
-    (2,  "The Payment Services Regulations 2017 (SI 2017/752), transposing Directive (EU) 2015/2366 (PSD2)."),
+    (2,  "The Payment Services Regulations 2017 (SI 2017/752), transposing Directive (EU) 2015/2366 (PSD2); "
+         "main provisions in force from 13 January 2018 and the secure-communication / SCA provisions from "
+         "14 September 2019. Now within the repeal-and-replace programme under the Financial Services and "
+         "Markets Act 2023."),
     (3,  "Commission Delegated Regulation (EU) 2018/389 — Regulatory Technical Standards for Strong Customer "
          "Authentication and common and secure open standards of communication (SCA-RTS)."),
     (4,  "Pay.UK — Confirmation of Payee (CoP) scheme rules."),

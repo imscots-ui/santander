@@ -13,11 +13,11 @@ designed around. It is the citation source for the Technical Report and Position
 | # | Instrument / standard | Used for | Confidence |
 |---|-----------------------|----------|------------|
 | 1 | FCA, *A New Consumer Duty* — Policy Statement **PS22/9** (July 2022); Principle 12 / PRIN 2A | Fair-outcome framing | ✓ High |
-| 2 | **The Payment Services Regulations 2017 (SI 2017/752)**, transposing Directive (EU) 2015/2366 (PSD2) | Payments regime, SCA basis | ✓ High |
+| 2 | **The Payment Services Regulations 2017 (SI 2017/752)**, transposing Directive (EU) 2015/2366 (PSD2) | Payments regime, SCA basis | ✅ **Source-verified** — legislation.gov.uk/uksi/2017/752 (title, SI no.; commencement 13 Jan 2018, SCA provisions 14 Sep 2019; being revoked/replaced under FSMA 2023, SI 2023/1382) |
 | 3 | **Commission Delegated Regulation (EU) 2018/389** — SCA-RTS | Strong Customer Authentication, step-up | ✓ High |
 | 4 | Pay.UK — **Confirmation of Payee (CoP)** scheme rules | Payee-name verification | ✓ High |
 | 5 | Bacs — **the Direct Debit Guarantee** | Immediate refund route for DD disputes | ✓ High |
-| 6 | Payment Services Regulations 2017, **regs 76–77** (unauthorised / incorrectly executed transactions) | Dispute / chargeback refund basis | ✓ High |
+| 6 | Payment Services Regulations 2017, **regs 76–77** (unauthorised / incorrectly executed transactions) | Dispute / chargeback refund basis | ✓ High (instrument source-verified — same SI as ref 2; specific reg-number check still worthwhile) |
 | 7 | PSR — **Faster Payments APP scams mandatory reimbursement** (in force 7 Oct 2024) | Cancel window / reimbursement framing | ✓ High |
 | 8 | **The Money Laundering, Terrorist Financing and Transfer of Funds (Information on the Payer) Regulations 2017 (SI 2017/692)** | Sanctions / PEP / adverse-media screening | ✓ High |
 | 9 | **Regulation (EU) 2015/847** (Funds Transfer Regulation), retained in UK law | Payer/payee information on transfers | ✓ High |
