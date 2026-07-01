@@ -15,7 +15,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
 # ── Palette ───────────────────────────────────────────────────────────────────
-RED    = RGBColor(0xC8, 0x10, 0x2E)
+RED    = RGBColor(0xDA, 0x29, 0x1C)
 DARK   = RGBColor(0x1C, 0x19, 0x17)
 DARK2  = RGBColor(0x29, 0x24, 0x20)
 WARM   = RGBColor(0xFA, 0xF6, 0xEF)

@@ -14,7 +14,7 @@ from pptx.util import Inches, Pt
 import copy
 
 # ── Brand colours ──────────────────────────────────────────────────────────────
-RED       = RGBColor(0xC8, 0x10, 0x2E)   # Santander red
+RED       = RGBColor(0xDA, 0x29, 0x1C)   # Santander red
 DARK      = RGBColor(0x1C, 0x19, 0x17)   # stone-900
 WARM_BG   = RGBColor(0xFA, 0xF6, 0xEF)   # warm off-white
 WHITE     = RGBColor(0xFF, 0xFF, 0xFF)
@@ -140,7 +140,7 @@ def cover_slide(prs, title, subtitle, date_str):
 
     # Subtitle
     add_textbox(slide, Inches(0.5), Inches(4.2), Inches(9), Inches(0.6),
-                subtitle, font_size=18, color=RGBColor(0xC8,0x10,0x2E), bold=True)
+                subtitle, font_size=18, color=RGBColor(0xDA, 0x29, 0x1C), bold=True)
 
     # Date
     add_textbox(slide, Inches(0.5), Inches(4.95), Inches(6), Inches(0.4),
@@ -161,7 +161,7 @@ def section_divider(prs, section_label, section_title, section_sub=""):
     add_rect(slide, Inches(0.18), H - Inches(0.12), W, Inches(0.12), fill=RED)
 
     add_textbox(slide, Inches(0.5), Inches(2.2), Inches(12), Inches(0.5),
-                section_label, font_size=11, color=RGBColor(0xC8,0x10,0x2E), bold=True)
+                section_label, font_size=11, color=RGBColor(0xDA, 0x29, 0x1C), bold=True)
     add_textbox(slide, Inches(0.5), Inches(2.8), Inches(11), Inches(1.4),
                 section_title, font_size=40, bold=True, color=WHITE)
     if section_sub:
@@ -601,7 +601,7 @@ content_slide(prs,
         "    signature — they're below.'",
         "",
         "##Total Balance hero card",
-        "  — Dark (stone-900 #1c1917) rounded card with a Santander red (#c8102e) glowing",
+        "  — Dark (stone-900 #1c1917) rounded card with a Santander red (#DA291C) glowing",
         "    orb in the top-right corner and a subtle grain texture overlay.",
         "  — Displays: 'Total balance' label, entity name, account count, sort code.",
         "  — Total across all accounts for the current entity. For a limited company:",

@@ -13,7 +13,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
-RED    = RGBColor(0xC8, 0x10, 0x2E)
+RED    = RGBColor(0xDA, 0x29, 0x1C)
 DARK   = RGBColor(0x1C, 0x19, 0x17)
 DARK2  = RGBColor(0x29, 0x24, 0x20)
 WARM   = RGBColor(0xFA, 0xF6, 0xEF)
@@ -487,7 +487,7 @@ def s12_design():
     rule_line(slide, t=1.15)
     # Colour swatches
     swatches = [
-        ("#C8102E", "Brand Red\nCTAs · Active states\nTop bar · Alerts", RED),
+        ("#DA291C", "Brand Red\nCTAs · Active states\nTop bar · Alerts", RED),
         ("#1C1917", "Stone-900\nPrimary text\nDark cards · Filled buttons", DARK),
         ("#FAF6EF", "Warm Off-White\nPage background\nCard backgrounds", RGBColor(0x78, 0x71, 0x6C)),
         ("#D97706", "Amber-600\nCooling-off · Warnings\nPayroll nudge cards", AMBER),

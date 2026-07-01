@@ -3,10 +3,10 @@ build_changes_slides.py
 Appends slides 12-15 (Session 2 — 23 June 2026) to Santander_June2026_Changes.pptx.
 
 Style mirrors the existing deck:
-  - Red thin stripe across top (#C8102E)
+  - Red thin stripe across top (#DA291C)
   - Warm off-white content area (#FAF6EF)
   - Title in dark charcoal 1A1A1A, 26 pt bold
-  - Section labels in #C8102E, 14 pt bold
+  - Section labels in #DA291C, 14 pt bold
   - Body bullets in 1A1A1A, 12 pt
   - Footer strip in #F5F0E8 with muted code/location note
   - Slide number + eyebrow in top-right / top-left
@@ -23,7 +23,7 @@ from pptx.oxml.ns import qn
 import copy
 
 # ── Palette ──────────────────────────────────────────────────────────────────
-RED      = RGBColor(0xC8, 0x10, 0x2E)
+RED      = RGBColor(0xDA, 0x29, 0x1C)
 WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
 OFFWHITE = RGBColor(0xFA, 0xF6, 0xEF)
 DARK     = RGBColor(0x1A, 0x1A, 0x1A)
@@ -276,7 +276,7 @@ SLIDES = [
                 "heading": "Before",
                 "bullets": [
                     "▪  Header read 'One last chance to stop' — alarming, adversarial framing",
-                    "▪  Cancel button used brand red (#C8102E) — visually screamed danger for a routine cancel",
+                    "▪  Cancel button used brand red (#DA291C) — visually screamed danger for a routine cancel",
                     "▪  Countdown ring radius r=42 with no unit label beneath the seconds number",
                     "▪  HMRC warning was verbose and lacked visual containment",
                 ]

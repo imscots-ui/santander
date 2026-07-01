@@ -982,7 +982,7 @@ export default function App() {
     .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
     .num-tab { font-feature-settings: 'tnum', 'lnum'; }
 
-    .red-bar { background: linear-gradient(90deg, #DA291C 0%, #ec0000 50%, #DA291C 100%); }
+    .red-bar { background: linear-gradient(90deg, #DA291C 0%, #DA291C 50%, #DA291C 100%); }
 
     /* Page background — layered cream with subtle radial warmth */
     .page-bg {
@@ -1018,7 +1018,7 @@ export default function App() {
 
     /* Santander red surfaces — proper brand identity */
     .santander-red {
-      background: linear-gradient(155deg, #ec0000 0%, #DA291C 60%, #a30c25 100%);
+      background: linear-gradient(155deg, #DA291C 0%, #DA291C 60%, #a30c25 100%);
     }
     .santander-red-dark {
       background:
@@ -1026,7 +1026,7 @@ export default function App() {
         linear-gradient(155deg, #DA291C 0%, #9a0c22 60%, #6e0918 100%);
     }
     .red-accent-bar {
-      background: linear-gradient(180deg, #ec0000, #DA291C);
+      background: linear-gradient(180deg, #DA291C, #DA291C);
     }
 
     /* Fluid number sizing — never overflows */
