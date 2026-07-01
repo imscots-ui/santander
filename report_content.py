@@ -43,8 +43,11 @@ REFERENCES = [
          "the Senior Managers and Certification Regime (SM&CR)."),
     (13, "Consumer Credit Act 1974."),
     (14, "HMRC — Making Tax Digital for VAT."),
-    (15, "UK GDPR and the Data Protection Act 2018, Article 5(1)(c) — data minimisation and purpose limitation."),
+    (15, "UK GDPR and the Data Protection Act 2018 (as amended by the Data Use and Access Act 2025), "
+         "Article 5(1)(c) — data minimisation and purpose limitation."),
     (16, "W3C — Web Content Accessibility Guidelines (WCAG) 2.1, Level AA."),
+    (17, "ICO — guidance on the pre-employment vetting of candidates: necessity, proportionality and data "
+         "minimisation when verifying individuals (relevant to the signatory ID register)."),
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -174,7 +177,7 @@ TECH_BODY = [
         ['Dormant reactivation', 'Branch reactivation of a dormant account', 'Dormancy handling'],
         ['Personal / business unlink', 'Manual separation of personal data from a relationship', 'UK GDPR [15]'],
         ['Credit ring-fence', 'Excludes personal data from business credit decisioning', 'UK GDPR Art. 5(1)(c) [15]'],
-        ['Signatory ID register', 'Paper KYC/KYB across identity and address evidence', 'MLR 2017 [8]'],
+        ['Signatory ID register', 'Paper KYC/KYB across identity and address evidence', 'MLR 2017 [8]; ICO [17]'],
         ['MTD VAT submission', 'Manual VAT return; categorise, review, submit', 'HMRC MTD [14]'],
         ['Complaint handling', 'Paper complaint; intake, triage, decision, FOS route', 'FCA DISP [10]'],
         ['Standing orders & DDs', 'Paper mandate / cancellation letter', 'Direct Debit Guarantee [5]'],

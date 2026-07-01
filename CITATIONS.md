@@ -25,8 +25,19 @@ designed around. Used as the citation source for the Technical Report and Positi
 | 12 | FCA Handbook — **SYSC 9** (record-keeping); **SM&CR** | Audit trail; accountability | Sourcebook cite |
 | 13 | **Consumer Credit Act 1974** | Lending offer, cooling-off rights | Section refs if used |
 | 14 | HMRC — **Making Tax Digital for VAT** | Digital VAT return submission | Current guidance |
-| 15 | **UK GDPR** & **Data Protection Act 2018**, Art. 5(1)(c) | Data separation, ring-fence, purpose limitation | Article cite |
+| 15 | **UK GDPR** & **Data Protection Act 2018**, *as amended by the* **Data Use and Access Act 2025**, Art. 5(1)(c) | Data separation, ring-fence, purpose limitation | DUAA commencement dates/phases (guidance was policy-blocked) |
 | 16 | W3C — **WCAG 2.1, Level AA** | Accessibility conformance target | Version (2.1 vs 2.2) |
+| 17 | **ICO** — guidance on pre-employment vetting of candidates | Signatory ID register: necessity, proportionality, minimisation when verifying a person | ICO page was policy-blocked — confirm exact wording/scope |
+
+### Sources the Captain has pointed to (currently blocked by egress policy — see INPUTS_NEEDED.md route A)
+- `legislation.gov.uk` — primary/secondary legislation (authoritative for SI numbers/titles).
+- `nationalarchives.gov.uk` — records citation guidance.
+- `ico.org.uk` — UK GDPR guidance (incl. pre-employment vetting → ref 17).
+- `gov.uk` — incl. Data Use and Access Act 2025 commencement guidance (→ ref 15).
+- `data.gov.uk` — UK open data.
+
+Once these domains are on the session allow-list (or the content is pasted), verify refs 15 and 17 in full
+and tick the Verify column.
 
 ## How to use
 - Cite in `report_content.py` with `[n]` markers; the References block renders this list.
