@@ -356,7 +356,10 @@ export default function App() {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.dataset.fonts = '1';
-    link.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
+    // Santander Text (the brand font, © Banco Santander) is not loaded here — it is
+    // named in the font stack and renders on managed devices that have it installed;
+    // Geist is the open-licensed fallback for everywhere else.
+    link.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
     document.head.appendChild(link);
   }, []);
 
@@ -972,9 +975,10 @@ export default function App() {
 
   // === STYLES ===
   const css = `
-    .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-variation-settings: 'opsz' 144; letter-spacing: -0.025em; }
-    .font-display-tight { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-variation-settings: 'opsz' 144; letter-spacing: -0.04em; }
-    .font-body { font-family: 'Geist', system-ui, sans-serif; }
+    /* Brand typography: Santander Text (humanist sans, © Banco Santander) named for managed devices; Geist fallback. */
+    .font-display { font-family: 'Santander Headline', 'Santander Text', 'Geist', system-ui, sans-serif; letter-spacing: -0.02em; }
+    .font-display-tight { font-family: 'Santander Headline', 'Santander Text', 'Geist', system-ui, sans-serif; letter-spacing: -0.03em; }
+    .font-body { font-family: 'Santander Text', 'Geist', system-ui, sans-serif; }
     .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
     .num-tab { font-feature-settings: 'tnum', 'lnum'; }
 
@@ -7004,7 +7008,7 @@ export default function App() {
 
   if (viewMode === 'desktop') {
     return (
-      <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
+      <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Santander Text', 'Geist', system-ui, sans-serif" }}>
         <style>{css}</style>
 
         <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
@@ -7255,7 +7259,7 @@ export default function App() {
 
   // Mobile shell (default)
   return (
-    <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
+    <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Santander Text', 'Geist', system-ui, sans-serif" }}>
       <style>{css}</style>
 
       <header className="sticky top-0 z-30 bg-[#faf6ef]/85 backdrop-blur-xl border-b border-stone-200/60">

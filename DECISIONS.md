@@ -71,7 +71,14 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
 - Spacing scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.
-- Fonts: Fraunces (display) + Geist (body/mono) as **stand-ins** for the real licensed brand fonts.
+- **Typeface: Santander Text** — the official corporate font (humanist sans-serif, © 2018 Banco Santander,
+  proprietary/all rights reserved). Applied via **named font-family only** (`'Santander Text','Geist',…`) so it
+  renders on Santander-managed devices where it's installed; **Geist** is the open-licensed fallback. **Never
+  hotlink** third-party mirrors (wfonts / onlinewebfonts) or commit the font file — proprietary. The serif
+  Fraunces is **retired** (Santander is a sans-serif brand). NB: a commercial *display serif* also named
+  "Santander" (Made Good Designs) is an unrelated name-coincidence — do not use it.
+  Reports: docx names Santander Text (Word substitutes if absent); PDF stays Helvetica (reportlab can't embed
+  the proprietary font without the licensed file).
 - `num-tab` on all monetary figures; one primary CTA per view; never `text-gray-*`/`text-zinc-*`.
 
 ## Build & quality pipeline

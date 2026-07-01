@@ -25,7 +25,7 @@ def _border(cell, edges, color=HAIR, sz='6'):
         x.set(qn('w:space'), '0'); x.set(qn('w:color'), color); tcB.append(x)
     tcPr.append(tcB)
 
-def _left_accent(cell, color='C8102E', sz='24'):
+def _left_accent(cell, color='DA291C', sz='24'):
     tcPr = cell._tc.get_or_add_tcPr(); tcB = OxmlElement('w:tcBorders')
     x = OxmlElement('w:left'); x.set(qn('w:val'), 'single'); x.set(qn('w:sz'), sz)
     x.set(qn('w:space'), '0'); x.set(qn('w:color'), color); tcB.append(x); tcPr.append(tcB)
@@ -45,7 +45,7 @@ def build(meta, body, out):
     sec.left_margin = Inches(0.9); sec.right_margin = Inches(0.9)
     sec.different_first_page_header_footer = True  # cover clean
 
-    st = doc.styles['Normal']; st.font.name = 'Calibri'; st.font.size = Pt(10.5)
+    st = doc.styles['Normal']; st.font.name = 'Santander Text'; st.font.size = Pt(10.5)
     st.font.color.rgb = INK; st.paragraph_format.space_after = Pt(6); st.paragraph_format.line_spacing = 1.22
 
     # Running header (title left, classification right)
@@ -71,7 +71,7 @@ def build(meta, body, out):
         if align is not None: p.alignment = align
         return p
 
-    def run(p, text, size=10.5, bold=False, color=INK, italic=False, name='Calibri'):
+    def run(p, text, size=10.5, bold=False, color=INK, italic=False, name='Santander Text'):
         r = p.add_run(text); r.font.size = Pt(size); r.font.bold = bold; r.font.italic = italic
         r.font.color.rgb = color; r.font.name = name; return r
 
