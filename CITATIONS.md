@@ -4,11 +4,12 @@ A curated, greppable list of the regulatory instruments and standards the protot
 designed around. It is the citation source for the Technical Report and Position Paper
 (`report_content.py` `[n]` markers map to this list).
 
-> **Status (July 2026).** Primary-source sites (`legislation.gov.uk`, `ico.org.uk`, `gov.uk`) are blocked by
-> this session's egress policy, so these could not be machine-verified against the source. They are instead
-> **verified from model knowledge at high confidence and are suitable for internal drafts.** Two items carry a
-> residual flag where a specific detail genuinely needs the source (marked ⚠ below). To promote everything to
-> fully source-verified, add those domains to the environment allow-list, or paste the relevant text.
+> **Status (July 2026).** The primary-source sites (`legislation.gov.uk`, `ico.org.uk`, `gov.uk`) are blocked by
+> this session's egress policy, so I can't fetch them directly. Where the Captain has **supplied the source
+> material** (PSRs 2017, the DUAA implementation tracker, and the ICO recruitment/vetting draft guidance), the
+> corresponding citations are marked **✅ source-verified** below. The remainder are **verified from model
+> knowledge at high confidence** and are suitable for internal drafts; supply or allow-list their sources to
+> promote them to source-verified. No items carry an unresolved flag.
 
 | # | Instrument / standard | Used for | Confidence |
 |---|-----------------------|----------|------------|
@@ -28,7 +29,7 @@ designed around. It is the citation source for the Technical Report and Position
 | 14 | HMRC — **Making Tax Digital for VAT** | Digital VAT return submission | ✓ High |
 | 15 | **UK GDPR** & **Data Protection Act 2018**, *as amended by the* **Data (Use and Access) Act 2025**, Art. 5(1)(c) | Data separation, ring-fence, purpose limitation | ✅ **Source-verified** (DUAA implementation tracker, 27 Apr 2026): Royal Assent 19 Jun 2025; Part 5 reforms in force 5 Feb 2026; s.103 complaints duty 19 Jun 2026; ICO → Information Commission by summer 2026 |
 | 16 | W3C — **WCAG 2.1, Level AA** | Accessibility conformance target | ✓ High (note: WCAG 2.2 also exists; 2.1 AA is the stated target) |
-| 17 | **ICO** — guidance on pre-employment vetting of candidates | Signatory ID register: necessity, proportionality, minimisation | ⚠ Gist High; **exact wording/scope** needs the source (blocked) |
+| 17 | **ICO, Employment practices and data protection: recruitment and selection** — incl. the pre-employment vetting chapter (**draft**; consultation closed, final pending) | Signatory ID register / KYC: necessity, proportionality, minimisation, transparency; DPIA for criminal-offence data; DBS/AccessNI/Disclosure Scotland | ✅ **Source-verified** (full draft text supplied) — cite explicitly as *draft* until the final version publishes |
 
 ## How to use
 - Cite in `report_content.py` with `[n]` markers; the References block renders this list.

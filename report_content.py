@@ -51,8 +51,11 @@ REFERENCES = [
          "a data-subject complaints-handling duty under s.103 from 19 June 2026; the regulator is being "
          "reconstituted as the Information Commission). Article 5(1)(c) — data minimisation and purpose limitation."),
     (16, "W3C — Web Content Accessibility Guidelines (WCAG) 2.1, Level AA."),
-    (17, "ICO — guidance on the pre-employment vetting of candidates: necessity, proportionality and data "
-         "minimisation when verifying individuals (relevant to the signatory ID register)."),
+    (17, "ICO, Employment practices and data protection: recruitment and selection (draft guidance; "
+         "consultation closed, final version pending) — including the chapter on pre-employment vetting of "
+         "candidates: vetting must be necessary, proportionate and data-minimising, with transparency to the "
+         "individual and a DPIA where criminal-offence data is involved (relevant to the signatory ID register / "
+         "KYC verification)."),
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════
