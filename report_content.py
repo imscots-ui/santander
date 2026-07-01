@@ -47,9 +47,10 @@ REFERENCES = [
     (13, "Consumer Credit Act 1974."),
     (14, "HMRC — Making Tax Digital for VAT."),
     (15, "UK GDPR and the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025 "
-         "(Royal Assent 19 June 2025; principal data-protection reforms in Part 5 in force from 5 February 2026; "
-         "a data-subject complaints-handling duty under s.103 from 19 June 2026; the regulator is being "
-         "reconstituted as the Information Commission). Article 5(1)(c) — data minimisation and purpose limitation."),
+         "(Royal Assent 19 June 2025). Per the ICO/DSIT, the data-protection and PECR provisions are now in "
+         "force — the principal Part 5 reforms from 5 February 2026 and the data-subject complaints-handling duty "
+         "(s.103) from 19 June 2026 — and the regulator is being reconstituted as the Information Commission. "
+         "Article 5(1)(c) — data minimisation and purpose limitation."),
     (16, "W3C — Web Content Accessibility Guidelines (WCAG) 2.1, Level AA."),
     (17, "ICO, Employment practices and data protection: recruitment and selection (draft guidance; "
          "consultation closed, final version pending) — including the chapter on pre-employment vetting of "
@@ -215,9 +216,10 @@ TECH_BODY = [
     ], [42, 96, 20]),
     ('p',
      "The data-protection references reflect the UK regime as reshaped by the Data (Use and Access) Act 2025, "
-     "whose principal reforms took effect on 5 February 2026; a data-subject complaints-handling duty follows on "
-     "19 June 2026 [15]. A production build would need to track that transition — including the regulator's "
-     "reconstitution as the Information Commission — as configurable policy rather than fixed assumptions."),
+     "whose data-protection and PECR provisions are now in force — the principal Part 5 reforms from 5 February "
+     "2026 and the data-subject complaints-handling duty from 19 June 2026 [15]. A production build would need to "
+     "reflect that settled position — including the regulator's reconstitution as the Information Commission — as "
+     "configurable policy rather than fixed assumptions."),
 
     ('eyebrow', 'Section 7'), ('h1', '7', 'Engineering and quality approach'),
     ('p',
