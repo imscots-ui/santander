@@ -1,0 +1,81 @@
+# INPUTS NEEDED — What Would Make the Work Materially Better
+
+A short report of inputs only you can supply. Each entry says **what**, **why it matters**, **what it
+unlocks**, and **the smallest useful version** (so none of these is all-or-nothing). Ranked by impact.
+
+_Prepared July 2026 · Alan Davidson._
+
+---
+
+## 1. Vetted regulatory source material  ·  impact: HIGH
+
+**What:** the actual regulatory texts (or an approved citation list) for the instruments in `CITATIONS.md` —
+PSD2/SCA-RTS, PSR 2017, MLR 2017, FCA DISP/BCOBS/SYSC, Consumer Duty, CoP, Direct Debit Guarantee, CCA 1974,
+UK GDPR, HMRC MTD, WCAG.
+
+**Why it matters:** the reports currently cite these from my own knowledge. I'm confident, but for a document
+that reaches risk & compliance, **a wrong SI number or clause reference is worse than none.** I can't verify a
+statute against a primary source I don't have.
+
+**What it unlocks:** precise, defensible citations in every report and deck; the ability to remove the
+"pending verification" caveat in `CITATIONS.md`; and confidence to take a document beyond internal draft.
+
+**Smallest useful version:** even a one-page approved list of "cite these exactly like this" for the top six
+instruments (PSD2/SCA, PSR 2017, MLR 2017, DISP, Consumer Duty, WCAG) covers ~90% of what the reports lean on.
+
+---
+
+## 2. Brand kit  ·  impact: HIGH (presentation)
+
+**What:** the real Santander assets — logo files (SVG/PNG), the exact brand hex palette, the licensed brand
+fonts, and any existing report/deck template or house style.
+
+**Why it matters:** everything is currently an *approximation* — brand red `#c8102e`, `#faf6ef` background, and
+Fraunces/Geist as stand-ins for the real typefaces. It reads as on-brand, but it isn't the brand.
+
+**What it unlocks:** decks and reports that are genuinely on-brand rather than a faithful imitation — the
+difference between "looks like Santander" and "is Santander" for anything shown to stakeholders.
+
+**Smallest useful version:** the logo + the official hex values + the font names. Even without font *files*
+(licensing), knowing the correct typefaces lets me match them or specify them precisely.
+
+---
+
+## 3. A one-line brief per deliverable  ·  impact: MEDIUM (costs you a sentence)
+
+**What:** for each report/deck, one line — **who is it for, and what decision should it drive?**
+
+**Why it matters:** the "written like a school kid" feedback on the first report draft was partly me guessing
+the audience. "Exec committee, to release pilot funding" and "working note for the design team" are different
+documents in register, length and emphasis. I can hit the target far better when I know it.
+
+**What it unlocks:** the right register first time, fewer rewrites, and content pitched at the decision rather
+than at everything.
+
+**Smallest useful version:** literally one sentence at the start of the task.
+
+---
+
+## 4. Optional, lower priority
+
+- **Real demo data shape** — if a future version should mirror real account/transaction structures, a
+  (fully anonymised, synthetic) example schema would make the prototype more convincing. Not needed while it
+  stays illustrative.
+- **Target platform for the decks** — if these are presented in PowerPoint proper (not just the generated file),
+  confirming the version/venue lets me tune for it.
+
+---
+
+## Already set up on my side (no input needed)
+
+- **Webhook noise removed** — unsubscribed from PR activity, so `Building`/`Ready` events no longer interrupt.
+- **`DECISIONS.md`** — a cross-session log of settled facts and sensitive decisions (incl. the Quantum-IP
+  deletion), so nothing is re-litigated or accidentally undone after a context reset.
+- **`CITATIONS.md`** — a curated, greppable citation index feeding the reports (pending your item 1 to verify).
+- **The full build/verify pipeline** — scaffold, parallel review, pre-commit gate, runtime WCAG drive-through,
+  and deck QA — all in place and self-checking.
+
+---
+
+**Bottom line:** items **1** and **2** would lift every future report and deck a full grade; item **3** costs
+you a sentence and saves me a rewrite. Everything I could set up myself is done.
