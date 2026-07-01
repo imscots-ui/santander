@@ -306,6 +306,14 @@ export default function App() {
   const [cancelDdId, setCancelDdId] = useState(null);
   const [recurringConfirm, setRecurringConfirm] = useState(false);
 
+  // Transaction dispute / chargeback
+  const [disputeTxnId, setDisputeTxnId] = useState(null);       // selected transaction id
+  const [disputeReason, setDisputeReason] = useState(null);     // 'unauthorised' | 'not-received' | 'faulty' | 'duplicate' | 'wrong-amount' | 'subscription'
+  const [disputeMerchantTried, setDisputeMerchantTried] = useState(false); // contacted merchant first (chargeback prerequisite)
+  const [disputeDetail, setDisputeDetail] = useState('');
+  const [disputeEvidenceUp, setDisputeEvidenceUp] = useState(false);
+  const [disputeConfirm, setDisputeConfirm] = useState(false);
+
   // Home action accordion — which group is expanded (null = all collapsed)
   const [openActionGroup, setOpenActionGroup] = useState(null);
 
@@ -903,6 +911,8 @@ export default function App() {
     setRecurringAction(null); setSoPayee(''); setSoSortCode(''); setSoAcct('');
     setSoAmount(''); setSoFrequency('monthly'); setSoStartDate(''); setSoReference('');
     setCancelDdId(null); setRecurringConfirm(false);
+    setDisputeTxnId(null); setDisputeReason(null); setDisputeMerchantTried(false);
+    setDisputeDetail(''); setDisputeEvidenceUp(false); setDisputeConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -3503,6 +3513,165 @@ export default function App() {
     );
   };
 
+  const renderDispute = () => {
+    const methodLabel = { card: 'Card', dd: 'Direct Debit', fp: 'Faster Payment', bacs: 'Bacs', so: 'Standing order', chaps: 'CHAPS', transfer: 'Transfer', cheque: 'Cheque' };
+    const recentDebits = statementsData.filter(t => t.amount < 0).slice(0, 10);
+    const chosen = statementsData.find(t => t.id === disputeTxnId) || null;
+    const isFraud = disputeReason === 'unauthorised';
+    const prettyDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const reasons = [
+      { id: 'unauthorised',  label: "I didn't make this payment", desc: 'Fraud or a payment you never authorised', icon: ShieldAlert },
+      { id: 'not-received',  label: 'Goods or service not received', desc: 'You paid but nothing arrived', icon: Archive },
+      { id: 'faulty',        label: 'Faulty, damaged or not as described', desc: "It wasn't what you were promised", icon: AlertTriangle },
+      { id: 'duplicate',     label: 'Charged more than once', desc: 'A duplicate of a payment you already made', icon: RefreshCw },
+      { id: 'wrong-amount',  label: 'Wrong amount taken', desc: 'You were charged a different amount', icon: Calculator },
+      { id: 'subscription',  label: 'Subscription I cancelled', desc: 'A recurring charge after you cancelled', icon: X },
+    ];
+
+    const stepDefs = [
+      { id: 'select', t: 'Which payment?', s: 'Pick the transaction to dispute' },
+      { id: 'reason', t: 'What went wrong?', s: 'This tells us the fastest route to your money' },
+      { id: 'details', t: 'Tell us more', s: 'Evidence speeds up your claim' },
+      { id: 'review', t: 'Review & submit', s: 'Confirm your dispute' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const outcome = () => {
+      if (isFraud) return 'Under PSR 2017 we’ll refund unauthorised payments by the end of the next business day while we investigate. Where needed, freeze the card from the Cards screen.';
+      if (chosen && chosen.method === 'dd') return 'Direct Debit Guarantee — we’ve credited the full amount immediately and will recover it from the originator.';
+      return 'Chargeback raised. We’ve applied a provisional credit while the merchant responds — usually within 45 days.';
+    };
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(isFraud
+          ? 'Dispute raised · provisional refund by next business day · logged to audit trail'
+          : chosen && chosen.method === 'dd'
+            ? 'Refunded under the Direct Debit Guarantee · logged to audit trail'
+            : 'Chargeback raised · provisional credit applied · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'select') return !!disputeTxnId;
+      if (sd.id === 'reason') return !!disputeReason;
+      if (sd.id === 'details') return isFraud ? true : disputeMerchantTried;
+      if (sd.id === 'review') return disputeConfirm;
+      return true;
+    };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Submit dispute' : 'Continue'}
+        replaces={{ form: 'Paper dispute form + call-centre queue', savings: 'Self-serve · provisional refund · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'select' && (
+          <div className="space-y-2">
+            {recentDebits.map(t => {
+              const on = disputeTxnId === t.id;
+              return (
+                <button key={t.id} onClick={() => setDisputeTxnId(t.id)}
+                  className={`w-full text-left p-3.5 rounded-2xl border flex items-center justify-between gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm text-stone-900 truncate">{t.desc}</div>
+                    <div className="text-[11px] text-stone-500 mt-0.5">{prettyDate(t.date)} · {methodLabel[t.method] || t.method}</div>
+                  </div>
+                  <div className="font-mono text-sm num-tab flex-shrink-0">{fmt(Math.abs(t.amount))}</div>
+                </button>
+              );
+            })}
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              Disputing isn’t the same as <strong>logging a complaint</strong> — this is about getting a payment back. For service issues, use Log a complaint.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'reason' && (
+          <div className="space-y-2">
+            {reasons.map(r => {
+              const on = disputeReason === r.id;
+              const I = r.icon;
+              return (
+                <button key={r.id} onClick={() => setDisputeReason(r.id)}
+                  className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                  <div><div className="font-medium text-sm">{r.label}</div><div className="text-xs text-stone-500 mt-0.5">{r.desc}</div></div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'details' && (
+          <div className="space-y-4">
+            {isFraud ? (
+              <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 flex gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="text-[12px] text-red-900 leading-relaxed">
+                  If you think your card is compromised, <strong>freeze it now</strong> from the Cards screen. We’ll refund unauthorised payments by the end of the next business day under PSR 2017.
+                </div>
+              </div>
+            ) : (
+              <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+                <input type="checkbox" checked={disputeMerchantTried} onChange={e => setDisputeMerchantTried(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+                <span className="text-sm text-stone-700">I’ve already contacted the merchant to try to resolve it. <span className="text-stone-500">(Card scheme rules ask you to try first.)</span></span>
+              </label>
+            )}
+            <Field label="What happened? (optional)">
+              <Input value={disputeDetail} onChange={setDisputeDetail} placeholder="A short description helps us investigate" />
+            </Field>
+            <button onClick={() => setDisputeEvidenceUp(true)}
+              className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${disputeEvidenceUp ? 'border-emerald-400 bg-emerald-50/50' : 'border-stone-300 hover:border-stone-400'}`}>
+              {disputeEvidenceUp
+                ? <CircleCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                : <Upload className="w-5 h-5 text-stone-500 flex-shrink-0" />}
+              <div className="text-left">
+                <div className={`text-sm font-medium ${disputeEvidenceUp ? 'text-emerald-700' : 'text-stone-700'}`}>
+                  {disputeEvidenceUp ? 'Evidence uploaded' : 'Upload supporting evidence'}
+                </div>
+                <div className="text-[11px] text-stone-500">Receipts, emails, order confirmations, cancellation proof</div>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Payment', chosen ? chosen.desc : '—'],
+                ['Amount', chosen ? fmt(Math.abs(chosen.amount)) : '—'],
+                ['Date', chosen ? prettyDate(chosen.date) : '—'],
+                ['Method', chosen ? (methodLabel[chosen.method] || chosen.method) : '—'],
+                ['Reason', reasons.find(r => r.id === disputeReason)?.label || '—'],
+                ['Evidence', disputeEvidenceUp ? 'Attached' : 'None attached'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0">
+                  <span className="text-xs text-stone-500">{k}</span>
+                  <span className={`text-sm font-medium text-stone-900 text-right ml-3 ${k === 'Amount' ? 'font-mono num-tab' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className={`p-3.5 rounded-2xl text-xs leading-relaxed flex gap-2 ${isFraud ? 'bg-red-50 text-red-900' : chosen && chosen.method === 'dd' ? 'bg-emerald-50 text-emerald-900' : 'bg-indigo-50 text-indigo-900'}`}>
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{outcome()}</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={disputeConfirm} onChange={e => setDisputeConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <span className="text-sm text-stone-700">The information I’ve given is true and complete to the best of my knowledge.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -3848,6 +4017,7 @@ export default function App() {
             { icon: Pause, title: 'Dormant accounts', desc: 'Reactivate or close', onClick: () => setWorkflow('dormancy'), badge: '1' },
             { icon: Archive, title: 'Close account', desc: 'Form ANB9 0370', onClick: () => { setWorkflow('closure'); setStep(0); } },
             { icon: Scale, title: 'Log complaint', desc: 'DISP · triage · denial · FOS', onClick: () => { setWorkflow('complaint'); setStep(0); } },
+            { icon: AlertTriangle, title: 'Dispute a payment', desc: 'Chargeback · fraud · DD Guarantee', onClick: () => { setWorkflow('dispute'); setStep(0); } },
           ] },
         ].map(g => {
           const open = openActionGroup === g.id;
@@ -6412,6 +6582,7 @@ export default function App() {
         {workflow === 'mtd-submit' && renderMtdSubmit()}
         {workflow === 'complaint' && renderComplaint()}
         {workflow === 'recurring' && renderRecurring()}
+        {workflow === 'dispute' && renderDispute()}
 
         {showOTP && OTPSheet()}
         {showSignPin && SignPinSheet()}
@@ -6595,6 +6766,7 @@ export default function App() {
       {workflow === 'mtd-submit' && renderMtdSubmit()}
       {workflow === 'complaint' && renderComplaint()}
       {workflow === 'recurring' && renderRecurring()}
+      {workflow === 'dispute' && renderDispute()}
 
       {showOTP && OTPSheet()}
       {showSignPin && SignPinSheet()}
