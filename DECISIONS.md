@@ -50,7 +50,16 @@ They share only the reference library (`1701-uniform/REFERENCE.md`) and ship doc
 - **7 entity types**; accounts, mandate rules and copy reconfigure per type.
 - Front-end only: no backend, no real data, no live connections. All figures illustrative.
 
-## Brand tokens (currently **approximated** — see INPUTS_NEEDED.md)
+## Brand assets — authorised internal use
+
+The author is a **Santander employee**; this is an **internal concept / customer-research prototype**. Using
+Santander brand assets (logo, licensed fonts, official palette) for this internal work is **authorised employee
+use — not an IP/trademark breach**. Source the real assets from Santander's **internal brand portal** (not the
+open web), follow the brand guidelines (no logo distortion/recolouring), and keep the "concept prototype ·
+internal discussion" framing until the project is formally sanctioned. External-facing use would need separate
+sign-off. Until the real kit is dropped in, the tokens below are tasteful **approximations**.
+
+## Brand tokens (currently **approximated** — real kit can replace when supplied; see INPUTS_NEEDED.md)
 
 - Brand red `#c8102e`; warm background `#faf6ef`; ink `#1c1917`; muted greys `stone-*`.
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
