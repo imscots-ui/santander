@@ -24,6 +24,14 @@ import {
 } from 'lucide-react';
 
 // === PRIMITIVES — outside App so React sees stable component identity across renders ===
+
+// Official Santander logo (flame + wordmark). Single path; fill set per variant.
+const SANTANDER_LOGO_PATH = "m31.5 19.5c-.1-1.5-.5-3-1.3-4.3l-6.8-11.9c-.5-.9-.9-1.9-1.1-2.9l-.3.5c-1.7 2.9-1.7 6.6 0 9.5l5.5 9.5c1.7 2.9 1.7 6.6 0 9.5l-.3.5c-.2-1-.6-2-1.1-2.9l-5-8.7-3.2-5.6c-.5-.9-.9-1.9-1.1-2.9l-.3.5c-1.7 2.9-1.7 6.5 0 9.5l5.5 9.5c1.7 2.9 1.7 6.6 0 9.5l-.3.5c-.2-1-.6-2-1.1-2.9l-6.9-11.9c-.9-1.6-1.3-3.4-1.3-5.2-7.3 1.9-12.4 6-12.4 10.7 0 6.6 9.8 11.9 21.9 11.9s21.9-5.3 21.9-11.9c.1-4.5-4.9-8.6-12.3-10.5zm20.7 20.3c.1-1.7.3-2.8.8-4.2 2.3 1.1 5.3 1.6 7.5 1.6 3.8 0 6-1.2 6-3.7 0-2.4-1.6-3.5-5.4-5.2l-2.1-.8c-3.9-1.7-6.5-3.9-6.5-8.2 0-4.7 3.3-7.7 9.9-7.7 2.7 0 5.2.4 7.5 1.2-.1 1.6-.4 2.9-.8 4.1-2.2-.8-4.9-1.2-6.8-1.2-3.6 0-5.2 1.4-5.2 3.6 0 2.1 1.6 3.4 4.5 4.6l2.2.9c5.2 2.2 7.4 4.6 7.4 8.6 0 4.7-3.6 8-10.6 8-3.3 0-6.1-.5-8.4-1.6zm41.1-19.7v20.6h-4.2l-.2-2.5c-1.2 1.8-2.9 3-5.8 3-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 3 .1 5.5.4 7.8 1.2zm-4.5 15.9v-12.9c-.9-.2-2-.2-3.3-.2-4.7 0-6.9 2.9-6.9 7.5 0 4.2 1.7 7.2 5.7 7.2 1.9-.1 3.3-.7 4.5-1.6zm27.7-9.1v13.8h-4.5v-13c0-3.3-1.1-4.8-5.6-4.8-1.1 0-2.3.1-3.6.3v17.5h-4.5v-20.6c2.9-.7 6.1-1.2 8.2-1.2 7.6.1 10 3 10 8zm12.6 10.5c1.3 0 2.6-.2 3.5-.6-.1 1.2-.3 2.6-.5 3.8-1.2.5-2.6.7-3.8.7-4.4 0-7.2-2-7.2-7v-21.7c1.4-.5 3.1-.7 4.5-.7v7.8h7.2c-.1 1.4-.2 2.7-.4 3.9h-6.8v10.1c0 2.6 1.3 3.7 3.5 3.7zm24.3-17.3v20.6h-4.2l-.2-2.5c-1.2 1.8-2.9 3-5.8 3-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 3 .1 5.4.4 7.8 1.2zm-4.6 15.9v-12.9c-.9-.2-2-.2-3.3-.2-4.7 0-6.9 2.9-6.9 7.5 0 4.2 1.7 7.2 5.7 7.2 1.9-.1 3.4-.7 4.5-1.6zm27.8-9.1v13.8h-4.6v-13c0-3.3-1.1-4.8-5.6-4.8-1.1 0-2.3.1-3.6.3v17.5h-4.5v-20.6c2.9-.7 6.1-1.2 8.2-1.2 7.6.1 10.1 3 10.1 8zm22.9-15v28.8h-4.2l-.2-2.6c-1.2 1.9-2.9 3.1-5.9 3.1-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 1.2 0 2.3.1 3.4.3v-6.8c1.4-.4 3-.5 4.5-.5zm-4.5 24.1v-12.7c-1.2-.2-2.4-.4-3.6-.4-4.5 0-6.6 2.8-6.6 7.5 0 4.2 1.7 7.2 5.7 7.2 1.8-.1 3.3-.7 4.5-1.6zm27.3-4.1h-14.5c.6 3.7 2.7 5.4 6.8 5.4 2.5 0 5-.5 7.2-1.6-.2 1.2-.4 2.8-.7 4.1-2.1.9-4.2 1.3-6.7 1.3-7.6 0-11.2-4.2-11.2-11.2 0-6.1 2.8-11 10-11 6.5 0 9.3 4.2 9.3 9.4 0 1.4 0 2.4-.2 3.6zm-14.5-3.8h10.2c0-3.4-1.8-5.4-4.9-5.4-3.3.1-5 1.9-5.3 5.4zm30.4-8.9c0 1.4-.2 3-.4 3.9-1.1-.1-2.1-.2-3.4-.2-1.1 0-2.2.1-3.3.2v17.6h-4.5v-20.6c1.9-.7 5.2-1.2 7.7-1.2 1.3.1 2.9.1 3.9.3z";
+const SantanderLogo = ({ className = '', fill = '#DA291C' }) => (
+  <svg viewBox="0 0.4 238.2 41.5" className={className} role="img" aria-label="Santander"
+    xmlns="http://www.w3.org/2000/svg"><path d={SANTANDER_LOGO_PATH} fill={fill} fillRule="evenodd" /></svg>
+);
+
 const ProgressDots = ({ total, current }) => (
   <div className="flex gap-1.5">
     {Array.from({ length: total }).map((_, i) => (
@@ -7003,9 +7011,10 @@ export default function App() {
           <div className="red-bar h-1" />
           <div className="max-w-[1440px] mx-auto px-8 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#DA291C] flex items-center justify-center"><div className="w-3.5 h-3.5 rounded-full border-2 border-white" /></div>
+              <SantanderLogo className="h-6 w-auto" />
+              <div className="h-6 w-px bg-stone-200" />
               <div>
-                <div className="font-display text-lg leading-none">Santander Business</div>
+                <div className="text-[11px] uppercase tracking-[0.15em] text-stone-600 leading-none">Business</div>
                 <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mt-0.5">{entity.name}</div>
               </div>
             </div>
@@ -7252,12 +7261,10 @@ export default function App() {
       <header className="sticky top-0 z-30 bg-[#faf6ef]/85 backdrop-blur-xl border-b border-stone-200/60">
         <div className="red-bar h-1" />
         <div className="px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#DA291C] flex items-center justify-center"><div className="w-3 h-3 rounded-full border-2 border-white" /></div>
-            <div>
-              <div className="font-display text-base leading-none">Santander</div>
-              <div className="text-[9px] uppercase tracking-[0.15em] text-stone-500">{entity.isTreasurer ? 'Treasurer · ' : 'Business · '}{entity.name}</div>
-            </div>
+          <div className="flex items-center gap-2.5">
+            <SantanderLogo className="h-5 w-auto" />
+            <div className="h-5 w-px bg-stone-200" />
+            <div className="text-[9px] uppercase tracking-[0.15em] text-stone-500 leading-tight">{entity.isTreasurer ? 'Treasurer · ' : 'Business · '}{entity.name}</div>
           </div>
           <div className="flex items-center gap-1">
             <div className="flex items-center gap-1 px-2 py-1">
