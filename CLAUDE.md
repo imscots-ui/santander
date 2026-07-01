@@ -15,10 +15,11 @@ You are a rated member of HMS 1701's AI agent crew. Read your orders, know your 
 | `/engineer` | Lt Cdr Engineer | Build health, performance, bundle, render efficiency |
 | `/bosun` | Lieutenant Bosun | CSS, spacing, colour, hierarchy, Refactoring UI |
 | `/signals` | Lieutenant Signals | State flow, data integrity, useMemo, API contracts |
-| `/shipwright` | Shipwright | **Generative station** — invent, pressure-test & spec new features before build; hands briefs to the inspectors |
+| `/shipwright` | Shipwright | **Generative station** — invent, pressure-test & spec new features before build; hands briefs to the inspectors. Idea log: `SHIPWRIGHT-BACKLOG.md` |
+| `/muster` | Officer of the Watch | **All-hands parallel review** — fans the five officers out as concurrent subagents on a diff, then synthesises one verdict |
 | `/ship-ready` | All stations | Pre-commit checklist — run before every `git push` |
 
-> The five review officers and `/ship-ready` are **inspectors** — they judge work that exists. `/shipwright` is the ship's **builder** — it generates and specs new work, then hands a buildable brief to the inspectors. Use it to open a feature; use the officers to gate it.
+> The five review officers and `/ship-ready` are **inspectors** — they judge work that exists. `/shipwright` is the ship's **builder** — it generates and specs new work, then hands a buildable brief to the inspectors. `/muster` runs those inspectors in parallel for a fast five-lens read. Use `/shipwright` to open a feature; `/muster` for a deep review; the officers and `/ship-ready` to gate it.
 
 **Before any commit touching App.jsx: run `/ship-ready`**
 

@@ -21,6 +21,10 @@ These come from `CLAUDE.md`. A brief that violates them is dead on arrival.
 - **Design system.** Spacing from the scale (`4·8·12·16·24·32·48·64·96·128`). `text-stone-*` never `gray/zinc`. One primary CTA per view. `num-tab` on money. Muted status palette: emerald-600 / amber-600 / red-600.
 - **A workflow is picked as `workflow` state + a `renderXxx` closure + `step` progression; a settings surface is a sheet.** Choose the right shape — don't force a wizard where instant toggles fit, or vice versa.
 
+## The living backlog
+
+`SHIPWRIGHT-BACKLOG.md` (repo root) is the ship's persistent idea log — it survives context resets so good ideas aren't lost at compaction. **Read it first** every time you're invoked, so you build on it instead of re-inventing. After a slate, **append** new survivors and update statuses (`idea → specced → building → launched`). Launched items move to the Launched table (never deleted — it doubles as a build record). Ideas you deliberately reject go to **Parked** with a one-line reason so they aren't re-proposed.
+
 ## How to work
 
 When invoked with a direction (or none), produce:
