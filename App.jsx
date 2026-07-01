@@ -144,6 +144,12 @@ export default function App() {
   const [pinRevealed, setPinRevealed] = useState(false);
   const [pinCountdown, setPinCountdown] = useState(30);
   const [frozenCards, setFrozenCards] = useState(new Set());
+  // Card controls (spending limits, contactless / online / abroad / ATM / gambling, report lost) — persistent per card
+  const [showCardControls, setShowCardControls] = useState(false);
+  const [cardCtrlKey, setCardCtrlKey] = useState(0);
+  const [cardSettings, setCardSettings] = useState({}); // keyed by card.key → { contactless, online, abroad, atm, gambling, limit }
+  const [cardReissued, setCardReissued] = useState(new Set()); // cards reported lost/stolen & reissued
+  const [cardCtrlReport, setCardCtrlReport] = useState(false); // report-lost confirm expanded (ephemeral)
 
   // Pre-approved lending
   const [lendingTerm, setLendingTerm] = useState(24);
@@ -403,6 +409,12 @@ export default function App() {
     { key: 1, name: 'Payroll Card', last4: '····3927', acctNo: '····6633', expiry: '03/27', network: 'Visa Debit', pin: '6103' },
   ];
 
+  // Card controls — sensible per-card defaults, then overrideable via cardSettings state
+  const DEFAULT_CARD_LIMITS = { 0: 15000, 1: 5000 };
+  const cardCtrlDefault = (key) => ({ contactless: true, online: true, abroad: false, atm: true, gambling: false, limit: DEFAULT_CARD_LIMITS[key] ?? 5000 });
+  const getCardCtrl = (key) => cardSettings[key] || cardCtrlDefault(key);
+  const setCardCtrl = (key, field, value) => setCardSettings(prev => ({ ...prev, [key]: { ...(prev[key] || cardCtrlDefault(key)), [field]: value } }));
+
   const SUPPLIER_RISK = [
     { id: 'sr1', name: 'Meridian Logistics',  reg: '07834521', lastFiled: '30 Sep 2024', daysOverdue: 261, risk: 'red',   spend: 34700 },
     { id: 'sr2', name: 'CloudStack Ltd',      reg: '10293847', lastFiled: '15 Mar 2025', daysOverdue: 95,  risk: 'amber', spend: 8900  },
@@ -470,6 +482,11 @@ export default function App() {
     setPinAuthDone(false);
     setPinRevealed(false);
     setPinCountdown(30);
+  };
+
+  const closeCardControls = () => {
+    setShowCardControls(false);
+    setCardCtrlReport(false);
   };
 
   const closeVoiceSetup = () => {
@@ -893,8 +910,9 @@ export default function App() {
     setShowVoiceSetup(false); setVoiceIdTab('enrol'); setVoiceRecordingPhrase(null);
     setShowOTP(false); setOtpDigits(['','','','','','']); setOtpCallback(null);
     setShowSignPin(false); setSignPinDigits(['','','','']); setSignPinCallback(null);
+    setShowCardControls(false); setCardCtrlReport(false);
     // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
-    // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
+    // sessionAnomaly, frozenCards, cardSettings, cardReissued intentionally NOT reset — persistent settings
   };
 
   const greeting = (() => {
@@ -4032,7 +4050,10 @@ export default function App() {
                       <div className="font-mono text-[11px] text-stone-500">{card.last4} · {card.network} · Exp {card.expiry}</div>
                     </div>
                   </div>
-                  {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium flex-shrink-0">Frozen</span>}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {cardReissued.has(card.key) && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-medium">Reissued</span>}
+                    {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium">Frozen</span>}
+                  </div>
                 </div>
                 <div className="flex gap-2 mt-1">
                   <button
@@ -4053,6 +4074,16 @@ export default function App() {
                     {isFrozen ? 'Unfreeze' : 'Freeze'}
                   </button>
                 </div>
+                <button
+                  onClick={() => { setCardCtrlKey(card.key); setCardCtrlReport(false); setShowCardControls(true); }}
+                  className="w-full mt-2 py-2.5 rounded-xl bg-white border border-stone-200 text-[13px] font-medium text-stone-700 flex items-center justify-between px-4 hover:bg-stone-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                >
+                  <span className="flex items-center gap-2"><Gauge className="w-4 h-4 text-stone-500" /> Card controls</span>
+                  <span className="flex items-center gap-2 text-[11px] text-stone-400">
+                    <span className="num-tab">Limit {fmt(getCardCtrl(card.key).limit)}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
+                </button>
               </div>
             );
           })}
@@ -4869,6 +4900,128 @@ export default function App() {
                 <div className="text-[10px] text-stone-400 text-center">PIN viewed today · logged to security audit trail</div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const CardControlsSheet = () => {
+    const card = BUSINESS_CARDS[cardCtrlKey];
+    const s = getCardCtrl(cardCtrlKey);
+    const isFrozen = frozenCards.has(cardCtrlKey);
+    const isReissued = cardReissued.has(cardCtrlKey);
+    const limitPresets = [1000, 5000, 15000, 25000];
+    const toggles = [
+      { field: 'contactless', Icon: Zap,        label: 'Contactless',              on: 'Tap to pay enabled',        off: 'Contactless blocked' },
+      { field: 'online',      Icon: Globe,      label: 'Online & phone payments',  on: 'Card-not-present allowed',  off: 'Online payments blocked' },
+      { field: 'abroad',      Icon: MapPin,     label: 'Use abroad',               on: 'Works outside the UK',      off: 'UK payments only' },
+      { field: 'atm',         Icon: Banknote,   label: 'ATM withdrawals',          on: 'Cash withdrawals allowed',  off: 'Cash machines blocked' },
+      { field: 'gambling',    Icon: ShieldAlert,label: 'Gambling payments',        on: 'Gambling allowed',          off: 'Blocked (default)' },
+    ];
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={closeCardControls}>
+        <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[90vh] overflow-y-auto anim-slide">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-12 h-1 bg-stone-300 rounded-full" /></div>
+          <div className="px-5 pb-4 border-b border-stone-100 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">Card controls · instant · logged</div>
+              <h2 className="font-display text-2xl mt-0.5">{card.name}</h2>
+            </div>
+            <button onClick={closeCardControls} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+          <div className="px-5 py-5 space-y-5">
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isFrozen ? 'bg-blue-100 text-blue-600' : 'bg-stone-900 text-white'}`}>
+                {isFrozen ? <Snowflake className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
+              </div>
+              <div className="min-w-0">
+                <div className="font-mono text-[13px] text-stone-900">{card.last4} · {card.network}</div>
+                <div className="text-[11px] text-stone-500">{isFrozen ? 'Frozen — controls apply when unfrozen' : isReissued ? 'Replacement on its way' : 'Active'}</div>
+              </div>
+            </div>
+
+            {/* Spending limit */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Gauge className="w-4 h-4 text-stone-500" />
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Monthly spending limit</span>
+                </div>
+                <span className="font-mono text-sm num-tab font-medium text-stone-900">{fmt(s.limit)}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {limitPresets.map(l => (
+                  <button key={l} onClick={() => { setCardCtrl(cardCtrlKey, 'limit', l); fireToast(`Monthly limit set to ${fmt(l)} · ${card.name}`); }}
+                    className={`py-2.5 rounded-xl border text-[13px] font-medium num-tab focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${s.limit === l ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}>
+                    {l >= 1000 ? `£${l / 1000}k` : `£${l}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Toggles */}
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-2">Where this card works</div>
+              <div className="space-y-2">
+                {toggles.map(t => {
+                  const val = !!s[t.field];
+                  return (
+                    <div key={t.field} className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${val ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400'}`}>
+                          <t.Icon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm text-stone-900">{t.label}</div>
+                          <div className="text-[11px] text-stone-500">{val ? t.on : t.off}</div>
+                        </div>
+                      </div>
+                      <Toggle value={val} onChange={(v) => { setCardCtrl(cardCtrlKey, t.field, v); fireToast(`${t.label} ${v ? 'on' : 'off'} · ${card.name}`); }} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Report lost / stolen */}
+            <div className="pt-1">
+              {!cardCtrlReport ? (
+                <button onClick={() => setCardCtrlReport(true)} disabled={isReissued}
+                  className={`w-full py-3.5 rounded-2xl border text-[13px] font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${isReissued ? 'border-stone-200 text-stone-400 cursor-default' : 'border-red-200 text-red-700 hover:bg-red-50'}`}>
+                  <AlertTriangle className="w-4 h-4" />
+                  {isReissued ? 'Replacement card ordered' : 'Report lost or stolen'}
+                </button>
+              ) : (
+                <div className="p-4 rounded-2xl border border-red-200 bg-red-50 space-y-3">
+                  <div className="flex gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-[12px] text-red-900 leading-relaxed">
+                      This <strong>permanently cancels</strong> {card.last4} and orders a replacement (3–5 working days). Any Direct Debits move to the new card automatically.
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setCardCtrlReport(false)}
+                      className="flex-1 py-3 rounded-xl bg-white border border-stone-200 text-[13px] font-medium text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+                      Keep card
+                    </button>
+                    <button onClick={() => {
+                        setFrozenCards(prev => { const n = new Set(prev); n.add(cardCtrlKey); return n; });
+                        setCardReissued(prev => { const n = new Set(prev); n.add(cardCtrlKey); return n; });
+                        fireToast(`${card.name} cancelled · replacement ordered, arrives 3–5 working days · logged to audit trail`);
+                        closeCardControls();
+                      }}
+                      className="flex-1 py-3 rounded-xl bg-red-600 text-white text-[13px] font-medium hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600">
+                      Cancel & reissue
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="text-[10px] text-stone-400 text-center leading-relaxed">
+              Changes apply instantly and are recorded in your security audit trail · PSD2 SCA-protected
+            </div>
           </div>
         </div>
       </div>
@@ -6269,6 +6422,7 @@ export default function App() {
         {pendingCancelId && CancelSheet()}
         {showReceiptSheet && ReceiptSheet()}
         {showPinSheet && PinSheet()}
+        {showCardControls && CardControlsSheet()}
         {showOBSheet && OBSheet()}
         {showVoiceMemo && VoiceMemoSheet()}
         {showSequencer && SequencerSheet()}
@@ -6451,6 +6605,7 @@ export default function App() {
       {pendingCancelId && CancelSheet()}
       {showReceiptSheet && ReceiptSheet()}
       {showPinSheet && PinSheet()}
+      {showCardControls && CardControlsSheet()}
       {showOBSheet && OBSheet()}
       {showVoiceMemo && VoiceMemoSheet()}
       {showA11ySheet && A11ySheet()}
