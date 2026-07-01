@@ -14,6 +14,7 @@ The ship's **living idea log**. Feature candidates survive here across context r
 | Standing Orders & Direct Debits workflow | Jun 2026 | 13th workflow; DD Guarantee cancel + SO set-up |
 | Personal-PIN signing option | Jun 2026 | PIN alternative to Face ID in the signature queue |
 | Card Controls sheet | Jul 2026 | Limits · contactless/online/abroad/ATM/gambling · report-lost → reissue |
+| Transaction dispute / chargeback | Jul 2026 | 14th workflow; fraud (PSR 2017) / DD Guarantee / Visa chargeback routes; passed /muster |
 
 ---
 
@@ -23,8 +24,7 @@ Each row: *user · paper process it replaces · regulatory hook · demo strength
 
 | # | Feature | User | Replaces | Reg hook | Demo | Status |
 |---|---|---|---|---|---|---|
-| 5 | **Dispute a transaction (chargeback)** | Any user | Paper dispute form + call centre | PSR 2017 reg 76/77, Visa chargeback, DD Guarantee | ⭐⭐⭐ | **specced** ← next build |
-| 3 | **International beneficiary onboarding** | Finance clerk | Faxed IBAN + wet-ink verification | CoP-equivalent, sanctions screening | ⭐⭐⭐ | idea |
+| 3 | **International beneficiary onboarding** | Finance clerk | Faxed IBAN + wet-ink verification | CoP-equivalent, sanctions screening | ⭐⭐⭐ | idea ← recommended next |
 | 4 | **Statement / certificate of balance on demand** | Accountant | Written request, 5-day postal wait | — (evidence for MTD/lenders) | ⭐⭐ | idea |
 | 7 | **Trusted-device & session management** | Any user | Branch visit to reset access | PSD2 SCA, SYSC | ⭐⭐ | idea |
 | 2 | **Business overdraft / limit change** | Director | Phone-and-post facility request | CONC, affordability | ⭐⭐ | idea |
