@@ -36,9 +36,9 @@ const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Co
   <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
     <div className="flex-shrink-0 border-b border-stone-200 bg-white">
       <div className="px-5 pt-4 pb-3 flex items-center justify-between max-w-xl mx-auto w-full">
-        <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={onBack} aria-label="Back" className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
         <ProgressDots total={total} current={current} />
-        <button onClick={onClose} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
+        <button onClick={onClose} aria-label="Close" className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
       </div>
       <div className="px-5 pb-4 max-w-xl mx-auto w-full">
         <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
@@ -7265,7 +7265,7 @@ export default function App() {
               <span className="text-[9px] uppercase tracking-wider text-stone-500">Live</span>
             </div>
             <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-500 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
-            <button className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
+            <button aria-label="Notifications" className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
               <Bell className="w-4 h-4" />
               <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
             </button>

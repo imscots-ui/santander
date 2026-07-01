@@ -4,6 +4,7 @@
 // Usage: node scripts/verify-flows.mjs
 import { chromium } from 'playwright-core';
 import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 import path from 'path';
 
 const EXEC = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
@@ -72,23 +73,58 @@ try {
   await page.screenshot({ path: shot('vf-signsend-fail.png') });
 }
 
-// ---- smoke: each newer workflow at least OPENS to its first step ----
-const openChecks = [
+// ---- SMOKE: every accordion-reachable workflow opens to its first step ----
+// (lending/unlink/ringfence/mtd-submit use non-accordion entry points and
+//  are not in this smoke path — noted, not silently dropped.)
+const smoke = [
+  { group: 'Payments', tile: 'Bulk payments', expect: 'Source account' },
+  { group: 'Payments', tile: 'International', expect: 'International payment' },
+  { group: 'Payments', tile: 'Add intl. beneficiary', expect: 'Who are you paying' },
+  { group: 'Payments', tile: 'Standing orders', expect: 'Recurring payments' },
+  { group: 'Business & people', tile: 'Change mandate', expect: 'What change' },
+  { group: 'Business & people', tile: 'Business details', expect: 'What needs updating' },
+  { group: 'Business & people', tile: 'ID register', expect: 'Signatory ID register' },
+  { group: 'Accounts & support', tile: 'Dormant accounts', expect: 'Dormant accounts' },
+  { group: 'Accounts & support', tile: 'Close account', expect: 'Which accounts' },
+  { group: 'Accounts & support', tile: 'Log complaint', expect: 'Complaint intake' },
   { group: 'Accounts & support', tile: 'Dispute a payment', expect: 'Which payment' },
   { group: 'Accounts & support', tile: 'Balance certificate', expect: 'What do you need' },
-  { group: 'Accounts & support', tile: 'Devices & sessions', expect: "signed in" },
-  { group: 'Payments', tile: 'Add intl. beneficiary', expect: 'overseas beneficiary' },
+  { group: 'Accounts & support', tile: 'Devices & sessions', expect: 'signed in' },
 ];
-for (const c of openChecks) {
+let opened = 0;
+for (const c of smoke) {
   try {
-    // return home: click the close (X) if in a workflow, else reload
-    await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
+    await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(400);
     await tap(c.group);
     await tap(c.tile);
     const ok = await page.getByText(c.expect, { exact: false }).first().isVisible({ timeout: 3000 }).catch(() => false);
+    if (ok) opened++;
     rec(`opens: ${c.tile}`, ok, ok ? '' : `expected "${c.expect}"`);
   } catch (e) { rec(`opens: ${c.tile}`, false, e.message.split('\n')[0]); }
 }
+rec(`smoke: ${opened}/${smoke.length} workflows open`, opened === smoke.length);
+
+// ---- AXE: real WCAG audit (home + one open workflow) ----
+const axeSrc = readFileSync(path.join(root, 'node_modules', 'axe-core', 'axe.min.js'), 'utf8');
+async function axeScan(label) {
+  await page.evaluate(axeSrc);
+  const r = await page.evaluate(async () => await window.axe.run(document, {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] },
+  }));
+  const serious = r.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
+  // color-contrast needs a design decision (muted palette + gradient/opacity
+  // surfaces axe can't resolve) — surface it as a WARN, don't fail the run on it.
+  const hard = serious.filter(v => v.id !== 'color-contrast');
+  const contrast = serious.find(v => v.id === 'color-contrast');
+  const detail = hard.slice(0, 5).map(v => `${v.id}(${v.nodes.length})`).join(', ');
+  rec(`a11y (${label}): no actionable WCAG violations`, hard.length === 0, detail);
+  if (contrast) console.log(`WARN · a11y (${label}): color-contrast on ${contrast.nodes.length} node(s) — needs a design pass`);
+  return { hard, contrast };
+}
+await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
+await axeScan('home');
+await tap('Accounts & support'); await tap('Devices & sessions'); await page.waitForTimeout(400);
+await axeScan('trusted workflow');
 
 rec('no console/page errors', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));
 

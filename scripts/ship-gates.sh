@@ -63,4 +63,18 @@ if [ -n "$fails" ]; then
   exit 2
 fi
 
+# RED 6 — build must be clean. PUSH ONLY (too slow to run on every commit).
+case "$payload" in
+  *"git push"*)
+    if [ -f "$root/package.json" ] && command -v npm >/dev/null 2>&1; then
+      if ! ( cd "$root" && npm run build >/tmp/ship-gate-build.log 2>&1 ); then
+        echo "🔴 HMS 1701 ship-gate: STAND DOWN — production build FAILED." >&2
+        tail -8 /tmp/ship-gate-build.log >&2
+        echo "Fix the build before pushing." >&2
+        exit 2
+      fi
+    fi
+    ;;
+esac
+
 exit 0
