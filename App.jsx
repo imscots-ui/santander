@@ -332,6 +332,13 @@ export default function App() {
   const [certPurpose, setCertPurpose] = useState(null);
   const [certDelivery, setCertDelivery] = useState('download'); // 'download' | 'email' | 'post'
 
+  // Trusted-device & session management
+  const [tdRevoked, setTdRevoked] = useState([]);          // device ids signed out this session
+  const [tdRequireSca, setTdRequireSca] = useState(true);   // SCA on every login
+  const [tdAlertNewDevice, setTdAlertNewDevice] = useState(true);
+  const [tdSignOutOthers, setTdSignOutOthers] = useState(false);
+  const [tdConfirm, setTdConfirm] = useState(false);
+
   // Home action accordion — which group is expanded (null = all collapsed)
   const [openActionGroup, setOpenActionGroup] = useState(null);
 
@@ -934,6 +941,7 @@ export default function App() {
     setBenName(''); setBenCountry(null); setBenBank(''); setBenAccount(''); setBenSwift('');
     setBenAddress(''); setBenPurpose(null); setBenScreened(false); setBenConfirm(false);
     setCertType(null); setCertAccounts([]); setCertDate(''); setCertPurpose(null); setCertDelivery('download');
+    setTdRevoked([]); setTdRequireSca(true); setTdAlertNewDevice(true); setTdSignOutOthers(false); setTdConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -4045,6 +4053,167 @@ export default function App() {
     );
   };
 
+  const renderTrusted = () => {
+    const devices = [
+      { id: 'd1', name: 'iPhone 15 Pro', os: 'iOS · Santander app', where: 'Edinburgh, UK', last: 'Active now', current: true },
+      { id: 'd2', name: 'MacBook Air', os: 'Safari · macOS', where: 'Edinburgh, UK', last: '2 hours ago' },
+      { id: 'd3', name: 'Chrome · Windows', os: 'Web banking', where: 'Edinburgh, UK', last: 'Yesterday, 18:33' },
+      { id: 'd4', name: 'Unrecognised Android', os: 'Web banking', where: 'London, UK', last: '3 days ago', flagged: true },
+    ];
+    const activity = [
+      { id: 'a1', when: 'Today, 09:14', where: 'Edinburgh, UK', device: 'iPhone 15 Pro', ok: true },
+      { id: 'a2', when: 'Today, 07:02', where: 'London, UK', device: 'Unrecognised Android', ok: false },
+      { id: 'a3', when: 'Yesterday, 18:33', where: 'Edinburgh, UK', device: 'MacBook Air', ok: true },
+      { id: 'a4', when: 'Mon, 08:47', where: 'Edinburgh, UK', device: 'iPhone 15 Pro', ok: true },
+    ];
+    const others = devices.filter(d => !d.current);
+    const revokedCount = tdRevoked.length;
+    const revokeDevice = (id) => setTdRevoked(prev => prev.includes(id) ? prev : [...prev, id]);
+
+    const stepDefs = [
+      { id: 'devices', t: 'Where you’re signed in', s: 'Active devices and sessions' },
+      { id: 'activity', t: 'Recent sign-ins', s: 'Last few logins to your account' },
+      { id: 'controls', t: 'Security preferences', s: 'How we protect access' },
+      { id: 'review', t: 'Review & apply', s: 'Confirm the changes' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(tdSignOutOthers || revokedCount > 0
+          ? 'Other sessions signed out · security preferences saved · logged to audit trail'
+          : 'Security preferences saved · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const canProceed = () => (sd.id === 'review' ? tdConfirm : true);
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Apply & secure' : 'Continue'}
+        replaces={{ form: 'Branch visit to reset access / report a device', savings: 'Self-serve · instant sign-out · SCA-protected · logged' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'devices' && (
+          <div className="space-y-2">
+            {devices.map(d => {
+              const gone = tdRevoked.includes(d.id);
+              return (
+                <div key={d.id} className={`p-3.5 rounded-2xl border ${d.flagged && !gone ? 'border-red-200 bg-red-50/40' : 'border-stone-200 bg-white'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${d.flagged && !gone ? 'bg-red-100 text-red-600' : d.current ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                        {d.flagged && !gone ? <ShieldAlert className="w-4 h-4" /> : <Network className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm text-stone-900 truncate">{d.name}
+                          {d.current && <span className="text-[10px] text-emerald-700 ml-1.5">This device</span>}
+                        </div>
+                        <div className="text-[11px] text-stone-500 truncate">{d.os} · {d.where} · {d.last}</div>
+                      </div>
+                    </div>
+                    {d.current ? (
+                      <span className="text-[11px] text-stone-400 flex-shrink-0">Current</span>
+                    ) : gone ? (
+                      <span className="text-[11px] font-medium text-stone-500 flex-shrink-0">Signed out</span>
+                    ) : (
+                      <button onClick={() => revokeDevice(d.id)}
+                        className={`text-[11px] font-medium flex-shrink-0 px-3 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${d.flagged ? 'border-red-200 text-red-700 hover:bg-red-50' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}>
+                        Sign out
+                      </button>
+                    )}
+                  </div>
+                  {d.flagged && !gone && (
+                    <div className="mt-2.5 text-[11px] text-red-800 leading-relaxed flex gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                      <span>We don’t recognise this device. If it isn’t you, sign it out and change your credentials.</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'activity' && (
+          <div className="space-y-2">
+            {activity.map(a => (
+              <div key={a.id} className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-stone-200 bg-white">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.ok ? 'bg-stone-100 text-stone-500' : 'bg-red-100 text-red-600'}`}>
+                    {a.ok ? <Check className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm text-stone-900 truncate">{a.device}</div>
+                    <div className="text-[11px] text-stone-500 truncate">{a.when} · {a.where}</div>
+                  </div>
+                </div>
+                <span className={`text-[11px] font-medium flex-shrink-0 ${a.ok ? 'text-emerald-700' : 'text-red-700'}`}>{a.ok ? 'Recognised' : 'Review'}</span>
+              </div>
+            ))}
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              Sign-ins are checked against your usual devices and locations. Anything unusual is flagged for review — under PSD2 Strong Customer Authentication.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'controls' && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><Lock className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Require SCA on every login</div><div className="text-[11px] text-stone-500">Biometric or PIN each time · PSD2</div></div>
+              </div>
+              <Toggle value={tdRequireSca} onChange={setTdRequireSca} />
+            </div>
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><Bell className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Alert me on a new device</div><div className="text-[11px] text-stone-500">Push + email when a new device signs in</div></div>
+              </div>
+              <Toggle value={tdAlertNewDevice} onChange={setTdAlertNewDevice} />
+            </div>
+            <div className={`flex items-center justify-between p-3.5 rounded-2xl border ${tdSignOutOthers ? 'border-red-200 bg-red-50/40' : 'border-stone-200 bg-white'}`}>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tdSignOutOthers ? 'bg-red-100 text-red-600' : 'bg-stone-100 text-stone-500'}`}><ShieldCheck className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Sign out all other sessions</div><div className="text-[11px] text-stone-500">Keeps this device · ends {others.length} other{others.length === 1 ? '' : 's'}</div></div>
+              </div>
+              <Toggle value={tdSignOutOthers} onChange={setTdSignOutOthers} />
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Devices signed out', tdSignOutOthers ? `All others (${others.length})` : revokedCount > 0 ? `${revokedCount}` : 'None'],
+                ['SCA on every login', tdRequireSca ? 'On' : 'Off'],
+                ['New-device alerts', tdAlertNewDevice ? 'On' : 'Off'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0 gap-3">
+                  <span className="text-xs text-stone-500">{k}</span>
+                  <span className="text-sm font-medium text-stone-900 text-right">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Signed-out devices must re-authenticate with Strong Customer Authentication to return. Changes are recorded in your security audit trail.</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={tdConfirm} onChange={e => setTdConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <span className="text-sm text-stone-700">Apply these changes to my account access.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -4393,6 +4562,7 @@ export default function App() {
             { icon: Scale, title: 'Log complaint', desc: 'DISP · triage · denial · FOS', onClick: () => { setWorkflow('complaint'); setStep(0); } },
             { icon: AlertTriangle, title: 'Dispute a payment', desc: 'Chargeback · fraud · DD Guarantee', onClick: () => { setWorkflow('dispute'); setStep(0); } },
             { icon: FileText, title: 'Balance certificate', desc: 'Sealed proof of balance · references', onClick: () => { setWorkflow('certificate'); setStep(0); } },
+            { icon: Lock, title: 'Devices & sessions', desc: 'Review logins · sign out · SCA', onClick: () => { setWorkflow('trusted'); setStep(0); } },
           ] },
         ].map(g => {
           const open = openActionGroup === g.id;
@@ -7036,6 +7206,7 @@ export default function App() {
         {workflow === 'dispute' && renderDispute()}
         {workflow === 'beneficiary' && renderBeneficiary()}
         {workflow === 'certificate' && renderCertificate()}
+        {workflow === 'trusted' && renderTrusted()}
 
         {showOTP && OTPSheet()}
         {showSignPin && SignPinSheet()}
@@ -7152,6 +7323,7 @@ export default function App() {
       {workflow === 'dispute' && renderDispute()}
       {workflow === 'beneficiary' && renderBeneficiary()}
       {workflow === 'certificate' && renderCertificate()}
+      {workflow === 'trusted' && renderTrusted()}
 
       {showOTP && OTPSheet()}
       {showSignPin && SignPinSheet()}
