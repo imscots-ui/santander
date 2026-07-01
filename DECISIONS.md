@@ -20,6 +20,21 @@ _Last updated: July 2026._
   factual description of *this* prototype, **no derivation** from any third-party layout. They reuse the deleted
   filenames but the content is new. Do not reintroduce Quantum-derived material.
 
+## Deliverable standard (standing instruction — Jul 2026)
+
+**Default audience for every report, PDF and PowerPoint is senior management.** When the Captain says
+"write a report" / "make a PDF" / "make a PowerPoint", pitch it at senior-management level unless told otherwise.
+
+What that means in practice:
+- **Register:** decision-oriented and evidence-led — argue the reasoning and trade-offs, don't just assert;
+  lead with an executive summary; be concise and confident, not verbose or "school-kid".
+- **Substance:** real citations with a References section (see `CITATIONS.md`); state assumptions, scope and
+  non-goals; make the recommendation and the decision it supports explicit.
+- **Design:** proper document furniture — cover with a document-control block, contents, running header/footer
+  with page numbers, callout boxes, styled tables (the `build_reports_docx.py` / `build_reports_pdf.py` house
+  style). Decks: INTERNAL·CONFIDENTIAL classification, clean panels, zero overflow (`scripts/deck-qa.py`).
+- **Bar:** the rewritten Technical Report / Position Paper (v2.0) are the reference standard to match or beat.
+
 ## Two co-located projects (do not wire together)
 
 1. **Santander Business Banking prototype** — the primary project (`App.jsx`, `main.jsx`, `index.html`,
