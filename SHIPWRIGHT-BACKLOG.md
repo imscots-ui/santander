@@ -23,13 +23,12 @@ Each row: *user · paper process it replaces · regulatory hook · demo strength
 
 | # | Feature | User | Replaces | Reg hook | Demo | Status |
 |---|---|---|---|---|---|---|
-| 1 | **Add / remove a signatory** | Office manager | Paper mandate variation form posted to branch | Mandate rules, SMR | ⭐⭐⭐ | idea |
-| 2 | **Business overdraft / limit change** | Director | Phone-and-post facility request | CONC, affordability | ⭐⭐ | idea |
+| 5 | **Dispute a transaction (chargeback)** | Any user | Paper dispute form + call centre | PSR 2017 reg 76/77, Visa chargeback, DD Guarantee | ⭐⭐⭐ | **specced** ← next build |
 | 3 | **International beneficiary onboarding** | Finance clerk | Faxed IBAN + wet-ink verification | CoP-equivalent, sanctions screening | ⭐⭐⭐ | idea |
 | 4 | **Statement / certificate of balance on demand** | Accountant | Written request, 5-day postal wait | — (evidence for MTD/lenders) | ⭐⭐ | idea |
-| 5 | **Dispute a transaction (chargeback)** | Any user | Paper dispute form + call centre | PSR 2017 unauthorised-txn rules | ⭐⭐⭐ | idea |
-| 6 | **Scheduled payment run approval (dual control)** | Two directors | Cheque-book counter-signing | Mandate `all` / `any-2` rule | ⭐⭐ | idea |
 | 7 | **Trusted-device & session management** | Any user | Branch visit to reset access | PSD2 SCA, SYSC | ⭐⭐ | idea |
+| 2 | **Business overdraft / limit change** | Director | Phone-and-post facility request | CONC, affordability | ⭐⭐ | idea |
+| 6 | **Scheduled payment run approval (dual control)** | Two directors | Cheque-book counter-signing | Mandate `all` / `any-2` rule | ⭐⭐ | idea |
 
 ### Out-of-the-box wildcards (widen the search — needn't win)
 
@@ -47,7 +46,7 @@ Each row: *user · paper process it replaces · regulatory hook · demo strength
 
 *(ideas considered and set aside — record why, so they aren't re-proposed)*
 
-- None yet.
+- **Add / remove a signatory** — parked Jul 2026: already covered by the `mandate` workflow (Home tile "Change mandate" = add, remove, signing rule). Would duplicate, not add.
 
 ---
 
