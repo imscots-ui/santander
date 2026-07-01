@@ -67,7 +67,7 @@ There are no tests, no lint scripts, and no type checking in this project.
 - Spacing **must** come from the scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128px` (Tailwind: `1 · 2 · 3 · 4 · 6 · 8 · 12 · 16 · 24 · 32`)
 - **Never** use `text-gray-*` or `text-zinc-*` — this project uses `text-stone-*`
 - **Never** put `text-stone-400` or `text-stone-500` on a dark card or red surface — use `text-white/65`, `text-stone-300`, or `text-red-100`
-- **One primary CTA per view** — `bg-[#c8102e]` or `bg-stone-900` appears once per screen
+- **One primary CTA per view** — `bg-[#DA291C]` or `bg-stone-900` appears once per screen
 - All monetary amounts use `num-tab` class for tabular figures
 
 ## Architecture
@@ -116,9 +116,9 @@ Each account has a `rule`: `'any-1'`, `'any-2'`, or `'all'`. The `getMandateFor(
 
 - **Tailwind** for layout, spacing, and most visual styles
 - **Inline CSS** (`css` template literal) for: Santander brand colours, custom card effects (`hero-card`, `cool-card`, `tile-hero`), animations (`anim-fade`, `anim-slide`, `shimmer`), and stagger delays (`stagger-1` through `stagger-7`)
-- **Brand red**: `#c8102e` — used for active states, CTAs, the top red bar
+- **Brand red**: `#DA291C` — official portal red (Jul 2026; replaced the `#c8102e` approximation) — active states, CTAs, the top red bar
 - **Background**: `#faf6ef` — warm off-white used as page/body background
-- **Fonts**: `font-display` = Fraunces serif (large editorial headings), `font-body`/default = Geist sans, `font-mono` = Geist Mono (account numbers, financial figures)
+- **Fonts**: `font-display` and `font-body` = **Santander Text** (official corporate sans, named family only — renders where installed, `Geist` open-source fallback), `font-mono` = Geist Mono (account numbers, financial figures). Fraunces serif is retired.
 - **`num-tab`** CSS class enables tabular figures (`font-variant-numeric: tabular-nums`) — use on all monetary amounts for alignment
 
 ## Key data locations in App.jsx

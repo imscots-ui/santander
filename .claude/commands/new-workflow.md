@@ -67,7 +67,7 @@ const renderXxx = () => {
       {sd.id === 'review' && (
         <div className="space-y-4">
           <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-            <input type="checkbox" checked={xxConfirm} onChange={e => setXxConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+            <input type="checkbox" checked={xxConfirm} onChange={e => setXxConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
             <span className="text-sm text-stone-700">I confirm the details are correct.</span>
           </label>
         </div>

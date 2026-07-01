@@ -82,7 +82,7 @@ grep -n "p-\[.*px\]\|m-\[.*px\]\|gap-\[.*px\]" App.jsx | head -5
 grep -n "text-gray-\|text-zinc-" App.jsx | head -5
 
 # Multiple primary buttons (count — more than 3 in one view is a flag)
-grep -c "bg-\[#c8102e\]" App.jsx
+grep -c "bg-\[#DA291C\]" App.jsx
 ```
 
 Report: UI/Design [GREEN/AMBER]
