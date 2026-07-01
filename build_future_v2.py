@@ -487,9 +487,9 @@ def s12_design():
     rule_line(slide, t=1.15)
     # Colour swatches
     swatches = [
-        ("#DA291C", "Brand Red\nCTAs · Active states\nTop bar · Alerts", RED),
+        ("#EC0000", "Brand Red\nCTAs · Active states\nTop bar · Alerts", RED),
         ("#1C1917", "Stone-900\nPrimary text\nDark cards · Filled buttons", DARK),
-        ("#FAF6EF", "Warm Off-White\nPage background\nCard backgrounds", RGBColor(0x78, 0x71, 0x6C)),
+        ("#FBF1EA", "Warm Off-White\nPage background\nCard backgrounds", RGBColor(0x78, 0x71, 0x6C)),
         ("#D97706", "Amber-600\nCooling-off · Warnings\nPayroll nudge cards", AMBER),
         ("#2563EB", "Blue-600\nCompanies House\nUnfreeze button", BLUE),
         ("#059669", "Emerald-600\nSuccess states\nLoan confirmed\nHealth score", EMRLD),
@@ -516,7 +516,7 @@ def s12_design():
         "focus-visible ring on every interactive element (keyboard nav)",
         "Dyslexia-friendly font  ·  Reduce motion  ·  High contrast  ·  Large text",
         "SVG charts: role='img' + aria-label on every chart",
-        "Colour contrast checked against warm-white (#FAF6EF) background",
+        "Colour contrast checked against warm-white (#FBF1EA) background",
     ], 6.9, 5.22, 5.65, 1.7, sz=11, color=STONE7, sp=5)
 
 # ── SLIDE 13 — THE ASK ────────────────────────────────────────────────────────

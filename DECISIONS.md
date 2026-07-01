@@ -54,39 +54,57 @@ They share only the reference library (`1701-uniform/REFERENCE.md`) and ship doc
 
 The author is a **Santander employee**; this is an **internal concept / customer-research prototype**. Using
 Santander brand assets (logo, licensed fonts, official palette) for this internal work is **authorised employee
-use — not an IP/trademark breach**. Source the real assets from Santander's **internal brand portal** (not the
-open web), follow the brand guidelines (no logo distortion/recolouring), and keep the "concept prototype ·
-internal discussion" framing until the project is formally sanctioned. External-facing use would need separate
-sign-off. Until the real kit is dropped in, the tokens below are tasteful **approximations**.
+use — not an IP/trademark breach**. The guidelines themselves state brand use requires authorisation/licence —
+employee internal use qualifies; keep the "concept prototype · internal discussion" framing until the project is
+formally sanctioned. External-facing use would need separate sign-off. No logo distortion/recolouring.
 
-## Brand tokens (currently **approximated** — real kit can replace when supplied; see INPUTS_NEEDED.md)
+## Brand tokens — OFFICIAL (Jul 2026, from *Basic Guidelines for Santander*, santander.com, © Banco Santander S.A. 2020)
 
-- **Brand red `#DA291C`** — confirmed from the brand portal (Jul 2026), applied across app + reports.
-  (Was approximated as `#c8102e`.) Warm background `#faf6ef`; ink `#1c1917`; muted greys `stone-*`.
+- **Santander Red `#EC0000`** (Pantone 485 C · C0 M100 Y100 K0 · R236 G0 B0) — THE brand red for digital.
+  Superseded `#DA291C` (which is Pantone's own *print-side* sRGB conversion of the same 485 C — not wrong, but
+  the brand book's digital spec is `#EC0000`; Captain confirmed the switch Jul 2026). Before that we used
+  `#c8102e` (approximation, retired).
+- **Full official palette** — darker: Boston `#CC0000` (Pantone 3620 C), London `#990000` (Pantone 7622 C);
+  softer: Madrid `#EA6F5D` (2030 C), Mexico City `#F0B998` (6023 C), Rio `#F5DECF` (4031 C),
+  Lisbon `#FBF1EA` (9021 C); plus White and Black. **Only the asterisked tones may be backgrounds:**
+  White, Lisbon, Rio, Santander Red.
+- **Page background is now Lisbon `#FBF1EA`** (replaced the near-identical `#faf6ef` approximation).
+  Ink `#1c1917`; muted greys `stone-*`.
+- **AA contrast rule for red:** `#EC0000` passes 4.5:1 on white (4.6:1) but *fails* on Lisbon (4.13:1) —
+  so small red **text** on light surfaces uses **Boston `#CC0000`** (5.3:1 on Lisbon); `#EC0000` is for
+  fills/CTAs (white text on it = 4.6:1 ✓), bars, icons and large type. Gradient depth anchors: EC0000 → CC0000
+  → 990000 (official tones only).
+- **Logo rules (from the book):** main version (flame + wordmark) prioritised everywhere; secondary (stacked)
+  only under size constraints; symbol only in small spaces (app pictogram). Clear space = flame-symbol width
+  (min: half). Minimum sizes: main 25px/3mm · secondary 50px/5mm · symbol 16px/3mm. Black & white and negative
+  (white-on-red) variants exist. Cobranding: 4-module gap + 1pt divider.
 - **Logo:** official Santander lockups in `brand/` — SVG (`santander-logo-{red,white,black}.svg`, source of
-  truth) + rasterised transparent PNGs (3000×519, for docx/pptx which can't embed SVG). Applied: **red logo in
-  the app header (both shells) and on the report covers.** Do not hand-recreate or recolour the mark.
-- Still to confirm from portal: full neutral palette, secondary/gradient reds (currently `#ec0000`), and the
-  official typeface name.
-- **Decks:** all 5 recoloured to `#DA291C` (in-place XML colour swap, 626 refs; 0 overflow); deck builders'
-  source red updated to match. **Official white Santander logo now on all 5 cover slides** (placeholder square
-  marks + redundant top-left brand labels removed; verified visually via `deck_to_html.py`). Deck **body font
-  stays Calibri** — swapping to Santander Text risks unverifiable layout reflow. Deck stats **refreshed Jul 2026**
-  (17 workflows, 7,400 lines; PR s3 + DBF s7 rebuilt as 5×4 grids of all 17). The June2026_Changes deck keeps its
-  historical snapshot figures on purpose — it's a dated changelog, not current-state.
+  truth) + rasterised transparent PNGs (3000×519, for docx/pptx which can't embed SVG). Red variants are
+  `#EC0000` (Jul 2026). Applied: **red logo in the app header (both shells) and on the report covers.**
+  Do not hand-recreate or recolour the mark.
+- **Decks:** all 5 recoloured to official `#EC0000` + Lisbon `#FBF1EA` (zip-level XML swap, ~737 refs — covers
+  fills *and* visible swatch text); deck builders' source red updated to match. **Official white Santander logo
+  on all 5 cover slides.** Deck **body font stays Calibri** — swapping to Santander Text risks unverifiable
+  layout reflow. Deck stats **refreshed Jul 2026** (17 workflows, 36 features, 7,400 lines; PR s3 + DBF s7 + Arch
+  s9 rebuilt as grids of all 17). The June2026_Changes deck keeps its historical snapshot figures on purpose —
+  it's a dated changelog, not current-state (its brand *colours* are kept current, its *stats* are not).
 - **Project Record s9 renamed (Jul 2026, Captain's order):** "Reference Library — 1701-uniform/REFERENCE.md" →
   **"Reference Library — Applied Knowledge Base"**; file path, §-section tags and Node.js/C++ jargon removed —
   they referenced the co-located 1701 project, not the Santander build. Don't reintroduce them.
-- App top-bar and card gradients standardised on `#DA291C` (the older bright `#ec0000` retired).
+- App top-bar and card gradients standardised on official `#EC0000` with Boston/London depth anchors (Jul 2026;
+  the interim `#DA291C` gradients and the pre-brand `#c8102e` are both retired).
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
 - Spacing scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.
-- **Typeface: Santander Text** — the official corporate font (humanist sans-serif, © 2018 Banco Santander,
-  proprietary/all rights reserved). Applied via **named font-family only** (`'Santander Text','Geist',…`) so it
-  renders on Santander-managed devices where it's installed; **Geist** is the open-licensed fallback. **Never
-  hotlink** third-party mirrors (wfonts / onlinewebfonts) or commit the font file — proprietary. The serif
-  Fraunces is **retired** (Santander is a sans-serif brand). NB: a commercial *display serif* also named
-  "Santander" (Made Good Designs) is an unrelated name-coincidence — do not use it.
+- **Typefaces (official trio, custom-built by Monotype with Interbrand for Santander; proprietary):**
+  **Santander Logo** (wordmark-derived, Regular/Light), **Santander Headline** (narrow, wordmark-related — for
+  headlines/titles), **Santander Text** (humanist sans by Hendrik Weber, adapted from the logo glyphs with
+  extended x-height/ascenders/descenders for text sizes). The rebrand replaced FF Kievit, Berling, Open Sans and
+  Arial. Applied via **named font-family only** — `.font-display`: `'Santander Headline','Santander Text','Geist'`,
+  `.font-body`: `'Santander Text','Geist'` — renders on Santander-managed devices where installed; **Geist** is
+  the open-licensed fallback. **Never hotlink** third-party mirrors (wfonts / onlinewebfonts) or commit font
+  files — proprietary. The serif Fraunces is **retired** (Santander is a sans-serif brand). NB: a commercial
+  *display serif* also named "Santander" (Made Good Designs) is an unrelated name-coincidence — do not use it.
   Reports: docx names Santander Text (Word substitutes if absent); PDF stays Helvetica (reportlab can't embed
   the proprietary font without the licensed file).
 - `num-tab` on all monetary figures; one primary CTA per view; never `text-gray-*`/`text-zinc-*`.

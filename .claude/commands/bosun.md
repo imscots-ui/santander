@@ -12,7 +12,7 @@ In Tailwind: `1, 2, 3, 4, 6, 8, 12, 16, 24, 32`
 Flag any arbitrary value like `p-[13px]` or `mt-[7px]`.
 
 ### The Colour Rules
-Brand red: `#DA291C` — CTAs, active nav states, the top bar. Nothing else.
+Brand red: `#EC0000` — CTAs, active nav states, the top bar. Nothing else.
 Background: `#faf6ef` — warm off-white. The only page bg.
 Text primary: `#1c1917` (stone-900)
 Text secondary: `#78716c` (stone-500)
@@ -23,7 +23,7 @@ On dark cards (`hero-card`, `tile-hero`): use `text-white/65` or `text-stone-300
 On red surfaces: use `text-red-100` or `text-rose-200`, NOT `text-gray-300`.
 
 ### Hierarchy Law
-**One primary CTA per screen.** If you see two `bg-[#DA291C]` or two `bg-stone-900` buttons in the same view, one is wrong.
+**One primary CTA per screen.** If you see two `bg-[#EC0000]` or two `bg-stone-900` buttons in the same view, one is wrong.
 
 ### Shadow System
 Three levels only:
@@ -60,7 +60,7 @@ Every `focus:outline-none` must have a companion `focus-visible:ring-*` or `focu
 
 ### Check 4 — Button hierarchy
 ```bash
-grep -c "bg-\[#DA291C\]\|bg-stone-900\|bg-red-" App.jsx
+grep -c "bg-\[#EC0000\]\|bg-stone-900\|bg-red-" App.jsx
 ```
 Count primary-weight buttons in the visible render area. More than 2-3 per screen is a hierarchy failure.
 

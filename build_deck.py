@@ -782,9 +782,9 @@ slide_title(s, "Design system — built for every customer.")
 # Colour swatches
 T(s, "COLOUR", 0.48, 1.12, 2, 0.24, size=8, bold=True, color=STONE5)
 swatches = [
-    (RED,                         "#DA291C", "brand-red",  "CTAs, active nav"),
+    (RED,                         "#EC0000", "brand-red",  "CTAs, active nav"),
     (DARK,                        "#1C1917", "stone-900",  "Primary text"),
-    (WARM,                        "#FAF6EF", "warm-bg",    "Page background"),
+    (WARM,                        "#FBF1EA", "warm-bg",    "Page background"),
     (STONE5,                      "#78716C", "stone-500",  "Secondary text"),
     (RGBColor(0xFE,0xCA,0xCA),    "#FECACA", "red-200",    "On red surfaces"),
 ]

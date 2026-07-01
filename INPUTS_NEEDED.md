@@ -31,20 +31,20 @@ instruments (PSD2/SCA, PSR 2017, MLR 2017, DISP, Consumer Duty, WCAG) covers ~90
 
 ---
 
-## 2. Brand kit  ·  impact: HIGH (presentation)
+## 2. Brand kit  ·  impact: RESOLVED (Jul 2026)
 
-**What:** the real Santander assets — logo files (SVG/PNG), the exact brand hex palette, the licensed brand
-fonts, and any existing report/deck template or house style.
+**Resolved by the Captain supplying the official *Basic Guidelines for Santander* (santander.com brand portal,
+© Banco Santander S.A. 2020) plus the Monotype typeface names.** Now applied and recorded in `DECISIONS.md`:
 
-**Why it matters:** partly resolved — brand red `#DA291C` is confirmed and applied, the official logo is in
-`brand/`, and the typeface is named (Santander Text, rendered where installed with Geist as the open fallback).
-Still approximated: the full neutral palette, secondary/gradient reds, and the licensed font *files*.
+- **Full official palette** — Santander Red `#EC0000` (Pantone 485 C), Boston `#CC0000`, London `#990000`,
+  Madrid `#EA6F5D`, Mexico City `#F0B998`, Rio `#F5DECF`, Lisbon `#FBF1EA`, White, Black. Backgrounds limited
+  to the asterisked tones (White, Lisbon, Rio, Santander Red).
+- **Logo rules** — main / secondary / symbol versions, clear space from flame width, minimum sizes
+  (25px / 50px / 16px), black & white and negative variants, cobranding lockups.
+- **Typefaces** — Santander Logo, Santander Headline, Santander Text (custom, Monotype, proprietary).
 
-**What it unlocks:** decks and reports that are genuinely on-brand rather than a faithful imitation — the
-difference between "looks like Santander" and "is Santander" for anything shown to stakeholders.
-
-**Smallest useful version:** the logo + the official hex values + the font names. Even without font *files*
-(licensing), knowing the correct typefaces lets me match them or specify them precisely.
+**Still open (small):** the licensed font *files* themselves (named-family + Geist fallback works meanwhile),
+and any in-house report/deck template if one exists.
 
 ---
 

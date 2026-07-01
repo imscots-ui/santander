@@ -479,8 +479,8 @@ def slide_10_design_system(prs):
           sub="Brand tokens, spacing scale, and the colour rules enforced on every commit")
 
     # Colour swatches
-    swatches = [("#DA291C", "Brand red", RED, WHITE),
-                ("#faf6ef", "Warm bg", WARM, DARK),
+    swatches = [("#EC0000", "Brand red", RED, WHITE),
+                ("#FBF1EA", "Warm bg", WARM, DARK),
                 ("#1c1917", "Stone-900", DARK, WHITE),
                 ("#78716c", "Stone-500", STONE5, WHITE)]
     for i, (hexv, name, col, tc) in enumerate(swatches):
@@ -498,7 +498,7 @@ def slide_10_design_system(prs):
     panels = [
         ("Typography", "Fraunces — display headings (Google Fonts). Geist — body. Geist Mono — account numbers and figures."),
         ("Colour law", "Never text-gray-* or text-zinc-* — always text-stone-*. Never stone-400/500 on dark or red surfaces."),
-        ("One primary CTA", "Exactly one bg-[#DA291C] or bg-stone-900 primary button per view — hierarchy stays clear."),
+        ("One primary CTA", "Exactly one bg-[#EC0000] or bg-stone-900 primary button per view — hierarchy stays clear."),
         ("Tabular figures", "num-tab class (font-variant-numeric: tabular-nums) on every monetary amount for clean alignment."),
         ("Inline CSS", "css template literal (~line 779): hero-card, cool-card, anim-fade, anim-slide, shimmer, stagger-1…7."),
         ("Enforcement", "Bosun station in /ship-ready scans for spacing, colour, and CTA violations before every push."),

@@ -9,9 +9,9 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import report_content as C
 
-RED = RGBColor(0xDA, 0x29, 0x1C); INK = RGBColor(0x1C, 0x19, 0x17)
+RED = RGBColor(0xEC, 0x00, 0x00); INK = RGBColor(0x1C, 0x19, 0x17)
 STONE = RGBColor(0x57, 0x53, 0x4E); LIGHT = RGBColor(0x78, 0x71, 0x6C)
-HAIR = 'E7E5E4'; PANEL = 'FAF6EF'
+HAIR = 'E7E5E4'; PANEL = 'FBF1EA'
 
 
 def _shade(el, hexfill):
@@ -25,7 +25,7 @@ def _border(cell, edges, color=HAIR, sz='6'):
         x.set(qn('w:space'), '0'); x.set(qn('w:color'), color); tcB.append(x)
     tcPr.append(tcB)
 
-def _left_accent(cell, color='DA291C', sz='24'):
+def _left_accent(cell, color='EC0000', sz='24'):
     tcPr = cell._tc.get_or_add_tcPr(); tcB = OxmlElement('w:tcBorders')
     x = OxmlElement('w:left'); x.set(qn('w:val'), 'single'); x.set(qn('w:sz'), sz)
     x.set(qn('w:space'), '0'); x.set(qn('w:color'), color); tcB.append(x); tcPr.append(tcB)

@@ -45,7 +45,7 @@ def shade_paragraph(para, hex_fill):
 
 def h1(text):
     p = doc.add_paragraph()
-    shade_paragraph(p, 'DA291C')
+    shade_paragraph(p, 'EC0000')
     p.paragraph_format.space_before = Pt(18)
     p.paragraph_format.space_after  = Pt(4)
     p.paragraph_format.left_indent  = Cm(0.3)
@@ -163,7 +163,7 @@ def write_escalation(e1, e2, e3, e4_text, letter_type, letter_para):
 # COVER PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 p = doc.add_paragraph()
-shade_paragraph(p, 'DA291C')
+shade_paragraph(p, 'EC0000')
 p.paragraph_format.space_before = Pt(40)
 p.paragraph_format.space_after  = Pt(0)
 p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -171,7 +171,7 @@ run = p.add_run('Santander Business Banking')
 set_font(run, size=22, bold=True, color=WHITE)
 
 p = doc.add_paragraph()
-shade_paragraph(p, 'DA291C')
+shade_paragraph(p, 'EC0000')
 p.paragraph_format.space_before = Pt(0)
 p.paragraph_format.space_after  = Pt(40)
 p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -542,7 +542,7 @@ write_escalation(
 # ══════════════════════════════════════════════════════════════════════════════
 doc.add_page_break()
 p = doc.add_paragraph()
-shade_paragraph(p, 'DA291C')
+shade_paragraph(p, 'EC0000')
 p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = p.add_run('Santander Business Banking · Complaint Writing Guide · Internal Use Only · June 2026')
 set_font(run, size=9, color=WHITE)

@@ -124,8 +124,8 @@ Scan this table before reading any section. Each row maps a decision question to
 | Which text colour class for body copy? | `text-stone-*` — **never** `text-gray-*` or `text-zinc-*` | §42 |
 | Text on a dark card or red surface? | `text-white/65`, `text-stone-300`, or `text-red-100` — **never** `text-stone-400` or `text-stone-500` | §42 |
 | Brand red (CTA, active states, top bar)? | `#c8102e` | CLAUDE.md |
-| Page/body background? | `#faf6ef` (warm off-white) | CLAUDE.md |
-| How many primary CTAs per screen? | **One** — `bg-[#DA291C]` or `bg-stone-900` appears once per view | CLAUDE.md |
+| Page/body background? | `#FBF1EA` (warm off-white) | CLAUDE.md |
+| How many primary CTAs per screen? | **One** — `bg-[#EC0000]` or `bg-stone-900` appears once per view | CLAUDE.md |
 | Class for monetary amounts? | `num-tab` (enables tabular figures) | CLAUDE.md |
 | Display font (large headings)? | Santander Text (corporate sans; Geist fallback) via `font-display` | CLAUDE.md |
 | Body font? | Santander Text via `font-body` (Geist open-source fallback) | CLAUDE.md |
@@ -1898,7 +1898,7 @@ useEffect(() => {
 ### Tailwind Conventions (this project)
 
 - Brand red: `text-red-700` / `bg-red-700` maps to `#c8102e`
-- Background: `bg-[#faf6ef]` (warm off-white — use the hex, no Tailwind equivalent)
+- Background: `bg-[#FBF1EA]` (warm off-white — use the hex, no Tailwind equivalent)
 - Monetary amounts: add `num-tab` CSS class for tabular figures alignment
 - Custom animations (`anim-fade`, `anim-slide`, `shimmer`, `stagger-1` through `stagger-7`)
   are defined in the `css` template literal inside App.jsx — don't add them to Tailwind config
@@ -5175,7 +5175,7 @@ The prototype uses Santander brand conventions — these rules apply:
 --color-brand-dark: #a00d24;  /* hover/pressed states */
 
 /* Background */
---color-bg:         #faf6ef;  /* warm off-white */
+--color-bg:         #FBF1EA;  /* warm off-white */
 
 /* Never use pure black for text — use dark warm neutral */
 --color-text:       #1a1008;
@@ -8081,7 +8081,7 @@ Old default surcharge regime replaced by a points-based system:
 
 ```js
 // Santander brand colours — contrast check:
-// #c8102e (brand red) on #faf6ef (page bg):  ratio ≈ 5.2:1  ✓ AA
+// #c8102e (brand red) on #FBF1EA (page bg):  ratio ≈ 5.2:1  ✓ AA
 // #c8102e on #ffffff (white card):            ratio ≈ 4.8:1  ✓ AA
 // text-stone-500 (#78716c) on white:          ratio ≈ 4.1:1  ✗ FAILS AA for normal text
 // text-stone-600 (#57534e) on white:          ratio ≈ 5.9:1  ✓ AA
@@ -15801,7 +15801,7 @@ module.exports = {
     extend: {
       colors: {
         'brand-red': '#c8102e',
-        'brand-warm': '#faf6ef',
+        'brand-warm': '#FBF1EA',
       },
       spacing: {
         '72': '18rem',
@@ -15954,7 +15954,7 @@ Tailwind is well-suited to encoding a brand's design tokens. The `theme` block i
 ```js
 colors: {
   primary: { DEFAULT: '#c8102e', hover: '#a00d24', pressed: '#800b1c' },
-  surface: { DEFAULT: '#faf6ef', elevated: '#ffffff' },
+  surface: { DEFAULT: '#FBF1EA', elevated: '#ffffff' },
   on: {
     primary: '#ffffff',
     surface: '#1c1917',   // stone-900
@@ -16290,7 +16290,7 @@ This project already applies Tailwind in the recommended utility-first way. Key 
 
 | Book principle | Applied in App.jsx |
 |----------------|--------------------|
-| Extend, don't replace | `brand-red: #DA291C`, `bg-[#faf6ef]` as arbitrary values alongside default palette |
+| Extend, don't replace | `brand-red: #EC0000`, `bg-[#FBF1EA]` as arbitrary values alongside default palette |
 | Mobile-first responsive prefixes | `sm:`, `md:`, `lg:` used throughout screens and layout |
 | Custom font tokens | `font-display`/`font-body` (Santander Text, Geist fallback), `font-mono` (Geist Mono) registered via config / inline CSS |
 | `@layer` discipline | `css` template literal equivalent — brand styles injected as `<style>` |
@@ -16495,7 +16495,7 @@ Each colour goes from `{name}-50` (near white) to `{name}-950` (near black). The
 extend: {
   colors: {
     'brand-red': '#c8102e',
-    'brand-warm': '#faf6ef',
+    'brand-warm': '#FBF1EA',
     'custom-blue': '#1E40AF',
   }
 }
@@ -23482,7 +23482,7 @@ The project's standing orders are direct implementations of these criteria:
 
 **Worked check for the brand palette:**
 - White `#FFFFFF` on brand red `#c8102e` → ~**4.8:1** → passes AA for normal text. ✓ (This is why CTA labels are white, not light grey.)
-- `text-stone-500` `#78716c` on warm bg `#faf6ef` → ~**4.0:1** → *fails* AA normal text, passes only as large text — which is exactly why Bosun's Law restricts where stone-400/500 may appear.
+- `text-stone-500` `#78716c` on warm bg `#FBF1EA` → ~**4.0:1** → *fails* AA normal text, passes only as large text — which is exactly why Bosun's Law restricts where stone-400/500 may appear.
 
 ### 99.8 Quick Workflow
 

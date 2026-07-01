@@ -43,3 +43,15 @@ designed around. It is the citation source for the Technical Report and Position
 - `nationalarchives.gov.uk` — records citation style. `data.gov.uk` — UK open data.
 
 When these are on the allow-list (or pasted), promote the ⚠ items to ✓ and record the source URL.
+
+## Brand sources (Jul 2026 — supplied by the Captain, screenshots of the live pages)
+
+- ✓ **Basic Guidelines for Santander** — santander.com/content/dam/santander-com/es/… (public brand-portal PDF,
+  © Banco Santander S.A., 2020; "Santander is a registered trademark. All rights reserved.").
+  Source of: primary colour palette with Pantone/CMYK/RGB/HEX (Santander Red = Pantone 485 C = `#EC0000`;
+  Boston/London/Madrid/Mexico City/Rio/Lisbon), logotype versions & clear-space/minimum-size rules, black-white
+  and negative logo variants, cobranding lockups, final-artwork nomenclature (`AF_SANTANDER_PV_POS_CMYK.EPS`).
+- ✓ **Monotype × Interbrand Santander typeface case study** (Captain-supplied text) — provenance of the official
+  trio: Santander Logo (wordmark-derived complete alphabet, Regular/Light), Santander Headline (narrow,
+  wordmark-adjacent), Santander Text (humanist, Hendrik Weber; extended x-height/ascenders/descenders);
+  rebrand replaced FF Kievit, Berling, Open Sans, Arial. Fonts are proprietary to Santander Group.
