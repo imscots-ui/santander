@@ -68,10 +68,11 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
   the app header (both shells) and on the report covers.** Do not hand-recreate or recolour the mark.
 - Still to confirm from portal: full neutral palette, secondary/gradient reds (currently `#ec0000`), and the
   official typeface name.
-- **Decks:** all 5 recoloured to `#DA291C` (in-place XML colour swap, 626 refs; 0 overflow, layout untouched);
-  deck builders' source red updated to match. The decks' drawn flame mark and Calibri body are **kept** — the
-  official logo PNG and Santander Text aren't applied there yet, deliberately: swapping the deck font risks
-  layout reflow I can't verify without the installed font. A dedicated deck rebuild can add logo + font later.
+- **Decks:** all 5 recoloured to `#DA291C` (in-place XML colour swap, 626 refs; 0 overflow); deck builders'
+  source red updated to match. **Official white Santander logo now on all 5 cover slides** (placeholder square
+  marks + redundant top-left brand labels removed; verified visually via `deck_to_html.py`). Deck **body font
+  stays Calibri** — swapping to Santander Text risks unverifiable layout reflow. Known: deck stat counts are
+  **stale** (say "12"/"13" workflows; actual is 17) — a content refresh, not done yet.
 - App top-bar and card gradients standardised on `#DA291C` (the older bright `#ec0000` retired).
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
