@@ -35,17 +35,17 @@ const ProgressDots = ({ total, current }) => (
 const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Continue', nextDisabled, replaces, onClose, children }) => (
   <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
     <div className="flex-shrink-0 border-b border-stone-200 bg-white">
-      <div className="px-5 pt-4 pb-3 flex items-center justify-between">
+      <div className="px-5 pt-4 pb-3 flex items-center justify-between max-w-xl mx-auto w-full">
         <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
         <ProgressDots total={total} current={current} />
         <button onClick={onClose} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
       </div>
-      <div className="px-5 pb-4">
+      <div className="px-5 pb-4 max-w-xl mx-auto w-full">
         <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
         {sub && <p className="text-sm text-stone-500 mt-1">{sub}</p>}
       </div>
     </div>
-    <div className="flex-1 overflow-y-auto px-5 py-5 pb-32">
+    <div className="flex-1 overflow-y-auto px-5 py-5 pb-32 max-w-xl mx-auto w-full">
       {replaces && current === 0 && (
         <div className="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-4 mb-4">
           <div className="flex items-start gap-3">
@@ -62,7 +62,7 @@ const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Co
     </div>
     <div className="flex-shrink-0 border-t border-stone-200 px-5 py-4 bg-white">
       <button onClick={onNext} disabled={nextDisabled}
-        className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        className="w-full max-w-xl mx-auto bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
         {nextLabel} <ArrowRight className="w-4 h-4" />
       </button>
     </div>
@@ -6745,6 +6745,82 @@ export default function App() {
     a11yFocus        && 'a11y-focus',
   ].filter(Boolean).join(' ');
 
+  // Payment/HMRC countdown-to-execute overlay. Defined once, rendered in BOTH
+  // shells (was previously inline in the desktop shell only — the mobile shell
+  // had no renderer, so Sign & send / Submit set paymentPending but nothing
+  // appeared and the workflow looked frozen).
+  const PaymentPendingOverlay = () => {
+    const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
+    const pct = paymentPending.countdown / maxCountdown;
+    const r = 46;
+    const circ = 2 * Math.PI * r;
+    const isHmrc = paymentPending.kind === 'hmrc';
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm anim-fade">
+        <div className="bg-white rounded-3xl px-8 pt-8 pb-6 mx-5 max-w-xs w-full shadow-2xl text-center">
+
+          {/* Ring countdown — hero */}
+          <div className="relative w-28 h-28 mx-auto mb-6">
+            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r={r} fill="none" stroke="#f5f5f4" strokeWidth="8" />
+              <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#c8102e' : '#1c1917'} strokeWidth="8"
+                strokeDasharray={circ}
+                strokeDashoffset={circ * (1 - pct)}
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-3xl font-bold text-stone-900 tabular-nums leading-none">{paymentPending.countdown}</span>
+              <span className="text-[10px] text-stone-400 uppercase tracking-wide mt-0.5">sec</span>
+            </div>
+          </div>
+
+          {/* Label */}
+          <div className="text-[11px] uppercase tracking-widest text-stone-400 mb-1.5">
+            {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
+          </div>
+          <div className="font-display text-xl text-stone-900 leading-snug mb-4">
+            {isHmrc ? 'Filing your VAT return' : 'Confirm payment'}
+          </div>
+
+          {/* Details pill */}
+          <div className="bg-stone-50 rounded-2xl px-4 py-3 mb-4 text-left">
+            <div className="text-[11px] text-stone-400 mb-0.5">{paymentPending.label}</div>
+            {paymentPending.total > 0 && (
+              <div className="font-mono text-lg font-semibold text-stone-900 num-tab">{fmt(paymentPending.total)}</div>
+            )}
+          </div>
+
+          {/* Warning */}
+          {isHmrc ? (
+            <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-5 text-xs text-amber-800 leading-relaxed text-left">
+              Filed returns cannot be corrected through this app — contact HMRC directly to amend.
+            </div>
+          ) : (
+            <div className="bg-stone-50 rounded-xl px-3 py-2.5 mb-5 text-xs text-stone-500 leading-relaxed text-left">
+              <strong className="text-stone-700">PSR cancel window</strong> — mandatory under APP fraud reimbursement rules (PS23/3, from 7 Oct 2024). Cancel if anything looks wrong: gross negligence bars your claim. Faster Payments and CHAPS covered up to £85,000, reimbursed within 5 business days.
+            </div>
+          )}
+
+          {/* Cancel — subdued secondary, not alarming */}
+          <button
+            onClick={() => {
+              setPaymentPending(null);
+              fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
+            }}
+            className="w-full bg-stone-100 text-stone-700 py-3.5 rounded-2xl font-medium text-sm active:scale-[0.98] transition-all hover:bg-stone-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+          >
+            Cancel
+          </button>
+          <div className="mt-3 text-[11px] text-stone-400">
+            {isHmrc ? 'Filing automatically in' : 'Sending automatically in'} {paymentPending.countdown}s
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (viewMode === 'desktop') {
     return (
       <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
@@ -6979,77 +7055,7 @@ export default function App() {
         {showNotifications && NotificationsSheet()}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
-        {paymentPending && (() => {
-          const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
-          const pct = paymentPending.countdown / maxCountdown;
-          const r = 46;
-          const circ = 2 * Math.PI * r;
-          const isHmrc = paymentPending.kind === 'hmrc';
-          return (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm anim-fade">
-              <div className="bg-white rounded-3xl px-8 pt-8 pb-6 mx-5 max-w-xs w-full shadow-2xl text-center">
-
-                {/* Ring countdown — hero */}
-                <div className="relative w-28 h-28 mx-auto mb-6">
-                  <svg className="w-28 h-28 -rotate-90" viewBox="0 0 112 112">
-                    <circle cx="56" cy="56" r={r} fill="none" stroke="#f5f5f4" strokeWidth="8" />
-                    <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#c8102e' : '#1c1917'} strokeWidth="8"
-                      strokeDasharray={circ}
-                      strokeDashoffset={circ * (1 - pct)}
-                      strokeLinecap="round"
-                      style={{ transition: 'stroke-dashoffset 0.9s linear' }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold text-stone-900 tabular-nums leading-none">{paymentPending.countdown}</span>
-                    <span className="text-[10px] text-stone-400 uppercase tracking-wide mt-0.5">sec</span>
-                  </div>
-                </div>
-
-                {/* Label */}
-                <div className="text-[11px] uppercase tracking-widest text-stone-400 mb-1.5">
-                  {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
-                </div>
-                <div className="font-display text-xl text-stone-900 leading-snug mb-4">
-                  {isHmrc ? 'Filing your VAT return' : 'Confirm payment'}
-                </div>
-
-                {/* Details pill */}
-                <div className="bg-stone-50 rounded-2xl px-4 py-3 mb-4 text-left">
-                  <div className="text-[11px] text-stone-400 mb-0.5">{paymentPending.label}</div>
-                  {paymentPending.total > 0 && (
-                    <div className="font-mono text-lg font-semibold text-stone-900 num-tab">{fmt(paymentPending.total)}</div>
-                  )}
-                </div>
-
-                {/* Warning */}
-                {isHmrc ? (
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-5 text-xs text-amber-800 leading-relaxed text-left">
-                    Filed returns cannot be corrected through this app — contact HMRC directly to amend.
-                  </div>
-                ) : (
-                  <div className="bg-stone-50 rounded-xl px-3 py-2.5 mb-5 text-xs text-stone-500 leading-relaxed text-left">
-                    <strong className="text-stone-700">PSR cancel window</strong> — mandatory under APP fraud reimbursement rules (PS23/3, from 7 Oct 2024). Cancel if anything looks wrong: gross negligence bars your claim. Faster Payments and CHAPS covered up to £85,000, reimbursed within 5 business days.
-                  </div>
-                )}
-
-                {/* Cancel — subdued secondary, not alarming */}
-                <button
-                  onClick={() => {
-                    setPaymentPending(null);
-                    fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
-                  }}
-                  className="w-full bg-stone-100 text-stone-700 py-3.5 rounded-2xl font-medium text-sm active:scale-[0.98] transition-all hover:bg-stone-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
-                >
-                  Cancel
-                </button>
-                <div className="mt-3 text-[11px] text-stone-400">
-                  {isHmrc ? 'Filing automatically in' : 'Sending automatically in'} {paymentPending.countdown}s
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+        {paymentPending && PaymentPendingOverlay()}
         {openCounterparty && CounterpartySheet()}
 
         {toast && (
@@ -7164,6 +7170,7 @@ export default function App() {
       {showVoiceSetup && VoiceIdSheet()}
       {showNotifications && NotificationsSheet()}
       {openCounterparty && CounterpartySheet()}
+      {paymentPending && PaymentPendingOverlay()}
 
       {toast && (
         <div className="fixed bottom-24 inset-x-5 z-50 anim-fade">
