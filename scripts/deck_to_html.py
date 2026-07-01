@@ -86,7 +86,7 @@ def emit(shape, dx=0, dy=0):
         l, t, w, h = px(shape.left) + dx, px(shape.top) + dy, px(shape.width), px(shape.height)
     except Exception:
         return ''
-    style = f'position:absolute;left:{l}px;top:{t}px;width:{w}px;height:{h}px;overflow:hidden;'
+    style = f'position:absolute;left:{l}px;top:{t}px;width:{w}px;height:{h}px;overflow:visible;'
     inner = ''
     try:
         if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
