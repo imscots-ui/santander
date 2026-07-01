@@ -16,6 +16,7 @@ The ship's **living idea log**. Feature candidates survive here across context r
 | Card Controls sheet | Jul 2026 | Limits · contactless/online/abroad/ATM/gambling · report-lost → reissue |
 | Transaction dispute / chargeback | Jul 2026 | 14th workflow; fraud (PSR 2017) / DD Guarantee / Visa chargeback routes; passed /muster |
 | International beneficiary onboarding | Jul 2026 | 15th workflow; sanctions/PEP/CoP screening (MLR 2017), FTR name/address; passed /muster |
+| Balance certificate on demand | Jul 2026 | 16th workflow; renders a sealed cert (balances as-at, CH/charity no, ref); clean-sweep /muster |
 
 ---
 
@@ -25,8 +26,7 @@ Each row: *user · paper process it replaces · regulatory hook · demo strength
 
 | # | Feature | User | Replaces | Reg hook | Demo | Status |
 |---|---|---|---|---|---|---|
-| 4 | **Statement / certificate of balance on demand** | Accountant | Written request, 5-day postal wait | — (evidence for MTD/lenders) | ⭐⭐ | idea ← recommended next |
-| 7 | **Trusted-device & session management** | Any user | Branch visit to reset access | PSD2 SCA, SYSC | ⭐⭐ | idea |
+| 7 | **Trusted-device & session management** | Any user | Branch visit to reset access | PSD2 SCA, SYSC | ⭐⭐ | idea ← recommended next |
 | 2 | **Business overdraft / limit change** | Director | Phone-and-post facility request | CONC, affordability | ⭐⭐ | idea |
 | 6 | **Scheduled payment run approval (dual control)** | Two directors | Cheque-book counter-signing | Mandate `all` / `any-2` rule | ⭐⭐ | idea |
 
