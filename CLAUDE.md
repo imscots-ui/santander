@@ -81,7 +81,7 @@ The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This 
 2. **Static data** — `ENTITY_INFO`, `signatories`, `accounts` (via `useMemo`), `mtdData`, `statementsData` (via `useMemo`)
 3. **Inline CSS** — a `css` template literal variable holds brand-specific styles, animations, and glass effects. Injected via `<style>{css}</style>` in the render
 4. **Primitive components** — `ProgressDots`, `StepFrame`, `Input`, `Field`, `Toggle` — small JSX helpers defined as closures. **No hooks inside these.**
-5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderLending`, `renderFX`, `renderDormancy`, `renderUnlink`, `renderRingfence`, `renderIdCheck`, `renderMtdSubmit` — each returns JSX and reads/writes the top-level state. **No hooks inside these.**
+5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderLending`, `renderFX`, `renderDormancy`, `renderUnlink`, `renderRingfence`, `renderIdCheck`, `renderMtdSubmit`, `renderComplaint`, `renderRecurring`, `renderDispute`, `renderBeneficiary`, `renderCertificate` — each returns JSX and reads/writes the top-level state. **No hooks inside these.** (16 workflows as of Jul 2026.)
 6. **Screen components** — `HomeScreen`, `ApproveScreen`, `AuditScreen`, `StatementsScreen`, `MTDScreen` — also closures. **No hooks inside these.**
 7. **Sheet/modal components** — `OTPSheet`, `ComplianceSheet`, `SavingsSheet`, `RMSheet`, `EntitySheet`, `CancelSheet`, `ReceiptSheet`, `PinSheet`, `OBSheet`, `VoiceMemoSheet`, `SequencerSheet`, `VoiceIdSheet`, `NotificationsSheet`, `CounterpartySheet`, `A11ySheet` — overlays rendered conditionally from the main return
 8. **Main render** — two code paths: `viewMode === 'desktop'` (sidebar layout) and the default mobile shell (bottom nav). Both render the same screen components and workflow overlays with the same state.
@@ -89,7 +89,7 @@ The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This 
 ### Navigation model
 
 - `tab` state drives the main screen: `'home' | 'approve' | 'audit' | 'mtd' | 'statements'`
-- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'lending' | 'fx' | 'dormancy' | 'unlink' | 'ringfence' | 'idcheck' | 'mtd-submit'`
+- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'lending' | 'fx' | 'dormancy' | 'unlink' | 'ringfence' | 'idcheck' | 'mtd-submit' | 'complaint' | 'recurring' | 'dispute' | 'beneficiary' | 'certificate'` (16 workflows). Each overlay is wired in **both** shell routing blocks.
 - `step` state tracks position within the active workflow (0-based)
 - `viewMode` toggles between `'mobile'` (default) and `'desktop'`
 
@@ -122,29 +122,31 @@ Each account has a `rule`: `'any-1'`, `'any-2'`, or `'all'`. The `getMandateFor(
 
 ## Key data locations in App.jsx
 
-| What | Approximate line |
-|------|-----------------|
-| All state declarations | ~28–685 |
-| `payees` state (bulk payments demo data) | ~167 |
-| `ENTITY_INFO` static data | ~264 |
-| `accounts` useMemo | ~334 |
-| `getMandateFor` helper | ~420 |
-| `mtdData` (Making Tax Digital) | ~442 |
-| `statementsData` useMemo (transaction history) | ~485 |
-| `closeWorkflow` (resets workflow state) | ~831 |
-| Inline CSS (`css` template literal) | ~779 |
-| Primitive components (`ProgressDots`, `StepFrame`, `Input`, etc.) | ~950 |
-| `renderClosure` | ~1021 |
-| `renderBiz` | ~1332 |
-| `renderMandate` | ~1428 |
-| `renderWages` | ~1630 |
-| `renderLending` / `renderFX` | ~1915 / ~2018 |
-| `renderDormancy` / `renderUnlink` / `renderRingfence` | ~2149 / ~2177 / ~2310 |
-| `renderIdCheck` | ~2390 |
-| `HomeScreen` | ~2832 |
-| `renderMtdSubmit` | ~4998 |
-| Desktop shell main render (`viewMode === 'desktop'`) | ~5264 |
-| Mobile shell main render (default `return`) | ~5565 |
+> **Line numbers drift** — `App.jsx` is ~7,180 lines and grows with every workflow. Don't trust the numbers below to the line; **grep the anchor** (the exact string in the middle column) — that's stable. Numbers refreshed Jul 2026.
+
+| What | Grep anchor | ~Line |
+|------|-------------|-------|
+| All state declarations | (top of `App`, before `closeWorkflow`) | ~28–330 |
+| `payees` state (bulk payments demo data) | `const [payees` | ~253 |
+| `ENTITY_INFO` static data | `const ENTITY_INFO` | ~400 |
+| `BUSINESS_CARDS` + card-control helpers | `const BUSINESS_CARDS` | ~433 |
+| `accounts` useMemo | `const accounts = useMemo` | ~476 |
+| `getMandateFor` helper | `const getMandateFor` | ~567 |
+| `mtdData` (Making Tax Digital) | `const mtdData` | ~589 |
+| `statementsData` useMemo (transaction history) | `const statementsData = useMemo` | ~632 |
+| `closeWorkflow` (resets ALL workflow state) | `const closeWorkflow` | ~909 |
+| Inline CSS (`css` template literal) | `const css = ` | ~957 |
+| Primitives (`ProgressDots`, `StepFrame`) — **top-level, outside `App`** | `const StepFrame` | ~27–35 |
+| In-`App` primitives (`Input`, `Field`, `Toggle`) | `const Input = ` | after `css` |
+| `renderClosure` / `renderBiz` / `renderMandate` | `const renderClosure` | ~1128 / ~1439 / ~1535 |
+| `renderWages` / `renderLending` / `renderFX` | `const renderWages` | ~1737 / ~2022 / ~2125 |
+| `renderDormancy` / `renderUnlink` / `renderRingfence` | `const renderDormancy` | ~2256 / ~2284 / ~2417 |
+| `renderIdCheck` / `renderComplaint` / `renderRecurring` | `const renderIdCheck` | ~2497 / ~3090 / ~3321 |
+| `renderDispute` / `renderBeneficiary` / `renderCertificate` | `const renderDispute` | ~3537 / ~3696 / ~3863 |
+| `HomeScreen` (shared by both shells) | `const HomeScreen` | ~4048 |
+| `renderMtdSubmit` | `const renderMtdSubmit` | ~6470 |
+| Desktop shell main render | `if (viewMode === 'desktop')` | ~6748 |
+| Mobile shell main render (default `return`) | (first `return (` after the desktop block) | ~7068 |
 
 ## Important constraints
 

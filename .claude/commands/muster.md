@@ -40,8 +40,20 @@ Use this to review a diff fast and from five independent angles. It is the paral
 
 4. **Hand back.** RED findings are blockers — fix them, then re-muster or run `/ship-ready`. AMBER is logged, not blocking. Never push on a RED.
 
+## Scale the panel to the diff
+
+A full five-officer fan-out costs ~120k tokens. That's the right spend for a new workflow; it's wasteful on a one-line copy tweak. Size the muster to the change:
+
+| Diff | Panel |
+|------|-------|
+| **New workflow / sheet, or >~150 changed lines** | Full five officers |
+| **Moderate change (new component, multi-file, ~30–150 lines)** | The lanes it touches — usually XO + Signals + one of Bosun/Security |
+| **Small / mechanical (<~30 lines, copy, spacing, single fn)** | Skip the fan-out — run `/ship-ready` grep gates inline; muster only if those flag something |
+
+State which tier you picked and why in the verdict, so the choice is visible. When in doubt on a review/audit request, size up.
+
 ## Notes
 
 - Keep each subagent tightly scoped to its lane so they don't all re-report the same generic issues — the value is five *different* views, not five copies of one.
 - If the diff is large, tell each officer to focus on the changed hunks, not the whole file.
-- This command spends more tokens than `/ship-ready` (five agents). Use it for substantial changes; use `/ship-ready` for the routine pre-push gate.
+- The recurring findings (missing `num-tab`, ghost/stale state, `Input` `e.target.value` misuse) are now prevented by the `/new-workflow` scaffold — if the muster still finds one, the scaffold wasn't used. Prefer scaffolding over re-catching.
