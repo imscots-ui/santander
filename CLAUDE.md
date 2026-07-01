@@ -81,7 +81,7 @@ The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This 
 2. **Static data** — `ENTITY_INFO`, `signatories`, `accounts` (via `useMemo`), `mtdData`, `statementsData` (via `useMemo`)
 3. **Inline CSS** — a `css` template literal variable holds brand-specific styles, animations, and glass effects. Injected via `<style>{css}</style>` in the render
 4. **Primitive components** — `ProgressDots`, `StepFrame`, `Input`, `Field`, `Toggle` — small JSX helpers defined as closures. **No hooks inside these.**
-5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderLending`, `renderFX`, `renderDormancy`, `renderUnlink`, `renderRingfence`, `renderIdCheck`, `renderMtdSubmit`, `renderComplaint`, `renderRecurring`, `renderDispute`, `renderBeneficiary`, `renderCertificate` — each returns JSX and reads/writes the top-level state. **No hooks inside these.** (16 workflows as of Jul 2026.)
+5. **Workflow renderers** — `renderClosure`, `renderBiz`, `renderMandate`, `renderWages`, `renderLending`, `renderFX`, `renderDormancy`, `renderUnlink`, `renderRingfence`, `renderIdCheck`, `renderMtdSubmit`, `renderComplaint`, `renderRecurring`, `renderDispute`, `renderBeneficiary`, `renderCertificate`, `renderTrusted` — each returns JSX and reads/writes the top-level state. **No hooks inside these.** (17 workflows as of Jul 2026.)
 6. **Screen components** — `HomeScreen`, `ApproveScreen`, `AuditScreen`, `StatementsScreen`, `MTDScreen` — also closures. **No hooks inside these.**
 7. **Sheet/modal components** — `OTPSheet`, `ComplianceSheet`, `SavingsSheet`, `RMSheet`, `EntitySheet`, `CancelSheet`, `ReceiptSheet`, `PinSheet`, `OBSheet`, `VoiceMemoSheet`, `SequencerSheet`, `VoiceIdSheet`, `NotificationsSheet`, `CounterpartySheet`, `A11ySheet` — overlays rendered conditionally from the main return
 8. **Main render** — two code paths: `viewMode === 'desktop'` (sidebar layout) and the default mobile shell (bottom nav). Both render the same screen components and workflow overlays with the same state.
@@ -89,7 +89,7 @@ The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This 
 ### Navigation model
 
 - `tab` state drives the main screen: `'home' | 'approve' | 'audit' | 'mtd' | 'statements'`
-- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'lending' | 'fx' | 'dormancy' | 'unlink' | 'ringfence' | 'idcheck' | 'mtd-submit' | 'complaint' | 'recurring' | 'dispute' | 'beneficiary' | 'certificate'` (16 workflows). Each overlay is wired in **both** shell routing blocks.
+- `workflow` state drives full-screen workflow overlays (rendered on top of main content): `null | 'closure' | 'biz' | 'mandate' | 'wages' | 'lending' | 'fx' | 'dormancy' | 'unlink' | 'ringfence' | 'idcheck' | 'mtd-submit' | 'complaint' | 'recurring' | 'dispute' | 'beneficiary' | 'certificate' | 'trusted'` (17 workflows). Each overlay is wired in **both** shell routing blocks.
 - `step` state tracks position within the active workflow (0-based)
 - `viewMode` toggles between `'mobile'` (default) and `'desktop'`
 
