@@ -86,4 +86,5 @@ const renderXxx = () => {
 1. `npm run build` — must be clean.
 2. Inline gates: `grep -c "workflow === '<id>'"` → 2; bare-outline count → 0; gray/zinc → 0.
 3. `/muster` (full panel for a new workflow) → fix any RED, log AMBER.
-4. `/ship-ready` → commit → push. Then move the item to Launched in `SHIPWRIGHT-BACKLOG.md` and bump the workflow count in `CLAUDE.md`.
+4. **Runtime drive-through** — `node scripts/verify-flows.mjs`. Static review confirms the code exists; this confirms the button actually *fires*. Add a check that drives the new workflow to its terminal step and asserts the final state renders (this is how the Sign-&-send dead-button bug would have been caught). Look at the screenshot.
+5. `/ship-ready` → commit → push. Then move the item to Launched in `SHIPWRIGHT-BACKLOG.md` and bump the workflow count in `CLAUDE.md`.
