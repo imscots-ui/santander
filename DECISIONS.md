@@ -98,6 +98,20 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
   screens are AA-clean on colour-contrast and name/role.
 - **Deck QA:** `scripts/deck-qa.py` checks pptx overflow + classification banners. All 5 decks: 0 overflow.
 
+## Environment / tooling capability
+
+- **LibreOffice headless is broken in this sandbox** — the `soffice`/`soffice.bin` IPC handshake fails, so
+  `--convert-to` returns "source file could not be loaded" for *every* file (even `.txt`). The binary itself
+  runs (`--version` OK), `/dev/shm` is ample, and clean profile / `HOME` / `SAL_USE_VCLPLUGIN=svp` make no
+  difference — it's a sandbox restriction, **not fixable by reinstall** (same binaries). Don't waste time
+  retrying it.
+- **Deck visual verification** is therefore done via `scripts/deck_to_html.py <deck> <slide>` → HTML →
+  Chromium screenshot (bypasses LibreOffice). Faithful for brand colour, text, images/logo, tables and gross
+  layout/overflow; freeform autoshapes (the drawn flame) render as a filled box, gradients use their end
+  stops. Use it to eyeball decks after any change.
+- **Report visual verification**: the PDFs render fine via `pdftoppm` (poppler). The app renders via
+  headless Chromium + axe (`scripts/verify-flows.mjs`). So every deliverable now has a working visual check.
+
 ## Standing orders (from CLAUDE.md — non-negotiable)
 
 - No `git push --force`, no `--no-verify`, no `rm -rf`, no secrets in source.
