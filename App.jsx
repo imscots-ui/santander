@@ -51,7 +51,7 @@ const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Co
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0"><MailX className="w-4 h-4" /></div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-stone-400">Replaces</div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">Replaces</div>
               <div className="text-sm font-medium">{replaces.form}</div>
               <div className="text-xs text-stone-300 mt-1">{replaces.savings}</div>
             </div>
@@ -801,6 +801,7 @@ export default function App() {
       total,
       grade: total >= 80 ? 'A' : total >= 65 ? 'B' : total >= 50 ? 'C' : 'D',
       colour: total >= 80 ? '#059669' : total >= 65 ? '#d97706' : '#dc2626',
+      textColour: total >= 80 ? '#047857' : total >= 65 ? '#b45309' : '#b91c1c', // AA on white for small text
       factors: [
         { label: 'Liquidity',      score: liqScore,  max: 20, desc: totalBal >= 400000 ? 'Strong reserves'          : 'Below target' },
         { label: 'Tax compliance', score: mtdScore,  max: 20, desc: overdueObs === 0    ? 'All submissions on time'  : `${overdueObs} overdue` },
@@ -1512,7 +1513,7 @@ export default function App() {
           <div className="space-y-3">
             <button onClick={() => setBizProofUp(true)}
               className={`w-full p-6 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 ${bizProofUp ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {bizProofUp ? <CircleCheck className="w-8 h-8 text-emerald-600" /> : <Camera className="w-8 h-8 text-stone-400" />}
+              {bizProofUp ? <CircleCheck className="w-8 h-8 text-emerald-600" /> : <Camera className="w-8 h-8 text-stone-500" />}
               <div className="font-medium text-sm">{bizProofUp ? 'business-rates-2026.pdf · validated ✓' : 'Photograph or upload proof'}</div>
               <div className="text-[11px] text-stone-500">Local authority bill or utility &lt; 3 months</div>
             </button>
@@ -1659,13 +1660,13 @@ export default function App() {
             <div className="text-xs uppercase tracking-wider text-stone-500">List 1 · Proof of ID</div>
             <button onClick={() => setList1Up(true)}
               className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list1Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {list1Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Camera className="w-6 h-6 text-stone-400" />}
+              {list1Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Camera className="w-6 h-6 text-stone-500" />}
               <div className="text-left flex-1"><div className="text-sm font-medium">{list1Up ? 'Passport · UK · in date ✓' : 'Capture passport / driving licence'}</div><div className="text-[11px] text-stone-500">Verified via GOV.UK One Login</div></div>
             </button>
             <div className="text-xs uppercase tracking-wider text-stone-500 mt-3">List 2 · Proof of address</div>
             <button onClick={() => setList2Up(true)}
               className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list2Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {list2Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-400" />}
+              {list2Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-500" />}
               <div className="text-left flex-1"><div className="text-sm font-medium">{list2Up ? 'Council tax · Mar 2026 ✓' : 'Upload bank statement / council tax / utility'}</div><div className="text-[11px] text-stone-500">Most recent · &lt; 3 months</div></div>
             </button>
             {needsList3 && (
@@ -1673,7 +1674,7 @@ export default function App() {
                 <div className="text-xs uppercase tracking-wider text-stone-500 mt-3">List 3 · Trading address</div>
                 <button onClick={() => setList3Up(true)}
                   className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list3Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-                  {list3Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-400" />}
+                  {list3Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-500" />}
                   <div className="text-left flex-1"><div className="text-sm font-medium">{list3Up ? 'Lease · 2024–2027 ✓' : 'Upload trading-address proof'}</div><div className="text-[11px] text-stone-500">Lease, business statement, FCA registration</div></div>
                 </button>
               </>
@@ -1722,7 +1723,7 @@ export default function App() {
             </div>
             <button onClick={() => setBoardMinutesUp(true)}
               className={`w-full p-5 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 ${boardMinutesUp ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {boardMinutesUp ? <CircleCheck className="w-7 h-7 text-emerald-600" /> : <FileText className="w-7 h-7 text-stone-400" />}
+              {boardMinutesUp ? <CircleCheck className="w-7 h-7 text-emerald-600" /> : <FileText className="w-7 h-7 text-stone-500" />}
               <div className="text-sm font-medium">{boardMinutesUp ? 'minutes-12-apr-2026.pdf · 2 sigs ✓' : 'Upload board minutes'}</div>
               <div className="text-[11px] text-stone-500 text-center">PDF or photograph</div>
             </button>
@@ -1830,7 +1831,7 @@ export default function App() {
                     <div className="min-w-0">
                       <div className="font-medium">{a.name}</div>
                       <div className="font-mono text-xs text-stone-500">{a.no}</div>
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">{am.label}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">{am.label}</span>
                     </div>
                     <div className="font-display text-lg flex-shrink-0">{fmt(a.balance)}</div>
                   </div>
@@ -1867,7 +1868,7 @@ export default function App() {
                   placeholder="Search payees…"
                   className="w-full px-4 py-2.5 pl-9 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors"
                 />
-                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-stone-500 absolute left-3 top-3" />
               </div>
               <button onClick={() => setShowAddPayee(!showAddPayee)} className="btn-primary px-4 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center gap-1.5">
                 <UserPlus className="w-4 h-4" /> Add
@@ -1932,7 +1933,7 @@ export default function App() {
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button onClick={() => setOpenCounterparty(p.name)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-[#c8102e]">History</button>
-                            <button onClick={() => removePayee(p.id)} className="text-[10px] uppercase tracking-wider text-stone-400 hover:text-red-600">Remove</button>
+                            <button onClick={() => removePayee(p.id)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-red-600">Remove</button>
                           </div>
                         </div>
                         <div className="text-[11px] text-stone-500 mt-0.5">{p.role} · {p.sortCode} · {p.acct}</div>
@@ -2254,7 +2255,7 @@ export default function App() {
               <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm this payment is for legitimate business purposes. I understand the exchange rate and fees as disclosed. I authorise {fmt(totalDebit)} to be debited from the Operating account.</span>
             </label>
-            <div className="text-[11px] text-stone-400 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
+            <div className="text-[11px] text-stone-500 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
           </div>
         )}
       </StepFrame>
@@ -2267,7 +2268,7 @@ export default function App() {
       onNext={() => { fireToast("Reactivation underway — you'll see it on the home screen."); closeWorkflow(); }}
       nextLabel="Request reactivation"
       replaces={{ form: 'Branch visit + signed letter', savings: 'In-app · no branch needed' }}>
-      {accounts.filter(a => a.status === 'dormant').length === 0 ? <div className="text-center py-12 text-stone-400">No dormant accounts</div> : (
+      {accounts.filter(a => a.status === 'dormant').length === 0 ? <div className="text-center py-12 text-stone-500">No dormant accounts</div> : (
         <>
           {accounts.filter(a => a.status === 'dormant').map(a => (
             <div key={a.no} className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 mb-3">
@@ -2587,16 +2588,16 @@ export default function App() {
               <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Verify it's you</h2>
             </div>
-            <button onClick={() => setShowOTP(false)} className="p-1 text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+            <button onClick={() => setShowOTP(false)} className="p-1 text-stone-500 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
-            <Phone className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <Phone className="w-4 h-4 text-stone-500 flex-shrink-0" />
             <span className="text-sm text-stone-600">Code sent to <span className="font-mono font-medium text-stone-900">+44 ···· ···· 821</span></span>
           </div>
-          <p className="text-[10px] text-stone-400 mb-6 px-1">{otpContext}</p>
+          <p className="text-[10px] text-stone-500 mb-6 px-1">{otpContext}</p>
 
           {/* 6-digit boxes */}
           <div className="flex gap-2 justify-center mb-5">
@@ -2625,7 +2626,7 @@ export default function App() {
           )}
 
           <button onClick={verify} disabled={!complete || otpVerifying}
-            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-400 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
             {otpVerifying
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> Verifying…</>
               : complete ? 'Confirm' : `${filled} of 6 digits entered`}
@@ -2633,7 +2634,7 @@ export default function App() {
 
           <div className="text-center mt-4">
             {otpResend > 0
-              ? <span className="text-[11px] text-stone-400">Resend available in {otpResend}s</span>
+              ? <span className="text-[11px] text-stone-500">Resend available in {otpResend}s</span>
               : <button onClick={() => { setOtpResend(30); fireToast('New code sent'); }}
                   className="text-[11px] text-[#c8102e] font-medium focus:outline-none focus-visible:underline">
                   Resend code
@@ -2696,16 +2697,16 @@ export default function App() {
               <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Enter your PIN</h2>
             </div>
-            <button onClick={() => setShowSignPin(false)} className="p-1 text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+            <button onClick={() => setShowSignPin(false)} className="p-1 text-stone-500 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
-            <Lock className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <Lock className="w-4 h-4 text-stone-500 flex-shrink-0" />
             <span className="text-sm text-stone-600">Your personal 4-digit signing PIN — known only to you</span>
           </div>
-          <p className="text-[10px] text-stone-400 mb-6 px-1">{signPinContext}</p>
+          <p className="text-[10px] text-stone-500 mb-6 px-1">{signPinContext}</p>
 
           {/* 4 masked PIN boxes */}
           <div className="flex gap-2.5 justify-center mb-5">
@@ -2730,14 +2731,14 @@ export default function App() {
           </div>
 
           <button onClick={verify} disabled={!complete || signPinVerifying}
-            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-400 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
             {signPinVerifying
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> Confirming…</>
               : complete ? 'Sign' : `${filled} of 4 digits entered`}
           </button>
 
           <div className="text-center mt-4">
-            <span className="text-[11px] text-stone-400 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Never share your PIN. Santander will never ask for it.</span>
+            <span className="text-[11px] text-stone-500 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Never share your PIN. Santander will never ask for it.</span>
           </div>
         </div>
       </div>
@@ -2811,7 +2812,7 @@ export default function App() {
             </div>
           ))}
           <div className="p-4 rounded-2xl bg-stone-900 text-white">
-            <div className="text-xs uppercase tracking-wider text-stone-400">The big unlock</div>
+            <div className="text-xs uppercase tracking-wider text-stone-500">The big unlock</div>
             <div className="text-sm mt-2 leading-relaxed">In legacy Online Banking, "Any 2" and "All" mandates restrict you to view-only. Biometric in-app dual signature replaces that.</div>
           </div>
         </div>
@@ -2940,30 +2941,32 @@ export default function App() {
                 <circle cx="60" cy="60" r="46" fill="none" stroke={healthScore.colour} strokeWidth="8"
                   strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
                 <text x="60" y="56" textAnchor="middle" fontSize="30" fontWeight="700" fill="#1c1917" className="num-tab">{healthScore.total}</text>
-                <text x="60" y="74" textAnchor="middle" fontSize="10" letterSpacing="1" fill="#a8a29e">/ 100</text>
+                <text x="60" y="74" textAnchor="middle" fontSize="10" letterSpacing="1" fill="#78716c">/ 100</text>
               </svg>
               <div className="sm:text-center">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Overall</div>
-                <div className="text-sm font-medium" style={{ color: healthScore.colour }}>Grade {healthScore.grade}</div>
+                <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Overall</div>
+                <div className="text-sm font-medium" style={{ color: healthScore.textColour }}>Grade {healthScore.grade}</div>
               </div>
             </div>
             {/* Factor breakdown — KPI grid */}
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-7 gap-y-4 w-full">
               {healthScore.factors.map(f => {
                 const c = f.score >= 16 ? '#059669' : f.score >= 10 ? '#d97706' : '#dc2626';
+                // Darker shades for the small status label — AA contrast on white (9px text)
+                const tc = f.score >= 16 ? '#047857' : f.score >= 10 ? '#b45309' : '#b91c1c';
                 const status = f.score >= 16 ? 'Strong' : f.score >= 10 ? 'Watch' : 'Action';
                 return (
                   <div key={f.label}>
                     <div className="flex items-baseline justify-between mb-1.5">
                       <span className="text-[12px] font-medium text-stone-700">{f.label}</span>
-                      <span className="text-[11px] font-mono num-tab text-stone-500">{f.score}<span className="text-stone-300">/{f.max}</span></span>
+                      <span className="text-[11px] font-mono num-tab text-stone-500">{f.score}<span className="text-stone-500">/{f.max}</span></span>
                     </div>
                     <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{ width: `${(f.score / f.max) * 100}%`, background: c }} />
                     </div>
                     <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[10px] text-stone-400 truncate pr-2">{f.desc}</span>
-                      <span className="text-[9px] uppercase tracking-[0.12em] font-semibold flex-shrink-0" style={{ color: c }}>{status}</span>
+                      <span className="text-[10px] text-stone-500 truncate pr-2">{f.desc}</span>
+                      <span className="text-[9px] uppercase tracking-[0.12em] font-semibold flex-shrink-0" style={{ color: tc }}>{status}</span>
                     </div>
                   </div>
                 );
@@ -2980,10 +2983,10 @@ export default function App() {
     const cnt = { red: 0, amber: 0, green: 0 };
     SUPPLIER_RISK.forEach(s => { cnt[s.risk]++; });
     const meta = {
-      red:   { c: '#dc2626', label: 'Critical' },
-      amber: { c: '#d97706', label: 'Watch'    },
-      green: { c: '#059669', label: 'Current'  },
-    };
+      red:   { c: '#dc2626', tc: '#b91c1c', label: 'Critical' },
+      amber: { c: '#d97706', tc: '#b45309', label: 'Watch'    },
+      green: { c: '#059669', tc: '#047857', label: 'Current'  },
+    };  // c = fill/dot (large); tc = small-label text (AA on white)
     return (
       <div className="px-5 mb-7 anim-fade">
         <div className="flex items-end justify-between mb-3">
@@ -2999,8 +3002,8 @@ export default function App() {
           {/* Summary strip */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium mb-0.5">Monitored spend</div>
-              <div className="font-mono num-tab text-sm text-stone-900">{fmt(totalSpend)}<span className="text-stone-400 text-[11px] font-sans"> / yr · {SUPPLIER_RISK.length} suppliers</span></div>
+              <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-0.5">Monitored spend</div>
+              <div className="font-mono num-tab text-sm text-stone-900">{fmt(totalSpend)}<span className="text-stone-500 text-[11px] font-sans"> / yr · {SUPPLIER_RISK.length} suppliers</span></div>
             </div>
             <div className="flex items-center gap-3">
               {['green', 'amber', 'red'].map(r => cnt[r] > 0 && (
@@ -3018,20 +3021,20 @@ export default function App() {
                 <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: m.c }} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
-                  <div className="text-[10px] text-stone-400 mt-0.5">
+                  <div className="text-[10px] text-stone-500 mt-0.5">
                     CH {s.reg} · Filed {s.lastFiled}
-                    {s.daysOverdue > 0 && <span className="font-medium" style={{ color: m.c }}> · {s.daysOverdue} days overdue</span>}
+                    {s.daysOverdue > 0 && <span className="font-medium" style={{ color: m.tc }}> · {s.daysOverdue} days overdue</span>}
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
-                  <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mt-0.5" style={{ color: m.c }}>{m.label}</div>
+                  <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mt-0.5" style={{ color: m.tc }}>{m.label}</div>
                 </div>
               </div>
             );
           })}
         </div>
-        <p className="text-[10px] text-stone-400 mt-2 px-1">Companies House API · refreshed daily · red = filing &gt;180 days overdue</p>
+        <p className="text-[10px] text-stone-500 mt-2 px-1">Companies House API · refreshed daily · red = filing &gt;180 days overdue</p>
       </div>
     );
   };
@@ -3066,9 +3069,9 @@ export default function App() {
                 <div className="font-medium text-[13px] text-stone-900 leading-tight">{s.name}</div>
                 <div className="text-[10px] text-stone-500 mt-0.5">{s.role}</div>
                 <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between">
-                  <span className="text-[9px] text-stone-400">{LAST_ACTIVE[i]}</span>
+                  <span className="text-[9px] text-stone-500">{LAST_ACTIVE[i]}</span>
                   <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.1em] font-semibold"
-                    style={{ color: s.status === 'verified' ? '#059669' : '#d97706' }}>
+                    style={{ color: s.status === 'verified' ? '#047857' : '#b45309' }}>
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.status === 'verified' ? '#059669' : '#d97706' }} />
                     {s.status === 'verified' ? 'KYC verified' : 'Review'}
                   </span>
@@ -3139,9 +3142,9 @@ export default function App() {
         {step === 0 && (
           <div className="space-y-5">
             <div className="bg-stone-900 rounded-2xl p-4 text-white">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-1">Case reference</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-1">Case reference</div>
               <div className="font-mono text-lg font-medium">COMP-2026-0041</div>
-              <div className="text-[11px] text-stone-400 mt-1.5">Received 25 Jun 2026 · D+56 deadline: 20 Aug 2026</div>
+              <div className="text-[11px] text-stone-500 mt-1.5">Received 25 Jun 2026 · D+56 deadline: 20 Aug 2026</div>
             </div>
             <Field label="Complainant name">
               <Input value={complaintName} onChange={setComplaintName} placeholder="Full name or business name" />
@@ -3169,7 +3172,7 @@ export default function App() {
                   <button key={cat.id} onClick={() => setComplaintCategory(cat.id)}
                     className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintCategory === cat.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
                     <div className="font-medium">{cat.label}</div>
-                    <div className={`mt-0.5 ${complaintCategory === cat.id ? 'text-stone-400' : 'text-stone-400'}`}>{cat.desc}</div>
+                    <div className={`mt-0.5 ${complaintCategory === cat.id ? 'text-stone-500' : 'text-stone-500'}`}>{cat.desc}</div>
                   </button>
                 ))}
               </div>
@@ -3237,7 +3240,7 @@ export default function App() {
                       </div>
                       <div>
                         <div className="font-medium">{flag.label}</div>
-                        <div className={active ? 'text-stone-400 mt-0.5' : 'text-stone-400 mt-0.5'}>{flag.desc}</div>
+                        <div className={active ? 'text-stone-500 mt-0.5' : 'text-stone-500 mt-0.5'}>{flag.desc}</div>
                       </div>
                     </button>
                   );
@@ -3266,7 +3269,7 @@ export default function App() {
                   <button key={opt.id} onClick={() => setComplaintDenialReason(opt.id)}
                     className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintDenialReason === opt.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
                     <div className="font-medium">{opt.label}</div>
-                    <div className={`mt-0.5 ${complaintDenialReason === opt.id ? 'text-stone-400' : 'text-stone-400'}`}>{opt.desc}</div>
+                    <div className={`mt-0.5 ${complaintDenialReason === opt.id ? 'text-stone-500' : 'text-stone-500'}`}>{opt.desc}</div>
                   </button>
                 ))}
               </div>
@@ -3280,28 +3283,28 @@ export default function App() {
           <div className="space-y-5">
             <div className="bg-stone-900 rounded-2xl p-4 text-white space-y-3">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Case reference</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Case reference</div>
                 <div className="font-mono font-medium">COMP-2026-0041</div>
               </div>
               <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Complainant</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Complainant</div>
                   <div className="font-medium">{complaintName || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Received via</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Received via</div>
                   <div className="font-medium">{complaintChannel || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Category</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Category</div>
                   <div className="font-medium capitalize">{complaintCategory || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Decision</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Decision</div>
                   <div className="font-medium text-red-300">Not upheld</div>
                 </div>
                 <div className="col-span-2">
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 mb-0.5">Escalation</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Escalation</div>
                   <div className="font-medium">{escalLevel}</div>
                 </div>
               </div>
@@ -3813,7 +3816,7 @@ export default function App() {
                   </div>
                 </div>
                 <button onClick={() => setBenScreened(true)} disabled={!benPurpose}
-                  className={`w-full py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-400 cursor-default'}`}>
+                  className={`w-full py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-500 cursor-default'}`}>
                   <Search className="w-4 h-4" /> Run screening checks
                 </button>
               </div>
@@ -3951,7 +3954,7 @@ export default function App() {
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-300'}`}>{on && <Check className="w-3.5 h-3.5" />}</div>
                         <div className="min-w-0">
-                          <div className="font-medium text-sm text-stone-900 truncate">{a.name}{a.status === 'dormant' && <span className="text-[10px] text-stone-400 ml-1.5">dormant</span>}</div>
+                          <div className="font-medium text-sm text-stone-900 truncate">{a.name}{a.status === 'dormant' && <span className="text-[10px] text-stone-500 ml-1.5">dormant</span>}</div>
                           <div className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</div>
                         </div>
                       </div>
@@ -4008,7 +4011,7 @@ export default function App() {
                     <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500">Business Banking</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-wider text-stone-400">Reference</div>
+                    <div className="text-[10px] uppercase tracking-wider text-stone-500">Reference</div>
                     <div className="font-mono text-[11px] num-tab text-stone-700">{certRef}</div>
                   </div>
                 </div>
@@ -4116,7 +4119,7 @@ export default function App() {
                       </div>
                     </div>
                     {d.current ? (
-                      <span className="text-[11px] text-stone-400 flex-shrink-0">Current</span>
+                      <span className="text-[11px] text-stone-500 flex-shrink-0">Current</span>
                     ) : gone ? (
                       <span className="text-[11px] font-medium text-stone-500 flex-shrink-0">Signed out</span>
                     ) : (
@@ -4237,11 +4240,11 @@ export default function App() {
           <div className="relative p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium">Total balance</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium">Total balance</div>
                 <div className="text-xs text-stone-500 mt-0.5">{entity.name}</div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-stone-400">{accounts.length} accounts</div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">{accounts.length} accounts</div>
                 <div className="text-xs text-stone-500 mt-0.5">Sort code 09-01-29</div>
               </div>
             </div>
@@ -4272,7 +4275,7 @@ export default function App() {
               <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
                 <CalendarDays className="w-4 h-4" />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-amber-600 font-medium">In 3 days</span>
+              <span className="text-[10px] uppercase tracking-wider text-amber-700 font-medium">In 3 days</span>
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Payroll run · £42,180</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Balance covers it — review if payees changed</div>
@@ -4311,13 +4314,13 @@ export default function App() {
 
       {/* Demo controls */}
       <div className="px-5 mb-4 flex flex-wrap gap-1.5">
-        <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 inline-flex items-center gap-1">
+        <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 inline-flex items-center gap-1">
           {entity.label} <ChevronRight className="w-3 h-3" />
         </button>
-        <button onClick={() => startCooling({ type: 'Account closure', desc: 'Trading account ····2841', kind: 'closure' })} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+        <button onClick={() => startCooling({ type: 'Account closure', desc: 'Trading account ····2841', kind: 'closure' })} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100">
           Demo cooling-off
         </button>
-        <button onClick={() => stallRequest({ type: 'Mandate change', desc: 'Add Mark Patel · partner missed window' })} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+        <button onClick={() => stallRequest({ type: 'Mandate change', desc: 'Add Mark Patel · partner missed window' })} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100">
           Simulate timeout
         </button>
       </div>
@@ -4338,7 +4341,7 @@ export default function App() {
             <div className="flex gap-2 mt-3">
               <button onClick={() => setSessionAnomaly(false)} className="flex-1 py-2 text-xs font-medium text-amber-700 bg-amber-100 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">This was me</button>
               <button onClick={() => { setShowVoiceSetup(true); setVoiceIdTab('status'); setSessionAnomaly(false); }}
-                className="flex-1 py-2 text-xs font-medium text-white bg-amber-600 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Review sessions</button>
+                className="flex-1 py-2 text-xs font-medium text-white bg-amber-700 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Review sessions</button>
             </div>
           </div>
         </div>
@@ -4491,7 +4494,7 @@ export default function App() {
             <div className="font-display-tight text-[17px] text-stone-900">3 paper forms retired</div>
             <div className="text-[11px] text-stone-600 mt-0.5">No more posting to Sunderland · 5 days → minutes</div>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-400" />
+          <ChevronRight className="w-4 h-4 text-stone-500" />
         </button>
       </div>
 
@@ -4520,7 +4523,7 @@ export default function App() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-[10px] uppercase tracking-wider text-amber-700 font-medium">Expires {p.expires}</div>
-                    <ChevronRight className="w-4 h-4 ml-auto mt-1 text-stone-400" />
+                    <ChevronRight className="w-4 h-4 ml-auto mt-1 text-stone-500" />
                   </div>
                 </button>
               );
@@ -4580,7 +4583,7 @@ export default function App() {
                   <div className="text-sm font-medium text-stone-900">{g.label}</div>
                   <div className="text-[11px] text-stone-500">{open ? `${g.tiles.length} actions` : g.sub}</div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-stone-400 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-stone-500 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
               </button>
               {open && (
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 mt-2.5 mb-1 anim-fade">
@@ -4697,7 +4700,7 @@ export default function App() {
                   return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#c8102e' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
                 })}
               </svg>
-              <div className="flex justify-between text-[9px] text-stone-400 mb-3 px-0.5">
+              <div className="flex justify-between text-[9px] text-stone-500 mb-3 px-0.5">
                 {forecastWeeks.filter((_,i) => i % 3 === 0).map((wk,i) => (
                   <span key={i}>{wk.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
                 ))}
@@ -4794,7 +4797,7 @@ export default function App() {
                   className="w-full mt-2 py-2.5 rounded-xl bg-white border border-stone-200 text-[13px] font-medium text-stone-700 flex items-center justify-between px-4 hover:bg-stone-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
                 >
                   <span className="flex items-center gap-2"><Gauge className="w-4 h-4 text-stone-500" /> Card controls</span>
-                  <span className="flex items-center gap-2 text-[11px] text-stone-400">
+                  <span className="flex items-center gap-2 text-[11px] text-stone-500">
                     <span className="num-tab">Limit {fmt(getCardCtrl(card.key).limit)}</span>
                     <ChevronRight className="w-4 h-4" />
                   </span>
@@ -4849,7 +4852,7 @@ export default function App() {
               </div>
             </div>
             {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium flex-shrink-0">!</span>}
-            <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-400'}`} />
+            <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-500'}`} />
           </button>
           {/* Credit decisioning ring-fence */}
           <button
@@ -4866,7 +4869,7 @@ export default function App() {
             </div>
             {creditRingfenced
               ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+              : <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />}
           </button>
         </div>
       </div>
@@ -4889,7 +4892,7 @@ export default function App() {
                 {voiceIdEnrolled ? 'Active · app, phone banking & video call' : 'Not enrolled · tap to set up 3 voice phrases'}
               </div>
             </div>
-            {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+            {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />}
           </button>
           {/* Biometric method selector */}
           <div className="p-4 rounded-2xl border border-stone-200 bg-white">
@@ -4905,10 +4908,10 @@ export default function App() {
             <div className="bg-stone-100 rounded-2xl p-1.5 grid grid-cols-2 gap-1">
               {BIOMETRIC_OPTIONS.map(o => (
                 <button key={o.id} onClick={() => setBiometricType(o.id)}
-                  className={`py-2.5 px-2 rounded-xl text-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-white shadow-sm border border-stone-200/60 text-stone-900' : 'text-stone-500 hover:text-stone-700'}`}>
+                  className={`py-2.5 px-2 rounded-xl text-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-white shadow-sm border border-stone-200/60 text-stone-900' : 'text-stone-600 hover:text-stone-800'}`}>
                   <o.Icon className="w-4 h-4 mx-auto mb-1" />
                   <div className="text-[10px] font-medium leading-tight">{o.label}</div>
-                  <div className={`text-[9px] mt-0.5 leading-tight ${biometricType === o.id ? 'text-stone-500' : 'text-stone-400'}`}>{o.sub}</div>
+                  <div className="text-[9px] mt-0.5 leading-tight text-stone-600">{o.sub}</div>
                 </button>
               ))}
             </div>
@@ -4923,7 +4926,7 @@ export default function App() {
               <div className="font-medium text-sm">SCA step-up matrix</div>
               <div className="text-[11px] text-stone-500">6 tiers · PSD2 RTS Art.97 compliant</div>
             </div>
-            <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />
           </button>
         </div>
       </div>
@@ -4975,7 +4978,7 @@ export default function App() {
             <div className="text-xs font-medium text-stone-900">Accessibility settings</div>
             <div className="text-[11px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active — tap to adjust' : 'Dyslexia font · plain English · reduced motion · more'}</div>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
+          <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />
         </button>
       </div>
 
@@ -4983,19 +4986,19 @@ export default function App() {
       <div className="px-5">
         <button onClick={() => setShowCompliance(true)} className="w-full p-4 rounded-2xl bg-stone-100 text-left flex items-center gap-3">
           <Scale className="w-4 h-4 text-stone-600" />
-          <div className="flex-1"><div className="text-xs font-medium text-stone-900">Your rights & how to complain</div><div className="text-[11px] text-stone-500">FCA · FRN 106054 · FSCS · Financial Ombudsman</div></div>
-          <ChevronRight className="w-4 h-4 text-stone-400" />
+          <div className="flex-1"><div className="text-xs font-medium text-stone-900">Your rights & how to complain</div><div className="text-[11px] text-stone-600">FCA · FRN 106054 · FSCS · Financial Ombudsman</div></div>
+          <ChevronRight className="w-4 h-4 text-stone-500" />
         </button>
       </div>
 
       {/* Motto */}
       <div className="px-5 pt-6 pb-3 text-center">
-        <p className="text-[11px] text-stone-400 italic font-display">A digital bank with a personal touch</p>
+        <p className="text-[11px] text-stone-500 italic font-display">A digital bank with a personal touch</p>
       </div>
 
       {/* Attribution */}
       <div className="px-5 pb-3 text-center space-y-0.5">
-        <p className="text-[9px] text-stone-400 leading-relaxed">
+        <p className="text-[9px] text-stone-500 leading-relaxed">
           Concept &amp; prototype by <span className="font-medium text-stone-500">Alan Davidson</span>
         </p>
         <p className="text-[9px] text-stone-300 leading-relaxed">
@@ -5053,7 +5056,7 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><Check className="w-3.5 h-3.5" /></div><span className="text-xs">{p.initiator}</span></div>
                     <div className="flex-1 h-px bg-stone-200" />
-                    <div className="flex items-center gap-2"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${s === 'signed' ? 'bg-emerald-500 text-white' : 'border-2 border-dashed border-stone-300 text-stone-400'}`}>{s === 'signed' ? <Check className="w-3.5 h-3.5" /> : 'JW'}</div><span className="text-xs">You</span></div>
+                    <div className="flex items-center gap-2"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${s === 'signed' ? 'bg-emerald-500 text-white' : 'border-2 border-dashed border-stone-300 text-stone-500'}`}>{s === 'signed' ? <Check className="w-3.5 h-3.5" /> : 'JW'}</div><span className="text-xs">You</span></div>
                   </div>
                 </div>
                 {!s && (
@@ -5148,7 +5151,7 @@ export default function App() {
           <div className="rounded-2xl bg-white border border-stone-200 shadow-sm p-4 lift-1 lg:order-1">
             <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium mb-2">Search</div>
             <div className="relative">
-              <Search className="w-5 h-5 text-stone-400 absolute left-3 top-3" />
+              <Search className="w-5 h-5 text-stone-500 absolute left-3 top-3" />
               <input
                 type="text"
                 value={counterpartyQuery}
@@ -5306,7 +5309,7 @@ export default function App() {
                         {isOut ? '' : '+'}{fmt(t.amount)}
                       </div>
                       {t.vat === null && <div className="text-[10px] text-amber-700 mt-0.5">VAT · review</div>}
-                      {t.vat !== null && t.vat !== 0 && <div className="text-[10px] text-stone-400 mt-0.5">VAT {fmt(Math.abs(t.vat))}</div>}
+                      {t.vat !== null && t.vat !== 0 && <div className="text-[10px] text-stone-500 mt-0.5">VAT {fmt(Math.abs(t.vat))}</div>}
                     </div>
                   </button>
                 );
@@ -5431,7 +5434,7 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                <div className="text-[11px] text-stone-400 text-center">Processed by OCR engine · image not stored after extraction</div>
+                <div className="text-[11px] text-stone-500 text-center">Processed by OCR engine · image not stored after extraction</div>
               </>
             )}
             {receiptStep === 1 && (
@@ -5564,7 +5567,7 @@ export default function App() {
                     Authenticate with {bm.label}
                   </button>
                 </div>
-                <div className="text-[10px] text-stone-400 text-center">Viewing your PIN is logged in your security audit trail.</div>
+                <div className="text-[10px] text-stone-500 text-center">Viewing your PIN is logged in your security audit trail.</div>
               </div>
             ) : (
               <div className="space-y-3">
@@ -5612,7 +5615,7 @@ export default function App() {
                   <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
                   <div className="text-[11px] text-amber-900 leading-relaxed"><strong>Never share your PIN.</strong> Santander will never ask for it. If you've shared it, call us immediately: <strong>0330 123 9860</strong>.</div>
                 </div>
-                <div className="text-[10px] text-stone-400 text-center">PIN viewed today · logged to security audit trail</div>
+                <div className="text-[10px] text-stone-500 text-center">PIN viewed today · logged to security audit trail</div>
               </div>
             )}
           </div>
@@ -5684,7 +5687,7 @@ export default function App() {
                   return (
                     <div key={t.field} className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${val ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400'}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${val ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}>
                           <t.Icon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
@@ -5703,7 +5706,7 @@ export default function App() {
             <div className="pt-1">
               {!cardCtrlReport ? (
                 <button onClick={() => setCardCtrlReport(true)} disabled={isReissued}
-                  className={`w-full py-3.5 rounded-2xl border text-[13px] font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${isReissued ? 'border-stone-200 text-stone-400 cursor-default' : 'border-red-200 text-red-700 hover:bg-red-50'}`}>
+                  className={`w-full py-3.5 rounded-2xl border text-[13px] font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${isReissued ? 'border-stone-200 text-stone-500 cursor-default' : 'border-red-200 text-red-700 hover:bg-red-50'}`}>
                   <AlertTriangle className="w-4 h-4" />
                   {isReissued ? 'Replacement card ordered' : 'Report lost or stolen'}
                 </button>
@@ -5734,7 +5737,7 @@ export default function App() {
               )}
             </div>
 
-            <div className="text-[10px] text-stone-400 text-center leading-relaxed">
+            <div className="text-[10px] text-stone-500 text-center leading-relaxed">
               Changes apply instantly and are recorded in your security audit trail · PSD2 SCA-protected
             </div>
           </div>
@@ -5783,7 +5786,7 @@ export default function App() {
                     )}
                   </div>
                   <div className="text-[11px] text-stone-600 mb-1">{consent.scope}</div>
-                  <div className="text-[11px] text-stone-400 mb-3">Expires {consent.expires}</div>
+                  <div className="text-[11px] text-stone-500 mb-3">Expires {consent.expires}</div>
                   {!isRevoked && (
                     <button
                       onClick={() => {
@@ -5830,7 +5833,7 @@ export default function App() {
                     className="w-24 h-24 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#c8102e]/30">
                     <Mic size={36} className="text-white" />
                   </button>
-                  <p className="text-sm text-stone-400 text-center max-w-xs">
+                  <p className="text-sm text-stone-500 text-center max-w-xs">
                     Tap and say something like<br/>
                     <em className="text-stone-600 not-italic font-medium">{examplePrompt}</em>
                   </p>
@@ -5946,7 +5949,7 @@ export default function App() {
               })}
               <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#dc2626" strokeWidth="1" strokeDasharray="4 3" opacity="0.55" />
             </svg>
-            <div className="flex justify-between text-[9px] text-stone-400 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
+            <div className="flex justify-between text-[9px] text-stone-500 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
           </div>
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
@@ -5964,7 +5967,7 @@ export default function App() {
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#c8102e]/60'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-stone-900 truncate">{p.payee}</div>
-                  <div className="text-[10px] text-stone-400">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
+                  <div className="text-[10px] text-stone-500">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
                 </div>
                 <span className="font-mono text-sm font-medium text-stone-800 flex-shrink-0 num-tab">{fmt(p.amount)}</span>
               </div>
@@ -6031,7 +6034,7 @@ export default function App() {
                     <div key={i} className={`p-4 rounded-2xl border transition-colors ${done ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] text-stone-400 uppercase tracking-wider mb-1">Phrase {i + 1} of 3</div>
+                          <div className="text-[10px] text-stone-500 uppercase tracking-wider mb-1">Phrase {i + 1} of 3</div>
                           <div className="font-medium text-sm text-stone-900">"{phrase}"</div>
                         </div>
                         {done ? (
@@ -6094,7 +6097,7 @@ export default function App() {
                       <ShieldCheck size={14} className="text-stone-600 mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-stone-600 leading-relaxed">Anti-spoofing active — voice clone and replay attacks blocked in real time. Liveness detection required on every verification (NIST SP 800-63B AAL3).</p>
                     </div>
-                    <div className="flex gap-2 text-[10px] text-stone-400 pb-2">
+                    <div className="flex gap-2 text-[10px] text-stone-500 pb-2">
                       <span>Enrolled 14 Jun 2026</span><span>·</span><span>Last verified: today, 09:14</span>
                     </div>
                   </>
@@ -6124,7 +6127,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-stone-400 leading-relaxed pb-2">Voice ID qualifies as an inherence factor (PSD2 RTS Art.4(30)). Anti-spoofing protects against replay and deepfake voice attacks.</p>
+                <p className="text-[10px] text-stone-500 leading-relaxed pb-2">Voice ID qualifies as an inherence factor (PSD2 RTS Art.4(30)). Anti-spoofing protects against replay and deepfake voice attacks.</p>
               </div>
             )}
           </div>
@@ -6186,7 +6189,7 @@ export default function App() {
             {unreadApprovals.length > 0 && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Awaiting your signature</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Awaiting your signature</p>
                 </div>
                 {unreadApprovals.map(p => {
                   const I = p.icon;
@@ -6199,12 +6202,12 @@ export default function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm font-medium text-stone-900 truncate">{p.type}</span>
-                          <span className="text-[11px] text-stone-400 flex-shrink-0">Expires {p.expires}</span>
+                          <span className="text-[11px] text-stone-500 flex-shrink-0">Expires {p.expires}</span>
                         </div>
                         <p className="text-[12px] text-stone-500 mt-0.5 truncate">{p.desc}</p>
                         {p.amount && <p className="text-[12px] font-mono num-tab font-medium text-stone-800 mt-0.5">{p.amount}</p>}
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 flex-shrink-0 mt-1" />
+                      <ChevronRight className="w-3.5 h-3.5 text-stone-500 flex-shrink-0 mt-1" />
                     </div>
                   );
                 })}
@@ -6221,7 +6224,7 @@ export default function App() {
             {hasCooling && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Cooling-off in progress</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Cooling-off in progress</p>
                 </div>
                 {cooling.map((c, i) => {
                   const elapsed = (Date.now() - c.startedAt) / 1000;
@@ -6250,7 +6253,7 @@ export default function App() {
             {hasStalled && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Co-signer needed</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Co-signer needed</p>
                 </div>
                 {stalled.map((s, i) => (
                   <div key={i} className="px-5 py-3.5 flex items-start gap-3">
@@ -6270,7 +6273,7 @@ export default function App() {
             {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && (
               <div className="px-5 py-12 flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-stone-400" />
+                  <Bell className="w-5 h-5 text-stone-500" />
                 </div>
                 <p className="text-sm text-stone-500 text-center">You're all caught up —<br />no new notifications</p>
               </div>
@@ -6279,7 +6282,7 @@ export default function App() {
 
           {/* Footer */}
           <div className="px-5 py-3 border-t border-stone-100 bg-stone-50">
-            <p className="text-[10px] text-stone-400 text-center">Tap outside to dismiss · Notifications are end-to-end encrypted</p>
+            <p className="text-[10px] text-stone-500 text-center">Tap outside to dismiss · Notifications are end-to-end encrypted</p>
           </div>
         </div>
       </div>
@@ -6942,12 +6945,12 @@ export default function App() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-3xl font-bold text-stone-900 tabular-nums leading-none">{paymentPending.countdown}</span>
-              <span className="text-[10px] text-stone-400 uppercase tracking-wide mt-0.5">sec</span>
+              <span className="text-[10px] text-stone-500 uppercase tracking-wide mt-0.5">sec</span>
             </div>
           </div>
 
           {/* Label */}
-          <div className="text-[11px] uppercase tracking-widest text-stone-400 mb-1.5">
+          <div className="text-[11px] uppercase tracking-widest text-stone-500 mb-1.5">
             {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
           </div>
           <div className="font-display text-xl text-stone-900 leading-snug mb-4">
@@ -6956,7 +6959,7 @@ export default function App() {
 
           {/* Details pill */}
           <div className="bg-stone-50 rounded-2xl px-4 py-3 mb-4 text-left">
-            <div className="text-[11px] text-stone-400 mb-0.5">{paymentPending.label}</div>
+            <div className="text-[11px] text-stone-500 mb-0.5">{paymentPending.label}</div>
             {paymentPending.total > 0 && (
               <div className="font-mono text-lg font-semibold text-stone-900 num-tab">{fmt(paymentPending.total)}</div>
             )}
@@ -6983,7 +6986,7 @@ export default function App() {
           >
             Cancel
           </button>
-          <div className="mt-3 text-[11px] text-stone-400">
+          <div className="mt-3 text-[11px] text-stone-500">
             {isHmrc ? 'Filing automatically in' : 'Sending automatically in'} {paymentPending.countdown}s
           </div>
         </div>
@@ -7014,10 +7017,10 @@ export default function App() {
                 </span>
                 Synced
               </div>
-              <button onClick={() => setViewMode('mobile')} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
+              <button onClick={() => setViewMode('mobile')} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
                 Switch to mobile
               </button>
-              <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
+              <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
                 {entity.label}
               </button>
               <button onClick={() => setShowNotifications(true)} className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
@@ -7169,17 +7172,17 @@ export default function App() {
                   <div className="text-[10px] font-medium text-stone-900">Accessibility settings</div>
                   <div className="text-[9px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active' : 'Dyslexia · motion · contrast · more'}</div>
                 </div>
-                <ChevronRight className="w-3 h-3 text-stone-400 flex-shrink-0" />
+                <ChevronRight className="w-3 h-3 text-stone-500 flex-shrink-0" />
               </button>
 
               {/* Motto */}
               <div className="text-center pt-2">
-                <p className="text-[10px] text-stone-400 italic font-display">A digital bank with a personal touch</p>
+                <p className="text-[10px] text-stone-500 italic font-display">A digital bank with a personal touch</p>
               </div>
 
               {/* Attribution */}
               <div className="text-center pt-3 border-t border-stone-100 mt-3 space-y-0.5">
-                <p className="text-[9px] text-stone-400">
+                <p className="text-[9px] text-stone-500">
                   Concept &amp; prototype by <span className="font-medium text-stone-500">Alan Davidson</span>
                 </p>
                 <p className="text-[9px] text-stone-300">Alan.Davidson@santander.co.uk</p>
@@ -7264,7 +7267,7 @@ export default function App() {
               </span>
               <span className="text-[9px] uppercase tracking-wider text-stone-500">Live</span>
             </div>
-            <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-500 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
+            <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-600 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
             <button aria-label="Notifications" className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
               <Bell className="w-4 h-4" />
               <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
