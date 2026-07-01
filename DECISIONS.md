@@ -61,7 +61,12 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
 
 ## Brand tokens (currently **approximated** — real kit can replace when supplied; see INPUTS_NEEDED.md)
 
-- Brand red `#c8102e`; warm background `#faf6ef`; ink `#1c1917`; muted greys `stone-*`.
+- **Brand red `#DA291C`** — confirmed from the brand portal (Jul 2026), applied across app + reports.
+  (Was approximated as `#c8102e`.) Warm background `#faf6ef`; ink `#1c1917`; muted greys `stone-*`.
+- **Logo:** official Santander lockups exist in 3 variants (full-colour red / reversed white / mono black) —
+  needed as actual **files** in `brand/` (SVG preferred) to embed; do not hand-recreate the mark.
+- Still to confirm from portal: full neutral palette, secondary/gradient reds (currently `#ec0000`), and the
+  official typeface name.
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
 - Spacing scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.

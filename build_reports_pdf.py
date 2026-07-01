@@ -9,7 +9,7 @@ from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
 from reportlab.lib.enums import TA_LEFT
 import report_content as C
 
-RED = colors.HexColor('#c8102e'); INK = colors.HexColor('#1c1917')
+RED = colors.HexColor('#DA291C'); INK = colors.HexColor('#1c1917')
 STONE = colors.HexColor('#57534e'); LIGHT = colors.HexColor('#78716c')
 HAIR = colors.HexColor('#e7e5e4'); PANEL = colors.HexColor('#faf6ef'); ZEBRA = colors.HexColor('#faf8f5')
 

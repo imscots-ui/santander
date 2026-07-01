@@ -27,7 +27,7 @@ import {
 const ProgressDots = ({ total, current }) => (
   <div className="flex gap-1.5">
     {Array.from({ length: total }).map((_, i) => (
-      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#c8102e]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
+      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#DA291C]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
     ))}
   </div>
 );
@@ -88,7 +88,7 @@ const Toggle = ({ label, value, onChange, sub }) => (
       <div className="text-sm">{label}</div>
       {sub && <div className="text-[11px] text-stone-500">{sub}</div>}
     </div>
-    <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#c8102e]' : 'bg-stone-300'}`}>
+    <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#DA291C]' : 'bg-stone-300'}`}>
       <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
     </div>
   </button>
@@ -970,7 +970,7 @@ export default function App() {
     .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
     .num-tab { font-feature-settings: 'tnum', 'lnum'; }
 
-    .red-bar { background: linear-gradient(90deg, #c8102e 0%, #ec0000 50%, #c8102e 100%); }
+    .red-bar { background: linear-gradient(90deg, #DA291C 0%, #ec0000 50%, #DA291C 100%); }
 
     /* Page background — layered cream with subtle radial warmth */
     .page-bg {
@@ -1006,15 +1006,15 @@ export default function App() {
 
     /* Santander red surfaces — proper brand identity */
     .santander-red {
-      background: linear-gradient(155deg, #ec0000 0%, #c8102e 60%, #a30c25 100%);
+      background: linear-gradient(155deg, #ec0000 0%, #DA291C 60%, #a30c25 100%);
     }
     .santander-red-dark {
       background:
         radial-gradient(ellipse 600px 300px at 80% 20%, rgba(255, 255, 255, 0.08), transparent 60%),
-        linear-gradient(155deg, #c8102e 0%, #9a0c22 60%, #6e0918 100%);
+        linear-gradient(155deg, #DA291C 0%, #9a0c22 60%, #6e0918 100%);
     }
     .red-accent-bar {
-      background: linear-gradient(180deg, #ec0000, #c8102e);
+      background: linear-gradient(180deg, #ec0000, #DA291C);
     }
 
     /* Fluid number sizing — never overflows */
@@ -1097,7 +1097,7 @@ export default function App() {
 
     /* Focus-visible ring — keyboard navigation only */
     .focus-ring:focus { outline: none; }
-    .focus-ring:focus-visible { outline: 2px solid #c8102e; outline-offset: 2px; }
+    .focus-ring:focus-visible { outline: 2px solid #DA291C; outline-offset: 2px; }
 
     /* Text on coloured backgrounds (Grey-on-Colour Law) */
     .on-dark   { color: rgba(255,255,255,0.65); }
@@ -1224,10 +1224,10 @@ export default function App() {
               const sel = closureSel.includes(a.no);
               return (
                 <button key={a.no} onClick={() => setClosureSel(sel ? closureSel.filter(x => x !== a.no) : [...closureSel, a.no])}
-                  className={`w-full text-left p-4 rounded-2xl border ${sel ? 'border-[#c8102e] bg-red-50/40' : 'border-stone-200'}`}>
+                  className={`w-full text-left p-4 rounded-2xl border ${sel ? 'border-[#DA291C] bg-red-50/40' : 'border-stone-200'}`}>
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className={`w-5 h-5 rounded border-2 mt-0.5 flex-shrink-0 flex items-center justify-center ${sel ? 'border-[#c8102e] bg-[#c8102e]' : 'border-stone-300'}`}>
+                      <div className={`w-5 h-5 rounded border-2 mt-0.5 flex-shrink-0 flex items-center justify-center ${sel ? 'border-[#DA291C] bg-[#DA291C]' : 'border-stone-300'}`}>
                         {sel && <Check className="w-3 h-3 text-white" />}
                       </div>
                       <div className="min-w-0">
@@ -1363,7 +1363,7 @@ export default function App() {
               <span className="font-mono text-sm font-medium tracking-wider">SVC-2026-4471</span>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={closureVulnDecl} onChange={e => setClosureVulnDecl(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={closureVulnDecl} onChange={e => setClosureVulnDecl(e.target.checked)} className="mt-0.5 accent-[#DA291C]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm the above information is accurate to the best of my knowledge. I understand the account will be restricted pending specialist review, and I consent to the bank contacting the partner directly as part of this process.
               </span>
@@ -1432,7 +1432,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I authorise the closure of the accounts in section 1 and the movement of credit balances in section 2."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={closureConfirm} onChange={e => setClosureConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={closureConfirm} onChange={e => setClosureConfirm(e.target.checked)} className="mt-0.5 accent-[#DA291C]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 {m.isSingle ? `I'm the ${entity.principal} on this account and authorise its closure.`
                   : m.rule === 'all' ? `I'm an authorised ${entity.principal}. After my signature, all other ${entity.principal}s will be notified.`
@@ -1487,7 +1487,7 @@ export default function App() {
                     <div className="font-medium text-sm">{o.label}</div>
                     {o.sub && <div className="text-[11px] text-stone-500">{o.sub}</div>}
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-[#c8102e] border-[#c8102e]' : 'border-stone-300'}`}>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-[#DA291C] border-[#DA291C]' : 'border-stone-300'}`}>
                     {on && <Check className="w-3 h-3 text-white" />}
                   </div>
                 </button>
@@ -1826,7 +1826,7 @@ export default function App() {
               const am = formatMandate(a.rule, a.required);
               return (
                 <button key={a.no} onClick={() => setWagesSource(a.no)}
-                  className={`w-full text-left p-4 rounded-2xl border ${wagesSource === a.no ? 'border-[#c8102e] bg-red-50/40' : 'border-stone-200'}`}>
+                  className={`w-full text-left p-4 rounded-2xl border ${wagesSource === a.no ? 'border-[#DA291C] bg-red-50/40' : 'border-stone-200'}`}>
                   <div className="flex justify-between items-start gap-2">
                     <div className="min-w-0">
                       <div className="font-medium">{a.name}</div>
@@ -1879,8 +1879,8 @@ export default function App() {
             {showAddPayee && (
               <div className="rounded-2xl border border-stone-900 bg-stone-50 p-4 space-y-2.5">
                 <div className="flex items-center gap-2 mb-1">
-                  <UserPlus className="w-4 h-4 text-[#c8102e]" />
-                  <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">New payee</div>
+                  <UserPlus className="w-4 h-4 text-[#DA291C]" />
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-[#DA291C] font-medium">New payee</div>
                 </div>
                 <Input value={newPayeeName} onChange={setNewPayeeName} placeholder="Full name" />
                 <Input value={newPayeeRole} onChange={setNewPayeeRole} placeholder="Role (optional)" />
@@ -1901,7 +1901,7 @@ export default function App() {
                   <button
                     onClick={addNewPayee}
                     disabled={!newPayeeName || !newPayeeSort || !newPayeeAcct}
-                    className="py-2.5 rounded-xl bg-[#c8102e] text-white text-sm font-medium disabled:bg-stone-300 disabled:text-stone-500">
+                    className="py-2.5 rounded-xl bg-[#DA291C] text-white text-sm font-medium disabled:bg-stone-300 disabled:text-stone-500">
                     Add & verify
                   </button>
                 </div>
@@ -1913,10 +1913,10 @@ export default function App() {
               {filteredPayees.map(p => {
                 const isCop = p.copStatus === 'verified';
                 return (
-                  <div key={p.id} className={`rounded-2xl border p-3 transition-colors ${p.selected ? 'border-[#c8102e]/40 bg-red-50/20' : 'border-stone-200 bg-white'}`}>
+                  <div key={p.id} className={`rounded-2xl border p-3 transition-colors ${p.selected ? 'border-[#DA291C]/40 bg-red-50/20' : 'border-stone-200 bg-white'}`}>
                     <div className="flex items-start gap-3">
                       <button onClick={() => togglePayee(p.id)}
-                        className={`w-5 h-5 rounded mt-0.5 flex-shrink-0 flex items-center justify-center transition-colors ${p.selected ? 'bg-[#c8102e] border-2 border-[#c8102e]' : 'border-2 border-stone-300 bg-white'}`}>
+                        className={`w-5 h-5 rounded mt-0.5 flex-shrink-0 flex items-center justify-center transition-colors ${p.selected ? 'bg-[#DA291C] border-2 border-[#DA291C]' : 'border-2 border-stone-300 bg-white'}`}>
                         {p.selected && <Check className="w-3 h-3 text-white" />}
                       </button>
                       <div className="flex-1 min-w-0">
@@ -1932,7 +1932,7 @@ export default function App() {
                             )}
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => setOpenCounterparty(p.name)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-[#c8102e]">History</button>
+                            <button onClick={() => setOpenCounterparty(p.name)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-[#DA291C]">History</button>
                             <button onClick={() => removePayee(p.id)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-red-600">Remove</button>
                           </div>
                         </div>
@@ -2122,7 +2122,7 @@ export default function App() {
               ))}
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={lendingConfirm} onChange={e => setLendingConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={lendingConfirm} onChange={e => setLendingConfirm(e.target.checked)} className="mt-0.5 accent-[#DA291C] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm I want to draw down {fmt(amount)} and agree to the loan terms. I have read and understood the pre-contractual information and my 14-day cooling-off right.</span>
             </label>
           </div>
@@ -2252,7 +2252,7 @@ export default function App() {
               ))}
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#DA291C] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm this payment is for legitimate business purposes. I understand the exchange rate and fees as disclosed. I authorise {fmt(totalDebit)} to be debited from the Operating account.</span>
             </label>
             <div className="text-[11px] text-stone-500 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
@@ -2412,7 +2412,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile{unlinkAllChannels ? ' and from our call centre view' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand this cannot be reversed via the app."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#DA291C]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm I want to permanently remove personal account access from this business banking view{unlinkAllChannels ? ' and request call centre separation' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand re-linking requires authentication from my personal banking app.
               </span>
@@ -2492,7 +2492,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I instruct Santander to exclude my personal account data from all business credit assessments. I understand individual product applications may require separate consent."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={ringfenceConfirm} onChange={e => setRingfenceConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={ringfenceConfirm} onChange={e => setRingfenceConfirm(e.target.checked)} className="mt-0.5 accent-[#DA291C]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm I want to ring-fence my personal account data from all business credit assessments. I understand individual product applications may require separate consent.
               </span>
@@ -2626,7 +2626,7 @@ export default function App() {
           )}
 
           <button onClick={verify} disabled={!complete || otpVerifying}
-            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="w-full py-4 rounded-2xl bg-[#DA291C] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C]">
             {otpVerifying
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> Verifying…</>
               : complete ? 'Confirm' : `${filled} of 6 digits entered`}
@@ -2636,7 +2636,7 @@ export default function App() {
             {otpResend > 0
               ? <span className="text-[11px] text-stone-500">Resend available in {otpResend}s</span>
               : <button onClick={() => { setOtpResend(30); fireToast('New code sent'); }}
-                  className="text-[11px] text-[#c8102e] font-medium focus:outline-none focus-visible:underline">
+                  className="text-[11px] text-[#DA291C] font-medium focus:outline-none focus-visible:underline">
                   Resend code
                 </button>}
           </div>
@@ -2731,7 +2731,7 @@ export default function App() {
           </div>
 
           <button onClick={verify} disabled={!complete || signPinVerifying}
-            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="w-full py-4 rounded-2xl bg-[#DA291C] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C]">
             {signPinVerifying
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> Confirming…</>
               : complete ? 'Sign' : `${filled} of 4 digits entered`}
@@ -2757,25 +2757,25 @@ export default function App() {
         </div>
         <div className="px-5 py-5 space-y-5">
           <section>
-            <div className="flex items-center gap-2 mb-2"><Scale className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Regulation</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Scale className="w-4 h-4 text-[#DA291C]" /><h3 className="font-display text-lg">Regulation</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Santander UK plc. 2 Triton Square, Regent's Place, London NW1 3AN. Authorised by the PRA, regulated by the FCA and PRA. <span className="font-mono text-xs">FRN 106054</span></p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><Heart className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Our Consumer Duty</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Heart className="w-4 h-4 text-[#DA291C]" /><h3 className="font-display text-lg">Our Consumer Duty</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Under the FCA's Consumer Duty (July 2023), we're required to deliver good outcomes for you. Clear communication, products that meet your needs, fair value, accessible support. If we're not meeting that bar, tell us — it's how we improve.</p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">FSCS protection</h3></div>
+            <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4 text-[#DA291C]" /><h3 className="font-display text-lg">FSCS protection</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Eligible deposits protected up to £85,000 per depositor.</p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><FileSignature className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">If something goes wrong</h3></div>
+            <div className="flex items-center gap-2 mb-2"><FileSignature className="w-4 h-4 text-[#DA291C]" /><h3 className="font-display text-lg">If something goes wrong</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed mb-3">Tell us first — most issues we fix within 3 working days. If we can't, we'll keep you updated and aim to resolve within 8 weeks. We won't make you feel like you're chasing us.</p>
             <p className="text-sm text-stone-600 leading-relaxed">Unresolved? You can refer your complaint to the <strong>Financial Ombudsman Service</strong> free of charge within 6 months of our final response. They're independent, and their decision is binding on us.</p>
             <p className="text-sm text-stone-600 leading-relaxed mt-2">Financial Ombudsman · <strong>0800 023 4567</strong></p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><Phone className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Talk to us</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Phone className="w-4 h-4 text-[#DA291C]" /><h3 className="font-display text-lg">Talk to us</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Business Banking · <strong>0330 123 9860</strong> · Mon–Fri 8am–6pm. Relay UK and BSL video relay available. We'll never make this harder than it needs to be.</p>
           </section>
         </div>
@@ -2859,7 +2859,7 @@ export default function App() {
               </div>
             </div>
             <button onClick={() => { fireToast("All saved. Priya will be in touch within 2 working hours."); setShowRMSheet(false); closeWorkflow(); }}
-              className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium">
+              className="w-full bg-[#DA291C] text-white py-4 rounded-2xl font-medium">
               Open case & save my progress
             </button>
           </div>
@@ -3049,7 +3049,7 @@ export default function App() {
             <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Corporate governance</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Director command centre</h2>
           </div>
-          <button onClick={() => setTab('approve')} className="text-[10px] uppercase tracking-wider text-[#c8102e] mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded">
+          <button onClick={() => setTab('approve')} className="text-[10px] uppercase tracking-wider text-[#DA291C] mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C] rounded">
             View all
           </button>
         </div>
@@ -3063,7 +3063,7 @@ export default function App() {
                     {s.initials}
                   </div>
                   {pending > 0 && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium">{pending}</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#DA291C] text-white font-medium">{pending}</span>
                   )}
                 </div>
                 <div className="font-medium text-[13px] text-stone-900 leading-tight">{s.name}</div>
@@ -3091,7 +3091,7 @@ export default function App() {
         <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105 ${highlight ? 'bg-white/[0.08] backdrop-blur-sm border border-white/[0.08]' : 'bg-gradient-to-br from-stone-50 to-stone-100/50 border border-stone-100'}`}>
           <I className={`w-5 h-5 ${highlight ? 'text-white' : 'text-stone-700'}`} />
         </div>
-        {badge && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium">{badge}</span>}
+        {badge && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#DA291C] text-white font-medium">{badge}</span>}
       </div>
       <div className={`font-medium text-[14px] ${highlight ? 'text-white' : 'text-stone-900'}`}>{title}</div>
       <div className={`text-[11px] mt-0.5 leading-snug ${highlight ? 'text-stone-300' : 'text-stone-500'}`}>{desc}</div>
@@ -3536,7 +3536,7 @@ export default function App() {
               </ul>
             </div>
             <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={recurringConfirm} onChange={e => setRecurringConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <input type="checkbox" checked={recurringConfirm} onChange={e => setRecurringConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
               <span className="text-sm text-stone-700">I understand and want to cancel this Direct Debit.</span>
             </label>
           </div>
@@ -3651,7 +3651,7 @@ export default function App() {
               </div>
             ) : (
               <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-                <input type="checkbox" checked={disputeMerchantTried} onChange={e => setDisputeMerchantTried(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+                <input type="checkbox" checked={disputeMerchantTried} onChange={e => setDisputeMerchantTried(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
                 <span className="text-sm text-stone-700">I’ve already contacted the merchant to try to resolve it. <span className="text-stone-500">(Card scheme rules ask you to try first.)</span></span>
               </label>
             )}
@@ -3695,7 +3695,7 @@ export default function App() {
               <span>{outcome()}</span>
             </div>
             <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={disputeConfirm} onChange={e => setDisputeConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <input type="checkbox" checked={disputeConfirm} onChange={e => setDisputeConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
               <span className="text-sm text-stone-700">The information I’ve given is true and complete to the best of my knowledge.</span>
             </label>
           </div>
@@ -3862,7 +3862,7 @@ export default function App() {
               <span>Sanctions, PEP and Confirmation-of-Payee checks all passed. This beneficiary will be ready to pay as soon as you add them.</span>
             </div>
             <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={benConfirm} onChange={e => setBenConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <input type="checkbox" checked={benConfirm} onChange={e => setBenConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
               <span className="text-sm text-stone-700">I confirm these details are correct and this is a genuine beneficiary.</span>
             </label>
           </div>
@@ -4208,7 +4208,7 @@ export default function App() {
               <span>Signed-out devices must re-authenticate with Strong Customer Authentication to return. Changes are recorded in your security audit trail.</span>
             </div>
             <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={tdConfirm} onChange={e => setTdConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#c8102e]" />
+              <input type="checkbox" checked={tdConfirm} onChange={e => setTdConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#DA291C]" />
               <span className="text-sm text-stone-700">Apply these changes to my account access.</span>
             </label>
           </div>
@@ -4235,8 +4235,8 @@ export default function App() {
       <div className="mx-5 mb-6 anim-fade stagger-1">
         <div className="relative overflow-hidden rounded-[28px] hero-card text-white lift-hero">
           <div className="absolute inset-0 grain pointer-events-none" />
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#c8102e]/30 blur-3xl anim-float" />
-          <div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-[#c8102e]/10 blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#DA291C]/30 blur-3xl anim-float" />
+          <div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-[#DA291C]/10 blur-3xl" />
           <div className="relative p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -4279,21 +4279,21 @@ export default function App() {
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Payroll run · £42,180</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Balance covers it — review if payees changed</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Review payroll <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#DA291C] font-medium flex items-center gap-1">Review payroll <ArrowRight className="w-3 h-3" /></div>
           </button>
 
           {/* MTD deadline - red */}
           <button onClick={() => setTab('mtd')}
-            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-red-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-red-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C]">
             <div className="flex items-center gap-2 mb-2.5">
-              <div className="w-8 h-8 rounded-xl bg-red-50 text-[#c8102e] flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-red-50 text-[#DA291C] flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-[#c8102e] font-medium">22 days</span>
+              <span className="text-[10px] uppercase tracking-wider text-[#DA291C] font-medium">22 days</span>
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">VAT return due 7 Aug</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Q3 Making Tax Digital · HMRC submission</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Start now <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#DA291C] font-medium flex items-center gap-1">Start now <ArrowRight className="w-3 h-3" /></div>
           </button>
 
           {/* Companies House - blue */}
@@ -4307,7 +4307,7 @@ export default function App() {
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Annual confirmation due</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Companies House · {entity.name}</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Run KYB check <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#DA291C] font-medium flex items-center gap-1">Run KYB check <ArrowRight className="w-3 h-3" /></div>
           </button>
         </div>
       </div>
@@ -4466,19 +4466,19 @@ export default function App() {
       {currentVATObligation && (
         <div className="px-5 mb-6 anim-fade">
           <button onClick={() => setTab('mtd')} className="btn-primary w-full text-left rounded-2xl overflow-hidden border border-stone-200/80 lift-1 hover:lift-2 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#c8102e]/[0.06] via-stone-50 to-[#c8102e]/[0.03]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#DA291C]/[0.06] via-stone-50 to-[#DA291C]/[0.03]" />
             <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
-            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#c8102e]/10 blur-3xl pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#DA291C]/10 blur-3xl pointer-events-none" />
             <div className="relative p-4 pl-5 flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl santander-red text-white flex items-center justify-center flex-shrink-0 lift-2">
                 <Receipt className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">VAT due in {daysUntilDeadline} days · MTD</div>
+                <div className="text-[10px] uppercase tracking-[0.15em] text-[#DA291C] font-medium">VAT due in {daysUntilDeadline} days · MTD</div>
                 <div className="font-display-tight text-[17px] text-stone-900 mt-0.5 truncate">{fmt(currentVATObligation.vatDue)} owed to HMRC</div>
                 <div className="text-[11px] text-stone-600 mt-0.5 truncate">{transactionsToReview} transactions to review · {currentVATObligation.period}</div>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-[#DA291C] flex-shrink-0" />
             </div>
           </button>
         </div>
@@ -4503,10 +4503,10 @@ export default function App() {
         <div className="px-5 mb-7 anim-fade">
           <div className="flex items-end justify-between mb-3">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e]/80 font-medium mb-0.5">Action required</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#DA291C]/80 font-medium mb-0.5">Action required</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Awaiting your signature</h2>
             </div>
-            <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#c8102e] text-white font-medium">{pendingApprovals.length}</span>
+            <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#DA291C] text-white font-medium">{pendingApprovals.length}</span>
           </div>
           <div className="space-y-2.5">
             {pendingApprovals.slice(0, 2).map(p => {
@@ -4577,7 +4577,7 @@ export default function App() {
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${open ? 'border-stone-900' : 'border-stone-200 hover:border-stone-300'}`}>
                 <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${open ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
                   <GI className="w-4 h-4" />
-                  {g.badge && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#c8102e] text-white text-[9px] font-bold flex items-center justify-center">{g.badge}</span>}
+                  {g.badge && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#DA291C] text-white text-[9px] font-bold flex items-center justify-center">{g.badge}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-stone-900">{g.label}</div>
@@ -4676,8 +4676,8 @@ export default function App() {
               <svg viewBox="0 0 520 148" className="w-full mb-1" role="img" aria-label="13-week cash flow forecast">
                 <defs>
                   <linearGradient id="fcFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c8102e" stopOpacity="0.22" />
-                    <stop offset="100%" stopColor="#c8102e" stopOpacity="0.02" />
+                    <stop offset="0%" stopColor="#DA291C" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#DA291C" stopOpacity="0.02" />
                   </linearGradient>
                 </defs>
                 {/* faint horizontal gridlines for a sense of scale */}
@@ -4687,7 +4687,7 @@ export default function App() {
                 {showFloor && <line x1="10" y1={floorY} x2="510" y2={floorY} stroke="#d97706" strokeWidth="1.25" strokeDasharray="4,3" opacity="0.7" />}
                 {/* gradient area + smooth trend line */}
                 <path d={areaPath} fill="url(#fcFill)" />
-                <path d={linePath} fill="none" stroke="#c8102e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={linePath} fill="none" stroke="#DA291C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 {/* event markers — named cash movements sit on the curve */}
                 {forecastWeeks.map((wk, i) => {
                   if (!wk.event && i !== lowIdx) return null;
@@ -4697,7 +4697,7 @@ export default function App() {
                     return <g key={i}><circle cx={cx} cy={cy} r="5.5" fill="#fff" stroke="#d97706" strokeWidth="2.5" /></g>;
                   }
                   if (!wk.event) return null;
-                  return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#c8102e' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
+                  return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#DA291C' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
                 })}
               </svg>
               <div className="flex justify-between text-[9px] text-stone-500 mb-3 px-0.5">
@@ -4707,7 +4707,7 @@ export default function App() {
               </div>
               {/* legend */}
               <div className="flex items-center gap-4 mb-3 text-[10px] text-stone-500">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#c8102e]" />Outflow event</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#DA291C]" />Outflow event</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e08898]" />Receipts</span>
                 {hasWarn && <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full border-2 border-amber-600 bg-white" />Lowest week</span>}
               </div>
@@ -4851,7 +4851,7 @@ export default function App() {
                 {!obFCRevoked ? 'Funding Circle has access to personal data' : '3 consents · business data only'}
               </div>
             </div>
-            {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium flex-shrink-0">!</span>}
+            {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#DA291C] text-white font-medium flex-shrink-0">!</span>}
             <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-500'}`} />
           </button>
           {/* Credit decisioning ring-fence */}
@@ -4935,7 +4935,7 @@ export default function App() {
       <div className="px-5 mb-7 anim-fade">
         <div className="flex items-end justify-between mb-3">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e]/80 font-medium mb-0.5">The personal touch</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[#DA291C]/80 font-medium mb-0.5">The personal touch</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Your relationship manager</h2>
           </div>
         </div>
@@ -4972,7 +4972,7 @@ export default function App() {
       <div className="px-5 mb-3">
         <button onClick={() => setShowA11ySheet(true)} className="w-full p-4 rounded-2xl bg-stone-50 border border-stone-200 text-left flex items-center gap-3 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
           <div className="w-9 h-9 rounded-xl bg-white border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <Heart className="w-4 h-4 text-[#c8102e]" />
+            <Heart className="w-4 h-4 text-[#DA291C]" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-medium text-stone-900">Accessibility settings</div>
@@ -5135,8 +5135,8 @@ export default function App() {
         {/* Editorial header */}
         <div className="px-5 pt-4 pb-7 anim-fade">
           <div className="flex items-center gap-2 mb-3">
-            <div className="h-px w-8 bg-[#c8102e]" />
-            <div className="text-[10px] text-[#c8102e] uppercase tracking-[0.2em] font-medium">Statements & insights</div>
+            <div className="h-px w-8 bg-[#DA291C]" />
+            <div className="text-[10px] text-[#DA291C] uppercase tracking-[0.2em] font-medium">Statements & insights</div>
           </div>
           <h1 className="font-display-tight text-[44px] leading-[0.95] text-stone-900">
             Where the<br />
@@ -5149,7 +5149,7 @@ export default function App() {
         <div className="px-5 mb-5 anim-fade stagger-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Counterparty search */}
           <div className="rounded-2xl bg-white border border-stone-200 shadow-sm p-4 lift-1 lg:order-1">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium mb-2">Search</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] text-[#DA291C] font-medium mb-2">Search</div>
             <div className="relative">
               <Search className="w-5 h-5 text-stone-500 absolute left-3 top-3" />
               <input
@@ -5230,7 +5230,7 @@ export default function App() {
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-5 px-5">
             {monthsAvailable.map(m => (
               <button key={m} onClick={() => setStatementMonth(m)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-colors ${statementMonth === m ? 'bg-[#c8102e] text-white' : 'bg-white border border-stone-200 text-stone-600'}`}>
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-colors ${statementMonth === m ? 'bg-[#DA291C] text-white' : 'bg-white border border-stone-200 text-stone-600'}`}>
                 {monthLabel(m)}
               </button>
             ))}
@@ -5418,7 +5418,7 @@ export default function App() {
               <>
                 <div
                   onClick={() => { if (!receiptUploaded) { setReceiptUploaded(true); setTimeout(() => setReceiptStep(1), 1100); } }}
-                  className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${receiptUploaded ? 'border-emerald-400 bg-emerald-50/30' : 'border-stone-300 hover:border-[#c8102e] hover:bg-red-50/20'}`}
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${receiptUploaded ? 'border-emerald-400 bg-emerald-50/30' : 'border-stone-300 hover:border-[#DA291C] hover:bg-red-50/20'}`}
                 >
                   {!receiptUploaded ? (
                     <>
@@ -5456,7 +5456,7 @@ export default function App() {
                     <div key={l} className="flex justify-between items-center px-4 py-3">
                       <span className="text-sm text-stone-600">{l}</span>
                       {tag
-                        ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                        ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#DA291C]/10 text-[#DA291C] font-medium">{v}</span>
                         : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : ''}`}>{v}</span>}
                     </div>
                   ))}
@@ -5467,7 +5467,7 @@ export default function App() {
                     fireToast('Receipt matched · AWS transaction → IT & Technology · VAT reclaim updated · logged to audit trail');
                     close();
                   }}
-                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
+                  className="w-full bg-[#DA291C] text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
                 >
                   <Check className="w-4 h-4" />
                   Confirm & categorise for MTD
@@ -5505,10 +5505,10 @@ export default function App() {
             {/* Card visual */}
             <div className="w-full h-44 rounded-3xl bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 text-white p-5 relative overflow-hidden">
               <div className="absolute -top-14 -right-14 w-52 h-52 rounded-full bg-white/[0.03] pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-[#c8102e]/[0.12] pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-[#DA291C]/[0.12] pointer-events-none" />
               <div className="absolute top-4 right-5 flex items-center">
-                <div className="w-8 h-8 rounded-full bg-[#c8102e]/80" />
-                <div className="w-8 h-8 rounded-full bg-[#c8102e] -ml-3.5 opacity-65" />
+                <div className="w-8 h-8 rounded-full bg-[#DA291C]/80" />
+                <div className="w-8 h-8 rounded-full bg-[#DA291C] -ml-3.5 opacity-65" />
               </div>
               <div className="relative h-full flex flex-col justify-between">
                 <div className="w-12 h-8 rounded-md bg-gradient-to-br from-amber-300 to-amber-500 opacity-90" />
@@ -5593,7 +5593,7 @@ export default function App() {
                       <div className="relative w-14 h-14">
                         <svg className="w-14 h-14 -rotate-90" viewBox="0 0 60 60">
                           <circle cx="30" cy="30" r={r} fill="none" stroke="#e7e5e4" strokeWidth="4" />
-                          <circle cx="30" cy="30" r={r} fill="none" stroke="#c8102e" strokeWidth="4"
+                          <circle cx="30" cy="30" r={r} fill="none" stroke="#DA291C" strokeWidth="4"
                             strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
                             strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
                         </svg>
@@ -5795,7 +5795,7 @@ export default function App() {
                           fireToast('Funding Circle access revoked');
                         }
                       }}
-                      className="text-[11px] font-medium text-[#c8102e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded"
+                      className="text-[11px] font-medium text-[#DA291C] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C] rounded"
                     >
                       Revoke access
                     </button>
@@ -5830,7 +5830,7 @@ export default function App() {
               {!voiceRecording ? (
                 <>
                   <button onClick={doVoiceMemo}
-                    className="w-24 h-24 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#c8102e]/30">
+                    className="w-24 h-24 rounded-full bg-[#DA291C] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#DA291C]/30">
                     <Mic size={36} className="text-white" />
                   </button>
                   <p className="text-sm text-stone-500 text-center max-w-xs">
@@ -5841,16 +5841,16 @@ export default function App() {
               ) : (
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-[#c8102e]/15 animate-ping" style={{ animationDuration: '1.2s' }} />
-                    <div className="w-24 h-24 rounded-full bg-[#c8102e]/10 flex items-center justify-center relative">
-                      <Mic size={36} className="text-[#c8102e]" />
+                    <div className="absolute inset-0 rounded-full bg-[#DA291C]/15 animate-ping" style={{ animationDuration: '1.2s' }} />
+                    <div className="w-24 h-24 rounded-full bg-[#DA291C]/10 flex items-center justify-center relative">
+                      <Mic size={36} className="text-[#DA291C]" />
                     </div>
                   </div>
                   <svg width="200" height="40" viewBox="0 0 200 40" aria-hidden="true">
                     {BARS.map((h, i) => (
                       <rect key={i}
                         x={i * 13 + 4} y={(40 - h) / 2} width="9" height={h} rx="4"
-                        fill="#c8102e" opacity={0.45 + (i % 3) * 0.18}
+                        fill="#DA291C" opacity={0.45 + (i % 3) * 0.18}
                         className="voice-bar"
                         style={{ animationDelay: `${(i * 0.07).toFixed(2)}s`, animationDuration: `${0.55 + (i % 5) * 0.09}s` }}
                       />
@@ -5879,7 +5879,7 @@ export default function App() {
                   <div key={l} className="flex justify-between items-center px-4 py-3">
                     <span className="text-sm text-stone-500">{l}</span>
                     {tag
-                      ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                      ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#DA291C]/10 text-[#DA291C] font-medium">{v}</span>
                       : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : 'num-tab'}`}>{v}</span>}
                   </div>
                 ))}
@@ -5945,7 +5945,7 @@ export default function App() {
             <svg viewBox="0 0 310 56" className="w-full" style={{ height: 56 }}>
               {dailyBal.map((b, i) => {
                 const h = Math.max(2, (b / maxBal) * 48);
-                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#d97706' : '#c8102e'} opacity="0.78" />;
+                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#d97706' : '#DA291C'} opacity="0.78" />;
               })}
               <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#dc2626" strokeWidth="1" strokeDasharray="4 3" opacity="0.55" />
             </svg>
@@ -5964,7 +5964,7 @@ export default function App() {
           <div className="space-y-1.5 mb-4">
             {sorted.map(p => (
               <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#c8102e]/60'}`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#DA291C]/60'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-stone-900 truncate">{p.payee}</div>
                   <div className="text-[10px] text-stone-500">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
@@ -6042,13 +6042,13 @@ export default function App() {
                             <Check size={18} className="text-emerald-600" />
                           </div>
                         ) : recording ? (
-                          <div className="w-10 h-10 rounded-full bg-[#c8102e]/10 flex items-center justify-center flex-shrink-0 relative">
-                            <div className="absolute inset-0 rounded-full bg-[#c8102e]/20 animate-ping" style={{ animationDuration: '0.9s' }} />
-                            <Mic size={18} className="text-[#c8102e] relative" />
+                          <div className="w-10 h-10 rounded-full bg-[#DA291C]/10 flex items-center justify-center flex-shrink-0 relative">
+                            <div className="absolute inset-0 rounded-full bg-[#DA291C]/20 animate-ping" style={{ animationDuration: '0.9s' }} />
+                            <Mic size={18} className="text-[#DA291C] relative" />
                           </div>
                         ) : (
                           <button onClick={() => doEnrolPhrase(i)} disabled={done}
-                            className="w-10 h-10 rounded-full bg-[#c8102e] flex items-center justify-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+                            className="w-10 h-10 rounded-full bg-[#DA291C] flex items-center justify-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#DA291C]">
                             <Mic size={18} className="text-white" />
                           </button>
                         )}
@@ -6178,7 +6178,7 @@ export default function App() {
                       <button onClick={() => { setSessionAnomaly(false); setShowNotifications(false); fireToast('Session confirmed — no further action needed.'); }}
                         className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-stone-900 text-white">That was me</button>
                       <button onClick={() => { setTab('audit'); setShowNotifications(false); }}
-                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-[#c8102e] text-white">Review activity</button>
+                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-[#DA291C] text-white">Review activity</button>
                     </div>
                   </div>
                 </div>
@@ -6320,7 +6320,7 @@ export default function App() {
           <div className="px-5 pt-4 pb-5 border-b border-stone-100">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e] font-medium mb-1">{stats.category}</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[#DA291C] font-medium mb-1">{stats.category}</div>
                 <h2 className="font-display-tight text-2xl text-stone-900 truncate">{stats.name}</h2>
                 <div className="text-[11px] text-stone-500 mt-1">
                   {stats.count} {stats.count === 1 ? 'transaction' : 'transactions'} · last {stats.lastDate.slice(8, 10)}/{stats.lastDate.slice(5, 7)}/{stats.lastDate.slice(0, 4)}
@@ -6423,8 +6423,8 @@ export default function App() {
       {/* Editorial header */}
       <div className="px-5 pt-4 pb-7 anim-fade">
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-px w-8 bg-[#c8102e]" />
-          <div className="text-[10px] text-[#c8102e] uppercase tracking-[0.2em] font-medium">HMRC · Making Tax Digital</div>
+          <div className="h-px w-8 bg-[#DA291C]" />
+          <div className="text-[10px] text-[#DA291C] uppercase tracking-[0.2em] font-medium">HMRC · Making Tax Digital</div>
         </div>
         <h1 className="font-display-tight text-[44px] leading-[0.95] text-stone-900">
           Tax,<br />
@@ -6435,7 +6435,7 @@ export default function App() {
 
       {/* HMRC connection status */}
       <div className="px-5 mb-6 anim-fade stagger-1">
-        <div className="rounded-2xl bg-gradient-to-br from-[#c8102e]/[0.04] via-stone-50 to-[#c8102e]/[0.06] border border-stone-200/80 p-4 lift-1 relative overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-[#DA291C]/[0.04] via-stone-50 to-[#DA291C]/[0.06] border border-stone-200/80 p-4 lift-1 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
           <div className="relative flex items-center gap-3 pl-1">
             <div className="relative flex-shrink-0">
@@ -6445,7 +6445,7 @@ export default function App() {
               <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white anim-pulse-glow" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">Connected to HMRC · Live</div>
+              <div className="text-[10px] uppercase tracking-[0.15em] text-[#DA291C] font-medium">Connected to HMRC · Live</div>
               <div className="font-medium text-[14px] text-stone-900 mt-0.5">{mtdData.softwareName}</div>
               <div className="font-mono text-[10px] text-stone-500 mt-0.5 truncate">VRN {mtdData.vrn} · UTR {mtdData.utr}</div>
             </div>
@@ -6458,7 +6458,7 @@ export default function App() {
         <div className="px-5 mb-7 anim-fade stagger-2">
           <div className="flex items-end justify-between mb-3 gap-3">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e] font-medium mb-0.5">Due in {daysUntilDeadline} days</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#DA291C] font-medium mb-0.5">Due in {daysUntilDeadline} days</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Your VAT return</h2>
             </div>
             <span className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 flex-shrink-0">{currentVATObligation.period}</span>
@@ -6498,7 +6498,7 @@ export default function App() {
               </div>
 
               {/* CTA — white pill on red background */}
-              <button onClick={() => { setWorkflow('mtd-submit'); setMtdQuarterStep(0); }} className="btn-primary w-full bg-white text-[#c8102e] py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:bg-stone-50">
+              <button onClick={() => { setWorkflow('mtd-submit'); setMtdQuarterStep(0); }} className="btn-primary w-full bg-white text-[#DA291C] py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:bg-stone-50">
                 Review & submit to HMRC <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -6588,7 +6588,7 @@ export default function App() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[9px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded font-medium bg-[#c8102e] text-white">{o.kind}</span>
+                  <span className="text-[9px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded font-medium bg-[#DA291C] text-white">{o.kind}</span>
                   <span className="font-medium text-[14px] text-stone-900 truncate">{o.period}</span>
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">Submitted {o.submittedAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
@@ -6615,7 +6615,7 @@ export default function App() {
 
       {/* HMRC compliance footer */}
       <div className="px-5 mb-3 anim-fade stagger-6">
-        <div className="rounded-2xl bg-gradient-to-br from-[#c8102e]/[0.03] to-stone-50 border border-stone-200/60 p-4 relative overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-[#DA291C]/[0.03] to-stone-50 border border-stone-200/60 p-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
           <div className="relative">
             <div className="flex items-start gap-3 mb-3">
@@ -6623,7 +6623,7 @@ export default function App() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">HMRC-recognised software</div>
+                <div className="text-[10px] uppercase tracking-[0.15em] text-[#DA291C] font-medium">HMRC-recognised software</div>
                 <div className="font-medium text-sm text-stone-900 mt-0.5">Fully MTD-compliant</div>
               </div>
             </div>
@@ -6753,19 +6753,19 @@ export default function App() {
                 { box: 'Box 8', label: 'EU goods supplied', value: 0 },
                 { box: 'Box 9', label: 'EU goods acquired', value: 0 },
               ].map(b => (
-                <div key={b.box} className={`p-3.5 flex items-center justify-between gap-3 relative ${b.hero ? 'bg-gradient-to-r from-[#c8102e]/[0.05] to-stone-50' : ''}`}>
+                <div key={b.box} className={`p-3.5 flex items-center justify-between gap-3 relative ${b.hero ? 'bg-gradient-to-r from-[#DA291C]/[0.05] to-stone-50' : ''}`}>
                   {b.hero && <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />}
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 ${b.hero ? 'bg-[#c8102e] text-white' : 'bg-stone-100 text-stone-500'}`}>{b.box}</span>
+                    <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 ${b.hero ? 'bg-[#DA291C] text-white' : 'bg-stone-100 text-stone-500'}`}>{b.box}</span>
                     <span className={`text-[13px] truncate ${b.hero ? 'font-medium text-stone-900' : 'text-stone-700'}`}>{b.label}</span>
                   </div>
-                  <span className={`font-mono num-tab flex-shrink-0 ${b.hero ? 'text-[15px] font-medium text-[#c8102e]' : 'text-[13px] text-stone-700'}`}>{fmt(b.value)}</span>
+                  <span className={`font-mono num-tab flex-shrink-0 ${b.hero ? 'text-[15px] font-medium text-[#DA291C]' : 'text-[13px] text-stone-700'}`}>{fmt(b.value)}</span>
                 </div>
               ))}
             </div>
 
             <div className="rounded-xl bg-stone-50 border border-stone-200/60 p-3 text-[11px] text-stone-600 leading-relaxed flex gap-2">
-              <Link2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#c8102e]" />
+              <Link2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#DA291C]" />
               <div>These figures are calculated automatically from your transactions via digital links. No copy-paste, no manual entry — meets HMRC's MTD requirements in full.</div>
             </div>
           </div>
@@ -6790,7 +6790,7 @@ export default function App() {
             </div>
 
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={mtdConfirmDeclaration} onChange={e => setMtdConfirmDeclaration(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={mtdConfirmDeclaration} onChange={e => setMtdConfirmDeclaration(e.target.checked)} className="mt-0.5 accent-[#DA291C] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm the information is true and complete to the best of my knowledge, and I'm authorised to submit this VAT return for {entity.name}.</span>
             </label>
 
@@ -6881,7 +6881,7 @@ export default function App() {
             })}
             <div className="pt-1 p-4 rounded-2xl bg-[#faf6ef] border border-stone-200">
               <div className="flex gap-3 items-start">
-                <Heart className="w-4 h-4 text-[#c8102e] flex-shrink-0 mt-0.5" />
+                <Heart className="w-4 h-4 text-[#DA291C] flex-shrink-0 mt-0.5" />
                 <div className="text-[11px] text-stone-600 leading-relaxed">
                   <strong className="text-stone-900">More support available.</strong> Large print statements, braille, audio, BSL video relay, and Relay UK for text-to-speech calls. Ask in branch or call <span className="font-mono">0800 068 6899</span>.
                 </div>
@@ -6936,7 +6936,7 @@ export default function App() {
           <div className="relative w-28 h-28 mx-auto mb-6">
             <svg className="w-28 h-28 -rotate-90" viewBox="0 0 112 112">
               <circle cx="56" cy="56" r={r} fill="none" stroke="#f5f5f4" strokeWidth="8" />
-              <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#c8102e' : '#1c1917'} strokeWidth="8"
+              <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#DA291C' : '#1c1917'} strokeWidth="8"
                 strokeDasharray={circ}
                 strokeDashoffset={circ * (1 - pct)}
                 strokeLinecap="round"
@@ -7003,7 +7003,7 @@ export default function App() {
           <div className="red-bar h-1" />
           <div className="max-w-[1440px] mx-auto px-8 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#c8102e] flex items-center justify-center"><div className="w-3.5 h-3.5 rounded-full border-2 border-white" /></div>
+              <div className="w-8 h-8 rounded-full bg-[#DA291C] flex items-center justify-center"><div className="w-3.5 h-3.5 rounded-full border-2 border-white" /></div>
               <div>
                 <div className="font-display text-lg leading-none">Santander Business</div>
                 <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mt-0.5">{entity.name}</div>
@@ -7025,7 +7025,7 @@ export default function App() {
               </button>
               <button onClick={() => setShowNotifications(true)} className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
                 <Bell className="w-4 h-4" />
-                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
+                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#DA291C]" />
               </button>
               <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-stone-100">
                 <div className="w-8 h-8 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-medium">JW</div>
@@ -7051,7 +7051,7 @@ export default function App() {
                   <button key={t.id} onClick={() => setTab(t.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${active ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-700'}`}>
                     <I className="w-4 h-4" />
                     <span className="flex-1 text-left">{t.label}</span>
-                    {t.badge > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20' : 'bg-[#c8102e] text-white'}`}>{t.badge}</span>}
+                    {t.badge > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20' : 'bg-[#DA291C] text-white'}`}>{t.badge}</span>}
                   </button>
                 );
               })}
@@ -7167,7 +7167,7 @@ export default function App() {
 
               {/* Accessibility */}
               <button onClick={() => setShowA11ySheet(true)} className="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 text-left flex items-center gap-2.5 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
-                <Heart className="w-3.5 h-3.5 text-[#c8102e] flex-shrink-0" />
+                <Heart className="w-3.5 h-3.5 text-[#DA291C] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-medium text-stone-900">Accessibility settings</div>
                   <div className="text-[9px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active' : 'Dyslexia · motion · contrast · more'}</div>
@@ -7253,7 +7253,7 @@ export default function App() {
         <div className="red-bar h-1" />
         <div className="px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#c8102e] flex items-center justify-center"><div className="w-3 h-3 rounded-full border-2 border-white" /></div>
+            <div className="w-7 h-7 rounded-full bg-[#DA291C] flex items-center justify-center"><div className="w-3 h-3 rounded-full border-2 border-white" /></div>
             <div>
               <div className="font-display text-base leading-none">Santander</div>
               <div className="text-[9px] uppercase tracking-[0.15em] text-stone-500">{entity.isTreasurer ? 'Treasurer · ' : 'Business · '}{entity.name}</div>
@@ -7270,7 +7270,7 @@ export default function App() {
             <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-600 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
             <button aria-label="Notifications" className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
               <Bell className="w-4 h-4" />
-              <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
+              <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#DA291C]" />
             </button>
             <button className="w-9 h-9 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-medium">JW</button>
           </div>
@@ -7299,11 +7299,11 @@ export default function App() {
             return (
               <button key={t.id} onClick={() => setTab(t.id)} className="py-3 flex flex-col items-center gap-1 relative">
                 <div className="relative">
-                  <I className={`w-5 h-5 ${active ? 'text-[#c8102e]' : 'text-stone-500'}`} />
-                  {t.badge > 0 && <div className="absolute -top-1 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-[#c8102e] text-white text-[9px] flex items-center justify-center font-medium">{t.badge}</div>}
+                  <I className={`w-5 h-5 ${active ? 'text-[#DA291C]' : 'text-stone-500'}`} />
+                  {t.badge > 0 && <div className="absolute -top-1 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-[#DA291C] text-white text-[9px] flex items-center justify-center font-medium">{t.badge}</div>}
                 </div>
                 <div className={`text-[10px] uppercase tracking-wider ${active ? 'text-stone-900 font-medium' : 'text-stone-500'}`}>{t.label}</div>
-                {active && <div className="absolute top-0 inset-x-6 h-0.5 bg-[#c8102e] rounded-full" />}
+                {active && <div className="absolute top-0 inset-x-6 h-0.5 bg-[#DA291C] rounded-full" />}
               </button>
             );
           })}
