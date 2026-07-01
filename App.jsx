@@ -325,6 +325,13 @@ export default function App() {
   const [benScreened, setBenScreened] = useState(false); // sanctions/PEP/CoP screening run
   const [benConfirm, setBenConfirm] = useState(false);
 
+  // Certificate of balance / bank reference on demand
+  const [certType, setCertType] = useState(null);       // 'balance' | 'reference' | 'audit'
+  const [certAccounts, setCertAccounts] = useState([]);  // selected account nos
+  const [certDate, setCertDate] = useState('');          // as-at date
+  const [certPurpose, setCertPurpose] = useState(null);
+  const [certDelivery, setCertDelivery] = useState('download'); // 'download' | 'email' | 'post'
+
   // Home action accordion — which group is expanded (null = all collapsed)
   const [openActionGroup, setOpenActionGroup] = useState(null);
 
@@ -926,6 +933,7 @@ export default function App() {
     setDisputeDetail(''); setDisputeEvidenceUp(false); setDisputeConfirm(false);
     setBenName(''); setBenCountry(null); setBenBank(''); setBenAccount(''); setBenSwift('');
     setBenAddress(''); setBenPurpose(null); setBenScreened(false); setBenConfirm(false);
+    setCertType(null); setCertAccounts([]); setCertDate(''); setCertPurpose(null); setCertDelivery('download');
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
@@ -3852,6 +3860,191 @@ export default function App() {
     );
   };
 
+  const renderCertificate = () => {
+    const TYPES = [
+      { id: 'balance', label: 'Certificate of balance', desc: 'Confirms your balances as at a chosen date', icon: FileText },
+      { id: 'reference', label: 'Bank reference', desc: 'Confirms your account relationship for a landlord or supplier', icon: Building2 },
+      { id: 'audit', label: "Auditor's confirmation", desc: 'Formal year-end letter addressed to your accountant', icon: ShieldCheck },
+    ];
+    const PURPOSES = ['Mortgage / lending application', 'Landlord / lease', 'Supplier credit account', 'Grant / funding application', 'Visa / immigration', 'Auditor / year-end', 'Other'];
+    const DELIVERY = [
+      { id: 'download', label: 'Download now', sub: 'Sealed PDF, instantly', icon: FileText },
+      { id: 'email', label: 'Email to me', sub: 'To your registered address', icon: Mail },
+      { id: 'post', label: 'Post a stamped copy', sub: '3–5 working days', icon: MapPin },
+    ];
+    const typeMeta = TYPES.find(t => t.id === certType) || null;
+    const selected = accounts.filter(a => certAccounts.includes(a.no));
+    const totalBal = selected.reduce((s, a) => s + a.balance, 0);
+    const prettyDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    const issuedOn = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const certRef = `SBB/${(entityType || 'biz').slice(0, 3).toUpperCase()}/${(certDate || '').replace(/-/g, '')}/${selected.length}A`;
+
+    const toggleAcct = (no) => setCertAccounts(prev => prev.includes(no) ? prev.filter(x => x !== no) : [...prev, no]);
+
+    const stepDefs = [
+      { id: 'type', t: 'What do you need?', s: 'Choose the document' },
+      { id: 'scope', t: 'Accounts & date', s: 'What the certificate covers' },
+      { id: 'options', t: 'Purpose & delivery', s: 'Where it goes and why' },
+      { id: 'issued', t: 'Your certificate', s: 'Issued and sealed' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(certDelivery === 'download' ? 'Certificate downloaded · logged to audit trail'
+          : certDelivery === 'email' ? 'Certificate emailed to your registered address · logged to audit trail'
+          : 'Stamped copy posted — arrives in 3–5 working days · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'type') return !!certType;
+      if (sd.id === 'scope') return certAccounts.length > 0 && certDate;
+      if (sd.id === 'options') return certPurpose && certDelivery;
+      return true;
+    };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'options' ? 'Generate certificate' : sd.id === 'issued' ? 'Done' : 'Continue'}
+        replaces={{ form: 'Written branch request + 5-day postal wait', savings: 'Sealed & issued instantly · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'type' && (
+          <div className="space-y-2">
+            {TYPES.map(t => {
+              const on = certType === t.id;
+              const I = t.icon;
+              return (
+                <button key={t.id} onClick={() => setCertType(t.id)}
+                  className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                  <div><div className="font-medium text-sm">{t.label}</div><div className="text-xs text-stone-500 mt-0.5">{t.desc}</div></div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'scope' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Accounts to include</div>
+              <div className="space-y-2">
+                {accounts.map(a => {
+                  const on = certAccounts.includes(a.no);
+                  return (
+                    <button key={a.no} onClick={() => toggleAcct(a.no)}
+                      className={`w-full text-left p-3.5 rounded-2xl border flex items-center justify-between gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-300'}`}>{on && <Check className="w-3.5 h-3.5" />}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm text-stone-900 truncate">{a.name}{a.status === 'dormant' && <span className="text-[10px] text-stone-400 ml-1.5">dormant</span>}</div>
+                          <div className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</div>
+                        </div>
+                      </div>
+                      <div className="font-mono text-sm num-tab flex-shrink-0">{fmt(a.balance)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <Field label="Balances as at"><Input type="date" value={certDate} onChange={setCertDate} /></Field>
+          </div>
+        )}
+
+        {sd.id === 'options' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Purpose</div>
+              <div className="grid grid-cols-2 gap-2">
+                {PURPOSES.map(p => (
+                  <button key={p} onClick={() => setCertPurpose(p)}
+                    className={`p-3 rounded-xl border text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${certPurpose === p ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200 text-stone-700'}`}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Delivery</div>
+              <div className="space-y-2">
+                {DELIVERY.map(d => {
+                  const on = certDelivery === d.id;
+                  const I = d.icon;
+                  return (
+                    <button key={d.id} onClick={() => setCertDelivery(d.id)}
+                      className={`w-full text-left p-3.5 rounded-2xl border flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                      <div><div className="font-medium text-sm">{d.label}</div><div className="text-[11px] text-stone-500">{d.sub}</div></div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'issued' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden bg-white">
+              <div className="red-bar h-1.5" />
+              <div className="p-5 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[15px] font-display text-stone-900">Santander</div>
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500">Business Banking</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase tracking-wider text-stone-400">Reference</div>
+                    <div className="font-mono text-[11px] num-tab text-stone-700">{certRef}</div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-stone-900">{typeMeta ? typeMeta.label : 'Certificate of balance'}</div>
+                <div className="text-[12px] text-stone-600 leading-relaxed">
+                  To whom it may concern,<br /><br />
+                  We confirm that as at <strong>{prettyDate(certDate)}</strong>, <strong>{entity.name}</strong>
+                  {entity.chNumber ? ` (Companies House no. ${entity.chNumber})` : entity.ccNumber ? ` (Registered charity no. ${entity.ccNumber})` : ''} held the following account{selected.length !== 1 ? 's' : ''} with Santander Business Banking:
+                </div>
+                <div className="rounded-xl border border-stone-200 overflow-hidden">
+                  {selected.map(a => (
+                    <div key={a.no} className="flex justify-between items-center px-3.5 py-2.5 border-b border-stone-100 last:border-0">
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-medium text-stone-900 truncate">{a.name}</div>
+                        <div className="font-mono text-[10px] text-stone-500">{a.sortCode} · {a.no}</div>
+                      </div>
+                      <div className="font-mono text-[13px] num-tab text-stone-900 flex-shrink-0 ml-3">{fmt(a.balance)}</div>
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center px-3.5 py-2.5 bg-stone-50">
+                    <div className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Total held</div>
+                    <div className="font-mono text-sm num-tab font-semibold text-stone-900">{fmt(totalBal)}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+                    <Award className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="text-[11px] text-stone-500 leading-relaxed">
+                    Issued electronically on {issuedOn}. This certificate is digitally sealed by Santander and is valid without a handwritten signature.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <CircleCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{certDelivery === 'download' ? 'Ready to download as a sealed PDF.' : certDelivery === 'email' ? 'On its way to your registered email address.' : 'A stamped paper copy will be posted to your registered address.'}</span>
+            </div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="pb-24">
       <div className="px-5 pt-4 pb-7 anim-fade">
@@ -4199,6 +4392,7 @@ export default function App() {
             { icon: Archive, title: 'Close account', desc: 'Form ANB9 0370', onClick: () => { setWorkflow('closure'); setStep(0); } },
             { icon: Scale, title: 'Log complaint', desc: 'DISP · triage · denial · FOS', onClick: () => { setWorkflow('complaint'); setStep(0); } },
             { icon: AlertTriangle, title: 'Dispute a payment', desc: 'Chargeback · fraud · DD Guarantee', onClick: () => { setWorkflow('dispute'); setStep(0); } },
+            { icon: FileText, title: 'Balance certificate', desc: 'Sealed proof of balance · references', onClick: () => { setWorkflow('certificate'); setStep(0); } },
           ] },
         ].map(g => {
           const open = openActionGroup === g.id;
@@ -6765,6 +6959,7 @@ export default function App() {
         {workflow === 'recurring' && renderRecurring()}
         {workflow === 'dispute' && renderDispute()}
         {workflow === 'beneficiary' && renderBeneficiary()}
+        {workflow === 'certificate' && renderCertificate()}
 
         {showOTP && OTPSheet()}
         {showSignPin && SignPinSheet()}
@@ -6950,6 +7145,7 @@ export default function App() {
       {workflow === 'recurring' && renderRecurring()}
       {workflow === 'dispute' && renderDispute()}
       {workflow === 'beneficiary' && renderBeneficiary()}
+      {workflow === 'certificate' && renderCertificate()}
 
       {showOTP && OTPSheet()}
       {showSignPin && SignPinSheet()}
