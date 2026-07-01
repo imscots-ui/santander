@@ -36,8 +36,9 @@ instruments (PSD2/SCA, PSR 2017, MLR 2017, DISP, Consumer Duty, WCAG) covers ~90
 **What:** the real Santander assets — logo files (SVG/PNG), the exact brand hex palette, the licensed brand
 fonts, and any existing report/deck template or house style.
 
-**Why it matters:** everything is currently an *approximation* — brand red `#c8102e`, `#faf6ef` background, and
-Fraunces/Geist as stand-ins for the real typefaces. It reads as on-brand, but it isn't the brand.
+**Why it matters:** partly resolved — brand red `#DA291C` is confirmed and applied, the official logo is in
+`brand/`, and the typeface is named (Santander Text, rendered where installed with Geist as the open fallback).
+Still approximated: the full neutral palette, secondary/gradient reds, and the licensed font *files*.
 
 **What it unlocks:** decks and reports that are genuinely on-brand rather than a faithful imitation — the
 difference between "looks like Santander" and "is Santander" for anything shown to stakeholders.

@@ -13,5 +13,5 @@ Drop in here and tell me — I'll wire them across the app, the reports and the 
 | **Template** | Any official report/deck template or house-style doc | mirror its structure |
 
 Notes:
-- If font files can't be shared for licence reasons, just give the **names** — I'll match/specify them and keep the open-licensed Fraunces/Geist as the safe fallback.
+- If font files can't be shared for licence reasons, just give the **names** — I'll match/specify them and keep the open-licensed Geist as the safe fallback (Fraunces is retired).
 - Keep the "concept prototype · internal discussion" framing until the project is formally sanctioned.

@@ -25,7 +25,7 @@ WHAT'S IN THIS BUNDLE
 
   Santander_Digital_Banking_Future.pptx
       16-slide pitch deck covering the full concept: the problem,
-      21 features, privacy controls, advanced intelligence, 11
+      36 features, privacy controls, advanced intelligence, 17
       paperless workflows, MTD, security & compliance, business case
       (£137M annualised opportunity), competitive differentiators,
       4-phase roadmap through Q2 2027, and next steps for senior
@@ -36,21 +36,21 @@ WHAT'S IN THIS BUNDLE
   The technical depth:
 
   Santander_Architecture.pptx
-      10-slide technical deep-dive: component map, data & state
-      architecture, production system architecture (4 tiers),
-      security architecture (4 domains), regulatory & compliance
-      framework, privacy & account separation architecture, entity &
-      mandate logic (7 types × 3 rules), API integration contracts,
-      design system tokens. For engineering and architecture reviewers.
+      12-slide technical deep-dive: why one file, internal structure,
+      the one hard rule (hooks), navigation model, entity system,
+      mandate rules (7 types × 3 rules), time-based safeguards,
+      workflow architecture (17 wizards), design system, build &
+      deploy, standing orders. For engineering and architecture reviewers.
 
   Santander_Project_Record.pptx
-      13-slide document-style project record covering everything
-      built: all 5 screens, 11 workflows with regulatory basis, 7
+      14-slide document-style project record covering everything
+      built: all 5 screens, 17 workflows with regulatory basis, 7
       entity types with mandate rules, 20 security & compliance
       features, 8 home screen intelligence features, Ships Company
-      agent architecture, reference library (26 sections, 41 books),
-      deployment & build, all 3 presentation decks indexed, and the
-      full business case. The complete manifest as a presentation.
+      agent architecture, reference library (112 sections, 121 books),
+      deployment & build, all 3 presentation decks indexed, complaint
+      handling tools, and the full business case. The complete
+      manifest as a presentation.
 
 
   The prototype:

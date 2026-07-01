@@ -125,10 +125,10 @@ Scan this table before reading any section. Each row maps a decision question to
 | Text on a dark card or red surface? | `text-white/65`, `text-stone-300`, or `text-red-100` — **never** `text-stone-400` or `text-stone-500` | §42 |
 | Brand red (CTA, active states, top bar)? | `#c8102e` | CLAUDE.md |
 | Page/body background? | `#faf6ef` (warm off-white) | CLAUDE.md |
-| How many primary CTAs per screen? | **One** — `bg-[#c8102e]` or `bg-stone-900` appears once per view | CLAUDE.md |
+| How many primary CTAs per screen? | **One** — `bg-[#DA291C]` or `bg-stone-900` appears once per view | CLAUDE.md |
 | Class for monetary amounts? | `num-tab` (enables tabular figures) | CLAUDE.md |
-| Display font (large headings)? | Fraunces serif via `font-display` | CLAUDE.md |
-| Body font? | Geist sans (default / `font-body`) | CLAUDE.md |
+| Display font (large headings)? | Santander Text (corporate sans; Geist fallback) via `font-display` | CLAUDE.md |
+| Body font? | Santander Text via `font-body` (Geist open-source fallback) | CLAUDE.md |
 | Monospace font (account numbers, figures)? | Geist Mono via `font-mono` | CLAUDE.md |
 | Permitted spacing values? | 4·8·12·16·24·32·48·64·96·128 px → Tailwind `1·2·3·4·6·8·12·16·24·32` | CLAUDE.md |
 | Can I use arbitrary pixel spacing like `p-[14px]`? | **No** — spacing must come from the scale above | CLAUDE.md |
@@ -16290,9 +16290,9 @@ This project already applies Tailwind in the recommended utility-first way. Key 
 
 | Book principle | Applied in App.jsx |
 |----------------|--------------------|
-| Extend, don't replace | `brand-red: #c8102e`, `bg-[#faf6ef]` as arbitrary values alongside default palette |
+| Extend, don't replace | `brand-red: #DA291C`, `bg-[#faf6ef]` as arbitrary values alongside default palette |
 | Mobile-first responsive prefixes | `sm:`, `md:`, `lg:` used throughout screens and layout |
-| Custom font tokens | `font-display` (Fraunces), `font-body` (Geist), `font-mono` (Geist Mono) registered via config / inline CSS |
+| Custom font tokens | `font-display`/`font-body` (Santander Text, Geist fallback), `font-mono` (Geist Mono) registered via config / inline CSS |
 | `@layer` discipline | `css` template literal equivalent — brand styles injected as `<style>` |
 | Spacing scale | Explicitly documented: `4·8·12·16·24·32·48·64·96·128px` (Tailwind `1–32`) |
 | JIT class-name rule | Avoid template-literal class construction — use full class strings with conditional ternaries |
@@ -18552,7 +18552,7 @@ mutation.mutate({ bookableId: 3, date: "2021-05-10", session: 2 });
 
 ### 15. Hook discipline in large single-component apps
 
-Larsen's book assumes the conventional structure of many small components. The HMS 1701 codebase instead uses a **single-component architecture** where `App.jsx` is one large function (~5,700 lines) containing all state and all sub-rendering as closures. This is an extreme but valid application of the hook model, and it makes certain of Larsen's principles more important — not less.
+Larsen's book assumes the conventional structure of many small components. The HMS 1701 codebase instead uses a **single-component architecture** where `App.jsx` is one large function (~7,400 lines) containing all state and all sub-rendering as closures. This is an extreme but valid application of the hook model, and it makes certain of Larsen's principles more important — not less.
 
 #### Why hook placement is critical in a single-component architecture
 

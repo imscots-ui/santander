@@ -12,7 +12,7 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~5,300 lines · ~300KB · Single React component  
+**Size:** ~7,400 lines · ~300KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
@@ -25,7 +25,7 @@
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (13 step-based wizards · 5 sheet overlays)
+### Workflows (17 step-based wizards · 16 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -42,6 +42,11 @@
 | International FX Payment | Amount + currency + IBAN + beneficiary → Rate & FCA fee disclosure → Confirm & sign | 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref logged to audit trail |
 | Standing Orders & Direct Debits | Overview → set up standing order (payee + CoP, amount, frequency, start) **or** cancel a Direct Debit | Distinguishes customer-pushed standing orders from originator-pulled DDs. Direct Debit Guarantee notice on cancellation. Triggers from Home "Standing orders & DDs" tile |
 | Complaint Handling | Intake → Escalation triage → Denial → Case outcome | FCA DISP-compliant 4-step flow. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen "Log complaint" tile |
+| Signatory ID Register | ID status per signatory → List 1 → List 2 → List 3 | KYC lists 1, 2 & 3 (GOV.UK One Login identity, address evidence, trading evidence) per signatory. MLR 2017 |
+| Payment Dispute | Which payment → What went wrong → Tell us more → Review & submit | Chargeback / fraud / DD Guarantee routes, provisional refund, audit-logged |
+| International Beneficiary | Who are you paying → Their account → Purpose & screening → Review & add | IBAN/SWIFT validation, sanctions screening, re-screen on edit |
+| Balance Certificate | What do you need → Accounts & date → Purpose & delivery → Your certificate | Sealed certificate with reference; replaces written branch request + postal wait |
+| Trusted Devices & Sessions | Where you're signed in → Recent sign-ins → Security preferences → Review & apply | SCA-protected; sign out other sessions, revoke devices, security preferences |
 
 ### Entity Types (7 — all compliance paths diverge)
 
@@ -228,7 +233,7 @@ Contents:
 | 1 | Title + Business Banking Advisor stamp |
 | 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 21 features (4-col grid) |
+| 4 | What we built — 36 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
 | 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
 | 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo, notification bell |
@@ -246,40 +251,43 @@ Contents:
 
 ### Architecture Deck — `Santander_Architecture.pptx`
 
-10 slides · Technical deep-dive · Built with python-pptx
+12 slides · Technical deep-dive · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Cover |
-| 2 | Component map — current prototype |
-| 3 | Data & state architecture |
-| 4 | Production system architecture (4 tiers) |
-| 5 | Security architecture (4 domains) |
-| 6 | Regulatory & compliance framework |
-| 7 | Privacy & account separation architecture — app/CLI gap, credit ring-fence, PSD2 consent, GDPR basis |
-| 8 | Entity & mandate logic (7 types × 3 rules) |
-| 9 | API integration contracts (4 APIs) |
-| 10 | Design system tokens |
+| 2 | Why one file — single-component architecture rationale |
+| 3 | Internal structure — the order of App.jsx top to bottom |
+| 4 | The one hard rule — no hooks after `closeWorkflow` |
+| 5 | Navigation model — tab / workflow / step state layers |
+| 6 | One switch reshapes everything — entity system |
+| 7 | Who must authorise — mandate rules (Any-1 / Any-2 / All) |
+| 8 | Time-based safeguards — cooling-off & stalled requests |
+| 9 | Workflow architecture — 17 step-based wizards (renderXxx closures) |
+| 10 | Bosun's Law — design system tokens & colour rules |
+| 11 | Build & deploy — Vite single-file pipeline |
+| 12 | Standing orders — non-negotiable project rules |
 
 ### Project Record — `Santander_Project_Record.pptx`
 
-13 slides · Full manifest as a presentation · Built with python-pptx
+14 slides · Full manifest as a presentation · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Cover — title, author, prototype link, 4 headline stats |
 | 2 | Project overview — tech stack, deployment, live link |
 | 3 | Five screens — detailed feature breakdown per tab |
-| 4 | Thirteen workflows — step counts, logic, regulatory basis |
+| 4 | Seventeen workflows — step counts, logic, regulatory basis |
 | 5 | Entity types — 7 types × mandate rules × compliance divergence |
 | 6 | Security & compliance part 1 — features 1–10 with regulation |
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — 112 sections, 121 books & regulatory docs, 23,846 lines, Quick Lookup index |
+| 10 | Reference library — Applied Knowledge Base (112 sections, 121 books, 23,846 lines) |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
-| 13 | Business case summary — £137M, metrics, differentiators, phase status |
+| 13 | Complaint handling tools — Evelyn workflow (Angus) |
+| 14 | Business case summary — £137M, metrics, differentiators, phase status |
 
 ### Builder Scripts
 

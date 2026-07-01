@@ -72,7 +72,7 @@ There are no tests, no lint scripts, and no type checking in this project.
 
 ## Architecture
 
-The entire prototype lives in a single file: **`App.jsx`** (~5,700 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
+The entire prototype lives in a single file: **`App.jsx`** (~7,400 lines). This is intentional — it allows reading the whole product top-to-bottom without navigating modules. Everything imports from there via `main.jsx`.
 
 ### Single-component structure
 

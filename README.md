@@ -67,22 +67,21 @@ Free tier is more than enough for internal demos. The exact same flow works with
 ## What's in here
 
 ```
-santander-app/
-├── src/
-│   ├── App.jsx          ← The whole prototype (~5,300 lines, single file)
-│   ├── main.jsx         ← React entry point
-│   └── index.css        ← Tailwind base styles
-├── public/
-│   ├── manifest.json    ← PWA manifest (home-screen install)
-│   └── favicon.svg      ← Santander red brand mark
+santander/
+├── App.jsx              ← The whole prototype (~7,400 lines, single file)
+├── main.jsx             ← React entry point
+├── index.css            ← Tailwind base styles
 ├── index.html           ← HTML shell
+├── manifest.json        ← PWA manifest (home-screen install)
+├── favicon.svg          ← Santander red brand mark
+├── brand/               ← Official Santander logo (SVG + PNG)
 ├── package.json         ← Dependencies and scripts
 ├── vite.config.js       ← Build tool config (uses vite-plugin-singlefile)
 ├── tailwind.config.js   ← Styling config
 └── postcss.config.js    ← CSS processing
 ```
 
-The whole prototype lives in `src/App.jsx`. All state, all workflows, all visual design. It's deliberately one file so you can read the whole product top-to-bottom without jumping between modules.
+The whole prototype lives in `App.jsx`. All state, all workflows, all visual design. It's deliberately one file so you can read the whole product top-to-bottom without jumping between modules.
 
 ---
 
@@ -166,7 +165,7 @@ Open `src/App.jsx` in any text editor. Save the file. The browser auto-reloads w
 
 Some places worth tweaking:
 
-- **Colours** (line ~490 onwards in `<style>{css}`): change `#c8102e` to a different brand red.
+- **Colours** (the `css` template literal in `<style>{css}`): change `#DA291C` to a different brand red.
 - **Entity copy** (`ENTITY_INFO`, line ~142): customise names, principal labels, regulatory cross-references per entity type.
 - **Accounts** (`accounts useMemo`, line ~162): change account names, balances, mandate rules.
 - **Pending approvals** (`pendingApprovals`, line ~165): demo the "Awaiting your signature" tab with different examples.
@@ -189,7 +188,7 @@ Tested on Safari 17+, Chrome 120+, Firefox 122+, Edge 120+. Should work in any b
 - vite-plugin-singlefile (packages everything into one HTML file)
 - Tailwind CSS (styling)
 - Lucide icons (the icon set)
-- Fraunces and Geist fonts (loaded from Google Fonts)
+- Santander Text (official corporate font, named family — renders where installed) with Geist as the open-source fallback (loaded from Google Fonts); Geist Mono for account numbers and figures
 
 No analytics, no tracking, no external API calls beyond Google Fonts. Runs entirely offline once loaded.
 
