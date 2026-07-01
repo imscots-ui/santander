@@ -76,7 +76,10 @@ def build(meta, body, out):
         r.font.color.rgb = color; r.font.name = name; return r
 
     # ---------- COVER ----------
-    for _ in range(3): doc.add_paragraph()
+    doc.add_paragraph()
+    logo_p = doc.add_paragraph(); logo_p.paragraph_format.space_after = Pt(4)
+    logo_p.add_run().add_picture('brand/santander-logo-red.png', width=Inches(1.9))
+    for _ in range(2): doc.add_paragraph()
     run(para(space_after=10), meta['classification'], 9, True, RED)
     run(para(space_after=0), meta['title'], 30, True, INK)
     run(para(space_after=3), meta['subtitle'], 17, False, STONE)

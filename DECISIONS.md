@@ -63,10 +63,11 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
 
 - **Brand red `#DA291C`** — confirmed from the brand portal (Jul 2026), applied across app + reports.
   (Was approximated as `#c8102e`.) Warm background `#faf6ef`; ink `#1c1917`; muted greys `stone-*`.
-- **Logo:** official Santander lockups exist in 3 variants (full-colour red / reversed white / mono black) —
-  needed as actual **files** in `brand/` (SVG preferred) to embed; do not hand-recreate the mark.
+- **Logo:** official Santander lockups in `brand/` — SVG (`santander-logo-{red,white,black}.svg`, source of
+  truth) + rasterised transparent PNGs (3000×519, for docx/pptx which can't embed SVG). Applied: **red logo in
+  the app header (both shells) and on the report covers.** Do not hand-recreate or recolour the mark.
 - Still to confirm from portal: full neutral palette, secondary/gradient reds (currently `#ec0000`), and the
-  official typeface name.
+  official typeface name. Decks still use the placeholder mark — swap to the logo PNG on the next deck rebuild.
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
 - Spacing scale: `4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96 · 128`.

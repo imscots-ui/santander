@@ -5,7 +5,7 @@ from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer,
-                                Table, TableStyle, PageBreak, ListFlowable, ListItem, KeepTogether)
+                                Table, TableStyle, PageBreak, ListFlowable, ListItem, KeepTogether, Image)
 from reportlab.lib.enums import TA_LEFT
 import report_content as C
 
@@ -64,7 +64,9 @@ def callout(leadtext, text):
     return KeepTogether([t, Spacer(1, 6)])
 
 def cover_flowables(meta):
-    fl = [Spacer(1, 58 * mm), Paragraph(meta['classification'], eyebrow), Spacer(1, 6),
+    logo = Image('brand/santander-logo-red.png', width=52 * mm, height=52 * mm * 519 / 3000)
+    logo.hAlign = 'LEFT'
+    fl = [Spacer(1, 44 * mm), logo, Spacer(1, 12 * mm), Paragraph(meta['classification'], eyebrow), Spacer(1, 6),
           Paragraph(meta['title'], title), Paragraph(meta['subtitle'], subtitle),
           Paragraph(meta['tagline'], tagline), Spacer(1, 14)]
     data = [[Paragraph(k, ctlK), Paragraph(v, ctlV)] for k, v in meta['control']]
