@@ -71,8 +71,12 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
 - **Decks:** all 5 recoloured to `#DA291C` (in-place XML colour swap, 626 refs; 0 overflow); deck builders'
   source red updated to match. **Official white Santander logo now on all 5 cover slides** (placeholder square
   marks + redundant top-left brand labels removed; verified visually via `deck_to_html.py`). Deck **body font
-  stays Calibri** — swapping to Santander Text risks unverifiable layout reflow. Known: deck stat counts are
-  **stale** (say "12"/"13" workflows; actual is 17) — a content refresh, not done yet.
+  stays Calibri** — swapping to Santander Text risks unverifiable layout reflow. Deck stats **refreshed Jul 2026**
+  (17 workflows, 7,400 lines; PR s3 + DBF s7 rebuilt as 5×4 grids of all 17). The June2026_Changes deck keeps its
+  historical snapshot figures on purpose — it's a dated changelog, not current-state.
+- **Project Record s9 renamed (Jul 2026, Captain's order):** "Reference Library — 1701-uniform/REFERENCE.md" →
+  **"Reference Library — Applied Knowledge Base"**; file path, §-section tags and Node.js/C++ jargon removed —
+  they referenced the co-located 1701 project, not the Santander build. Don't reintroduce them.
 - App top-bar and card gradients standardised on `#DA291C` (the older bright `#ec0000` retired).
 - Muted status palette: emerald-600 `#059669` / amber-600 `#d97706` / red-600 `#dc2626`
   (with 700-shade **text** variants `#047857` / `#b45309` / `#b91c1c` for small labels — AA contrast).
@@ -106,10 +110,13 @@ sign-off. Until the real kit is dropped in, the tokens below are tasteful **appr
   runs (`--version` OK), `/dev/shm` is ample, and clean profile / `HOME` / `SAL_USE_VCLPLUGIN=svp` make no
   difference — it's a sandbox restriction, **not fixable by reinstall** (same binaries). Don't waste time
   retrying it.
-- **Deck visual verification** is therefore done via `scripts/deck_to_html.py <deck> <slide>` → HTML →
-  Chromium screenshot (bypasses LibreOffice). Faithful for brand colour, text, images/logo, tables and gross
-  layout/overflow; freeform autoshapes (the drawn flame) render as a filled box, gradients use their end
-  stops. Use it to eyeball decks after any change.
+- **Deck visual verification: use `scripts/deck_shot.py <deck> <slide> <out.png>`** (wraps `deck_to_html.py` +
+  Chromium). Two Chromium blind spots are baked-in fixed there: (1) shape divs must be `overflow:visible` or
+  clipped text hides real overflow; (2) sandbox Chromium **paints ~90–100px less than `--window-size`** and pads
+  the rest white — a naive 1280×720 shot leaves the slide's bottom strip (footer, last tile row) unverified.
+  deck_shot renders at height+160, crops to 720, and hard-fails if the bottom strip comes back blank. Faithful
+  for brand colour, text, images/logo, tables and gross layout/overflow; freeform autoshapes render as a filled
+  box, gradients use their end stops. Use it to eyeball decks after any change.
 - **Report visual verification**: the PDFs render fine via `pdftoppm` (poppler). The app renders via
   headless Chromium + axe (`scripts/verify-flows.mjs`). So every deliverable now has a working visual check.
 
