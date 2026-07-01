@@ -26,7 +26,7 @@ designed around. It is the citation source for the Technical Report and Position
 | 12 | FCA Handbook — **SYSC 9** (record-keeping); **SM&CR** | Audit trail; accountability | ✓ High |
 | 13 | **Consumer Credit Act 1974** | Lending offer, cooling-off rights | ✓ High |
 | 14 | HMRC — **Making Tax Digital for VAT** | Digital VAT return submission | ✓ High |
-| 15 | **UK GDPR** & **Data Protection Act 2018**, *as amended by the* **Data Use and Access Act 2025**, Art. 5(1)(c) | Data separation, ring-fence, purpose limitation | ⚠ Act & amendment High; **commencement dates/phases** need the source (blocked) |
+| 15 | **UK GDPR** & **Data Protection Act 2018**, *as amended by the* **Data (Use and Access) Act 2025**, Art. 5(1)(c) | Data separation, ring-fence, purpose limitation | ✅ **Source-verified** (DUAA implementation tracker, 27 Apr 2026): Royal Assent 19 Jun 2025; Part 5 reforms in force 5 Feb 2026; s.103 complaints duty 19 Jun 2026; ICO → Information Commission by summer 2026 |
 | 16 | W3C — **WCAG 2.1, Level AA** | Accessibility conformance target | ✓ High (note: WCAG 2.2 also exists; 2.1 AA is the stated target) |
 | 17 | **ICO** — guidance on pre-employment vetting of candidates | Signatory ID register: necessity, proportionality, minimisation | ⚠ Gist High; **exact wording/scope** needs the source (blocked) |
 
