@@ -39,9 +39,27 @@ if [ -n "${cw:-}" ]; then
   [ "${late:-0}" -gt 0 ] 2>/dev/null && fails="${fails}\n  - ${late} hook(s) after closeWorkflow (line >${cw}) — hooks must sit in the top block"
 fi
 
+# RED 5 — shell parity: every workflow route and overlay renderer must appear
+# in BOTH the desktop and mobile shells (the paymentPending-desktop-only class
+# of bug — button set state but nothing rendered in the other shell).
+dstart="$(grep -n "if (viewMode === 'desktop')" "$file" 2>/dev/null | head -1 | cut -d: -f1)"
+if [ -n "${dstart:-}" ]; then
+  mstart="$(awk -v s="$dstart" 'NR>s && /^  return \(/ {print NR; exit}' "$file" 2>/dev/null)"
+  if [ -n "${mstart:-}" ]; then
+    pat="workflow === '[a-z-]+'|&& [A-Z][A-Za-z]+\(\)|paymentPending &&"
+    desk="$(sed -n "${dstart},$((mstart-1))p" "$file" 2>/dev/null | grep -oE "$pat" | sort -u)"
+    mob="$(sed -n "${mstart},\$p" "$file" 2>/dev/null | grep -oE "$pat" | sort -u)"
+    asym="$(comm -3 <(printf '%s\n' "$desk") <(printf '%s\n' "$mob") 2>/dev/null | tr -d '\t' | grep -v '^$')"
+    if [ -n "$asym" ]; then
+      joined="$(printf '%s' "$asym" | paste -sd', ' -)"
+      fails="${fails}\n  - shell parity: renderer(s) present in only one shell — ${joined}"
+    fi
+  fi
+fi
+
 if [ -n "$fails" ]; then
   printf "🔴 HMS 1701 ship-gate: STAND DOWN — RED standing-order breach:%b\n" "$fails" >&2
-  echo "Fix before commit/push, or run /ship-ready to diagnose. (This gate guards the four hard REDs only.)" >&2
+  echo "Fix before commit/push, or run /ship-ready to diagnose. (This gate guards the five hard REDs only.)" >&2
   exit 2
 fi
 
