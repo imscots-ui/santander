@@ -68,7 +68,8 @@ export default function App() {
 
   // Complaints (Angus) — customer raises & tracks; handler resolves and generates the letter
   const emptyComplaintDraft = { category: '', accountNo: '', what: '', when: '', want: '', evidenceUp: false, confirm: false };
-  const emptyResolveDraft = { stage: 'stage1', decision: '', issue: '', rule: '', decisionText: '', failing: '', action: '', compensation: '', goodwill: '', investigation: '' };
+  const emptyResolveDraft = { stage: 'stage1', decision: '', issue: '', rule: '', decisionText: '', failing: '', action: '', compensation: '', goodwill: '', investigation: '', redress: '' };
+  const REDRESS_AUTH_THRESHOLD = 50; // redress over this needs a co-signer before it pays out
   const [complaints, setComplaints] = useState([]); // persists across workflows — NOT reset by closeWorkflow
   const [complaintDraft, setComplaintDraft] = useState(emptyComplaintDraft);
   const [resolveId, setResolveId] = useState(null);
@@ -2557,8 +2558,12 @@ export default function App() {
     const canNext = [true, !!d.decision, true][step];
     const letter = buildAngusLetter(d);
     const send = () => {
-      setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, status: 'resolved', decision: d.decision, letter, handler: { ...d } } : x));
-      fireToast(`Response sent to customer · ${c.ref} · ${decisionMeta[d.decision].label}`);
+      const amt = parseFloat(d.redress) || 0;
+      const redress = amt > 0 ? { amount: amt, authorised: amt <= REDRESS_AUTH_THRESHOLD } : null;
+      setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, status: 'resolved', decision: d.decision, letter, handler: { ...d }, redress } : x));
+      fireToast(redress && !redress.authorised
+        ? `Response sent · ${c.ref} · £${amt} redress needs a second signature`
+        : `Response sent to customer · ${c.ref} · ${decisionMeta[d.decision].label}`);
       closeWorkflow();
     };
     const next = () => step === 2 ? send() : setStep(step + 1);
@@ -2654,6 +2659,11 @@ export default function App() {
                   <Field label="Action to put it right"><Input value={d.action} onChange={v => set({ action: v })} placeholder="e.g. refund the charge in full" /></Field>
                   <Field label="Compensation"><Input value={d.compensation} onChange={v => set({ compensation: v })} placeholder="e.g. add £50 for the inconvenience" /></Field>
                 </>)}
+                {(d.decision === 'uphold' || d.decision === 'partial') && (
+                  <Field label="Redress to pay (£, optional)" hint={`Over £${REDRESS_AUTH_THRESHOLD} needs a second signature before it releases`}>
+                    <Input value={d.redress} onChange={v => set({ redress: v.replace(/[^0-9.]/g, '') })} placeholder="e.g. 75" />
+                  </Field>
+                )}
                 {d.decision === 'esc-changed' && (<>
                   <Field label="What has changed" hint="How the original decision has moved"><Input value={d.decisionText} onChange={v => set({ decisionText: v })} placeholder="e.g. on review the charge should not have applied" /></Field>
                   <Field label="Action to put it right"><Input value={d.action} onChange={v => set({ action: v })} placeholder="e.g. refund the charge and any interest" /></Field>
@@ -3283,6 +3293,9 @@ export default function App() {
         <button onClick={() => { const ref = `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`; setComplaints(prev => [{ id: Date.now(), ref, category: 'fees', accountNo: '', what: 'I was charged a £25 unarranged overdraft fee I was never warned about, despite a text alert service I thought I was signed up to.', when: 'week of 15 June', want: 'refund of the £25 fee and confirmation the alerts are on', evidenceUp: true, createdAt: Date.now(), status: 'received', stage: 'stage1', decision: '', letter: '', prevDecision: '', prevLetter: '', handler: {} }, ...prev]); fireToast(`Demo complaint added · ref ${ref}`); }} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
           Demo complaint
         </button>
+        <button onClick={() => { const ref = `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`; setComplaints(prev => [{ id: Date.now(), ref, category: 'service', accountNo: '', what: 'I raised this two months ago and still have not had a proper answer. The delay itself is now the problem.', when: 'early May', want: 'a final answer and acknowledgement of the delay', evidenceUp: false, createdAt: Date.now() - 59 * 864e5, status: 'review', stage: 'stage1', decision: '', letter: '', prevDecision: '', prevLetter: '', handler: {} }, ...prev]); fireToast(`Demo overdue complaint added · ref ${ref}`); }} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+          Demo · 8-wk breach
+        </button>
       </div>
 
       {/* Session anomaly alert */}
@@ -3463,11 +3476,24 @@ export default function App() {
                   <div className="flex justify-between text-[9px] uppercase tracking-wider text-stone-400 mt-1.5"><span>Received</span><span>Reviewing</span><span>Resolved</span></div>
                   {!resolved && (() => {
                     const deadline = c.createdAt + 56 * 864e5; // 8 weeks (FCA DISP final response)
-                    const daysLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 864e5));
+                    const daysLeft = Math.ceil((deadline - Date.now()) / 864e5);
+                    const breached = daysLeft <= 0;
+                    const dueSoon = !breached && daysLeft <= 14;
+                    const tone = breached ? 'text-[#c8102e]' : dueSoon ? 'text-amber-700' : 'text-stone-500';
                     return (
-                      <div className="mt-2.5 flex items-center gap-1.5 text-[10px] text-stone-500">
-                        <Clock className="w-3 h-3 flex-shrink-0" />
-                        <span>Final response due by {new Date(deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · <span className="num-tab">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} left of the 8-week limit</span>
+                      <div className="mt-2.5 space-y-2">
+                        <div className={`flex items-center gap-1.5 text-[10px] ${tone}`}>
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          {breached
+                            ? <span className="font-medium">8-week limit passed {Math.abs(daysLeft)} {Math.abs(daysLeft) === 1 ? 'day' : 'days'} ago · escalated to your relationship manager</span>
+                            : <span>Final response due by {new Date(deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · <span className="num-tab">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} left{dueSoon ? ' — due soon' : ' of the 8-week limit'}</span>}
+                        </div>
+                        {breached && (
+                          <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-2.5">
+                            <Headphones className="w-3.5 h-3.5 text-blue-700 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 text-[11px] text-blue-900 leading-relaxed">Priya, your relationship manager, has picked this up and will call you. As we've passed 8 weeks, you can also refer this to the Financial Ombudsman Service now.</div>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
@@ -3478,6 +3504,12 @@ export default function App() {
                         <button onClick={() => { setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, status: 'review', stage: 'escalation', prevDecision: x.decision, prevLetter: x.letter, decision: '', letter: '' } : x)); fireToast(`We'll take another look · ${c.ref} escalated`); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><RefreshCw className="w-3.5 h-3.5" /> Ask us to look again</button>
                       ) : (
                         <div className="text-[11px] text-stone-500 text-center leading-relaxed pt-0.5">This was our final response — you can still refer to the Financial Ombudsman Service.</div>
+                      )}
+                      {c.redress && (
+                        <div className={`flex items-center justify-center gap-1.5 text-[11px] leading-relaxed pt-0.5 ${c.redress.authorised ? 'text-emerald-700' : 'text-amber-700'}`}>
+                          {c.redress.authorised ? <CircleCheck className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                          {c.redress.authorised ? `${fmt(c.redress.amount)} redress paid` : `${fmt(c.redress.amount)} redress awaiting a second signature`}
+                        </div>
                       )}
                     </>) : (
                       <button onClick={() => { setResolveDraft({ ...emptyResolveDraft, issue: complaintCatLabel(c.category).toLowerCase() }); setResolveId(c.id); setWorkflow('complaint-resolve'); setStep(0); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><Scale className="w-3.5 h-3.5" /> {c.stage === 'escalation' ? 'Review escalation · Angus' : 'Open case handler · Angus'}</button>
@@ -4030,6 +4062,24 @@ export default function App() {
               </div>
             );
           })}
+          {/* Complaint redress awaiting a second signature (Angus) */}
+          {complaints.filter(c => c.redress && !c.redress.authorised).map(c => (
+            <div key={`redress-${c.id}`} className="bg-white border border-amber-300 rounded-2xl p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[#c8102e] text-white flex items-center justify-center flex-shrink-0"><Scale className="w-5 h-5" /></div>
+                <div className="flex-1">
+                  <div className="text-[10px] uppercase tracking-wider text-stone-500">Complaint redress · {c.ref}</div>
+                  <div className="font-medium text-sm">{complaintCatLabel(c.category)} · {decisionMeta[c.decision]?.label}</div>
+                  <div className="font-display text-xl mt-1 num-tab">{fmt(c.redress.amount)}</div>
+                </div>
+              </div>
+              <div className="bg-amber-50 rounded-xl p-3 mb-3 text-[11px] text-amber-900 leading-relaxed">Angus has agreed this goodwill payment. Over {fmt(REDRESS_AUTH_THRESHOLD)} it needs a second signature before it leaves the account.</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => setShowLetterFor(c.id)} className="py-3 rounded-xl border border-stone-200 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">View letter</button>
+                <button onClick={() => triggerOTP(`Authorising redress · ${c.ref} · ${fmt(c.redress.amount)}`, () => { setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, redress: { ...x.redress, authorised: true } } : x)); fireToast(`Redress authorised · ${fmt(c.redress.amount)} releasing to the customer`); })} className="py-3 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center justify-center gap-2"><bm.Icon className="w-4 h-4" />Authorise</button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
