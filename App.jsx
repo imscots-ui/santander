@@ -4101,6 +4101,7 @@ export default function App() {
       const ev = [{ ...base, ts: c.createdAt, what: `Raised · Complaint ${c.ref}`, kind: 'create' }];
       if (c.stage === 'escalation') ev.push({ ...base, ts: c.createdAt + 1, what: `Escalated · ${c.ref}`, kind: 'create' });
       if (c.status === 'resolved') ev.push({ ...base, ts: c.createdAt + 2, who: 'Angus · case handler', what: `${decisionMeta[c.decision]?.label || 'Resolved'} · ${c.ref}`, kind: 'sign' });
+      if (c.redress) ev.push({ ...base, ts: c.createdAt + 3, who: c.redress.authorised ? 'James Whitfield' : 'Angus · case handler', what: `Redress ${fmt(c.redress.amount)} ${c.redress.authorised ? 'authorised' : 'pending signature'} · ${c.ref}`, kind: c.redress.authorised ? 'sign' : 'create' });
       return ev;
     }).sort((a, b) => b.ts - a.ts);
     const events = [...complaintEvents, ...staticEvents];
@@ -5040,6 +5041,7 @@ export default function App() {
     const hasCooling = cooling.length > 0;
     const hasStalled = stalled.length > 0;
     const resolvedComplaints = complaints.filter(c => c.status === 'resolved');
+    const pendingRedress = complaints.filter(c => c.redress && !c.redress.authorised);
 
     return (
       <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/30 backdrop-blur-sm anim-fade" onClick={() => setShowNotifications(false)}>
@@ -5049,8 +5051,8 @@ export default function App() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
             <div>
               <h3 className="font-semibold text-stone-900 text-base">Notifications</h3>
-              {unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length > 0 && (
-                <p className="text-[11px] text-stone-500 mt-0.5">{unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length} unread</p>
+              {unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length + pendingRedress.length > 0 && (
+                <p className="text-[11px] text-stone-500 mt-0.5">{unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length + pendingRedress.length} unread</p>
               )}
             </div>
             <button onClick={() => setShowNotifications(false)} className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
@@ -5167,6 +5169,31 @@ export default function App() {
               </div>
             )}
 
+            {/* Redress awaiting your signature (Angus) */}
+            {pendingRedress.length > 0 && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 pt-4 pb-1">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Redress to authorise</p>
+                </div>
+                {pendingRedress.map(c => (
+                  <div key={c.id} className="px-5 py-3.5 flex items-start gap-3 hover:bg-stone-50 cursor-pointer"
+                    onClick={() => { setTab('approve'); setShowNotifications(false); }}>
+                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Scale className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-stone-900 truncate">Redress needs your signature</span>
+                        <span className="text-[11px] text-stone-400 flex-shrink-0 font-mono">{c.ref}</span>
+                      </div>
+                      <p className="text-[12px] text-stone-500 mt-0.5 truncate">{fmt(c.redress.amount)} · {complaintCatLabel(c.category)}</p>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-stone-400 flex-shrink-0 mt-1" />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Complaint updates (Angus) */}
             {resolvedComplaints.length > 0 && (
               <div className="border-b border-stone-100">
@@ -5196,7 +5223,7 @@ export default function App() {
             )}
 
             {/* Empty state */}
-            {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && resolvedComplaints.length === 0 && (
+            {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && resolvedComplaints.length === 0 && pendingRedress.length === 0 && (
               <div className="px-5 py-12 flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
                   <Bell className="w-5 h-5 text-stone-400" />
