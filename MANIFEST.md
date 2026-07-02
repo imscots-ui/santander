@@ -224,6 +224,16 @@ Contents:
 
 ## 6. Presentation Deliverables
 
+### Executive Brief — `Santander_Executive_Brief.pdf`
+
+One page · board pre-read for the Friday 11:00 briefing · Built with `build_exec_brief.py`
+The ask (three decisions), the numbers (£137M / £4.9M / £0 / 17 / 36), what exists today, and the evidence base.
+
+### Reports — `Santander_Technical_Report` / `Santander_Position_Paper` (.docx + .pdf)
+
+v2.0 · July 2026 · senior-management register with document control, contents, citations and references
+(`report_content.py` → `build_reports_docx.py` / `build_reports_pdf.py`)
+
 ### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
 
 16 slides · Santander brand colours throughout · Built with python-pptx

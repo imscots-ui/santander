@@ -20,6 +20,11 @@ WHAT'S IN THIS BUNDLE
   READ_ME_FIRST.txt
       This file.
 
+  Santander_Executive_Brief.pdf
+      One-page board pre-read for the Friday 11:00 briefing —
+      the ask (three decisions), the numbers, what exists today,
+      and the evidence base. Read this before anything else.
+
 
   The pitch deck:
 
