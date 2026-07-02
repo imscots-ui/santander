@@ -16,7 +16,8 @@ from pptx.util import Emu
 import glob
 
 # lowercased fragments that are habitually flagged but don't visually collide
-FP = ('internal', 'confidential', 'alan davidson', 'session 2', ' / 15', 'live prototype')
+FP = ('internal', 'confidential', 'alan davidson', 'session 2', ' / 15', 'live prototype',
+      'since the june 2026 review', ' / 14')
 
 def boxes(slide):
     out = []

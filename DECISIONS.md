@@ -86,8 +86,11 @@ formally sanctioned. External-facing use would need separate sign-off. No logo d
   fills *and* visible swatch text); deck builders' source red updated to match. **Official white Santander logo
   on all 5 cover slides.** Deck **body font stays Calibri** — swapping to Santander Text risks unverifiable
   layout reflow. Deck stats **refreshed Jul 2026** (17 workflows, 36 features, 7,400 lines; PR s3 + DBF s7 + Arch
-  s9 rebuilt as grids of all 17). The June2026_Changes deck keeps its historical snapshot figures on purpose —
-  it's a dated changelog, not current-state (its brand *colours* are kept current, its *stats* are not).
+  s9 rebuilt as grids of all 17). **Two change-log decks exist:** `Santander_June2026_Changes.pptx` is the
+  **frozen June record** (dated snapshot — its stats are deliberately NOT updated; brand colours are kept current)
+  and `Santander_July2026_Changes.pptx` (built by `build_changes_july.py`) is the **current "What Changed — July
+  2026"** board deck covering everything since the June review (11→17 workflows, 21→36 features, WCAG pass,
+  official brand kit, new Executive Brief + v2.0 reports). The July deck is the one that goes in the board pack.
 - **Project Record s9 renamed (Jul 2026, Captain's order):** "Reference Library — 1701-uniform/REFERENCE.md" →
   **"Reference Library — Applied Knowledge Base"**; file path, §-section tags and Node.js/C++ jargon removed —
   they referenced the co-located 1701 project, not the Santander build. Don't reintroduce them.
