@@ -2928,6 +2928,7 @@ export default function App() {
       'pep': { icon: ShieldAlert, title: 'PEP check needed', body: "PEPs need extra checks under MLR 2017. Priya will arrange a quick call." },
       'partnership-rename': { icon: ScrollText, title: 'Partnership rename', body: "Partnerships need to provide the partnership agreement or a tax return in the new name." },
       'signatory-dispute': { icon: AlertTriangle, title: "Disputed removal", body: "Removing a signatory who hasn't consented needs written agreement from all others." },
+      'complaint-breach': { icon: Headphones, title: 'Complaint past 8 weeks', body: "This complaint has passed the 8-week limit for a final response. Priya will call you to put it right, and you can refer it to the Financial Ombudsman Service now if you'd prefer." },
     };
     const r = reasons[rmReason] || reasons['sanctioned-country'];
     const I = r.icon;
@@ -3491,7 +3492,10 @@ export default function App() {
                         {breached && (
                           <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-2.5">
                             <Headphones className="w-3.5 h-3.5 text-blue-700 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1 text-[11px] text-blue-900 leading-relaxed">Priya, your relationship manager, has picked this up and will call you. As we've passed 8 weeks, you can also refer this to the Financial Ombudsman Service now.</div>
+                            <div className="flex-1 text-[11px] text-blue-900 leading-relaxed">
+                            Priya, your relationship manager, has picked this up and will call you. As we've passed 8 weeks, you can also refer this to the Financial Ombudsman Service now.
+                            <button onClick={() => triggerRM('complaint-breach')} className="mt-1.5 flex items-center gap-1 font-medium text-blue-700 hover:text-blue-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">Call Priya <ArrowRight className="w-3 h-3" /></button>
+                          </div>
                           </div>
                         )}
                       </div>
