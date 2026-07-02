@@ -3032,7 +3032,8 @@ export default function App() {
               Not happy with this outcome? You can refer your complaint to the Financial Ombudsman Service within six months, free of charge — <span className="text-stone-700">financial-ombudsman.org.uk</span>.
             </div>
           </div>
-          <div className="px-5 py-4 border-t border-stone-100">
+          <div className="px-5 py-4 border-t border-stone-100 space-y-2">
+            <button onClick={() => fireToast(`Decision letter ${c.ref} saved to your downloads (PDF).`)} className="w-full py-3 rounded-2xl border border-stone-200 text-sm font-medium text-stone-700 flex items-center justify-center gap-2 hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><FileText className="w-4 h-4" /> Download PDF</button>
             <button onClick={() => setShowLetterFor(null)} className="w-full py-3.5 rounded-2xl bg-stone-900 text-white text-sm font-medium">Close</button>
           </div>
         </div>
@@ -3460,6 +3461,16 @@ export default function App() {
                     ))}
                   </div>
                   <div className="flex justify-between text-[9px] uppercase tracking-wider text-stone-400 mt-1.5"><span>Received</span><span>Reviewing</span><span>Resolved</span></div>
+                  {!resolved && (() => {
+                    const deadline = c.createdAt + 56 * 864e5; // 8 weeks (FCA DISP final response)
+                    const daysLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 864e5));
+                    return (
+                      <div className="mt-2.5 flex items-center gap-1.5 text-[10px] text-stone-500">
+                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        <span>Final response due by {new Date(deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · <span className="num-tab">{daysLeft}</span> {daysLeft === 1 ? 'day' : 'days'} left of the 8-week limit</span>
+                      </div>
+                    );
+                  })()}
                   <div className="mt-4 space-y-2">
                     {resolved ? (<>
                       <button onClick={() => setShowLetterFor(c.id)} className="btn-primary w-full py-2.5 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center justify-center gap-2"><ScrollText className="w-3.5 h-3.5" /> Read our decision</button>
@@ -4978,6 +4989,7 @@ export default function App() {
     const hasAnomaly = sessionAnomaly;
     const hasCooling = cooling.length > 0;
     const hasStalled = stalled.length > 0;
+    const resolvedComplaints = complaints.filter(c => c.status === 'resolved');
 
     return (
       <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/30 backdrop-blur-sm anim-fade" onClick={() => setShowNotifications(false)}>
@@ -4987,8 +4999,8 @@ export default function App() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
             <div>
               <h3 className="font-semibold text-stone-900 text-base">Notifications</h3>
-              {unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) > 0 && (
-                <p className="text-[11px] text-stone-500 mt-0.5">{unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0)} unread</p>
+              {unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length > 0 && (
+                <p className="text-[11px] text-stone-500 mt-0.5">{unreadApprovals.length + (hasAnomaly ? 1 : 0) + (hasCooling ? cooling.length : 0) + resolvedComplaints.length} unread</p>
               )}
             </div>
             <button onClick={() => setShowNotifications(false)} className="w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
@@ -5105,8 +5117,36 @@ export default function App() {
               </div>
             )}
 
+            {/* Complaint updates (Angus) */}
+            {resolvedComplaints.length > 0 && (
+              <div className="border-b border-stone-100">
+                <div className="px-5 pt-4 pb-1">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Complaint updates</p>
+                </div>
+                {resolvedComplaints.map(c => {
+                  const dm = decisionMeta[c.decision] || {};
+                  return (
+                    <div key={c.id} className="px-5 py-3.5 flex items-start gap-3 hover:bg-stone-50 cursor-pointer"
+                      onClick={() => { setShowLetterFor(c.id); setShowNotifications(false); }}>
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CircleCheck className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium text-stone-900 truncate">Complaint resolved</span>
+                          <span className="text-[11px] text-stone-400 flex-shrink-0 font-mono">{c.ref}</span>
+                        </div>
+                        <p className="text-[12px] text-stone-500 mt-0.5 truncate">{complaintCatLabel(c.category)} · {dm.label}</p>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 flex-shrink-0 mt-1" />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Empty state */}
-            {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && (
+            {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && resolvedComplaints.length === 0 && (
               <div className="px-5 py-12 flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
                   <Bell className="w-5 h-5 text-stone-400" />
@@ -6084,7 +6124,7 @@ export default function App() {
               <span className="text-[9px] uppercase tracking-wider text-stone-500">Live</span>
             </div>
             <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-500 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
-            <button className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
+            <button onClick={() => setShowNotifications(true)} className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
               <Bell className="w-4 h-4" />
               <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
             </button>
