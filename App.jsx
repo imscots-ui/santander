@@ -23,6 +23,85 @@ import {
   Mic, Activity, Gauge, Wand2, Volume2, Network
 } from 'lucide-react';
 
+// === PRIMITIVES — outside App so React sees stable component identity across renders ===
+
+// Official Santander logo (flame + wordmark). Single path; fill set per variant.
+const SANTANDER_LOGO_PATH = "m31.5 19.5c-.1-1.5-.5-3-1.3-4.3l-6.8-11.9c-.5-.9-.9-1.9-1.1-2.9l-.3.5c-1.7 2.9-1.7 6.6 0 9.5l5.5 9.5c1.7 2.9 1.7 6.6 0 9.5l-.3.5c-.2-1-.6-2-1.1-2.9l-5-8.7-3.2-5.6c-.5-.9-.9-1.9-1.1-2.9l-.3.5c-1.7 2.9-1.7 6.5 0 9.5l5.5 9.5c1.7 2.9 1.7 6.6 0 9.5l-.3.5c-.2-1-.6-2-1.1-2.9l-6.9-11.9c-.9-1.6-1.3-3.4-1.3-5.2-7.3 1.9-12.4 6-12.4 10.7 0 6.6 9.8 11.9 21.9 11.9s21.9-5.3 21.9-11.9c.1-4.5-4.9-8.6-12.3-10.5zm20.7 20.3c.1-1.7.3-2.8.8-4.2 2.3 1.1 5.3 1.6 7.5 1.6 3.8 0 6-1.2 6-3.7 0-2.4-1.6-3.5-5.4-5.2l-2.1-.8c-3.9-1.7-6.5-3.9-6.5-8.2 0-4.7 3.3-7.7 9.9-7.7 2.7 0 5.2.4 7.5 1.2-.1 1.6-.4 2.9-.8 4.1-2.2-.8-4.9-1.2-6.8-1.2-3.6 0-5.2 1.4-5.2 3.6 0 2.1 1.6 3.4 4.5 4.6l2.2.9c5.2 2.2 7.4 4.6 7.4 8.6 0 4.7-3.6 8-10.6 8-3.3 0-6.1-.5-8.4-1.6zm41.1-19.7v20.6h-4.2l-.2-2.5c-1.2 1.8-2.9 3-5.8 3-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 3 .1 5.5.4 7.8 1.2zm-4.5 15.9v-12.9c-.9-.2-2-.2-3.3-.2-4.7 0-6.9 2.9-6.9 7.5 0 4.2 1.7 7.2 5.7 7.2 1.9-.1 3.3-.7 4.5-1.6zm27.7-9.1v13.8h-4.5v-13c0-3.3-1.1-4.8-5.6-4.8-1.1 0-2.3.1-3.6.3v17.5h-4.5v-20.6c2.9-.7 6.1-1.2 8.2-1.2 7.6.1 10 3 10 8zm12.6 10.5c1.3 0 2.6-.2 3.5-.6-.1 1.2-.3 2.6-.5 3.8-1.2.5-2.6.7-3.8.7-4.4 0-7.2-2-7.2-7v-21.7c1.4-.5 3.1-.7 4.5-.7v7.8h7.2c-.1 1.4-.2 2.7-.4 3.9h-6.8v10.1c0 2.6 1.3 3.7 3.5 3.7zm24.3-17.3v20.6h-4.2l-.2-2.5c-1.2 1.8-2.9 3-5.8 3-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 3 .1 5.4.4 7.8 1.2zm-4.6 15.9v-12.9c-.9-.2-2-.2-3.3-.2-4.7 0-6.9 2.9-6.9 7.5 0 4.2 1.7 7.2 5.7 7.2 1.9-.1 3.4-.7 4.5-1.6zm27.8-9.1v13.8h-4.6v-13c0-3.3-1.1-4.8-5.6-4.8-1.1 0-2.3.1-3.6.3v17.5h-4.5v-20.6c2.9-.7 6.1-1.2 8.2-1.2 7.6.1 10.1 3 10.1 8zm22.9-15v28.8h-4.2l-.2-2.6c-1.2 1.9-2.9 3.1-5.9 3.1-5.4 0-9.1-4-9.1-10.9 0-7.2 3.9-11.4 11.5-11.4 1.2 0 2.3.1 3.4.3v-6.8c1.4-.4 3-.5 4.5-.5zm-4.5 24.1v-12.7c-1.2-.2-2.4-.4-3.6-.4-4.5 0-6.6 2.8-6.6 7.5 0 4.2 1.7 7.2 5.7 7.2 1.8-.1 3.3-.7 4.5-1.6zm27.3-4.1h-14.5c.6 3.7 2.7 5.4 6.8 5.4 2.5 0 5-.5 7.2-1.6-.2 1.2-.4 2.8-.7 4.1-2.1.9-4.2 1.3-6.7 1.3-7.6 0-11.2-4.2-11.2-11.2 0-6.1 2.8-11 10-11 6.5 0 9.3 4.2 9.3 9.4 0 1.4 0 2.4-.2 3.6zm-14.5-3.8h10.2c0-3.4-1.8-5.4-4.9-5.4-3.3.1-5 1.9-5.3 5.4zm30.4-8.9c0 1.4-.2 3-.4 3.9-1.1-.1-2.1-.2-3.4-.2-1.1 0-2.2.1-3.3.2v17.6h-4.5v-20.6c1.9-.7 5.2-1.2 7.7-1.2 1.3.1 2.9.1 3.9.3z";
+const SantanderLogo = ({ className = '', fill = '#EC0000' }) => (
+  <svg viewBox="0 0.4 238.2 41.5" className={className} role="img" aria-label="Santander"
+    xmlns="http://www.w3.org/2000/svg"><path d={SANTANDER_LOGO_PATH} fill={fill} fillRule="evenodd" /></svg>
+);
+
+const ProgressDots = ({ total, current }) => (
+  <div className="flex gap-1.5">
+    {Array.from({ length: total }).map((_, i) => (
+      <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#EC0000]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
+    ))}
+  </div>
+);
+
+const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Continue', nextDisabled, replaces, onClose, children }) => (
+  <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
+    <div className="flex-shrink-0 border-b border-stone-200 bg-white">
+      <div className="px-5 pt-4 pb-3 flex items-center justify-between max-w-xl mx-auto w-full">
+        <button onClick={onBack} aria-label="Back" className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
+        <ProgressDots total={total} current={current} />
+        <button onClick={onClose} aria-label="Close" className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
+      </div>
+      <div className="px-5 pb-4 max-w-xl mx-auto w-full">
+        <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
+        {sub && <p className="text-sm text-stone-500 mt-1">{sub}</p>}
+      </div>
+    </div>
+    <div className="flex-1 overflow-y-auto px-5 py-5 pb-32 max-w-xl mx-auto w-full">
+      {replaces && current === 0 && (
+        <div className="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0"><MailX className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">Replaces</div>
+              <div className="text-sm font-medium">{replaces.form}</div>
+              <div className="text-xs text-stone-300 mt-1">{replaces.savings}</div>
+            </div>
+          </div>
+        </div>
+      )}
+      {children}
+    </div>
+    <div className="flex-shrink-0 border-t border-stone-200 px-5 py-4 bg-white">
+      <button onClick={onNext} disabled={nextDisabled}
+        className="w-full max-w-xl mx-auto bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        {nextLabel} <ArrowRight className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+);
+
+const Input = ({ value, onChange, placeholder, type = 'text', className: cls = '' }) => (
+  <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+    className={`w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors ${cls}`} />
+);
+
+const Field = ({ label, hint, children }) => (
+  <div className="mb-3">
+    <label className="block text-xs font-medium text-stone-700 mb-1.5 uppercase tracking-wider">{label}</label>
+    {children}
+    {hint && <div className="text-[11px] text-stone-500 mt-1">{hint}</div>}
+  </div>
+);
+
+const Toggle = ({ label, value, onChange, sub }) => (
+  <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+    <div>
+      <div className="text-sm">{label}</div>
+      {sub && <div className="text-[11px] text-stone-500">{sub}</div>}
+    </div>
+    <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#EC0000]' : 'bg-stone-300'}`}>
+      <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
+    </div>
+  </button>
+);
+
 export default function App() {
   // === ALL HOOKS AT TOP LEVEL ===
   const [tab, setTab] = useState('home');
@@ -73,6 +152,12 @@ export default function App() {
   const [pinRevealed, setPinRevealed] = useState(false);
   const [pinCountdown, setPinCountdown] = useState(30);
   const [frozenCards, setFrozenCards] = useState(new Set());
+  // Card controls (spending limits, contactless / online / abroad / ATM / gambling, report lost) — persistent per card
+  const [showCardControls, setShowCardControls] = useState(false);
+  const [cardCtrlKey, setCardCtrlKey] = useState(0);
+  const [cardSettings, setCardSettings] = useState({}); // keyed by card.key → { contactless, online, abroad, atm, gambling, limit }
+  const [cardReissued, setCardReissued] = useState(new Set()); // cards reported lost/stolen & reissued
+  const [cardCtrlReport, setCardCtrlReport] = useState(false); // report-lost confirm expanded (ephemeral)
 
   // Pre-approved lending
   const [lendingTerm, setLendingTerm] = useState(24);
@@ -96,7 +181,7 @@ export default function App() {
   // Voice ID biometric authentication
   const [voiceIdEnrolled, setVoiceIdEnrolled] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
-  const [biometricType, setBiometricType] = useState('face-id'); // 'face-id' | 'fingerprint' | 'face-android'
+  const [biometricType, setBiometricType] = useState('pin'); // 'pin' | 'face-id' | 'fingerprint' | 'face-android'
   const [voiceIdTab, setVoiceIdTab] = useState('enrol');
   const [voicePhrasesDone, setVoicePhrasesDone] = useState(new Set());
   const [voiceRecordingPhrase, setVoiceRecordingPhrase] = useState(null);
@@ -124,6 +209,15 @@ export default function App() {
   const [otpResend, setOtpResend] = useState(30);
   const [otpVerifying, setOtpVerifying] = useState(false);
   const otpRefs = useRef([null,null,null,null,null,null]);
+
+  // Sign-with-PIN sheet (personal 4-digit PIN to authorise a signature)
+  const [showSignPin, setShowSignPin] = useState(false);
+  const [signPinDigits, setSignPinDigits] = useState(['','','','']);
+  const [signPinContext, setSignPinContext] = useState('');
+  const [signPinCallback, setSignPinCallback] = useState(null);
+  const [signPinError, setSignPinError] = useState(false);
+  const [signPinVerifying, setSignPinVerifying] = useState(false);
+  const signPinRefs = useRef([null,null,null,null]);
 
   // Accessibility / neurodiversity panel
   const [showA11ySheet, setShowA11ySheet] = useState(false);
@@ -199,13 +293,73 @@ export default function App() {
   const [methodFilter, setMethodFilter] = useState('all'); // 'all' | 'card' | 'dd' | 'so' | 'fp' | 'bacs'
   const [paymentPending, setPaymentPending] = useState(null); // null | { kind, label, total, count, countdown }
 
+  // Complaint workflow state
+  const [complaintName, setComplaintName] = useState('');
+  const [complaintChannel, setComplaintChannel] = useState('');
+  const [complaintCategory, setComplaintCategory] = useState('');
+  const [complaintEligible, setComplaintEligible] = useState('');
+  const [complaintEscalFlags, setComplaintEscalFlags] = useState([]);
+  const [complaintDenialReason, setComplaintDenialReason] = useState('');
+  const [complaintGoodwill, setComplaintGoodwill] = useState(false);
+
+  // Standing orders / Direct Debits workflow state
+  const [recurringAction, setRecurringAction] = useState(null); // null | 'new-so' | 'cancel-dd'
+  const [soPayee, setSoPayee] = useState('');
+  const [soSortCode, setSoSortCode] = useState('');
+  const [soAcct, setSoAcct] = useState('');
+  const [soAmount, setSoAmount] = useState('');
+  const [soFrequency, setSoFrequency] = useState('monthly'); // 'weekly' | 'monthly' | 'quarterly' | 'annually'
+  const [soStartDate, setSoStartDate] = useState('');
+  const [soReference, setSoReference] = useState('');
+  const [cancelDdId, setCancelDdId] = useState(null);
+  const [recurringConfirm, setRecurringConfirm] = useState(false);
+
+  // Transaction dispute / chargeback
+  const [disputeTxnId, setDisputeTxnId] = useState(null);       // selected transaction id
+  const [disputeReason, setDisputeReason] = useState(null);     // 'unauthorised' | 'not-received' | 'faulty' | 'duplicate' | 'wrong-amount' | 'subscription'
+  const [disputeMerchantTried, setDisputeMerchantTried] = useState(false); // contacted merchant first (chargeback prerequisite)
+  const [disputeDetail, setDisputeDetail] = useState('');
+  const [disputeEvidenceUp, setDisputeEvidenceUp] = useState(false);
+  const [disputeConfirm, setDisputeConfirm] = useState(false);
+
+  // International beneficiary onboarding (add + screen a cross-border payee)
+  const [benName, setBenName] = useState('');
+  const [benCountry, setBenCountry] = useState(null); // ISO code from COUNTRIES list
+  const [benBank, setBenBank] = useState('');
+  const [benAccount, setBenAccount] = useState('');   // IBAN / account number
+  const [benSwift, setBenSwift] = useState('');        // SWIFT / BIC
+  const [benAddress, setBenAddress] = useState('');
+  const [benPurpose, setBenPurpose] = useState(null);  // purpose-of-payment code
+  const [benScreened, setBenScreened] = useState(false); // sanctions/PEP/CoP screening run
+  const [benConfirm, setBenConfirm] = useState(false);
+
+  // Certificate of balance / bank reference on demand
+  const [certType, setCertType] = useState(null);       // 'balance' | 'reference' | 'audit'
+  const [certAccounts, setCertAccounts] = useState([]);  // selected account nos
+  const [certDate, setCertDate] = useState('');          // as-at date
+  const [certPurpose, setCertPurpose] = useState(null);
+  const [certDelivery, setCertDelivery] = useState('download'); // 'download' | 'email' | 'post'
+
+  // Trusted-device & session management
+  const [tdRevoked, setTdRevoked] = useState([]);          // device ids signed out this session
+  const [tdRequireSca, setTdRequireSca] = useState(true);   // SCA on every login
+  const [tdAlertNewDevice, setTdAlertNewDevice] = useState(true);
+  const [tdSignOutOthers, setTdSignOutOthers] = useState(false);
+  const [tdConfirm, setTdConfirm] = useState(false);
+
+  // Home action accordion — which group is expanded (null = all collapsed)
+  const [openActionGroup, setOpenActionGroup] = useState(null);
+
   // Load fonts
   useEffect(() => {
     if (document.querySelector('link[data-fonts]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.dataset.fonts = '1';
-    link.href = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
+    // Santander Text (the brand font, © Banco Santander) is not loaded here — it is
+    // named in the font stack and renders on managed devices that have it installed;
+    // Geist is the open-licensed fallback for everywhere else.
+    link.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap';
     document.head.appendChild(link);
   }, []);
 
@@ -299,6 +453,12 @@ export default function App() {
     { key: 1, name: 'Payroll Card', last4: '····3927', acctNo: '····6633', expiry: '03/27', network: 'Visa Debit', pin: '6103' },
   ];
 
+  // Card controls — sensible per-card defaults, then overrideable via cardSettings state
+  const DEFAULT_CARD_LIMITS = { 0: 15000, 1: 5000 };
+  const cardCtrlDefault = (key) => ({ contactless: true, online: true, abroad: false, atm: true, gambling: false, limit: DEFAULT_CARD_LIMITS[key] ?? 5000 });
+  const getCardCtrl = (key) => cardSettings[key] || cardCtrlDefault(key);
+  const setCardCtrl = (key, field, value) => setCardSettings(prev => ({ ...prev, [key]: { ...(prev[key] || cardCtrlDefault(key)), [field]: value } }));
+
   const SUPPLIER_RISK = [
     { id: 'sr1', name: 'Meridian Logistics',  reg: '07834521', lastFiled: '30 Sep 2024', daysOverdue: 261, risk: 'red',   spend: 34700 },
     { id: 'sr2', name: 'CloudStack Ltd',      reg: '10293847', lastFiled: '15 Mar 2025', daysOverdue: 95,  risk: 'amber', spend: 8900  },
@@ -366,6 +526,11 @@ export default function App() {
     setPinAuthDone(false);
     setPinRevealed(false);
     setPinCountdown(30);
+  };
+
+  const closeCardControls = () => {
+    setShowCardControls(false);
+    setCardCtrlReport(false);
   };
 
   const closeVoiceSetup = () => {
@@ -646,7 +811,8 @@ export default function App() {
     return {
       total,
       grade: total >= 80 ? 'A' : total >= 65 ? 'B' : total >= 50 ? 'C' : 'D',
-      colour: total >= 80 ? '#22c55e' : total >= 65 ? '#f59e0b' : '#ef4444',
+      colour: total >= 80 ? '#059669' : total >= 65 ? '#d97706' : '#dc2626',
+      textColour: total >= 80 ? '#047857' : total >= 65 ? '#b45309' : '#b91c1c', // AA on white for small text
       factors: [
         { label: 'Liquidity',      score: liqScore,  max: 20, desc: totalBal >= 400000 ? 'Strong reserves'          : 'Below target' },
         { label: 'Tax compliance', score: mtdScore,  max: 20, desc: overdueObs === 0    ? 'All submissions on time'  : `${overdueObs} overdue` },
@@ -730,7 +896,18 @@ export default function App() {
     setTimeout(() => otpRefs.current[0]?.focus(), 100);
   };
 
+  const triggerSignPin = (context, callback) => {
+    setSignPinDigits(['','','','']);
+    setSignPinError(false);
+    setSignPinVerifying(false);
+    setSignPinContext(context);
+    setSignPinCallback(() => callback);
+    setShowSignPin(true);
+    setTimeout(() => signPinRefs.current[0]?.focus(), 100);
+  };
+
   const BIOMETRIC_OPTIONS = [
+    { id: 'pin',          label: 'Personal PIN',       sub: '4-digit code',    Icon: Lock        },
     { id: 'face-id',      label: 'Face ID',           sub: 'Apple · iOS',     Icon: ScanFace    },
     { id: 'fingerprint',  label: 'Fingerprint',        sub: 'Android · iOS',   Icon: Fingerprint },
     { id: 'face-android', label: 'Face recognition',   sub: 'Android',         Icon: ScanFace    },
@@ -765,14 +942,28 @@ export default function App() {
     setPayeeSearch(''); setShowAddPayee(false);
     setNewPayeeName(''); setNewPayeeSort(''); setNewPayeeAcct(''); setNewPayeeAmount(''); setNewPayeeRole('');
     setLendingConfirm(false);
+    setComplaintName(''); setComplaintChannel(''); setComplaintCategory('');
+    setComplaintEligible(''); setComplaintEscalFlags([]);
+    setComplaintDenialReason(''); setComplaintGoodwill(false);
+    setRecurringAction(null); setSoPayee(''); setSoSortCode(''); setSoAcct('');
+    setSoAmount(''); setSoFrequency('monthly'); setSoStartDate(''); setSoReference('');
+    setCancelDdId(null); setRecurringConfirm(false);
+    setDisputeTxnId(null); setDisputeReason(null); setDisputeMerchantTried(false);
+    setDisputeDetail(''); setDisputeEvidenceUp(false); setDisputeConfirm(false);
+    setBenName(''); setBenCountry(null); setBenBank(''); setBenAccount(''); setBenSwift('');
+    setBenAddress(''); setBenPurpose(null); setBenScreened(false); setBenConfirm(false);
+    setCertType(null); setCertAccounts([]); setCertDate(''); setCertPurpose(null); setCertDelivery('download');
+    setTdRevoked([]); setTdRequireSca(true); setTdAlertNewDevice(true); setTdSignOutOthers(false); setTdConfirm(false);
     setFxAmount(''); setFxBeneficiary(''); setFxIBAN(''); setFxReference(''); setFxConfirm(false);
     setShowReceiptSheet(false); setReceiptStep(0); setReceiptUploaded(false);
     setShowVoiceMemo(false); setVoiceRecording(false); setVoiceParsed(null);
     setShowSequencer(false); setSequencerOptimised(false);
     setShowVoiceSetup(false); setVoiceIdTab('enrol'); setVoiceRecordingPhrase(null);
     setShowOTP(false); setOtpDigits(['','','','','','']); setOtpCallback(null);
+    setShowSignPin(false); setSignPinDigits(['','','','']); setSignPinCallback(null);
+    setShowCardControls(false); setCardCtrlReport(false);
     // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
-    // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
+    // sessionAnomaly, frozenCards, cardSettings, cardReissued intentionally NOT reset — persistent settings
   };
 
   const greeting = (() => {
@@ -784,20 +975,21 @@ export default function App() {
 
   // === STYLES ===
   const css = `
-    .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-variation-settings: 'opsz' 144; letter-spacing: -0.025em; }
-    .font-display-tight { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; font-variation-settings: 'opsz' 144; letter-spacing: -0.04em; }
-    .font-body { font-family: 'Geist', system-ui, sans-serif; }
+    /* Brand typography: Santander Text (humanist sans, © Banco Santander) named for managed devices; Geist fallback. */
+    .font-display { font-family: 'Santander Headline', 'Santander Text', 'Geist', system-ui, sans-serif; letter-spacing: -0.02em; }
+    .font-display-tight { font-family: 'Santander Headline', 'Santander Text', 'Geist', system-ui, sans-serif; letter-spacing: -0.03em; }
+    .font-body { font-family: 'Santander Text', 'Geist', system-ui, sans-serif; }
     .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
     .num-tab { font-feature-settings: 'tnum', 'lnum'; }
 
-    .red-bar { background: linear-gradient(90deg, #c8102e 0%, #ec0000 50%, #c8102e 100%); }
+    .red-bar { background: linear-gradient(90deg, #EC0000 0%, #EC0000 50%, #EC0000 100%); }
 
     /* Page background — layered cream with subtle radial warmth */
     .page-bg {
-      background-color: #faf6ef;
+      background-color: #FBF1EA;
       background-image:
-        radial-gradient(ellipse 1200px 600px at 100% 0%, rgba(200, 16, 46, 0.04), transparent 60%),
-        radial-gradient(ellipse 800px 600px at 0% 100%, rgba(200, 16, 46, 0.025), transparent 60%);
+        radial-gradient(ellipse 1200px 600px at 100% 0%, rgba(236, 0, 0, 0.04), transparent 60%),
+        radial-gradient(ellipse 800px 600px at 0% 100%, rgba(236, 0, 0, 0.025), transparent 60%);
     }
 
     /* Subtle paper grain */
@@ -810,11 +1002,11 @@ export default function App() {
     /* Card lifts — soft, warm shadows */
     .lift-1 { box-shadow: 0 1px 2px rgba(60, 40, 20, 0.04), 0 1px 3px rgba(60, 40, 20, 0.05); }
     .lift-2 { box-shadow: 0 4px 12px -2px rgba(60, 40, 20, 0.08), 0 2px 6px rgba(60, 40, 20, 0.04); }
-    .lift-hero { box-shadow: 0 24px 48px -16px rgba(15, 15, 15, 0.4), 0 8px 24px -8px rgba(200, 16, 46, 0.15); }
+    .lift-hero { box-shadow: 0 24px 48px -16px rgba(15, 15, 15, 0.4), 0 8px 24px -8px rgba(236, 0, 0, 0.15); }
 
     /* Hero balance card */
     .hero-card {
-      background: radial-gradient(ellipse 800px 400px at 80% 20%, rgba(200, 16, 46, 0.25), transparent 60%),
+      background: radial-gradient(ellipse 800px 400px at 80% 20%, rgba(236, 0, 0, 0.25), transparent 60%),
                   linear-gradient(155deg, #1c1917 0%, #0a0a0a 60%, #1a0606 100%);
     }
 
@@ -826,15 +1018,15 @@ export default function App() {
 
     /* Santander red surfaces — proper brand identity */
     .santander-red {
-      background: linear-gradient(155deg, #ec0000 0%, #c8102e 60%, #a30c25 100%);
+      background: linear-gradient(155deg, #EC0000 0%, #EC0000 60%, #CC0000 100%);
     }
     .santander-red-dark {
       background:
         radial-gradient(ellipse 600px 300px at 80% 20%, rgba(255, 255, 255, 0.08), transparent 60%),
-        linear-gradient(155deg, #c8102e 0%, #9a0c22 60%, #6e0918 100%);
+        linear-gradient(155deg, #EC0000 0%, #CC0000 55%, #990000 100%);
     }
     .red-accent-bar {
-      background: linear-gradient(180deg, #ec0000, #c8102e);
+      background: linear-gradient(180deg, #EC0000, #EC0000);
     }
 
     /* Fluid number sizing — never overflows */
@@ -859,7 +1051,7 @@ export default function App() {
 
     /* Priya card warm gradient */
     .priya-card {
-      background: linear-gradient(155deg, rgba(200, 16, 46, 0.05) 0%, #faf6ef 50%, rgba(200, 16, 46, 0.03) 100%);
+      background: linear-gradient(155deg, rgba(236, 0, 0, 0.05) 0%, #FBF1EA 50%, rgba(236, 0, 0, 0.03) 100%);
     }
 
     /* Account card hover */
@@ -917,7 +1109,7 @@ export default function App() {
 
     /* Focus-visible ring — keyboard navigation only */
     .focus-ring:focus { outline: none; }
-    .focus-ring:focus-visible { outline: 2px solid #c8102e; outline-offset: 2px; }
+    .focus-ring:focus-visible { outline: 2px solid #EC0000; outline-offset: 2px; }
 
     /* Text on coloured backgrounds (Grey-on-Colour Law) */
     .on-dark   { color: rgba(255,255,255,0.65); }
@@ -952,77 +1144,6 @@ export default function App() {
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `;
-
-  // === PRIMITIVES (functional components — no state inside) ===
-  const ProgressDots = ({ total, current }) => (
-    <div className="flex gap-1.5">
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === current ? 'w-8 bg-[#c8102e]' : i < current ? 'w-4 bg-stone-800' : 'w-4 bg-stone-300'}`} />
-      ))}
-    </div>
-  );
-
-  const StepFrame = ({ title, sub, total, current, onBack, onNext, nextLabel = 'Continue', nextDisabled, replaces, children }) => (
-    <div className="fixed inset-0 bg-white z-40 flex flex-col anim-slide">
-      <div className="flex-shrink-0 border-b border-stone-200 bg-white">
-        <div className="px-5 pt-4 pb-3 flex items-center justify-between">
-          <button onClick={onBack} className="w-9 h-9 -ml-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><ArrowLeft className="w-5 h-5" /></button>
-          <ProgressDots total={total} current={current} />
-          <button onClick={closeWorkflow} className="w-9 h-9 -mr-2 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-5 h-5" /></button>
-        </div>
-        <div className="px-5 pb-4">
-          <h1 className="font-display text-3xl text-stone-900 leading-tight">{title}</h1>
-          {sub && <p className="text-sm text-stone-500 mt-1">{sub}</p>}
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto px-5 py-5 pb-32">
-        {replaces && current === 0 && (
-          <div className="rounded-2xl bg-gradient-to-br from-stone-900 to-stone-800 text-white p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0"><MailX className="w-4 h-4" /></div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-stone-400">Replaces</div>
-                <div className="text-sm font-medium">{replaces.form}</div>
-                <div className="text-xs text-stone-300 mt-1">{replaces.savings}</div>
-              </div>
-            </div>
-          </div>
-        )}
-        {children}
-      </div>
-      <div className="flex-shrink-0 border-t border-stone-200 px-5 py-4 bg-white">
-        <button onClick={onNext} disabled={nextDisabled}
-          className="w-full bg-stone-900 text-white py-4 rounded-2xl font-medium disabled:bg-stone-300 disabled:text-stone-500 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-          {nextLabel} <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-
-  const Input = ({ value, onChange, placeholder, type = 'text', className: cls = '' }) => (
-    <input type={type} value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-      className={`w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors ${cls}`} />
-  );
-
-  const Field = ({ label, hint, children }) => (
-    <div className="mb-3">
-      <label className="block text-xs font-medium text-stone-700 mb-1.5 uppercase tracking-wider">{label}</label>
-      {children}
-      {hint && <div className="text-[11px] text-stone-500 mt-1">{hint}</div>}
-    </div>
-  );
-
-  const Toggle = ({ label, value, onChange, sub }) => (
-    <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between p-3 rounded-xl border border-stone-200 mb-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
-      <div>
-        <div className="text-sm">{label}</div>
-        {sub && <div className="text-[11px] text-stone-500">{sub}</div>}
-      </div>
-      <div className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${value ? 'bg-[#c8102e]' : 'bg-stone-300'}`}>
-        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${value ? 'left-[18px]' : 'left-0.5'}`} />
-      </div>
-    </button>
-  );
 
   // === WORKFLOW RENDERERS (just JSX — no hooks!) ===
   const renderClosure = () => {
@@ -1097,7 +1218,7 @@ export default function App() {
     );
 
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={titles[step]} sub={subs[step]} total={4} current={step}
         onBack={back} onNext={next}
         nextLabel={nextLabel}
@@ -1115,10 +1236,10 @@ export default function App() {
               const sel = closureSel.includes(a.no);
               return (
                 <button key={a.no} onClick={() => setClosureSel(sel ? closureSel.filter(x => x !== a.no) : [...closureSel, a.no])}
-                  className={`w-full text-left p-4 rounded-2xl border ${sel ? 'border-[#c8102e] bg-red-50/40' : 'border-stone-200'}`}>
+                  className={`w-full text-left p-4 rounded-2xl border ${sel ? 'border-[#EC0000] bg-red-50/40' : 'border-stone-200'}`}>
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className={`w-5 h-5 rounded border-2 mt-0.5 flex-shrink-0 flex items-center justify-center ${sel ? 'border-[#c8102e] bg-[#c8102e]' : 'border-stone-300'}`}>
+                      <div className={`w-5 h-5 rounded border-2 mt-0.5 flex-shrink-0 flex items-center justify-center ${sel ? 'border-[#EC0000] bg-[#EC0000]' : 'border-stone-300'}`}>
                         {sel && <Check className="w-3 h-3 text-white" />}
                       </div>
                       <div className="min-w-0">
@@ -1254,7 +1375,7 @@ export default function App() {
               <span className="font-mono text-sm font-medium tracking-wider">SVC-2026-4471</span>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={closureVulnDecl} onChange={e => setClosureVulnDecl(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={closureVulnDecl} onChange={e => setClosureVulnDecl(e.target.checked)} className="mt-0.5 accent-[#EC0000]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm the above information is accurate to the best of my knowledge. I understand the account will be restricted pending specialist review, and I consent to the bank contacting the partner directly as part of this process.
               </span>
@@ -1323,7 +1444,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I authorise the closure of the accounts in section 1 and the movement of credit balances in section 2."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={closureConfirm} onChange={e => setClosureConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={closureConfirm} onChange={e => setClosureConfirm(e.target.checked)} className="mt-0.5 accent-[#EC0000]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 {m.isSingle ? `I'm the ${entity.principal} on this account and authorise its closure.`
                   : m.rule === 'all' ? `I'm an authorised ${entity.principal}. After my signature, all other ${entity.principal}s will be notified.`
@@ -1360,7 +1481,7 @@ export default function App() {
     ].filter(Boolean);
 
     return (
-      <StepFrame title={titles[step]} sub={['Tick everything', 'New values', 'Local authority bill or utility < 3 months', `Any 2 ${entity.authorities}`][step]}
+      <StepFrame onClose={closeWorkflow} title={titles[step]} sub={['Tick everything', 'New values', 'Local authority bill or utility < 3 months', `Any 2 ${entity.authorities}`][step]}
         total={4} current={step} onBack={back} onNext={next}
         nextLabel={step === 3 ? 'Sign update' : 'Continue'}
         replaces={{ form: 'Form ANB9 0042 · Change of business details', savings: 'No black-ink block-capitals · no Sunderland post' }}
@@ -1378,7 +1499,7 @@ export default function App() {
                     <div className="font-medium text-sm">{o.label}</div>
                     {o.sub && <div className="text-[11px] text-stone-500">{o.sub}</div>}
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-[#c8102e] border-[#c8102e]' : 'border-stone-300'}`}>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${on ? 'bg-[#EC0000] border-[#EC0000]' : 'border-stone-300'}`}>
                     {on && <Check className="w-3 h-3 text-white" />}
                   </div>
                 </button>
@@ -1404,7 +1525,7 @@ export default function App() {
           <div className="space-y-3">
             <button onClick={() => setBizProofUp(true)}
               className={`w-full p-6 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 ${bizProofUp ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {bizProofUp ? <CircleCheck className="w-8 h-8 text-emerald-600" /> : <Camera className="w-8 h-8 text-stone-400" />}
+              {bizProofUp ? <CircleCheck className="w-8 h-8 text-emerald-600" /> : <Camera className="w-8 h-8 text-stone-500" />}
               <div className="font-medium text-sm">{bizProofUp ? 'business-rates-2026.pdf · validated ✓' : 'Photograph or upload proof'}</div>
               <div className="text-[11px] text-stone-500">Local authority bill or utility &lt; 3 months</div>
             </button>
@@ -1482,7 +1603,7 @@ export default function App() {
     };
 
     return (
-      <StepFrame title={sd.t} sub={sd.s} total={total} current={step}
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
         onBack={back} onNext={next}
         nextLabel={step === total - 1 ? 'Sign' : 'Continue'}
         replaces={{ form: entity.isTreasurer ? 'Form ANBMC0800 · 8-page treasurer mandate' : 'Mandate change form + ID copies', savings: 'Board minutes uploaded · ID via GOV.UK One Login' }}
@@ -1551,13 +1672,13 @@ export default function App() {
             <div className="text-xs uppercase tracking-wider text-stone-500">List 1 · Proof of ID</div>
             <button onClick={() => setList1Up(true)}
               className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list1Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {list1Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Camera className="w-6 h-6 text-stone-400" />}
+              {list1Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Camera className="w-6 h-6 text-stone-500" />}
               <div className="text-left flex-1"><div className="text-sm font-medium">{list1Up ? 'Passport · UK · in date ✓' : 'Capture passport / driving licence'}</div><div className="text-[11px] text-stone-500">Verified via GOV.UK One Login</div></div>
             </button>
             <div className="text-xs uppercase tracking-wider text-stone-500 mt-3">List 2 · Proof of address</div>
             <button onClick={() => setList2Up(true)}
               className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list2Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {list2Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-400" />}
+              {list2Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-500" />}
               <div className="text-left flex-1"><div className="text-sm font-medium">{list2Up ? 'Council tax · Mar 2026 ✓' : 'Upload bank statement / council tax / utility'}</div><div className="text-[11px] text-stone-500">Most recent · &lt; 3 months</div></div>
             </button>
             {needsList3 && (
@@ -1565,7 +1686,7 @@ export default function App() {
                 <div className="text-xs uppercase tracking-wider text-stone-500 mt-3">List 3 · Trading address</div>
                 <button onClick={() => setList3Up(true)}
                   className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 ${list3Up ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-                  {list3Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-400" />}
+                  {list3Up ? <CircleCheck className="w-6 h-6 text-emerald-600" /> : <Upload className="w-6 h-6 text-stone-500" />}
                   <div className="text-left flex-1"><div className="text-sm font-medium">{list3Up ? 'Lease · 2024–2027 ✓' : 'Upload trading-address proof'}</div><div className="text-[11px] text-stone-500">Lease, business statement, FCA registration</div></div>
                 </button>
               </>
@@ -1614,7 +1735,7 @@ export default function App() {
             </div>
             <button onClick={() => setBoardMinutesUp(true)}
               className={`w-full p-5 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 ${boardMinutesUp ? 'border-emerald-500 bg-emerald-50/40' : 'border-stone-300'}`}>
-              {boardMinutesUp ? <CircleCheck className="w-7 h-7 text-emerald-600" /> : <FileText className="w-7 h-7 text-stone-400" />}
+              {boardMinutesUp ? <CircleCheck className="w-7 h-7 text-emerald-600" /> : <FileText className="w-7 h-7 text-stone-500" />}
               <div className="text-sm font-medium">{boardMinutesUp ? 'minutes-12-apr-2026.pdf · 2 sigs ✓' : 'Upload board minutes'}</div>
               <div className="text-[11px] text-stone-500 text-center">PDF or photograph</div>
             </button>
@@ -1704,7 +1825,7 @@ export default function App() {
     ];
 
     return (
-      <StepFrame title={titles[step]} sub={subs[step]} total={4} current={step}
+      <StepFrame onClose={closeWorkflow} title={titles[step]} sub={subs[step]} total={4} current={step}
         onBack={back} onNext={next}
         nextDisabled={(step === 0 && !wagesSource) || (step === 1 && selectedCount === 0)}
         nextLabel={step === 3 ? 'Sign & send' : 'Continue'}
@@ -1717,12 +1838,12 @@ export default function App() {
               const am = formatMandate(a.rule, a.required);
               return (
                 <button key={a.no} onClick={() => setWagesSource(a.no)}
-                  className={`w-full text-left p-4 rounded-2xl border ${wagesSource === a.no ? 'border-[#c8102e] bg-red-50/40' : 'border-stone-200'}`}>
+                  className={`w-full text-left p-4 rounded-2xl border ${wagesSource === a.no ? 'border-[#EC0000] bg-red-50/40' : 'border-stone-200'}`}>
                   <div className="flex justify-between items-start gap-2">
                     <div className="min-w-0">
                       <div className="font-medium">{a.name}</div>
                       <div className="font-mono text-xs text-stone-500">{a.no}</div>
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">{am.label}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded mt-1.5 inline-block">{am.label}</span>
                     </div>
                     <div className="font-display text-lg flex-shrink-0">{fmt(a.balance)}</div>
                   </div>
@@ -1759,7 +1880,7 @@ export default function App() {
                   placeholder="Search payees…"
                   className="w-full px-4 py-2.5 pl-9 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm transition-colors"
                 />
-                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-stone-500 absolute left-3 top-3" />
               </div>
               <button onClick={() => setShowAddPayee(!showAddPayee)} className="btn-primary px-4 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center gap-1.5">
                 <UserPlus className="w-4 h-4" /> Add
@@ -1770,8 +1891,8 @@ export default function App() {
             {showAddPayee && (
               <div className="rounded-2xl border border-stone-900 bg-stone-50 p-4 space-y-2.5">
                 <div className="flex items-center gap-2 mb-1">
-                  <UserPlus className="w-4 h-4 text-[#c8102e]" />
-                  <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">New payee</div>
+                  <UserPlus className="w-4 h-4 text-[#CC0000]" />
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-[#CC0000] font-medium">New payee</div>
                 </div>
                 <Input value={newPayeeName} onChange={setNewPayeeName} placeholder="Full name" />
                 <Input value={newPayeeRole} onChange={setNewPayeeRole} placeholder="Role (optional)" />
@@ -1792,7 +1913,7 @@ export default function App() {
                   <button
                     onClick={addNewPayee}
                     disabled={!newPayeeName || !newPayeeSort || !newPayeeAcct}
-                    className="py-2.5 rounded-xl bg-[#c8102e] text-white text-sm font-medium disabled:bg-stone-300 disabled:text-stone-500">
+                    className="py-2.5 rounded-xl bg-[#EC0000] text-white text-sm font-medium disabled:bg-stone-300 disabled:text-stone-500">
                     Add & verify
                   </button>
                 </div>
@@ -1804,10 +1925,10 @@ export default function App() {
               {filteredPayees.map(p => {
                 const isCop = p.copStatus === 'verified';
                 return (
-                  <div key={p.id} className={`rounded-2xl border p-3 transition-colors ${p.selected ? 'border-[#c8102e]/40 bg-red-50/20' : 'border-stone-200 bg-white'}`}>
+                  <div key={p.id} className={`rounded-2xl border p-3 transition-colors ${p.selected ? 'border-[#EC0000]/40 bg-red-50/20' : 'border-stone-200 bg-white'}`}>
                     <div className="flex items-start gap-3">
                       <button onClick={() => togglePayee(p.id)}
-                        className={`w-5 h-5 rounded mt-0.5 flex-shrink-0 flex items-center justify-center transition-colors ${p.selected ? 'bg-[#c8102e] border-2 border-[#c8102e]' : 'border-2 border-stone-300 bg-white'}`}>
+                        className={`w-5 h-5 rounded mt-0.5 flex-shrink-0 flex items-center justify-center transition-colors ${p.selected ? 'bg-[#EC0000] border-2 border-[#EC0000]' : 'border-2 border-stone-300 bg-white'}`}>
                         {p.selected && <Check className="w-3 h-3 text-white" />}
                       </button>
                       <div className="flex-1 min-w-0">
@@ -1823,8 +1944,8 @@ export default function App() {
                             )}
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => setOpenCounterparty(p.name)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-[#c8102e]">History</button>
-                            <button onClick={() => removePayee(p.id)} className="text-[10px] uppercase tracking-wider text-stone-400 hover:text-red-600">Remove</button>
+                            <button onClick={() => setOpenCounterparty(p.name)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-[#CC0000]">History</button>
+                            <button onClick={() => removePayee(p.id)} className="text-[10px] uppercase tracking-wider text-stone-500 hover:text-red-600">Remove</button>
                           </div>
                         </div>
                         <div className="text-[11px] text-stone-500 mt-0.5">{p.role} · {p.sortCode} · {p.acct}</div>
@@ -1934,7 +2055,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Your offer', 'Terms & rights', 'Confirm & draw down'][step]}
         sub={['Pre-approved on your 6-month trading history', 'Read before you commit — 14-day cooling-off right applies', 'Authenticate to release funds'][step]}
         total={3} current={step} onBack={back} onNext={next}
@@ -2013,7 +2134,7 @@ export default function App() {
               ))}
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={lendingConfirm} onChange={e => setLendingConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={lendingConfirm} onChange={e => setLendingConfirm(e.target.checked)} className="mt-0.5 accent-[#EC0000] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm I want to draw down {fmt(amount)} and agree to the loan terms. I have read and understood the pre-contractual information and my 14-day cooling-off right.</span>
             </label>
           </div>
@@ -2039,7 +2160,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['International payment', 'Rate & fees', 'Confirm & send'][step]}
         sub={['Pay an overseas supplier in their currency', 'FCA transparency — no hidden charges', 'Authenticate to release funds'][step]}
         total={3} current={step} onBack={back} onNext={next}
@@ -2143,10 +2264,10 @@ export default function App() {
               ))}
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={fxConfirm} onChange={e => setFxConfirm(e.target.checked)} className="mt-0.5 accent-[#EC0000] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm this payment is for legitimate business purposes. I understand the exchange rate and fees as disclosed. I authorise {fmt(totalDebit)} to be debited from the Operating account.</span>
             </label>
-            <div className="text-[11px] text-stone-400 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
+            <div className="text-[11px] text-stone-500 leading-relaxed text-center">SWIFT payment · CHAPS cutoff 3:30pm · settlement 1–2 business days · SWIFT reference logged to audit trail</div>
           </div>
         )}
       </StepFrame>
@@ -2154,12 +2275,12 @@ export default function App() {
   };
 
   const renderDormancy = () => (
-    <StepFrame title="Dormant accounts" sub="Reactivate or close accounts inactive 12+ months"
+    <StepFrame onClose={closeWorkflow} title="Dormant accounts" sub="Reactivate or close accounts inactive 12+ months"
       total={1} current={0} onBack={closeWorkflow}
       onNext={() => { fireToast("Reactivation underway — you'll see it on the home screen."); closeWorkflow(); }}
       nextLabel="Request reactivation"
       replaces={{ form: 'Branch visit + signed letter', savings: 'In-app · no branch needed' }}>
-      {accounts.filter(a => a.status === 'dormant').length === 0 ? <div className="text-center py-12 text-stone-400">No dormant accounts</div> : (
+      {accounts.filter(a => a.status === 'dormant').length === 0 ? <div className="text-center py-12 text-stone-500">No dormant accounts</div> : (
         <>
           {accounts.filter(a => a.status === 'dormant').map(a => (
             <div key={a.no} className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 mb-3">
@@ -2195,7 +2316,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Personal accounts', 'What changes', 'Confirm & unlink'][step]}
         sub={[
           'Currently visible to all users on this business banking profile',
@@ -2303,7 +2424,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I instruct Santander to remove personal account access from my business banking profile{unlinkAllChannels ? ' and from our call centre view' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand this cannot be reversed via the app."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={unlinkConfirm} onChange={e => setUnlinkConfirm(e.target.checked)} className="mt-0.5 accent-[#EC0000]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm I want to permanently remove personal account access from this business banking view{unlinkAllChannels ? ' and request call centre separation' : ''}{unlinkPostal ? ' and separate personal from combined statements' : ''}. I understand re-linking requires authentication from my personal banking app.
               </span>
@@ -2324,7 +2445,7 @@ export default function App() {
       } else setStep(step + 1);
     };
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={['Credit decisioning', 'Confirm ring-fence'][step]}
         sub={[
           'Personal account data currently visible to our credit team',
@@ -2383,7 +2504,7 @@ export default function App() {
               <div className="text-sm leading-relaxed">"I instruct Santander to exclude my personal account data from all business credit assessments. I understand individual product applications may require separate consent."</div>
             </div>
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
-              <input type="checkbox" checked={ringfenceConfirm} onChange={e => setRingfenceConfirm(e.target.checked)} className="mt-0.5 accent-[#c8102e]" />
+              <input type="checkbox" checked={ringfenceConfirm} onChange={e => setRingfenceConfirm(e.target.checked)} className="mt-0.5 accent-[#EC0000]" />
               <span className="text-xs text-stone-700 leading-relaxed">
                 I confirm I want to ring-fence my personal account data from all business credit assessments. I understand individual product applications may require separate consent.
               </span>
@@ -2395,7 +2516,7 @@ export default function App() {
   };
 
   const renderIdCheck = () => (
-    <StepFrame title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
+    <StepFrame onClose={closeWorkflow} title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
       total={1} current={0} onBack={closeWorkflow} onNext={closeWorkflow} nextLabel="Done"
       replaces={{ form: 'Annual letters with photocopies', savings: 'Continuous re-verification via GOV.UK One Login' }}>
       <div className="space-y-2">
@@ -2479,16 +2600,16 @@ export default function App() {
               <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Verify it's you</h2>
             </div>
-            <button onClick={() => setShowOTP(false)} className="p-1 text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+            <button onClick={() => setShowOTP(false)} className="p-1 text-stone-500 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
-            <Phone className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <Phone className="w-4 h-4 text-stone-500 flex-shrink-0" />
             <span className="text-sm text-stone-600">Code sent to <span className="font-mono font-medium text-stone-900">+44 ···· ···· 821</span></span>
           </div>
-          <p className="text-[10px] text-stone-400 mb-6 px-1">{otpContext}</p>
+          <p className="text-[10px] text-stone-500 mb-6 px-1">{otpContext}</p>
 
           {/* 6-digit boxes */}
           <div className="flex gap-2 justify-center mb-5">
@@ -2517,7 +2638,7 @@ export default function App() {
           )}
 
           <button onClick={verify} disabled={!complete || otpVerifying}
-            className="w-full py-4 rounded-2xl bg-[#c8102e] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-400 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="w-full py-4 rounded-2xl bg-[#EC0000] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000]">
             {otpVerifying
               ? <><RefreshCw className="w-4 h-4 animate-spin" /> Verifying…</>
               : complete ? 'Confirm' : `${filled} of 6 digits entered`}
@@ -2525,11 +2646,111 @@ export default function App() {
 
           <div className="text-center mt-4">
             {otpResend > 0
-              ? <span className="text-[11px] text-stone-400">Resend available in {otpResend}s</span>
+              ? <span className="text-[11px] text-stone-500">Resend available in {otpResend}s</span>
               : <button onClick={() => { setOtpResend(30); fireToast('New code sent'); }}
-                  className="text-[11px] text-[#c8102e] font-medium focus:outline-none focus-visible:underline">
+                  className="text-[11px] text-[#CC0000] font-medium focus:outline-none focus-visible:underline">
                   Resend code
                 </button>}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const SignPinSheet = () => {
+    const filled = signPinDigits.filter(d => d !== '').length;
+    const complete = filled === 4;
+
+    const handleInput = (index, raw) => {
+      const digits = raw.replace(/\D/g, '');
+      if (digits.length > 1) {
+        const spread = digits.slice(0, 4 - index).split('');
+        const next = [...signPinDigits];
+        spread.forEach((d, i) => { next[index + i] = d; });
+        setSignPinDigits(next);
+        setSignPinError(false);
+        const focusIdx = Math.min(index + spread.length, 3);
+        setTimeout(() => signPinRefs.current[focusIdx]?.focus(), 0);
+        return;
+      }
+      const d = digits.slice(-1);
+      const next = [...signPinDigits];
+      next[index] = d;
+      setSignPinDigits(next);
+      setSignPinError(false);
+      if (d && index < 3) setTimeout(() => signPinRefs.current[index + 1]?.focus(), 0);
+    };
+
+    const handleKey = (index, e) => {
+      if (e.key === 'Backspace' && !signPinDigits[index] && index > 0) {
+        const next = [...signPinDigits];
+        next[index - 1] = '';
+        setSignPinDigits(next);
+        setTimeout(() => signPinRefs.current[index - 1]?.focus(), 0);
+      }
+      if (e.key === 'Enter' && complete) verify();
+    };
+
+    const verify = () => {
+      if (!complete || signPinVerifying) return;
+      setSignPinVerifying(true);
+      setTimeout(() => {
+        setSignPinVerifying(false);
+        setShowSignPin(false);
+        signPinCallback?.();
+      }, 800);
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black/60 anim-fade flex items-end justify-center" onClick={() => setShowSignPin(false)}>
+        <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 anim-slide" onClick={e => e.stopPropagation()}>
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-1">SCA · PSD2 RTS Art.97</div>
+              <h2 className="font-display-tight text-2xl text-stone-900">Enter your PIN</h2>
+            </div>
+            <button onClick={() => setShowSignPin(false)} className="p-1 text-stone-500 hover:text-stone-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 rounded-lg">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100 mb-1">
+            <Lock className="w-4 h-4 text-stone-500 flex-shrink-0" />
+            <span className="text-sm text-stone-600">Your personal 4-digit signing PIN — known only to you</span>
+          </div>
+          <p className="text-[10px] text-stone-500 mb-6 px-1">{signPinContext}</p>
+
+          {/* 4 masked PIN boxes */}
+          <div className="flex gap-2.5 justify-center mb-5">
+            {signPinDigits.map((d, i) => (
+              <input key={i}
+                ref={el => { signPinRefs.current[i] = el; }}
+                type="password" inputMode="numeric" maxLength={4}
+                value={d}
+                onChange={e => handleInput(i, e.target.value)}
+                onKeyDown={e => handleKey(i, e)}
+                onFocus={e => e.target.select()}
+                aria-label={`PIN digit ${i + 1} of 4`}
+                autoComplete="off"
+                className={`w-14 h-16 text-center text-2xl font-bold rounded-2xl border-2 transition-colors focus:outline-none focus-visible:ring-0
+                  ${signPinError
+                    ? 'border-red-400 bg-red-50 text-red-700'
+                    : d
+                    ? 'border-stone-900 bg-stone-50 text-stone-900'
+                    : 'border-stone-200 bg-white text-stone-900'}`}
+              />
+            ))}
+          </div>
+
+          <button onClick={verify} disabled={!complete || signPinVerifying}
+            className="w-full py-4 rounded-2xl bg-[#EC0000] text-white font-medium text-sm disabled:bg-stone-200 disabled:text-stone-500 transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000]">
+            {signPinVerifying
+              ? <><RefreshCw className="w-4 h-4 animate-spin" /> Confirming…</>
+              : complete ? 'Sign' : `${filled} of 4 digits entered`}
+          </button>
+
+          <div className="text-center mt-4">
+            <span className="text-[11px] text-stone-500 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Never share your PIN. Santander will never ask for it.</span>
           </div>
         </div>
       </div>
@@ -2548,25 +2769,25 @@ export default function App() {
         </div>
         <div className="px-5 py-5 space-y-5">
           <section>
-            <div className="flex items-center gap-2 mb-2"><Scale className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Regulation</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Scale className="w-4 h-4 text-[#CC0000]" /><h3 className="font-display text-lg">Regulation</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Santander UK plc. 2 Triton Square, Regent's Place, London NW1 3AN. Authorised by the PRA, regulated by the FCA and PRA. <span className="font-mono text-xs">FRN 106054</span></p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><Heart className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Our Consumer Duty</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Heart className="w-4 h-4 text-[#CC0000]" /><h3 className="font-display text-lg">Our Consumer Duty</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Under the FCA's Consumer Duty (July 2023), we're required to deliver good outcomes for you. Clear communication, products that meet your needs, fair value, accessible support. If we're not meeting that bar, tell us — it's how we improve.</p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">FSCS protection</h3></div>
+            <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4 text-[#CC0000]" /><h3 className="font-display text-lg">FSCS protection</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Eligible deposits protected up to £85,000 per depositor.</p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><FileSignature className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">If something goes wrong</h3></div>
+            <div className="flex items-center gap-2 mb-2"><FileSignature className="w-4 h-4 text-[#CC0000]" /><h3 className="font-display text-lg">If something goes wrong</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed mb-3">Tell us first — most issues we fix within 3 working days. If we can't, we'll keep you updated and aim to resolve within 8 weeks. We won't make you feel like you're chasing us.</p>
             <p className="text-sm text-stone-600 leading-relaxed">Unresolved? You can refer your complaint to the <strong>Financial Ombudsman Service</strong> free of charge within 6 months of our final response. They're independent, and their decision is binding on us.</p>
             <p className="text-sm text-stone-600 leading-relaxed mt-2">Financial Ombudsman · <strong>0800 023 4567</strong></p>
           </section>
           <section>
-            <div className="flex items-center gap-2 mb-2"><Phone className="w-4 h-4 text-[#c8102e]" /><h3 className="font-display text-lg">Talk to us</h3></div>
+            <div className="flex items-center gap-2 mb-2"><Phone className="w-4 h-4 text-[#CC0000]" /><h3 className="font-display text-lg">Talk to us</h3></div>
             <p className="text-sm text-stone-600 leading-relaxed">Business Banking · <strong>0330 123 9860</strong> · Mon–Fri 8am–6pm. Relay UK and BSL video relay available. We'll never make this harder than it needs to be.</p>
           </section>
         </div>
@@ -2603,7 +2824,7 @@ export default function App() {
             </div>
           ))}
           <div className="p-4 rounded-2xl bg-stone-900 text-white">
-            <div className="text-xs uppercase tracking-wider text-stone-400">The big unlock</div>
+            <div className="text-xs uppercase tracking-wider text-stone-500">The big unlock</div>
             <div className="text-sm mt-2 leading-relaxed">In legacy Online Banking, "Any 2" and "All" mandates restrict you to view-only. Biometric in-app dual signature replaces that.</div>
           </div>
         </div>
@@ -2650,7 +2871,7 @@ export default function App() {
               </div>
             </div>
             <button onClick={() => { fireToast("All saved. Priya will be in touch within 2 working hours."); setShowRMSheet(false); closeWorkflow(); }}
-              className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium">
+              className="w-full bg-[#EC0000] text-white py-4 rounded-2xl font-medium">
               Open case & save my progress
             </button>
           </div>
@@ -2724,26 +2945,44 @@ export default function App() {
           </span>
         </div>
         <div className="bg-white rounded-2xl border border-stone-200/80 p-5 lift-1">
-          <div className="flex items-center gap-5">
-            <svg width="100" height="100" viewBox="0 0 120 120" className="flex-shrink-0">
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#f5f5f4" strokeWidth="10" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke={healthScore.colour} strokeWidth="10"
-                strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
-              <text x="60" y="55" textAnchor="middle" fontSize="26" fontWeight="700" fill={healthScore.colour}>{healthScore.total}</text>
-              <text x="60" y="71" textAnchor="middle" fontSize="11" fill="#a8a29e">out of 100</text>
-            </svg>
-            <div className="flex-1 space-y-2.5">
-              {healthScore.factors.map(f => (
-                <div key={f.label}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[11px] text-stone-600">{f.label}</span>
-                    <span className="text-[11px] font-medium" style={{ color: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }}>{f.score}/{f.max}</span>
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            {/* Overall gauge */}
+            <div className="flex items-center gap-4 sm:flex-col sm:gap-2 flex-shrink-0 sm:w-32 sm:pr-6 sm:border-r sm:border-stone-100">
+              <svg width="104" height="104" viewBox="0 0 120 120" className="flex-shrink-0">
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#f1f0ee" strokeWidth="8" />
+                <circle cx="60" cy="60" r="46" fill="none" stroke={healthScore.colour} strokeWidth="8"
+                  strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" transform="rotate(-90 60 60)" />
+                <text x="60" y="56" textAnchor="middle" fontSize="30" fontWeight="700" fill="#1c1917" className="num-tab">{healthScore.total}</text>
+                <text x="60" y="74" textAnchor="middle" fontSize="10" letterSpacing="1" fill="#78716c">/ 100</text>
+              </svg>
+              <div className="sm:text-center">
+                <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Overall</div>
+                <div className="text-sm font-medium" style={{ color: healthScore.textColour }}>Grade {healthScore.grade}</div>
+              </div>
+            </div>
+            {/* Factor breakdown — KPI grid */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-7 gap-y-4 w-full">
+              {healthScore.factors.map(f => {
+                const c = f.score >= 16 ? '#059669' : f.score >= 10 ? '#d97706' : '#dc2626';
+                // Darker shades for the small status label — AA contrast on white (9px text)
+                const tc = f.score >= 16 ? '#047857' : f.score >= 10 ? '#b45309' : '#b91c1c';
+                const status = f.score >= 16 ? 'Strong' : f.score >= 10 ? 'Watch' : 'Action';
+                return (
+                  <div key={f.label}>
+                    <div className="flex items-baseline justify-between mb-1.5">
+                      <span className="text-[12px] font-medium text-stone-700">{f.label}</span>
+                      <span className="text-[11px] font-mono num-tab text-stone-500">{f.score}<span className="text-stone-500">/{f.max}</span></span>
+                    </div>
+                    <div className="h-1 bg-stone-100 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${(f.score / f.max) * 100}%`, background: c }} />
+                    </div>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[10px] text-stone-500 truncate pr-2">{f.desc}</span>
+                      <span className="text-[9px] uppercase tracking-[0.12em] font-semibold flex-shrink-0" style={{ color: tc }}>{status}</span>
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${(f.score / f.max) * 100}%`, background: f.score >= 16 ? '#22c55e' : f.score >= 10 ? '#f59e0b' : '#ef4444' }} />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -2751,37 +2990,66 @@ export default function App() {
     );
   };
 
-  const SupplierRadar = () => (
-    <div className="px-5 mb-7 anim-fade">
-      <div className="flex items-end justify-between mb-3">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Companies House · live</div>
-          <h2 className="font-display-tight text-2xl text-stone-900">Supplier risk radar</h2>
+  const SupplierRadar = () => {
+    const totalSpend = SUPPLIER_RISK.reduce((s, x) => s + x.spend, 0);
+    const cnt = { red: 0, amber: 0, green: 0 };
+    SUPPLIER_RISK.forEach(s => { cnt[s.risk]++; });
+    const meta = {
+      red:   { c: '#dc2626', tc: '#b91c1c', label: 'Critical' },
+      amber: { c: '#d97706', tc: '#b45309', label: 'Watch'    },
+      green: { c: '#059669', tc: '#047857', label: 'Current'  },
+    };  // c = fill/dot (large); tc = small-label text (AA on white)
+    return (
+      <div className="px-5 mb-7 anim-fade">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Companies House · live</div>
+            <h2 className="font-display-tight text-2xl text-stone-900">Supplier risk radar</h2>
+          </div>
+          {cnt.red > 0 && (
+            <span className="text-[10px] uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mb-1">{cnt.red} critical</span>
+          )}
         </div>
-        {SUPPLIER_RISK.some(s => s.risk === 'red') && (
-          <span className="text-[10px] uppercase tracking-wider text-red-700 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 mb-1">1 critical</span>
-        )}
-      </div>
-      <div className="space-y-2">
-        {SUPPLIER_RISK.map(s => (
-          <div key={s.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border lift-1 ${s.risk === 'red' ? 'border-red-200 bg-red-50/30' : s.risk === 'amber' ? 'border-amber-200 bg-amber-50/20' : 'bg-white border-stone-200/80'}`}>
-            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${s.risk === 'red' ? 'bg-red-500' : s.risk === 'amber' ? 'bg-amber-400' : 'bg-emerald-500'}`} />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
-              <div className="text-[10px] text-stone-400 mt-0.5">
-                CH {s.reg} · Filed {s.lastFiled}{s.daysOverdue > 0 ? ` · ⚠ ${s.daysOverdue}d overdue` : ''}
-              </div>
+        <div className="bg-white rounded-2xl border border-stone-200/80 lift-1 overflow-hidden">
+          {/* Summary strip */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-0.5">Monitored spend</div>
+              <div className="font-mono num-tab text-sm text-stone-900">{fmt(totalSpend)}<span className="text-stone-500 text-[11px] font-sans"> / yr · {SUPPLIER_RISK.length} suppliers</span></div>
             </div>
-            <div className="text-right flex-shrink-0">
-              <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
-              <div className="text-[9px] text-stone-400">annual spend</div>
+            <div className="flex items-center gap-3">
+              {['green', 'amber', 'red'].map(r => cnt[r] > 0 && (
+                <span key={r} className="inline-flex items-center gap-1.5 text-[11px] text-stone-500">
+                  <span className="w-2 h-2 rounded-full" style={{ background: meta[r].c }} />{cnt[r]} {meta[r].label.toLowerCase()}
+                </span>
+              ))}
             </div>
           </div>
-        ))}
+          {/* Rows */}
+          {SUPPLIER_RISK.map((s, i) => {
+            const m = meta[s.risk];
+            return (
+              <div key={s.id} className={`flex items-center gap-3.5 px-5 py-3.5 ${i !== SUPPLIER_RISK.length - 1 ? 'border-b border-stone-100' : ''}`}>
+                <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: m.c }} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-stone-900 truncate">{s.name}</div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    CH {s.reg} · Filed {s.lastFiled}
+                    {s.daysOverdue > 0 && <span className="font-medium" style={{ color: m.tc }}> · {s.daysOverdue} days overdue</span>}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-mono text-sm text-stone-700 num-tab">{fmt(s.spend)}</div>
+                  <div className="text-[9px] uppercase tracking-[0.12em] font-semibold mt-0.5" style={{ color: m.tc }}>{m.label}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[10px] text-stone-500 mt-2 px-1">Companies House API · refreshed daily · red = filing &gt;180 days overdue</p>
       </div>
-      <p className="text-[10px] text-stone-400 mt-2 px-1">Data sourced from Companies House API · refreshed daily</p>
-    </div>
-  );
+    );
+  };
 
   const DirectorCentre = () => {
     const LAST_ACTIVE = ['Today, 09:14', 'Today, 08:31', '2 days ago', 'Today, 07:55'];
@@ -2793,7 +3061,7 @@ export default function App() {
             <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Corporate governance</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Director command centre</h2>
           </div>
-          <button onClick={() => setTab('approve')} className="text-[10px] uppercase tracking-wider text-[#c8102e] mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded">
+          <button onClick={() => setTab('approve')} className="text-[10px] uppercase tracking-wider text-[#CC0000] mb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000] rounded">
             View all
           </button>
         </div>
@@ -2807,15 +3075,17 @@ export default function App() {
                     {s.initials}
                   </div>
                   {pending > 0 && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium">{pending}</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#EC0000] text-white font-medium">{pending}</span>
                   )}
                 </div>
                 <div className="font-medium text-[13px] text-stone-900 leading-tight">{s.name}</div>
                 <div className="text-[10px] text-stone-500 mt-0.5">{s.role}</div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[9px] text-stone-400">{LAST_ACTIVE[i]}</span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${s.status === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {s.status === 'verified' ? 'KYC ✓' : 'Review'}
+                <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between">
+                  <span className="text-[9px] text-stone-500">{LAST_ACTIVE[i]}</span>
+                  <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.1em] font-semibold"
+                    style={{ color: s.status === 'verified' ? '#047857' : '#b45309' }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.status === 'verified' ? '#059669' : '#d97706' }} />
+                    {s.status === 'verified' ? 'KYC verified' : 'Review'}
                   </span>
                 </div>
               </div>
@@ -2833,12 +3103,1131 @@ export default function App() {
         <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105 ${highlight ? 'bg-white/[0.08] backdrop-blur-sm border border-white/[0.08]' : 'bg-gradient-to-br from-stone-50 to-stone-100/50 border border-stone-100'}`}>
           <I className={`w-5 h-5 ${highlight ? 'text-white' : 'text-stone-700'}`} />
         </div>
-        {badge && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium">{badge}</span>}
+        {badge && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#EC0000] text-white font-medium">{badge}</span>}
       </div>
       <div className={`font-medium text-[14px] ${highlight ? 'text-white' : 'text-stone-900'}`}>{title}</div>
       <div className={`text-[11px] mt-0.5 leading-snug ${highlight ? 'text-stone-300' : 'text-stone-500'}`}>{desc}</div>
     </button>
   );
+
+  const renderComplaint = () => {
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const escalLookup = {
+      vulnerable: 'Vulnerable customer', highvalue: 'High-value redress',
+      regulatory: 'Regulatory reportable', fraud: 'Fraud / APP scam',
+      legal: 'Legal threat', media: 'Media risk', board: 'Board referral', repeat: 'Repeat complainant',
+    };
+    const escalLevel = complaintEscalFlags.includes('legal') || complaintEscalFlags.includes('board')
+      ? 'Executive / Legal'
+      : complaintEscalFlags.some(f => ['regulatory', 'media'].includes(f))
+        ? 'Compliance team'
+        : complaintEscalFlags.some(f => ['highvalue', 'vulnerable', 'fraud'].includes(f))
+          ? 'Senior Handler'
+          : 'Standard Handler';
+    const escalColour = escalLevel === 'Executive / Legal' ? 'bg-red-50 border-red-300 text-red-900'
+      : escalLevel === 'Compliance team' ? 'bg-amber-50 border-amber-300 text-amber-900'
+      : escalLevel === 'Senior Handler' ? 'bg-stone-100 border-stone-300 text-stone-800'
+      : 'bg-emerald-50 border-emerald-200 text-emerald-900';
+    const next = () => {
+      if (step === 3) {
+        fireToast('Case COMP-2026-0041 closed · Not upheld · FOS referral notice issued');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const titles = ['Complaint intake', 'Escalation triage', 'Decision — not upheld', 'Case outcome'];
+    const subs = [
+      'Log and check eligibility · FCA DISP 1.3',
+      'Assess severity and routing · FCA DISP 1.4',
+      'Record reasons and issue FOS rights · FCA DISP 1.6',
+      'COMP-2026-0041 · final response ready',
+    ];
+    const step0Disabled = !complaintName.trim() || !complaintChannel || !complaintCategory || !complaintEligible;
+    return (
+      <StepFrame onClose={closeWorkflow}
+        title={titles[step]} sub={subs[step]}
+        total={4} current={step}
+        onBack={back} onNext={next}
+        nextLabel={step === 3 ? 'Close case' : 'Continue'}
+        nextDisabled={step === 0 ? step0Disabled : step === 2 ? !complaintDenialReason : false}
+        replaces={{ form: 'Paper complaint form · postal follow-up rounds', savings: 'Digital log · instant triage · FCA DISP compliant' }}
+      >
+        {step === 0 && (
+          <div className="space-y-5">
+            <div className="bg-stone-900 rounded-2xl p-4 text-white">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-1">Case reference</div>
+              <div className="font-mono text-lg font-medium">COMP-2026-0041</div>
+              <div className="text-[11px] text-stone-500 mt-1.5">Received 25 Jun 2026 · D+56 deadline: 20 Aug 2026</div>
+            </div>
+            <Field label="Complainant name">
+              <Input value={complaintName} onChange={setComplaintName} placeholder="Full name or business name" />
+            </Field>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">How received</div>
+              <div className="grid grid-cols-3 gap-2">
+                {['Branch', 'Phone', 'Email', 'App', 'Letter', 'Social'].map(ch => (
+                  <button key={ch} onClick={() => setComplaintChannel(ch)}
+                    className={`py-2.5 rounded-xl text-xs font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintChannel === ch ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400'}`}>{ch}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Complaint category</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'service', label: 'Poor service', desc: 'Delays, errors, unhelpful response' },
+                  { id: 'regulatory', label: 'Regulatory / compliance', desc: 'Mis-selling, unfair treatment, Principle breach' },
+                  { id: 'fraud', label: 'Fraud or scam', desc: 'Unauthorised transaction, APP fraud not reimbursed' },
+                  { id: 'conduct', label: 'Staff conduct', desc: 'Behaviour, discrimination, communication' },
+                  { id: 'accessibility', label: 'Accessibility', desc: 'Reasonable adjustments not made' },
+                  { id: 'product', label: 'Product or charges', desc: 'Unfair fees, wrong rate, suitability' },
+                ].map(cat => (
+                  <button key={cat.id} onClick={() => setComplaintCategory(cat.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintCategory === cat.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                    <div className="font-medium">{cat.label}</div>
+                    <div className={`mt-0.5 ${complaintCategory === cat.id ? 'text-stone-500' : 'text-stone-500'}`}>{cat.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Eligible complainant? (DISP 2.7)</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'individual', label: 'Individual / sole trader' },
+                  { id: 'micro', label: 'Micro-enterprise (< 10 staff · < £2m turnover)' },
+                  { id: 'charity', label: 'Charity (annual income < £1m)' },
+                  { id: 'trust', label: 'Small trust (net assets < £1m)' },
+                  { id: 'not-eligible', label: 'Not eligible — large corporate / institution' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setComplaintEligible(opt.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${
+                      complaintEligible === opt.id
+                        ? (opt.id === 'not-eligible' ? 'bg-amber-50 border-amber-400 text-amber-900' : 'bg-stone-900 text-white border-stone-900')
+                        : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'
+                    }`}>{opt.label}</button>
+                ))}
+              </div>
+              {complaintEligible === 'not-eligible' && (
+                <div className="mt-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                  <strong>Non-eligible complainant.</strong> FCA DISP procedures are not mandatory but Consumer Duty obligations still apply. Log and respond as standard.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-5">
+            <div className={`p-4 rounded-2xl border ${escalColour}`}>
+              <div className="text-[10px] uppercase tracking-[0.18em] mb-1 opacity-70">Escalation level</div>
+              <div className="font-medium text-base">{escalLevel}</div>
+              {complaintEscalFlags.length === 0
+                ? <div className="text-xs mt-1 opacity-70">No escalation flags selected — standard handler queue</div>
+                : <div className="text-xs mt-1.5 opacity-80">{complaintEscalFlags.map(f => escalLookup[f]).join(' · ')}</div>
+              }
+            </div>
+            <div className="bg-stone-50 rounded-xl px-4 py-3 text-xs text-stone-600 leading-relaxed border border-stone-200">
+              <strong className="text-stone-800">FCA DISP deadlines.</strong> Resolve within <strong>3 business days</strong> (summary resolution, no letter needed) or acknowledge within <strong>5 business days</strong> and issue final response within <strong>8 weeks</strong> (D+56 · <span className="font-mono">20 Aug 2026</span>). After D+56 or if unsatisfied, complainant may refer to FOS.
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Severity flags — tick all that apply</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'vulnerable', label: 'Vulnerable customer', desc: 'Mental health, bereavement, financial difficulty, age-related' },
+                  { id: 'highvalue', label: 'High-value redress likely', desc: '>£500 compensation or refund' },
+                  { id: 'regulatory', label: 'Regulatory / FCA reportable', desc: 'COBS, BCOBS, Principle 6 or Consumer Duty breach' },
+                  { id: 'fraud', label: 'Fraud / APP scam linked', desc: 'Unauthorised payment or PS23/3 potential mis-handling' },
+                  { id: 'legal', label: 'Legal threat received', desc: 'Solicitor letter or court action threatened' },
+                  { id: 'media', label: 'Media or reputational risk', desc: 'Social media, press enquiry, influencer involvement' },
+                  { id: 'board', label: 'Board or executive referral', desc: 'CEO / Chair office, NED involvement' },
+                  { id: 'repeat', label: 'Repeat complainant', desc: 'Same issue previously investigated and closed' },
+                ].map(flag => {
+                  const active = complaintEscalFlags.includes(flag.id);
+                  return (
+                    <button key={flag.id} onClick={() => setComplaintEscalFlags(prev =>
+                      prev.includes(flag.id) ? prev.filter(f => f !== flag.id) : [...prev, flag.id]
+                    )}
+                      className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 flex items-start gap-3 ${active ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                      <div className={`w-4 h-4 rounded flex-shrink-0 mt-0.5 border flex items-center justify-center ${active ? 'bg-white/20 border-white/40' : 'border-stone-300'}`}>
+                        {active && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <div>
+                        <div className="font-medium">{flag.label}</div>
+                        <div className={active ? 'text-stone-500 mt-0.5' : 'text-stone-500 mt-0.5'}>{flag.desc}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-5">
+            <div className="bg-stone-50 rounded-xl px-4 py-3 text-xs text-stone-600 leading-relaxed border border-stone-200">
+              <strong className="text-stone-800">Not upholding — regulatory requirements.</strong> A final response letter must be issued explaining why the complaint is not upheld, any redress offered, and the FOS referral notice with the 6-month window. (FCA DISP 1.6.2R)
+            </div>
+            <div>
+              <div className="text-xs font-medium text-stone-700 mb-2 uppercase tracking-wider">Reason not upheld</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'no-evidence', label: 'No evidence of service failure', desc: 'Our records confirm the service was delivered correctly and within agreed terms.' },
+                  { id: 'terms', label: 'Action within terms & conditions', desc: 'The action complained about was permitted under the terms agreed at account opening.' },
+                  { id: 'time-barred', label: 'Time-barred', desc: '>6 years since the event, or >3 years since the customer should reasonably have known (DISP 2.8.2R).' },
+                  { id: 'not-eligible', label: 'Not an eligible complainant', desc: 'The complainant does not meet the FCA DISP 2.7 eligible complainant definition.' },
+                  { id: 'duplicate', label: 'Duplicate — already investigated', desc: 'A final response was previously issued for this exact matter.' },
+                  { id: 'third-party', label: 'Third-party responsibility', desc: 'The complained-about event was caused by a third party outside our control.' },
+                  { id: 'out-of-scope', label: 'Outside regulatory perimeter', desc: 'The subject matter falls outside FCA regulation and our DISP obligations.' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => setComplaintDenialReason(opt.id)}
+                    className={`w-full text-left p-3 rounded-xl border text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${complaintDenialReason === opt.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white border-stone-200 hover:border-stone-300 text-stone-700'}`}>
+                    <div className="font-medium">{opt.label}</div>
+                    <div className={`mt-0.5 ${complaintDenialReason === opt.id ? 'text-stone-500' : 'text-stone-500'}`}>{opt.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Toggle label="Offer goodwill gesture despite not upholding"
+              value={complaintGoodwill} onChange={setComplaintGoodwill}
+              sub="Ex-gratia gesture — does not constitute admission of liability" />
+          </div>
+        )}
+        {step === 3 && (
+          <div className="space-y-5">
+            <div className="bg-stone-900 rounded-2xl p-4 text-white space-y-3">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Case reference</div>
+                <div className="font-mono font-medium">COMP-2026-0041</div>
+              </div>
+              <div className="border-t border-white/10 pt-3 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Complainant</div>
+                  <div className="font-medium">{complaintName || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Received via</div>
+                  <div className="font-medium">{complaintChannel || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Category</div>
+                  <div className="font-medium capitalize">{complaintCategory || '—'}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Decision</div>
+                  <div className="font-medium text-red-300">Not upheld</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 mb-0.5">Escalation</div>
+                  <div className="font-medium">{escalLevel}</div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex gap-3">
+              <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <strong>FOS referral notice — mandatory.</strong> The final response letter must advise the complainant they may refer to the <strong>Financial Ombudsman Service</strong> within <strong>6 months</strong> of this response. FOS: 0800 023 4567 · financial-ombudsman.org.uk
+              </div>
+            </div>
+            {complaintGoodwill && (
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-700">
+                <strong>Goodwill gesture noted.</strong> Record any ex-gratia payment separately. Does not constitute admission of liability.
+              </div>
+            )}
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-600 leading-relaxed">
+              <strong className="text-stone-800">FCA DISP 1.10 reporting.</strong> This case is included in the next half-yearly aggregate complaints return. Apply root cause code before closure.
+            </div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderRecurring = () => {
+    // Active recurring payments on the account (demo data)
+    const directDebits = [
+      { id: 'dd1', name: 'British Gas Business', ref: 'Energy · A/C 8841-220', amount: 340.00, freq: 'Monthly', next: '3 Oct', protected: true },
+      { id: 'dd2', name: 'Sage Accounting', ref: 'Software subscription', amount: 79.00, freq: 'Monthly', next: '12 Oct', protected: true },
+      { id: 'dd3', name: 'Aviva Insurance', ref: 'Commercial cover', amount: 512.40, freq: 'Quarterly', next: '1 Nov', protected: true },
+    ];
+    const standingOrders = [
+      { id: 'so1', name: 'Pendle Estates', ref: 'Office rent', amount: 2400.00, freq: 'Monthly', next: '1 Oct' },
+      { id: 'so2', name: 'NEST Pensions', ref: 'Employer contributions', amount: 1150.00, freq: 'Monthly', next: '28 Sep' },
+    ];
+
+    const a = recurringAction;
+    const stepDefs = [{ id: 'overview', t: 'Recurring payments', s: 'Direct Debits and standing orders' }];
+    if (a === 'new-so') {
+      stepDefs.push({ id: 'payee', t: 'Who are you paying?', s: 'You control standing orders — push, not pull' });
+      stepDefs.push({ id: 'details', t: 'Amount & schedule', s: 'Fixed amount on a fixed date' });
+      stepDefs.push({ id: 'review', t: 'Review & authorise', s: 'Confirm the standing order' });
+    } else if (a === 'cancel-dd') {
+      stepDefs.push({ id: 'choose', t: 'Cancel a Direct Debit', s: 'Select the one to stop' });
+      stepDefs.push({ id: 'confirm', t: 'Direct Debit Guarantee', s: 'Your protection explained' });
+    }
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        if (a === 'new-so') fireToast('Standing order set up. First payment scheduled — confirmation in your audit log.');
+        else if (a === 'cancel-dd') fireToast("Direct Debit cancelled. We'll notify the originator. You're covered by the Guarantee.");
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'overview') return !!a;
+      if (sd.id === 'payee') return soPayee && soSortCode && soAcct;
+      if (sd.id === 'details') return soAmount && soStartDate;
+      if (sd.id === 'choose') return !!cancelDdId;
+      if (sd.id === 'confirm') return recurringConfirm;
+      return true;
+    };
+
+    const freqOpts = [
+      { id: 'weekly', label: 'Weekly' }, { id: 'monthly', label: 'Monthly' },
+      { id: 'quarterly', label: 'Quarterly' }, { id: 'annually', label: 'Annually' },
+    ];
+    const chosenDd = directDebits.find(d => d.id === cancelDdId);
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Authorise' : sd.id === 'confirm' ? 'Cancel Direct Debit' : 'Continue'}
+        replaces={{ form: 'Paper standing-order mandate / DDM cancellation letter', savings: 'Self-serve · instant · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'overview' && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <RefreshCw className="w-4 h-4 text-blue-600" />
+                <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Direct Debits · {directDebits.length}</span>
+              </div>
+              <div className="space-y-2">
+                {directDebits.map(d => (
+                  <div key={d.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-stone-200">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900 truncate">{d.name}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{d.ref} · {d.freq} · next {d.next}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <div className="font-mono text-sm num-tab">{fmt(d.amount)}</div>
+                      <div className="text-[10px] text-blue-600 inline-flex items-center gap-0.5"><ShieldCheck className="w-3 h-3" /> Guaranteed</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-indigo-600" />
+                <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Standing Orders · {standingOrders.length}</span>
+              </div>
+              <div className="space-y-2">
+                {standingOrders.map(o => (
+                  <div key={o.id} className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-stone-200">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900 truncate">{o.name}</div>
+                      <div className="text-[11px] text-stone-500 mt-0.5">{o.ref} · {o.freq} · next {o.next}</div>
+                    </div>
+                    <div className="font-mono text-sm num-tab flex-shrink-0 ml-3">{fmt(o.amount)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="pt-1">
+              <div className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-2">What would you like to do?</div>
+              <div className="space-y-2">
+                {[
+                  { id: 'new-so', label: 'Set up a standing order', desc: 'Pay a fixed amount on a fixed date', icon: Calendar },
+                  { id: 'cancel-dd', label: 'Cancel a Direct Debit', desc: "Stop a payment you're being charged", icon: X },
+                ].map(o => {
+                  const I = o.icon;
+                  return (
+                    <button key={o.id} onClick={() => setRecurringAction(o.id)}
+                      className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${a === o.id ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                      <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><I className="w-4 h-4" /></div>
+                      <div><div className="font-medium text-sm">{o.label}</div><div className="text-xs text-stone-500 mt-0.5">{o.desc}</div></div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'payee' && (
+          <div className="space-y-4">
+            <Field label="Payee name"><Input value={soPayee} onChange={setSoPayee} placeholder="e.g. Pendle Estates" /></Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Sort code"><Input value={soSortCode} onChange={setSoSortCode} placeholder="20-32-71" /></Field>
+              <Field label="Account number"><Input value={soAcct} onChange={setSoAcct} placeholder="12345678" /></Field>
+            </div>
+            <Field label="Reference (optional)"><Input value={soReference} onChange={setSoReference} placeholder="Shown on their statement" /></Field>
+            <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-900 text-xs leading-relaxed flex gap-2">
+              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>We'll run a <strong>Confirmation of Payee</strong> check on the name before the first payment leaves.</span>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'details' && (
+          <div className="space-y-4">
+            <Field label="Amount"><Input value={soAmount} onChange={setSoAmount} placeholder="0.00" /></Field>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Frequency</div>
+              <div className="grid grid-cols-2 gap-2">
+                {freqOpts.map(f => (
+                  <button key={f.id} onClick={() => setSoFrequency(f.id)}
+                    className={`p-3 rounded-xl border text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${soFrequency === f.id ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200'}`}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Field label="First payment date"><Input type="date" value={soStartDate} onChange={setSoStartDate} /></Field>
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              A standing order pays a <strong>fixed amount</strong> you set. You can change or cancel it anytime — no one else can vary it.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Payee', soPayee || '—'],
+                ['Account', soSortCode && soAcct ? `${soSortCode} · ${soAcct}` : '—'],
+                ['Amount', soAmount ? fmt(parseFloat(soAmount) || 0) : '—'],
+                ['Frequency', freqOpts.find(f => f.id === soFrequency)?.label || '—'],
+                ['First payment', soStartDate || '—'],
+                ['Reference', soReference || '—'],
+              ].map(([k, v], i) => (
+                <div key={k} className={`flex justify-between px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-stone-50'}`}>
+                  <span className="text-stone-500">{k}</span><span className="font-medium text-right">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-900 text-white">
+              <div className="flex items-center gap-2 mb-1.5"><FileSignature className="w-4 h-4" /><span className="text-xs uppercase tracking-wider">Authorisation</span></div>
+              <div className="text-sm leading-relaxed">I authorise Santander to set up this standing order and make payments as instructed above.</div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'choose' && (
+          <div className="space-y-2">
+            {directDebits.map(d => (
+              <button key={d.id} onClick={() => setCancelDdId(d.id)}
+                className={`w-full text-left p-4 rounded-2xl border flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${cancelDdId === d.id ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{d.name}</div>
+                  <div className="text-[11px] text-stone-500 mt-0.5">{d.ref} · {d.freq} · next {d.next}</div>
+                </div>
+                <div className="font-mono text-sm num-tab flex-shrink-0 ml-3">{fmt(d.amount)}</div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {sd.id === 'confirm' && (
+          <div className="space-y-4">
+            {chosenDd && (
+              <div className="p-4 rounded-2xl bg-white border border-stone-200">
+                <div className="text-xs text-stone-500 mb-0.5">Cancelling</div>
+                <div className="font-medium">{chosenDd.name} · {fmt(chosenDd.amount)} {chosenDd.freq.toLowerCase()}</div>
+              </div>
+            )}
+            <div className="p-4 rounded-2xl bg-blue-50 text-blue-900">
+              <div className="flex items-center gap-2 mb-2"><ShieldCheck className="w-4 h-4" /><span className="text-xs uppercase tracking-wider font-medium">The Direct Debit Guarantee</span></div>
+              <ul className="text-xs leading-relaxed space-y-1.5 list-disc pl-4">
+                <li>Cancelling here stops Santander taking future payments — we'll also tell the originator, but you should contact them too.</li>
+                <li>If an error is ever made by the originator or the bank, you're entitled to an <strong>immediate refund</strong> from Santander.</li>
+                <li>This won't cancel your contract with the company — any sum still owed remains due.</li>
+              </ul>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={recurringConfirm} onChange={e => setRecurringConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#EC0000]" />
+              <span className="text-sm text-stone-700">I understand and want to cancel this Direct Debit.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderDispute = () => {
+    const methodLabel = { card: 'Card', dd: 'Direct Debit', fp: 'Faster Payment', bacs: 'Bacs', so: 'Standing order', chaps: 'CHAPS', transfer: 'Transfer', cheque: 'Cheque' };
+    const recentDebits = statementsData.filter(t => t.amount < 0).slice(0, 10);
+    const chosen = statementsData.find(t => t.id === disputeTxnId) || null;
+    const isFraud = disputeReason === 'unauthorised';
+    const prettyDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const reasons = [
+      { id: 'unauthorised',  label: "I didn't make this payment", desc: 'Fraud or a payment you never authorised', icon: ShieldAlert },
+      { id: 'not-received',  label: 'Goods or service not received', desc: 'You paid but nothing arrived', icon: Archive },
+      { id: 'faulty',        label: 'Faulty, damaged or not as described', desc: "It wasn't what you were promised", icon: AlertTriangle },
+      { id: 'duplicate',     label: 'Charged more than once', desc: 'A duplicate of a payment you already made', icon: RefreshCw },
+      { id: 'wrong-amount',  label: 'Wrong amount taken', desc: 'You were charged a different amount', icon: Calculator },
+      { id: 'subscription',  label: 'Subscription I cancelled', desc: 'A recurring charge after you cancelled', icon: X },
+    ];
+
+    const stepDefs = [
+      { id: 'select', t: 'Which payment?', s: 'Pick the transaction to dispute' },
+      { id: 'reason', t: 'What went wrong?', s: 'This tells us the fastest route to your money' },
+      { id: 'details', t: 'Tell us more', s: 'Evidence speeds up your claim' },
+      { id: 'review', t: 'Review & submit', s: 'Confirm your dispute' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const outcome = () => {
+      if (isFraud) return 'Under PSR 2017 we’ll refund unauthorised payments by the end of the next business day while we investigate. Where needed, freeze the card from the Cards screen.';
+      if (chosen && chosen.method === 'dd') return 'Direct Debit Guarantee — we’ve credited the full amount immediately and will recover it from the originator.';
+      return 'Chargeback raised. We’ve applied a provisional credit while the merchant responds — usually within 45 days.';
+    };
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(isFraud
+          ? 'Dispute raised · provisional refund by next business day · logged to audit trail'
+          : chosen && chosen.method === 'dd'
+            ? 'Refunded under the Direct Debit Guarantee · logged to audit trail'
+            : 'Chargeback raised · provisional credit applied · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'select') return !!disputeTxnId;
+      if (sd.id === 'reason') return !!disputeReason;
+      if (sd.id === 'details') return isFraud ? true : disputeMerchantTried;
+      if (sd.id === 'review') return disputeConfirm;
+      return true;
+    };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Submit dispute' : 'Continue'}
+        replaces={{ form: 'Paper dispute form + call-centre queue', savings: 'Self-serve · provisional refund · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'select' && (
+          <div className="space-y-2">
+            {recentDebits.map(t => {
+              const on = disputeTxnId === t.id;
+              return (
+                <button key={t.id} onClick={() => setDisputeTxnId(t.id)}
+                  className={`w-full text-left p-3.5 rounded-2xl border flex items-center justify-between gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm text-stone-900 truncate">{t.desc}</div>
+                    <div className="text-[11px] text-stone-500 mt-0.5">{prettyDate(t.date)} · {methodLabel[t.method] || t.method}</div>
+                  </div>
+                  <div className="font-mono text-sm num-tab flex-shrink-0">{fmt(Math.abs(t.amount))}</div>
+                </button>
+              );
+            })}
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              Disputing isn’t the same as <strong>logging a complaint</strong> — this is about getting a payment back. For service issues, use Log a complaint.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'reason' && (
+          <div className="space-y-2">
+            {reasons.map(r => {
+              const on = disputeReason === r.id;
+              const I = r.icon;
+              return (
+                <button key={r.id} onClick={() => setDisputeReason(r.id)}
+                  className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                  <div><div className="font-medium text-sm">{r.label}</div><div className="text-xs text-stone-500 mt-0.5">{r.desc}</div></div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'details' && (
+          <div className="space-y-4">
+            {isFraud ? (
+              <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 flex gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="text-[12px] text-red-900 leading-relaxed">
+                  If you think your card is compromised, <strong>freeze it now</strong> from the Cards screen. We’ll refund unauthorised payments by the end of the next business day under PSR 2017.
+                </div>
+              </div>
+            ) : (
+              <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+                <input type="checkbox" checked={disputeMerchantTried} onChange={e => setDisputeMerchantTried(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#EC0000]" />
+                <span className="text-sm text-stone-700">I’ve already contacted the merchant to try to resolve it. <span className="text-stone-500">(Card scheme rules ask you to try first.)</span></span>
+              </label>
+            )}
+            <Field label="What happened? (optional)">
+              <Input value={disputeDetail} onChange={setDisputeDetail} placeholder="A short description helps us investigate" />
+            </Field>
+            <button onClick={() => setDisputeEvidenceUp(true)}
+              className={`w-full p-4 rounded-2xl border-2 border-dashed flex items-center gap-3 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${disputeEvidenceUp ? 'border-emerald-400 bg-emerald-50/50' : 'border-stone-300 hover:border-stone-400'}`}>
+              {disputeEvidenceUp
+                ? <CircleCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                : <Upload className="w-5 h-5 text-stone-500 flex-shrink-0" />}
+              <div className="text-left">
+                <div className={`text-sm font-medium ${disputeEvidenceUp ? 'text-emerald-700' : 'text-stone-700'}`}>
+                  {disputeEvidenceUp ? 'Evidence uploaded' : 'Upload supporting evidence'}
+                </div>
+                <div className="text-[11px] text-stone-500">Receipts, emails, order confirmations, cancellation proof</div>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Payment', chosen ? chosen.desc : '—'],
+                ['Amount', chosen ? fmt(Math.abs(chosen.amount)) : '—'],
+                ['Date', chosen ? prettyDate(chosen.date) : '—'],
+                ['Method', chosen ? (methodLabel[chosen.method] || chosen.method) : '—'],
+                ['Reason', reasons.find(r => r.id === disputeReason)?.label || '—'],
+                ['Evidence', disputeEvidenceUp ? 'Attached' : 'None attached'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0">
+                  <span className="text-xs text-stone-500">{k}</span>
+                  <span className={`text-sm font-medium text-stone-900 text-right ml-3 ${k === 'Amount' ? 'font-mono num-tab' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className={`p-3.5 rounded-2xl text-xs leading-relaxed flex gap-2 ${isFraud ? 'bg-red-50 text-red-900' : chosen && chosen.method === 'dd' ? 'bg-emerald-50 text-emerald-900' : 'bg-indigo-50 text-indigo-900'}`}>
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{outcome()}</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={disputeConfirm} onChange={e => setDisputeConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#EC0000]" />
+              <span className="text-sm text-stone-700">The information I’ve given is true and complete to the best of my knowledge.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderBeneficiary = () => {
+    const COUNTRIES = [
+      { code: 'FR', name: 'France',        ccy: 'EUR', scheme: 'iban' },
+      { code: 'DE', name: 'Germany',       ccy: 'EUR', scheme: 'iban' },
+      { code: 'ES', name: 'Spain',         ccy: 'EUR', scheme: 'iban' },
+      { code: 'US', name: 'United States', ccy: 'USD', scheme: 'aba'  },
+      { code: 'CH', name: 'Switzerland',   ccy: 'CHF', scheme: 'iban' },
+      { code: 'IN', name: 'India',         ccy: 'INR', scheme: 'ifsc' },
+    ];
+    const PURPOSES = ['Goods / trade', 'Professional services', 'Intercompany transfer', 'Salary / payroll', 'Property purchase', 'Other'];
+    const country = COUNTRIES.find(c => c.code === benCountry) || null;
+    const accountLabel = !country ? 'IBAN / account number'
+      : country.scheme === 'iban' ? 'IBAN'
+      : country.scheme === 'ifsc' ? 'Account number (+ IFSC)'
+      : 'Account number (+ ABA routing)';
+    const checks = [
+      { label: 'Sanctions lists', sub: 'OFSI · OFAC · UN · EU consolidated', result: 'Clear' },
+      { label: 'PEP screening', sub: 'Politically exposed persons', result: 'Clear' },
+      { label: 'Adverse media', sub: 'Financial-crime press check', result: 'Clear' },
+      { label: 'Confirmation of Payee', sub: 'Account-name match', result: 'Matched' },
+    ];
+
+    const stepDefs = [
+      { id: 'who', t: 'Who are you paying?', s: 'Add an overseas beneficiary' },
+      { id: 'account', t: 'Their account', s: 'Where the money will go' },
+      { id: 'screen', t: 'Purpose & screening', s: 'Required checks before the first payment' },
+      { id: 'review', t: 'Review & add', s: 'Confirm the beneficiary' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(`${benName || 'Beneficiary'} added and screened — ready for international payments · logged to audit trail`);
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'who') return benName && benCountry && benBank;
+      if (sd.id === 'account') return benAccount && benSwift && benAddress;
+      if (sd.id === 'screen') return benPurpose && benScreened;
+      if (sd.id === 'review') return benConfirm;
+      return true;
+    };
+
+    // Editing any identity detail invalidates a prior screening pass —
+    // the checks must match exactly what gets added (sanctions/CoP integrity).
+    const withRescreen = (setter) => (v) => { setter(v); if (benScreened) setBenScreened(false); };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Add beneficiary' : 'Continue'}
+        replaces={{ form: 'Faxed IBAN + wet-ink beneficiary verification', savings: 'Screened & verified in-app · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'who' && (
+          <div className="space-y-4">
+            <Field label="Beneficiary name"><Input value={benName} onChange={withRescreen(setBenName)} placeholder="Exact name on their account" /></Field>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Country</div>
+              <div className="grid grid-cols-3 gap-2">
+                {COUNTRIES.map(c => (
+                  <button key={c.code} onClick={() => { setBenCountry(c.code); if (benScreened) setBenScreened(false); }}
+                    className={`p-3 rounded-xl border text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benCountry === c.code ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                    <div className="text-sm font-medium text-stone-900">{c.code}</div>
+                    <div className="text-[10px] text-stone-500 mt-0.5">{c.name}</div>
+                  </button>
+                ))}
+              </div>
+              {country && <div className="text-[11px] text-stone-500 mt-2">Payments to {country.name} settle in <strong className="text-stone-700">{country.ccy}</strong>.</div>}
+            </div>
+            <Field label="Bank name"><Input value={benBank} onChange={withRescreen(setBenBank)} placeholder="e.g. BNP Paribas" /></Field>
+          </div>
+        )}
+
+        {sd.id === 'account' && (
+          <div className="space-y-4">
+            <Field label={accountLabel}><Input value={benAccount} onChange={withRescreen(setBenAccount)} placeholder={country && country.scheme === 'iban' ? 'FR76 3000 6000 0112 3456 7890 189' : 'Account number'} /></Field>
+            <Field label="SWIFT / BIC"><Input value={benSwift} onChange={withRescreen(setBenSwift)} placeholder="BNPAFRPPXXX" /></Field>
+            <Field label="Beneficiary address"><Input value={benAddress} onChange={withRescreen(setBenAddress)} placeholder="Street, city, country" /></Field>
+            <div className="p-3.5 rounded-2xl bg-indigo-50 text-indigo-900 text-xs leading-relaxed flex gap-2">
+              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Under the <strong>Funds Transfer Regulation</strong> we send the beneficiary’s name and address with the payment. Match them exactly to the account to avoid delays.</span>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'screen' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Purpose of payment</div>
+              <div className="grid grid-cols-2 gap-2">
+                {PURPOSES.map(p => (
+                  <button key={p} onClick={() => setBenPurpose(p)}
+                    className={`p-3 rounded-xl border text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose === p ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200 text-stone-700'}`}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {!benScreened ? (
+              <div className="p-4 rounded-2xl border border-stone-200 bg-white space-y-3">
+                <div className="flex gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-[12px] text-stone-600 leading-relaxed">
+                    We screen every new overseas payee against sanctions and PEP lists (<strong>Money Laundering Regulations 2017</strong>) and verify the account name. Required before your first payment.
+                  </div>
+                </div>
+                <button onClick={() => setBenScreened(true)} disabled={!benPurpose}
+                  className={`w-full py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${benPurpose ? 'bg-stone-900 text-white hover:bg-stone-800' : 'bg-stone-200 text-stone-500 cursor-default'}`}>
+                  <Search className="w-4 h-4" /> Run screening checks
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <CircleCheck className="w-4 h-4 text-emerald-600" />
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-emerald-700 font-medium">Screening complete · no matches</span>
+                </div>
+                {checks.map(c => (
+                  <div key={c.label} className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm text-stone-900">{c.label}</div>
+                      <div className="text-[11px] text-stone-500">{c.sub}</div>
+                    </div>
+                    <span className="text-[11px] font-medium text-emerald-700 inline-flex items-center gap-1 flex-shrink-0 ml-3"><Check className="w-3.5 h-3.5" /> {c.result}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Beneficiary', benName || '—'],
+                ['Country', country ? `${country.name} · ${country.ccy}` : '—'],
+                ['Bank', benBank || '—'],
+                [accountLabel, benAccount || '—'],
+                ['SWIFT / BIC', benSwift || '—'],
+                ['Purpose', benPurpose || '—'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0 gap-3">
+                  <span className="text-xs text-stone-500 flex-shrink-0">{k}</span>
+                  <span className={`text-sm font-medium text-stone-900 text-right truncate ${k === accountLabel || k === 'SWIFT / BIC' ? 'font-mono num-tab' : ''}`}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Sanctions, PEP and Confirmation-of-Payee checks all passed. This beneficiary will be ready to pay as soon as you add them.</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={benConfirm} onChange={e => setBenConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#EC0000]" />
+              <span className="text-sm text-stone-700">I confirm these details are correct and this is a genuine beneficiary.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderCertificate = () => {
+    const TYPES = [
+      { id: 'balance', label: 'Certificate of balance', desc: 'Confirms your balances as at a chosen date', icon: FileText },
+      { id: 'reference', label: 'Bank reference', desc: 'Confirms your account relationship for a landlord or supplier', icon: Building2 },
+      { id: 'audit', label: "Auditor's confirmation", desc: 'Formal year-end letter addressed to your accountant', icon: ShieldCheck },
+    ];
+    const PURPOSES = ['Mortgage / lending application', 'Landlord / lease', 'Supplier credit account', 'Grant / funding application', 'Visa / immigration', 'Auditor / year-end', 'Other'];
+    const DELIVERY = [
+      { id: 'download', label: 'Download now', sub: 'Sealed PDF, instantly', icon: FileText },
+      { id: 'email', label: 'Email to me', sub: 'To your registered address', icon: Mail },
+      { id: 'post', label: 'Post a stamped copy', sub: '3–5 working days', icon: MapPin },
+    ];
+    const typeMeta = TYPES.find(t => t.id === certType) || null;
+    const selected = accounts.filter(a => certAccounts.includes(a.no));
+    const totalBal = selected.reduce((s, a) => s + a.balance, 0);
+    const prettyDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    const issuedOn = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const certRef = `SBB/${(entityType || 'biz').slice(0, 3).toUpperCase()}/${(certDate || '').replace(/-/g, '')}/${selected.length}A`;
+
+    const toggleAcct = (no) => setCertAccounts(prev => prev.includes(no) ? prev.filter(x => x !== no) : [...prev, no]);
+
+    const stepDefs = [
+      { id: 'type', t: 'What do you need?', s: 'Choose the document' },
+      { id: 'scope', t: 'Accounts & date', s: 'What the certificate covers' },
+      { id: 'options', t: 'Purpose & delivery', s: 'Where it goes and why' },
+      { id: 'issued', t: 'Your certificate', s: 'Issued and sealed' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(certDelivery === 'download' ? 'Certificate downloaded · logged to audit trail'
+          : certDelivery === 'email' ? 'Certificate emailed to your registered address · logged to audit trail'
+          : 'Stamped copy posted — arrives in 3–5 working days · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+
+    const canProceed = () => {
+      if (sd.id === 'type') return !!certType;
+      if (sd.id === 'scope') return certAccounts.length > 0 && certDate;
+      if (sd.id === 'options') return certPurpose && certDelivery;
+      return true;
+    };
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'options' ? 'Generate certificate' : sd.id === 'issued' ? 'Done' : 'Continue'}
+        replaces={{ form: 'Written branch request + 5-day postal wait', savings: 'Sealed & issued instantly · logged to audit trail' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'type' && (
+          <div className="space-y-2">
+            {TYPES.map(t => {
+              const on = certType === t.id;
+              const I = t.icon;
+              return (
+                <button key={t.id} onClick={() => setCertType(t.id)}
+                  className={`w-full text-left p-4 rounded-2xl border flex gap-3 items-start focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                  <div><div className="font-medium text-sm">{t.label}</div><div className="text-xs text-stone-500 mt-0.5">{t.desc}</div></div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'scope' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Accounts to include</div>
+              <div className="space-y-2">
+                {accounts.map(a => {
+                  const on = certAccounts.includes(a.no);
+                  return (
+                    <button key={a.no} onClick={() => toggleAcct(a.no)}
+                      className={`w-full text-left p-3.5 rounded-2xl border flex items-center justify-between gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-300'}`}>{on && <Check className="w-3.5 h-3.5" />}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm text-stone-900 truncate">{a.name}{a.status === 'dormant' && <span className="text-[10px] text-stone-500 ml-1.5">dormant</span>}</div>
+                          <div className="font-mono text-[11px] text-stone-500">{a.sortCode} · {a.no}</div>
+                        </div>
+                      </div>
+                      <div className="font-mono text-sm num-tab flex-shrink-0">{fmt(a.balance)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <Field label="Balances as at"><Input type="date" value={certDate} onChange={setCertDate} /></Field>
+          </div>
+        )}
+
+        {sd.id === 'options' && (
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Purpose</div>
+              <div className="grid grid-cols-2 gap-2">
+                {PURPOSES.map(p => (
+                  <button key={p} onClick={() => setCertPurpose(p)}
+                    className={`p-3 rounded-xl border text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${certPurpose === p ? 'border-stone-900 bg-stone-50 font-medium' : 'border-stone-200 text-stone-700'}`}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-stone-500 mb-1.5">Delivery</div>
+              <div className="space-y-2">
+                {DELIVERY.map(d => {
+                  const on = certDelivery === d.id;
+                  const I = d.icon;
+                  return (
+                    <button key={d.id} onClick={() => setCertDelivery(d.id)}
+                      className={`w-full text-left p-3.5 rounded-2xl border flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${on ? 'border-stone-900 bg-stone-50' : 'border-stone-200'}`}>
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${on ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}><I className="w-4 h-4" /></div>
+                      <div><div className="font-medium text-sm">{d.label}</div><div className="text-[11px] text-stone-500">{d.sub}</div></div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'issued' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden bg-white">
+              <div className="red-bar h-1.5" />
+              <div className="p-5 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[15px] font-display text-stone-900">Santander</div>
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500">Business Banking</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase tracking-wider text-stone-500">Reference</div>
+                    <div className="font-mono text-[11px] num-tab text-stone-700">{certRef}</div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-stone-900">{typeMeta ? typeMeta.label : 'Certificate of balance'}</div>
+                <div className="text-[12px] text-stone-600 leading-relaxed">
+                  To whom it may concern,<br /><br />
+                  We confirm that as at <strong>{prettyDate(certDate)}</strong>, <strong>{entity.name}</strong>
+                  {entity.chNumber ? ` (Companies House no. ${entity.chNumber})` : entity.ccNumber ? ` (Registered charity no. ${entity.ccNumber})` : ''} held the following account{selected.length !== 1 ? 's' : ''} with Santander Business Banking:
+                </div>
+                <div className="rounded-xl border border-stone-200 overflow-hidden">
+                  {selected.map(a => (
+                    <div key={a.no} className="flex justify-between items-center px-3.5 py-2.5 border-b border-stone-100 last:border-0">
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-medium text-stone-900 truncate">{a.name}</div>
+                        <div className="font-mono text-[10px] text-stone-500">{a.sortCode} · {a.no}</div>
+                      </div>
+                      <div className="font-mono text-[13px] num-tab text-stone-900 flex-shrink-0 ml-3">{fmt(a.balance)}</div>
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center px-3.5 py-2.5 bg-stone-50">
+                    <div className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Total held</div>
+                    <div className="font-mono text-sm num-tab font-semibold text-stone-900">{fmt(totalBal)}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+                    <Award className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="text-[11px] text-stone-500 leading-relaxed">
+                    Issued electronically on {issuedOn}. This certificate is digitally sealed by Santander and is valid without a handwritten signature.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <CircleCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>{certDelivery === 'download' ? 'Ready to download as a sealed PDF.' : certDelivery === 'email' ? 'On its way to your registered email address.' : 'A stamped paper copy will be posted to your registered address.'}</span>
+            </div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  const renderTrusted = () => {
+    const devices = [
+      { id: 'd1', name: 'iPhone 15 Pro', os: 'iOS · Santander app', where: 'Edinburgh, UK', last: 'Active now', current: true },
+      { id: 'd2', name: 'MacBook Air', os: 'Safari · macOS', where: 'Edinburgh, UK', last: '2 hours ago' },
+      { id: 'd3', name: 'Chrome · Windows', os: 'Web banking', where: 'Edinburgh, UK', last: 'Yesterday, 18:33' },
+      { id: 'd4', name: 'Unrecognised Android', os: 'Web banking', where: 'London, UK', last: '3 days ago', flagged: true },
+    ];
+    const activity = [
+      { id: 'a1', when: 'Today, 09:14', where: 'Edinburgh, UK', device: 'iPhone 15 Pro', ok: true },
+      { id: 'a2', when: 'Today, 07:02', where: 'London, UK', device: 'Unrecognised Android', ok: false },
+      { id: 'a3', when: 'Yesterday, 18:33', where: 'Edinburgh, UK', device: 'MacBook Air', ok: true },
+      { id: 'a4', when: 'Mon, 08:47', where: 'Edinburgh, UK', device: 'iPhone 15 Pro', ok: true },
+    ];
+    const others = devices.filter(d => !d.current);
+    const revokedCount = tdRevoked.length;
+    const revokeDevice = (id) => setTdRevoked(prev => prev.includes(id) ? prev : [...prev, id]);
+
+    const stepDefs = [
+      { id: 'devices', t: 'Where you’re signed in', s: 'Active devices and sessions' },
+      { id: 'activity', t: 'Recent sign-ins', s: 'Last few logins to your account' },
+      { id: 'controls', t: 'Security preferences', s: 'How we protect access' },
+      { id: 'review', t: 'Review & apply', s: 'Confirm the changes' },
+    ];
+    const total = stepDefs.length;
+    const sd = stepDefs[step];
+
+    const next = () => {
+      if (step === total - 1) {
+        fireToast(tdSignOutOthers || revokedCount > 0
+          ? 'Other sessions signed out · security preferences saved · logged to audit trail'
+          : 'Security preferences saved · logged to audit trail');
+        closeWorkflow();
+      } else setStep(step + 1);
+    };
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const canProceed = () => (sd.id === 'review' ? tdConfirm : true);
+
+    return (
+      <StepFrame onClose={closeWorkflow} title={sd.t} sub={sd.s} total={total} current={step}
+        onBack={back} onNext={next}
+        nextLabel={sd.id === 'review' ? 'Apply & secure' : 'Continue'}
+        replaces={{ form: 'Branch visit to reset access / report a device', savings: 'Self-serve · instant sign-out · SCA-protected · logged' }}
+        nextDisabled={!canProceed()}
+      >
+        {sd.id === 'devices' && (
+          <div className="space-y-2">
+            {devices.map(d => {
+              const gone = tdRevoked.includes(d.id);
+              return (
+                <div key={d.id} className={`p-3.5 rounded-2xl border ${d.flagged && !gone ? 'border-red-200 bg-red-50/40' : 'border-stone-200 bg-white'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${d.flagged && !gone ? 'bg-red-100 text-red-600' : d.current ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                        {d.flagged && !gone ? <ShieldAlert className="w-4 h-4" /> : <Network className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm text-stone-900 truncate">{d.name}
+                          {d.current && <span className="text-[10px] text-emerald-700 ml-1.5">This device</span>}
+                        </div>
+                        <div className="text-[11px] text-stone-500 truncate">{d.os} · {d.where} · {d.last}</div>
+                      </div>
+                    </div>
+                    {d.current ? (
+                      <span className="text-[11px] text-stone-500 flex-shrink-0">Current</span>
+                    ) : gone ? (
+                      <span className="text-[11px] font-medium text-stone-500 flex-shrink-0">Signed out</span>
+                    ) : (
+                      <button onClick={() => revokeDevice(d.id)}
+                        className={`text-[11px] font-medium flex-shrink-0 px-3 py-1.5 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${d.flagged ? 'border-red-200 text-red-700 hover:bg-red-50' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}>
+                        Sign out
+                      </button>
+                    )}
+                  </div>
+                  {d.flagged && !gone && (
+                    <div className="mt-2.5 text-[11px] text-red-800 leading-relaxed flex gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                      <span>We don’t recognise this device. If it isn’t you, sign it out and change your credentials.</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {sd.id === 'activity' && (
+          <div className="space-y-2">
+            {activity.map(a => (
+              <div key={a.id} className="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-stone-200 bg-white">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${a.ok ? 'bg-stone-100 text-stone-500' : 'bg-red-100 text-red-600'}`}>
+                    {a.ok ? <Check className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm text-stone-900 truncate">{a.device}</div>
+                    <div className="text-[11px] text-stone-500 truncate">{a.when} · {a.where}</div>
+                  </div>
+                </div>
+                <span className={`text-[11px] font-medium flex-shrink-0 ${a.ok ? 'text-emerald-700' : 'text-red-700'}`}>{a.ok ? 'Recognised' : 'Review'}</span>
+              </div>
+            ))}
+            <div className="p-3.5 rounded-2xl bg-stone-100 text-stone-600 text-xs leading-relaxed">
+              Sign-ins are checked against your usual devices and locations. Anything unusual is flagged for review — under PSD2 Strong Customer Authentication.
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'controls' && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><Lock className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Require SCA on every login</div><div className="text-[11px] text-stone-500">Biometric or PIN each time · PSD2</div></div>
+              </div>
+              <Toggle value={tdRequireSca} onChange={setTdRequireSca} />
+            </div>
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center flex-shrink-0"><Bell className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Alert me on a new device</div><div className="text-[11px] text-stone-500">Push + email when a new device signs in</div></div>
+              </div>
+              <Toggle value={tdAlertNewDevice} onChange={setTdAlertNewDevice} />
+            </div>
+            <div className={`flex items-center justify-between p-3.5 rounded-2xl border ${tdSignOutOthers ? 'border-red-200 bg-red-50/40' : 'border-stone-200 bg-white'}`}>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tdSignOutOthers ? 'bg-red-100 text-red-600' : 'bg-stone-100 text-stone-500'}`}><ShieldCheck className="w-4 h-4" /></div>
+                <div className="min-w-0"><div className="font-medium text-sm text-stone-900">Sign out all other sessions</div><div className="text-[11px] text-stone-500">Keeps this device · ends {others.length} other{others.length === 1 ? '' : 's'}</div></div>
+              </div>
+              <Toggle value={tdSignOutOthers} onChange={setTdSignOutOthers} />
+            </div>
+          </div>
+        )}
+
+        {sd.id === 'review' && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-stone-200 overflow-hidden">
+              {[
+                ['Devices signed out', tdSignOutOthers ? `All others (${others.length})` : revokedCount > 0 ? `${revokedCount}` : 'None'],
+                ['SCA on every login', tdRequireSca ? 'On' : 'Off'],
+                ['New-device alerts', tdAlertNewDevice ? 'On' : 'Off'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center px-4 py-3 border-b border-stone-100 last:border-0 gap-3">
+                  <span className="text-xs text-stone-500">{k}</span>
+                  <span className="text-sm font-medium text-stone-900 text-right">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 text-xs leading-relaxed flex gap-2">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Signed-out devices must re-authenticate with Strong Customer Authentication to return. Changes are recorded in your security audit trail.</span>
+            </div>
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={tdConfirm} onChange={e => setTdConfirm(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#EC0000]" />
+              <span className="text-sm text-stone-700">Apply these changes to my account access.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
 
   const HomeScreen = () => (
     <div className="pb-24">
@@ -2858,16 +4247,16 @@ export default function App() {
       <div className="mx-5 mb-6 anim-fade stagger-1">
         <div className="relative overflow-hidden rounded-[28px] hero-card text-white lift-hero">
           <div className="absolute inset-0 grain pointer-events-none" />
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#c8102e]/30 blur-3xl anim-float" />
-          <div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-[#c8102e]/10 blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#EC0000]/30 blur-3xl anim-float" />
+          <div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-[#EC0000]/10 blur-3xl" />
           <div className="relative p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-400 font-medium">Total balance</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium">Total balance</div>
                 <div className="text-xs text-stone-500 mt-0.5">{entity.name}</div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-stone-400">{accounts.length} accounts</div>
+                <div className="text-[10px] uppercase tracking-wider text-stone-500">{accounts.length} accounts</div>
                 <div className="text-xs text-stone-500 mt-0.5">Sort code 09-01-29</div>
               </div>
             </div>
@@ -2898,25 +4287,25 @@ export default function App() {
               <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
                 <CalendarDays className="w-4 h-4" />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-amber-600 font-medium">In 3 days</span>
+              <span className="text-[10px] uppercase tracking-wider text-amber-700 font-medium">In 3 days</span>
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Payroll run · £42,180</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Balance covers it — review if payees changed</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Review payroll <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#CC0000] font-medium flex items-center gap-1">Review payroll <ArrowRight className="w-3 h-3" /></div>
           </button>
 
           {/* MTD deadline - red */}
           <button onClick={() => setTab('mtd')}
-            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-red-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+            className="flex-shrink-0 w-52 text-left bg-white rounded-2xl border border-red-200 p-4 lift-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000]">
             <div className="flex items-center gap-2 mb-2.5">
-              <div className="w-8 h-8 rounded-xl bg-red-50 text-[#c8102e] flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-red-50 text-[#CC0000] flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-[#c8102e] font-medium">22 days</span>
+              <span className="text-[10px] uppercase tracking-wider text-[#CC0000] font-medium">22 days</span>
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">VAT return due 7 Aug</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Q3 Making Tax Digital · HMRC submission</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Start now <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#CC0000] font-medium flex items-center gap-1">Start now <ArrowRight className="w-3 h-3" /></div>
           </button>
 
           {/* Companies House - blue */}
@@ -2930,20 +4319,20 @@ export default function App() {
             </div>
             <div className="font-medium text-sm text-stone-900 leading-snug mb-1">Annual confirmation due</div>
             <div className="text-[11px] text-stone-500 leading-relaxed mb-3">Companies House · {entity.name}</div>
-            <div className="text-[11px] text-[#c8102e] font-medium flex items-center gap-1">Run KYB check <ArrowRight className="w-3 h-3" /></div>
+            <div className="text-[11px] text-[#CC0000] font-medium flex items-center gap-1">Run KYB check <ArrowRight className="w-3 h-3" /></div>
           </button>
         </div>
       </div>
 
       {/* Demo controls */}
       <div className="px-5 mb-4 flex flex-wrap gap-1.5">
-        <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 inline-flex items-center gap-1">
+        <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 inline-flex items-center gap-1">
           {entity.label} <ChevronRight className="w-3 h-3" />
         </button>
-        <button onClick={() => startCooling({ type: 'Account closure', desc: 'Trading account ····2841', kind: 'closure' })} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+        <button onClick={() => startCooling({ type: 'Account closure', desc: 'Trading account ····2841', kind: 'closure' })} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100">
           Demo cooling-off
         </button>
-        <button onClick={() => stallRequest({ type: 'Mandate change', desc: 'Add Mark Patel · partner missed window' })} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+        <button onClick={() => stallRequest({ type: 'Mandate change', desc: 'Add Mark Patel · partner missed window' })} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100">
           Simulate timeout
         </button>
       </div>
@@ -2964,7 +4353,7 @@ export default function App() {
             <div className="flex gap-2 mt-3">
               <button onClick={() => setSessionAnomaly(false)} className="flex-1 py-2 text-xs font-medium text-amber-700 bg-amber-100 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500">This was me</button>
               <button onClick={() => { setShowVoiceSetup(true); setVoiceIdTab('status'); setSessionAnomaly(false); }}
-                className="flex-1 py-2 text-xs font-medium text-white bg-amber-600 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Review sessions</button>
+                className="flex-1 py-2 text-xs font-medium text-white bg-amber-700 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600">Review sessions</button>
             </div>
           </div>
         </div>
@@ -3089,19 +4478,19 @@ export default function App() {
       {currentVATObligation && (
         <div className="px-5 mb-6 anim-fade">
           <button onClick={() => setTab('mtd')} className="btn-primary w-full text-left rounded-2xl overflow-hidden border border-stone-200/80 lift-1 hover:lift-2 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#c8102e]/[0.06] via-stone-50 to-[#c8102e]/[0.03]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#EC0000]/[0.06] via-stone-50 to-[#EC0000]/[0.03]" />
             <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
-            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#c8102e]/10 blur-3xl pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#EC0000]/10 blur-3xl pointer-events-none" />
             <div className="relative p-4 pl-5 flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl santander-red text-white flex items-center justify-center flex-shrink-0 lift-2">
                 <Receipt className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">VAT due in {daysUntilDeadline} days · MTD</div>
+                <div className="text-[10px] uppercase tracking-[0.15em] text-[#CC0000] font-medium">VAT due in {daysUntilDeadline} days · MTD</div>
                 <div className="font-display-tight text-[17px] text-stone-900 mt-0.5 truncate">{fmt(currentVATObligation.vatDue)} owed to HMRC</div>
                 <div className="text-[11px] text-stone-600 mt-0.5 truncate">{transactionsToReview} transactions to review · {currentVATObligation.period}</div>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#c8102e] flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-[#CC0000] flex-shrink-0" />
             </div>
           </button>
         </div>
@@ -3117,7 +4506,7 @@ export default function App() {
             <div className="font-display-tight text-[17px] text-stone-900">3 paper forms retired</div>
             <div className="text-[11px] text-stone-600 mt-0.5">No more posting to Sunderland · 5 days → minutes</div>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-400" />
+          <ChevronRight className="w-4 h-4 text-stone-500" />
         </button>
       </div>
 
@@ -3126,10 +4515,10 @@ export default function App() {
         <div className="px-5 mb-7 anim-fade">
           <div className="flex items-end justify-between mb-3">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e]/80 font-medium mb-0.5">Action required</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#CC0000]/80 font-medium mb-0.5">Action required</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Awaiting your signature</h2>
             </div>
-            <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#c8102e] text-white font-medium">{pendingApprovals.length}</span>
+            <span className="text-[11px] px-2.5 py-1 rounded-full bg-[#EC0000] text-white font-medium">{pendingApprovals.length}</span>
           </div>
           <div className="space-y-2.5">
             {pendingApprovals.slice(0, 2).map(p => {
@@ -3146,7 +4535,7 @@ export default function App() {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-[10px] uppercase tracking-wider text-amber-700 font-medium">Expires {p.expires}</div>
-                    <ChevronRight className="w-4 h-4 ml-auto mt-1 text-stone-400" />
+                    <ChevronRight className="w-4 h-4 ml-auto mt-1 text-stone-500" />
                   </div>
                 </button>
               );
@@ -3157,24 +4546,65 @@ export default function App() {
 
       {/* Actions */}
       <div className="px-5 mb-7 anim-fade">
-        <div className="flex items-end justify-between mb-3">
+        <div className="flex items-end justify-between mb-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">No more posting to Sunderland</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Paperless actions</h2>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          <ActionTile icon={Banknote} title="Bulk payments" desc="CSV · BACS, FP, CHAPS" onClick={() => { setWorkflow('wages'); setStep(0); }} highlight />
-          <ActionTile icon={Globe} title="International" desc="FX · SWIFT · SEPA" onClick={() => { setWorkflow('fx'); setStep(0); }} />
-          <ActionTile icon={Users} title={entity.isTreasurer ? "Mandate & members" : "Change mandate"} desc="Add, remove, signing rule" onClick={() => { setWorkflow('mandate'); setStep(0); }} />
-          <ActionTile icon={Briefcase} title={entity.isTreasurer ? "Org details" : "Business details"} desc="Name, address, contact" onClick={() => { setWorkflow('biz'); setStep(0); }} />
-          <ActionTile icon={Camera} title="Scan receipt" desc="Auto-categorise for MTD" onClick={() => setShowReceiptSheet(true)} />
-          <ActionTile icon={UserCheck} title="ID register" desc="Lists 1, 2 & 3" onClick={() => setWorkflow('idcheck')} />
-          <ActionTile icon={Pause} title="Dormant accounts" desc="Reactivate or close" onClick={() => setWorkflow('dormancy')} badge="1" />
-          <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
-          <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
-          <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
-        </div>
+
+        {/* Filofax-style accordion — headers collapsed; tap one to reveal its actions */}
+        {[
+          { id: 'payments', label: 'Payments', icon: Banknote, sub: 'Wages, FX, recurring', tiles: [
+            { icon: Banknote, title: 'Bulk payments', desc: 'CSV · BACS, FP, CHAPS', onClick: () => { setWorkflow('wages'); setStep(0); }, highlight: true },
+            { icon: Globe, title: 'International', desc: 'FX · SWIFT · SEPA', onClick: () => { setWorkflow('fx'); setStep(0); } },
+            { icon: UserPlus, title: 'Add intl. beneficiary', desc: 'Screen & verify an overseas payee', onClick: () => { setWorkflow('beneficiary'); setStep(0); } },
+            { icon: RefreshCw, title: 'Standing orders & DDs', desc: 'View · set up · cancel', onClick: () => { setWorkflow('recurring'); setStep(0); } },
+          ] },
+          { id: 'business', label: 'Business & people', icon: Users, sub: 'Mandate, details, ID', tiles: [
+            { icon: Users, title: entity.isTreasurer ? 'Mandate & members' : 'Change mandate', desc: 'Add, remove, signing rule', onClick: () => { setWorkflow('mandate'); setStep(0); } },
+            { icon: Briefcase, title: entity.isTreasurer ? 'Org details' : 'Business details', desc: 'Name, address, contact', onClick: () => { setWorkflow('biz'); setStep(0); } },
+            { icon: UserCheck, title: 'ID register', desc: 'Lists 1, 2 & 3', onClick: () => setWorkflow('idcheck') },
+          ] },
+          { id: 'tax', label: 'Tax & expenses', icon: Receipt, sub: 'MTD, receipts, cash flow', tiles: [
+            { icon: Camera, title: 'Scan receipt', desc: 'Auto-categorise for MTD', onClick: () => setShowReceiptSheet(true) },
+            { icon: Mic, title: 'Voice memo', desc: 'Speak → expense auto-tagged', onClick: () => setShowVoiceMemo(true) },
+            { icon: Wand2, title: 'Optimise payments', desc: '30-day sequencer', onClick: () => setShowSequencer(true) },
+          ] },
+          { id: 'accounts', label: 'Accounts & support', icon: Archive, sub: 'Dormancy, closure, complaints', badge: '1', tiles: [
+            { icon: Pause, title: 'Dormant accounts', desc: 'Reactivate or close', onClick: () => setWorkflow('dormancy'), badge: '1' },
+            { icon: Archive, title: 'Close account', desc: 'Form ANB9 0370', onClick: () => { setWorkflow('closure'); setStep(0); } },
+            { icon: Scale, title: 'Log complaint', desc: 'DISP · triage · denial · FOS', onClick: () => { setWorkflow('complaint'); setStep(0); } },
+            { icon: AlertTriangle, title: 'Dispute a payment', desc: 'Chargeback · fraud · DD Guarantee', onClick: () => { setWorkflow('dispute'); setStep(0); } },
+            { icon: FileText, title: 'Balance certificate', desc: 'Sealed proof of balance · references', onClick: () => { setWorkflow('certificate'); setStep(0); } },
+            { icon: Lock, title: 'Devices & sessions', desc: 'Review logins · sign out · SCA', onClick: () => { setWorkflow('trusted'); setStep(0); } },
+          ] },
+        ].map(g => {
+          const open = openActionGroup === g.id;
+          const GI = g.icon;
+          return (
+            <div key={g.id} className="mb-2.5">
+              <button onClick={() => setOpenActionGroup(open ? null : g.id)}
+                aria-expanded={open}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-white text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${open ? 'border-stone-900' : 'border-stone-200 hover:border-stone-300'}`}>
+                <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${open ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                  <GI className="w-4 h-4" />
+                  {g.badge && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EC0000] text-white text-[9px] font-bold flex items-center justify-center">{g.badge}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-stone-900">{g.label}</div>
+                  <div className="text-[11px] text-stone-500">{open ? `${g.tiles.length} actions` : g.sub}</div>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-stone-500 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+              </button>
+              {open && (
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 mt-2.5 mb-1 anim-fade">
+                  {g.tiles.map(t => <ActionTile key={t.title} icon={t.icon} title={t.title} desc={t.desc} onClick={t.onClick} highlight={t.highlight} badge={t.badge} />)}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Accounts */}
@@ -3258,8 +4688,8 @@ export default function App() {
               <svg viewBox="0 0 520 148" className="w-full mb-1" role="img" aria-label="13-week cash flow forecast">
                 <defs>
                   <linearGradient id="fcFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c8102e" stopOpacity="0.22" />
-                    <stop offset="100%" stopColor="#c8102e" stopOpacity="0.02" />
+                    <stop offset="0%" stopColor="#EC0000" stopOpacity="0.22" />
+                    <stop offset="100%" stopColor="#EC0000" stopOpacity="0.02" />
                   </linearGradient>
                 </defs>
                 {/* faint horizontal gridlines for a sense of scale */}
@@ -3269,7 +4699,7 @@ export default function App() {
                 {showFloor && <line x1="10" y1={floorY} x2="510" y2={floorY} stroke="#d97706" strokeWidth="1.25" strokeDasharray="4,3" opacity="0.7" />}
                 {/* gradient area + smooth trend line */}
                 <path d={areaPath} fill="url(#fcFill)" />
-                <path d={linePath} fill="none" stroke="#c8102e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={linePath} fill="none" stroke="#EC0000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 {/* event markers — named cash movements sit on the curve */}
                 {forecastWeeks.map((wk, i) => {
                   if (!wk.event && i !== lowIdx) return null;
@@ -3279,17 +4709,17 @@ export default function App() {
                     return <g key={i}><circle cx={cx} cy={cy} r="5.5" fill="#fff" stroke="#d97706" strokeWidth="2.5" /></g>;
                   }
                   if (!wk.event) return null;
-                  return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#c8102e' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
+                  return <circle key={i} cx={cx} cy={cy} r="3.5" fill={isOut ? '#EC0000' : '#e08898'} stroke="#fff" strokeWidth="1.5" />;
                 })}
               </svg>
-              <div className="flex justify-between text-[9px] text-stone-400 mb-3 px-0.5">
+              <div className="flex justify-between text-[9px] text-stone-500 mb-3 px-0.5">
                 {forecastWeeks.filter((_,i) => i % 3 === 0).map((wk,i) => (
                   <span key={i}>{wk.d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
                 ))}
               </div>
               {/* legend */}
               <div className="flex items-center gap-4 mb-3 text-[10px] text-stone-500">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#c8102e]" />Outflow event</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#EC0000]" />Outflow event</span>
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e08898]" />Receipts</span>
                 {hasWarn && <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full border-2 border-amber-600 bg-white" />Lowest week</span>}
               </div>
@@ -3350,14 +4780,17 @@ export default function App() {
                       <div className="font-mono text-[11px] text-stone-500">{card.last4} · {card.network} · Exp {card.expiry}</div>
                     </div>
                   </div>
-                  {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium flex-shrink-0">Frozen</span>}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {cardReissued.has(card.key) && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-medium">Reissued</span>}
+                    {isFrozen && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500 text-white font-medium">Frozen</span>}
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-1">
                   <button
                     onClick={() => { setPinCardKey(card.key); setPinAuthDone(false); setPinRevealed(false); setPinCountdown(30); setShowPinSheet(true); }}
-                    className="flex-1 py-2.5 rounded-xl border border-stone-200 text-xs font-medium text-stone-700 flex items-center justify-center gap-1.5 hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                    className="flex-1 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-[13px] font-medium text-stone-800 flex items-center justify-center gap-2 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-4 h-4" />
                     View PIN
                   </button>
                   <button
@@ -3365,12 +4798,22 @@ export default function App() {
                       setFrozenCards(prev => { const n = new Set(prev); isFrozen ? n.delete(card.key) : n.add(card.key); return n; });
                       fireToast(isFrozen ? `${card.name} unfrozen — ready to use` : `${card.name} frozen — all transactions blocked`);
                     }}
-                    className={`flex-1 py-2.5 rounded-xl border text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${isFrozen ? 'border-blue-200 text-blue-700 hover:bg-blue-50' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}
+                    className={`flex-1 py-2.5 rounded-xl text-[13px] font-medium flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${isFrozen ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-900 text-white hover:bg-stone-800'}`}
                   >
-                    <Snowflake className="w-3.5 h-3.5" />
+                    <Snowflake className="w-4 h-4" />
                     {isFrozen ? 'Unfreeze' : 'Freeze'}
                   </button>
                 </div>
+                <button
+                  onClick={() => { setCardCtrlKey(card.key); setCardCtrlReport(false); setShowCardControls(true); }}
+                  className="w-full mt-2 py-2.5 rounded-xl bg-white border border-stone-200 text-[13px] font-medium text-stone-700 flex items-center justify-between px-4 hover:bg-stone-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+                >
+                  <span className="flex items-center gap-2"><Gauge className="w-4 h-4 text-stone-500" /> Card controls</span>
+                  <span className="flex items-center gap-2 text-[11px] text-stone-500">
+                    <span className="num-tab">Limit {fmt(getCardCtrl(card.key).limit)}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
+                </button>
               </div>
             );
           })}
@@ -3420,8 +4863,8 @@ export default function App() {
                 {!obFCRevoked ? 'Funding Circle has access to personal data' : '3 consents · business data only'}
               </div>
             </div>
-            {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#c8102e] text-white font-medium flex-shrink-0">!</span>}
-            <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-400'}`} />
+            {!obFCRevoked && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#EC0000] text-white font-medium flex-shrink-0">!</span>}
+            <ChevronRight className={`w-4 h-4 flex-shrink-0 ${!obFCRevoked ? 'text-amber-700' : 'text-stone-500'}`} />
           </button>
           {/* Credit decisioning ring-fence */}
           <button
@@ -3438,7 +4881,7 @@ export default function App() {
             </div>
             {creditRingfenced
               ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+              : <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />}
           </button>
         </div>
       </div>
@@ -3461,7 +4904,7 @@ export default function App() {
                 {voiceIdEnrolled ? 'Active · app, phone banking & video call' : 'Not enrolled · tap to set up 3 voice phrases'}
               </div>
             </div>
-            {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />}
+            {voiceIdEnrolled ? <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />}
           </button>
           {/* Biometric method selector */}
           <div className="p-4 rounded-2xl border border-stone-200 bg-white">
@@ -3470,17 +4913,17 @@ export default function App() {
                 <bm.Icon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm">Device biometric</div>
+                <div className="font-medium text-sm">How you sign</div>
                 <div className="text-[11px] text-stone-500">Currently: {bm.label} · {bm.sub}</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="bg-stone-100 rounded-2xl p-1.5 grid grid-cols-2 gap-1">
               {BIOMETRIC_OPTIONS.map(o => (
                 <button key={o.id} onClick={() => setBiometricType(o.id)}
-                  className={`py-2.5 px-2 rounded-xl text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+                  className={`py-2.5 px-2 rounded-xl text-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${biometricType === o.id ? 'bg-white shadow-sm border border-stone-200/60 text-stone-900' : 'text-stone-600 hover:text-stone-800'}`}>
                   <o.Icon className="w-4 h-4 mx-auto mb-1" />
                   <div className="text-[10px] font-medium leading-tight">{o.label}</div>
-                  <div className={`text-[9px] mt-0.5 leading-tight ${biometricType === o.id ? 'text-white/65' : 'text-stone-400'}`}>{o.sub}</div>
+                  <div className="text-[9px] mt-0.5 leading-tight text-stone-600">{o.sub}</div>
                 </button>
               ))}
             </div>
@@ -3495,7 +4938,7 @@ export default function App() {
               <div className="font-medium text-sm">SCA step-up matrix</div>
               <div className="text-[11px] text-stone-500">6 tiers · PSD2 RTS Art.97 compliant</div>
             </div>
-            <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />
           </button>
         </div>
       </div>
@@ -3504,7 +4947,7 @@ export default function App() {
       <div className="px-5 mb-7 anim-fade">
         <div className="flex items-end justify-between mb-3">
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e]/80 font-medium mb-0.5">The personal touch</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[#CC0000]/80 font-medium mb-0.5">The personal touch</div>
             <h2 className="font-display-tight text-2xl text-stone-900">Your relationship manager</h2>
           </div>
         </div>
@@ -3541,13 +4984,13 @@ export default function App() {
       <div className="px-5 mb-3">
         <button onClick={() => setShowA11ySheet(true)} className="w-full p-4 rounded-2xl bg-stone-50 border border-stone-200 text-left flex items-center gap-3 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
           <div className="w-9 h-9 rounded-xl bg-white border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <Heart className="w-4 h-4 text-[#c8102e]" />
+            <Heart className="w-4 h-4 text-[#CC0000]" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-medium text-stone-900">Accessibility settings</div>
             <div className="text-[11px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active — tap to adjust' : 'Dyslexia font · plain English · reduced motion · more'}</div>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-400 flex-shrink-0" />
+          <ChevronRight className="w-4 h-4 text-stone-500 flex-shrink-0" />
         </button>
       </div>
 
@@ -3555,19 +4998,19 @@ export default function App() {
       <div className="px-5">
         <button onClick={() => setShowCompliance(true)} className="w-full p-4 rounded-2xl bg-stone-100 text-left flex items-center gap-3">
           <Scale className="w-4 h-4 text-stone-600" />
-          <div className="flex-1"><div className="text-xs font-medium text-stone-900">Your rights & how to complain</div><div className="text-[11px] text-stone-500">FCA · FRN 106054 · FSCS · Financial Ombudsman</div></div>
-          <ChevronRight className="w-4 h-4 text-stone-400" />
+          <div className="flex-1"><div className="text-xs font-medium text-stone-900">Your rights & how to complain</div><div className="text-[11px] text-stone-600">FCA · FRN 106054 · FSCS · Financial Ombudsman</div></div>
+          <ChevronRight className="w-4 h-4 text-stone-500" />
         </button>
       </div>
 
       {/* Motto */}
       <div className="px-5 pt-6 pb-3 text-center">
-        <p className="text-[11px] text-stone-400 italic font-display">A digital bank with a personal touch</p>
+        <p className="text-[11px] text-stone-500 italic font-display">A digital bank with a personal touch</p>
       </div>
 
       {/* Attribution */}
       <div className="px-5 pb-3 text-center space-y-0.5">
-        <p className="text-[9px] text-stone-400 leading-relaxed">
+        <p className="text-[9px] text-stone-500 leading-relaxed">
           Concept &amp; prototype by <span className="font-medium text-stone-500">Alan Davidson</span>
         </p>
         <p className="text-[9px] text-stone-300 leading-relaxed">
@@ -3578,10 +5021,27 @@ export default function App() {
   );
 
   const ApproveScreen = () => {
-    const sign = (id) => triggerOTP(
-      `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`,
-      () => { setApprovalState({ ...approvalState, [id]: 'signed' }); fireToast('Signed. Releasing now.'); }
-    );
+    const sign = (id) => {
+      const context = `Authorising signature · ${pendingApprovals.find(p => p.id === id)?.desc || 'request'}`;
+      const complete = () => {
+        const p = pendingApprovals.find(a => a.id === id);
+        setApprovalState({ ...approvalState, [id]: 'signed' });
+        if (p?.amount) {
+          setPaymentPending({
+            kind: 'payment',
+            label: p.desc,
+            total: parseFloat(p.amount.replace(/[£,]/g, '')),
+            count: 1,
+            countdown: 10,
+          });
+        } else {
+          fireToast('Signed. Releasing now.');
+        }
+      };
+      // Personal PIN if chosen, otherwise device biometric → SCA code
+      if (biometricType === 'pin') triggerSignPin(context, complete);
+      else triggerOTP(context, complete);
+    };
     const reject = (id) => { setApprovalState({ ...approvalState, [id]: 'rejected' }); fireToast("Rejected. We've let them know."); };
     return (
       <div className="pb-24">
@@ -3608,7 +5068,7 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><Check className="w-3.5 h-3.5" /></div><span className="text-xs">{p.initiator}</span></div>
                     <div className="flex-1 h-px bg-stone-200" />
-                    <div className="flex items-center gap-2"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${s === 'signed' ? 'bg-emerald-500 text-white' : 'border-2 border-dashed border-stone-300 text-stone-400'}`}>{s === 'signed' ? <Check className="w-3.5 h-3.5" /> : 'JW'}</div><span className="text-xs">You</span></div>
+                    <div className="flex items-center gap-2"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${s === 'signed' ? 'bg-emerald-500 text-white' : 'border-2 border-dashed border-stone-300 text-stone-500'}`}>{s === 'signed' ? <Check className="w-3.5 h-3.5" /> : 'JW'}</div><span className="text-xs">You</span></div>
                   </div>
                 </div>
                 {!s && (
@@ -3687,8 +5147,8 @@ export default function App() {
         {/* Editorial header */}
         <div className="px-5 pt-4 pb-7 anim-fade">
           <div className="flex items-center gap-2 mb-3">
-            <div className="h-px w-8 bg-[#c8102e]" />
-            <div className="text-[10px] text-[#c8102e] uppercase tracking-[0.2em] font-medium">Statements & insights</div>
+            <div className="h-px w-8 bg-[#EC0000]" />
+            <div className="text-[10px] text-[#CC0000] uppercase tracking-[0.2em] font-medium">Statements & insights</div>
           </div>
           <h1 className="font-display-tight text-[44px] leading-[0.95] text-stone-900">
             Where the<br />
@@ -3701,9 +5161,9 @@ export default function App() {
         <div className="px-5 mb-5 anim-fade stagger-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Counterparty search */}
           <div className="rounded-2xl bg-white border border-stone-200 shadow-sm p-4 lift-1 lg:order-1">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium mb-2">Search</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] text-[#CC0000] font-medium mb-2">Search</div>
             <div className="relative">
-              <Search className="w-5 h-5 text-stone-400 absolute left-3 top-3" />
+              <Search className="w-5 h-5 text-stone-500 absolute left-3 top-3" />
               <input
                 type="text"
                 value={counterpartyQuery}
@@ -3782,7 +5242,7 @@ export default function App() {
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-5 px-5">
             {monthsAvailable.map(m => (
               <button key={m} onClick={() => setStatementMonth(m)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-colors ${statementMonth === m ? 'bg-[#c8102e] text-white' : 'bg-white border border-stone-200 text-stone-600'}`}>
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-colors ${statementMonth === m ? 'bg-[#EC0000] text-white' : 'bg-white border border-stone-200 text-stone-600'}`}>
                 {monthLabel(m)}
               </button>
             ))}
@@ -3861,7 +5321,7 @@ export default function App() {
                         {isOut ? '' : '+'}{fmt(t.amount)}
                       </div>
                       {t.vat === null && <div className="text-[10px] text-amber-700 mt-0.5">VAT · review</div>}
-                      {t.vat !== null && t.vat !== 0 && <div className="text-[10px] text-stone-400 mt-0.5">VAT {fmt(Math.abs(t.vat))}</div>}
+                      {t.vat !== null && t.vat !== 0 && <div className="text-[10px] text-stone-500 mt-0.5">VAT {fmt(Math.abs(t.vat))}</div>}
                     </div>
                   </button>
                 );
@@ -3970,7 +5430,7 @@ export default function App() {
               <>
                 <div
                   onClick={() => { if (!receiptUploaded) { setReceiptUploaded(true); setTimeout(() => setReceiptStep(1), 1100); } }}
-                  className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${receiptUploaded ? 'border-emerald-400 bg-emerald-50/30' : 'border-stone-300 hover:border-[#c8102e] hover:bg-red-50/20'}`}
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${receiptUploaded ? 'border-emerald-400 bg-emerald-50/30' : 'border-stone-300 hover:border-[#EC0000] hover:bg-red-50/20'}`}
                 >
                   {!receiptUploaded ? (
                     <>
@@ -3986,7 +5446,7 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                <div className="text-[11px] text-stone-400 text-center">Processed by OCR engine · image not stored after extraction</div>
+                <div className="text-[11px] text-stone-500 text-center">Processed by OCR engine · image not stored after extraction</div>
               </>
             )}
             {receiptStep === 1 && (
@@ -4008,7 +5468,7 @@ export default function App() {
                     <div key={l} className="flex justify-between items-center px-4 py-3">
                       <span className="text-sm text-stone-600">{l}</span>
                       {tag
-                        ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                        ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#EC0000]/10 text-[#CC0000] font-medium">{v}</span>
                         : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : ''}`}>{v}</span>}
                     </div>
                   ))}
@@ -4019,7 +5479,7 @@ export default function App() {
                     fireToast('Receipt matched · AWS transaction → IT & Technology · VAT reclaim updated · logged to audit trail');
                     close();
                   }}
-                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
+                  className="w-full bg-[#EC0000] text-white py-4 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] transition-transform"
                 >
                   <Check className="w-4 h-4" />
                   Confirm & categorise for MTD
@@ -4057,10 +5517,10 @@ export default function App() {
             {/* Card visual */}
             <div className="w-full h-44 rounded-3xl bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 text-white p-5 relative overflow-hidden">
               <div className="absolute -top-14 -right-14 w-52 h-52 rounded-full bg-white/[0.03] pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-[#c8102e]/[0.12] pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-[#EC0000]/[0.12] pointer-events-none" />
               <div className="absolute top-4 right-5 flex items-center">
-                <div className="w-8 h-8 rounded-full bg-[#c8102e]/80" />
-                <div className="w-8 h-8 rounded-full bg-[#c8102e] -ml-3.5 opacity-65" />
+                <div className="w-8 h-8 rounded-full bg-[#EC0000]/80" />
+                <div className="w-8 h-8 rounded-full bg-[#EC0000] -ml-3.5 opacity-65" />
               </div>
               <div className="relative h-full flex flex-col justify-between">
                 <div className="w-12 h-8 rounded-md bg-gradient-to-br from-amber-300 to-amber-500 opacity-90" />
@@ -4119,7 +5579,7 @@ export default function App() {
                     Authenticate with {bm.label}
                   </button>
                 </div>
-                <div className="text-[10px] text-stone-400 text-center">Viewing your PIN is logged in your security audit trail.</div>
+                <div className="text-[10px] text-stone-500 text-center">Viewing your PIN is logged in your security audit trail.</div>
               </div>
             ) : (
               <div className="space-y-3">
@@ -4145,7 +5605,7 @@ export default function App() {
                       <div className="relative w-14 h-14">
                         <svg className="w-14 h-14 -rotate-90" viewBox="0 0 60 60">
                           <circle cx="30" cy="30" r={r} fill="none" stroke="#e7e5e4" strokeWidth="4" />
-                          <circle cx="30" cy="30" r={r} fill="none" stroke="#c8102e" strokeWidth="4"
+                          <circle cx="30" cy="30" r={r} fill="none" stroke="#EC0000" strokeWidth="4"
                             strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)}
                             strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.9s linear' }} />
                         </svg>
@@ -4167,9 +5627,131 @@ export default function App() {
                   <AlertTriangle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
                   <div className="text-[11px] text-amber-900 leading-relaxed"><strong>Never share your PIN.</strong> Santander will never ask for it. If you've shared it, call us immediately: <strong>0330 123 9860</strong>.</div>
                 </div>
-                <div className="text-[10px] text-stone-400 text-center">PIN viewed today · logged to security audit trail</div>
+                <div className="text-[10px] text-stone-500 text-center">PIN viewed today · logged to security audit trail</div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const CardControlsSheet = () => {
+    const card = BUSINESS_CARDS[cardCtrlKey];
+    const s = getCardCtrl(cardCtrlKey);
+    const isFrozen = frozenCards.has(cardCtrlKey);
+    const isReissued = cardReissued.has(cardCtrlKey);
+    const limitPresets = [1000, 5000, 15000, 25000];
+    const toggles = [
+      { field: 'contactless', Icon: Zap,        label: 'Contactless',              on: 'Tap to pay enabled',        off: 'Contactless blocked' },
+      { field: 'online',      Icon: Globe,      label: 'Online & phone payments',  on: 'Card-not-present allowed',  off: 'Online payments blocked' },
+      { field: 'abroad',      Icon: MapPin,     label: 'Use abroad',               on: 'Works outside the UK',      off: 'UK payments only' },
+      { field: 'atm',         Icon: Banknote,   label: 'ATM withdrawals',          on: 'Cash withdrawals allowed',  off: 'Cash machines blocked' },
+      { field: 'gambling',    Icon: ShieldAlert,label: 'Gambling payments',        on: 'Gambling allowed',          off: 'Blocked (default)' },
+    ];
+    return (
+      <div className="fixed inset-0 z-50 bg-black/40 anim-fade flex items-end" onClick={closeCardControls}>
+        <div onClick={e => e.stopPropagation()} className="w-full bg-white rounded-t-3xl max-h-[90vh] overflow-y-auto anim-slide">
+          <div className="flex justify-center pt-3 pb-1"><div className="w-12 h-1 bg-stone-300 rounded-full" /></div>
+          <div className="px-5 pb-4 border-b border-stone-100 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-stone-500">Card controls · instant · logged</div>
+              <h2 className="font-display text-2xl mt-0.5">{card.name}</h2>
+            </div>
+            <button onClick={closeCardControls} className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+          <div className="px-5 py-5 space-y-5">
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isFrozen ? 'bg-blue-100 text-blue-600' : 'bg-stone-900 text-white'}`}>
+                {isFrozen ? <Snowflake className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
+              </div>
+              <div className="min-w-0">
+                <div className="font-mono text-[13px] text-stone-900">{card.last4} · {card.network}</div>
+                <div className="text-[11px] text-stone-500">{isFrozen ? 'Frozen — controls apply when unfrozen' : isReissued ? 'Replacement on its way' : 'Active'}</div>
+              </div>
+            </div>
+
+            {/* Spending limit */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Gauge className="w-4 h-4 text-stone-500" />
+                  <span className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium">Monthly spending limit</span>
+                </div>
+                <span className="font-mono text-sm num-tab font-medium text-stone-900">{fmt(s.limit)}</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {limitPresets.map(l => (
+                  <button key={l} onClick={() => { setCardCtrl(cardCtrlKey, 'limit', l); fireToast(`Monthly limit set to ${fmt(l)} · ${card.name}`); }}
+                    className={`py-2.5 rounded-xl border text-[13px] font-medium num-tab focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${s.limit === l ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700 hover:bg-stone-50'}`}>
+                    {l >= 1000 ? `£${l / 1000}k` : `£${l}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Toggles */}
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.15em] text-stone-500 font-medium mb-2">Where this card works</div>
+              <div className="space-y-2">
+                {toggles.map(t => {
+                  const val = !!s[t.field];
+                  return (
+                    <div key={t.field} className="flex items-center justify-between p-3.5 rounded-2xl border border-stone-200 bg-white">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${val ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                          <t.Icon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm text-stone-900">{t.label}</div>
+                          <div className="text-[11px] text-stone-500">{val ? t.on : t.off}</div>
+                        </div>
+                      </div>
+                      <Toggle value={val} onChange={(v) => { setCardCtrl(cardCtrlKey, t.field, v); fireToast(`${t.label} ${v ? 'on' : 'off'} · ${card.name}`); }} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Report lost / stolen */}
+            <div className="pt-1">
+              {!cardCtrlReport ? (
+                <button onClick={() => setCardCtrlReport(true)} disabled={isReissued}
+                  className={`w-full py-3.5 rounded-2xl border text-[13px] font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${isReissued ? 'border-stone-200 text-stone-500 cursor-default' : 'border-red-200 text-red-700 hover:bg-red-50'}`}>
+                  <AlertTriangle className="w-4 h-4" />
+                  {isReissued ? 'Replacement card ordered' : 'Report lost or stolen'}
+                </button>
+              ) : (
+                <div className="p-4 rounded-2xl border border-red-200 bg-red-50 space-y-3">
+                  <div className="flex gap-2.5">
+                    <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-[12px] text-red-900 leading-relaxed">
+                      This <strong>permanently cancels</strong> {card.last4} and orders a replacement (3–5 working days). Any Direct Debits move to the new card automatically.
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setCardCtrlReport(false)}
+                      className="flex-1 py-3 rounded-xl bg-white border border-stone-200 text-[13px] font-medium text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
+                      Keep card
+                    </button>
+                    <button onClick={() => {
+                        setFrozenCards(prev => { const n = new Set(prev); n.add(cardCtrlKey); return n; });
+                        setCardReissued(prev => { const n = new Set(prev); n.add(cardCtrlKey); return n; });
+                        fireToast(`${card.name} cancelled · replacement ordered, arrives 3–5 working days · logged to audit trail`);
+                        closeCardControls();
+                      }}
+                      className="flex-1 py-3 rounded-xl bg-red-600 text-white text-[13px] font-medium hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600">
+                      Cancel & reissue
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="text-[10px] text-stone-500 text-center leading-relaxed">
+              Changes apply instantly and are recorded in your security audit trail · PSD2 SCA-protected
+            </div>
           </div>
         </div>
       </div>
@@ -4216,7 +5798,7 @@ export default function App() {
                     )}
                   </div>
                   <div className="text-[11px] text-stone-600 mb-1">{consent.scope}</div>
-                  <div className="text-[11px] text-stone-400 mb-3">Expires {consent.expires}</div>
+                  <div className="text-[11px] text-stone-500 mb-3">Expires {consent.expires}</div>
                   {!isRevoked && (
                     <button
                       onClick={() => {
@@ -4225,7 +5807,7 @@ export default function App() {
                           fireToast('Funding Circle access revoked');
                         }
                       }}
-                      className="text-[11px] font-medium text-[#c8102e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e] rounded"
+                      className="text-[11px] font-medium text-[#CC0000] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000] rounded"
                     >
                       Revoke access
                     </button>
@@ -4260,10 +5842,10 @@ export default function App() {
               {!voiceRecording ? (
                 <>
                   <button onClick={doVoiceMemo}
-                    className="w-24 h-24 rounded-full bg-[#c8102e] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#c8102e]/30">
+                    className="w-24 h-24 rounded-full bg-[#EC0000] flex items-center justify-center shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#EC0000]/30">
                     <Mic size={36} className="text-white" />
                   </button>
-                  <p className="text-sm text-stone-400 text-center max-w-xs">
+                  <p className="text-sm text-stone-500 text-center max-w-xs">
                     Tap and say something like<br/>
                     <em className="text-stone-600 not-italic font-medium">{examplePrompt}</em>
                   </p>
@@ -4271,16 +5853,16 @@ export default function App() {
               ) : (
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-[#c8102e]/15 animate-ping" style={{ animationDuration: '1.2s' }} />
-                    <div className="w-24 h-24 rounded-full bg-[#c8102e]/10 flex items-center justify-center relative">
-                      <Mic size={36} className="text-[#c8102e]" />
+                    <div className="absolute inset-0 rounded-full bg-[#EC0000]/15 animate-ping" style={{ animationDuration: '1.2s' }} />
+                    <div className="w-24 h-24 rounded-full bg-[#EC0000]/10 flex items-center justify-center relative">
+                      <Mic size={36} className="text-[#CC0000]" />
                     </div>
                   </div>
                   <svg width="200" height="40" viewBox="0 0 200 40" aria-hidden="true">
                     {BARS.map((h, i) => (
                       <rect key={i}
                         x={i * 13 + 4} y={(40 - h) / 2} width="9" height={h} rx="4"
-                        fill="#c8102e" opacity={0.45 + (i % 3) * 0.18}
+                        fill="#EC0000" opacity={0.45 + (i % 3) * 0.18}
                         className="voice-bar"
                         style={{ animationDelay: `${(i * 0.07).toFixed(2)}s`, animationDuration: `${0.55 + (i % 5) * 0.09}s` }}
                       />
@@ -4309,7 +5891,7 @@ export default function App() {
                   <div key={l} className="flex justify-between items-center px-4 py-3">
                     <span className="text-sm text-stone-500">{l}</span>
                     {tag
-                      ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#c8102e]/10 text-[#c8102e] font-medium">{v}</span>
+                      ? <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#EC0000]/10 text-[#CC0000] font-medium">{v}</span>
                       : <span className={`text-sm font-medium ${mono ? 'font-mono text-xs text-stone-700' : 'num-tab'}`}>{v}</span>}
                   </div>
                 ))}
@@ -4367,19 +5949,19 @@ export default function App() {
               <p className="text-sm text-stone-500 mt-0.5">30 days · {sorted.length} payments · {fmt(totalScheduled)}</p>
             </div>
             <button onClick={() => setSequencerOptimised(o => !o)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${sequencerOptimised ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
-              {sequencerOptimised ? '✓ Optimised' : 'Optimise'}
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border inline-flex items-center gap-1.5 ${sequencerOptimised ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-600 border-stone-200'}`}>
+              {sequencerOptimised && <Check className="w-3.5 h-3.5" />}{sequencerOptimised ? 'Optimised' : 'Optimise'}
             </button>
           </div>
           <div className="mb-4">
             <svg viewBox="0 0 310 56" className="w-full" style={{ height: 56 }}>
               {dailyBal.map((b, i) => {
                 const h = Math.max(2, (b / maxBal) * 48);
-                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#f59e0b' : '#c8102e'} opacity="0.75" />;
+                return <rect key={i} x={i * 10} y={56 - h} width="8" height={h} rx="2" fill={b < 80000 ? '#d97706' : '#EC0000'} opacity="0.78" />;
               })}
-              <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#ef4444" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
+              <line x1="0" y1={56 - (80000 / maxBal) * 48} x2="310" y2={56 - (80000 / maxBal) * 48} stroke="#dc2626" strokeWidth="1" strokeDasharray="4 3" opacity="0.55" />
             </svg>
-            <div className="flex justify-between text-[9px] text-stone-400 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
+            <div className="flex justify-between text-[9px] text-stone-500 mt-1"><span>18 Jun</span><span>17 Jul</span></div>
           </div>
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
@@ -4394,10 +5976,10 @@ export default function App() {
           <div className="space-y-1.5 mb-4">
             {sorted.map(p => (
               <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-100">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#c8102e]/60'}`} />
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${p.type === 'tax' ? 'bg-red-500' : p.type === 'fixed' ? 'bg-stone-400' : 'bg-[#EC0000]/60'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-stone-900 truncate">{p.payee}</div>
-                  <div className="text-[10px] text-stone-400">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
+                  <div className="text-[10px] text-stone-500">{p.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}{p.locked ? ' · locked' : ''}</div>
                 </div>
                 <span className="font-mono text-sm font-medium text-stone-800 flex-shrink-0 num-tab">{fmt(p.amount)}</span>
               </div>
@@ -4464,7 +6046,7 @@ export default function App() {
                     <div key={i} className={`p-4 rounded-2xl border transition-colors ${done ? 'border-emerald-200 bg-emerald-50/40' : 'border-stone-200 bg-white'}`}>
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] text-stone-400 uppercase tracking-wider mb-1">Phrase {i + 1} of 3</div>
+                          <div className="text-[10px] text-stone-500 uppercase tracking-wider mb-1">Phrase {i + 1} of 3</div>
                           <div className="font-medium text-sm text-stone-900">"{phrase}"</div>
                         </div>
                         {done ? (
@@ -4472,13 +6054,13 @@ export default function App() {
                             <Check size={18} className="text-emerald-600" />
                           </div>
                         ) : recording ? (
-                          <div className="w-10 h-10 rounded-full bg-[#c8102e]/10 flex items-center justify-center flex-shrink-0 relative">
-                            <div className="absolute inset-0 rounded-full bg-[#c8102e]/20 animate-ping" style={{ animationDuration: '0.9s' }} />
-                            <Mic size={18} className="text-[#c8102e] relative" />
+                          <div className="w-10 h-10 rounded-full bg-[#EC0000]/10 flex items-center justify-center flex-shrink-0 relative">
+                            <div className="absolute inset-0 rounded-full bg-[#EC0000]/20 animate-ping" style={{ animationDuration: '0.9s' }} />
+                            <Mic size={18} className="text-[#CC0000] relative" />
                           </div>
                         ) : (
                           <button onClick={() => doEnrolPhrase(i)} disabled={done}
-                            className="w-10 h-10 rounded-full bg-[#c8102e] flex items-center justify-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c8102e]">
+                            className="w-10 h-10 rounded-full bg-[#EC0000] flex items-center justify-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EC0000]">
                             <Mic size={18} className="text-white" />
                           </button>
                         )}
@@ -4527,7 +6109,7 @@ export default function App() {
                       <ShieldCheck size={14} className="text-stone-600 mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-stone-600 leading-relaxed">Anti-spoofing active — voice clone and replay attacks blocked in real time. Liveness detection required on every verification (NIST SP 800-63B AAL3).</p>
                     </div>
-                    <div className="flex gap-2 text-[10px] text-stone-400 pb-2">
+                    <div className="flex gap-2 text-[10px] text-stone-500 pb-2">
                       <span>Enrolled 14 Jun 2026</span><span>·</span><span>Last verified: today, 09:14</span>
                     </div>
                   </>
@@ -4557,7 +6139,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-stone-400 leading-relaxed pb-2">Voice ID qualifies as an inherence factor (PSD2 RTS Art.4(30)). Anti-spoofing protects against replay and deepfake voice attacks.</p>
+                <p className="text-[10px] text-stone-500 leading-relaxed pb-2">Voice ID qualifies as an inherence factor (PSD2 RTS Art.4(30)). Anti-spoofing protects against replay and deepfake voice attacks.</p>
               </div>
             )}
           </div>
@@ -4608,7 +6190,7 @@ export default function App() {
                       <button onClick={() => { setSessionAnomaly(false); setShowNotifications(false); fireToast('Session confirmed — no further action needed.'); }}
                         className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-stone-900 text-white">That was me</button>
                       <button onClick={() => { setTab('audit'); setShowNotifications(false); }}
-                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-[#c8102e] text-white">Review activity</button>
+                        className="text-[11px] font-medium px-3 py-1.5 rounded-full bg-[#EC0000] text-white">Review activity</button>
                     </div>
                   </div>
                 </div>
@@ -4619,7 +6201,7 @@ export default function App() {
             {unreadApprovals.length > 0 && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Awaiting your signature</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Awaiting your signature</p>
                 </div>
                 {unreadApprovals.map(p => {
                   const I = p.icon;
@@ -4632,12 +6214,12 @@ export default function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm font-medium text-stone-900 truncate">{p.type}</span>
-                          <span className="text-[11px] text-stone-400 flex-shrink-0">Expires {p.expires}</span>
+                          <span className="text-[11px] text-stone-500 flex-shrink-0">Expires {p.expires}</span>
                         </div>
                         <p className="text-[12px] text-stone-500 mt-0.5 truncate">{p.desc}</p>
                         {p.amount && <p className="text-[12px] font-mono num-tab font-medium text-stone-800 mt-0.5">{p.amount}</p>}
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 flex-shrink-0 mt-1" />
+                      <ChevronRight className="w-3.5 h-3.5 text-stone-500 flex-shrink-0 mt-1" />
                     </div>
                   );
                 })}
@@ -4654,7 +6236,7 @@ export default function App() {
             {hasCooling && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Cooling-off in progress</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Cooling-off in progress</p>
                 </div>
                 {cooling.map((c, i) => {
                   const elapsed = (Date.now() - c.startedAt) / 1000;
@@ -4683,7 +6265,7 @@ export default function App() {
             {hasStalled && (
               <div className="border-b border-stone-100">
                 <div className="px-5 pt-4 pb-1">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-400 font-medium">Co-signer needed</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500 font-medium">Co-signer needed</p>
                 </div>
                 {stalled.map((s, i) => (
                   <div key={i} className="px-5 py-3.5 flex items-start gap-3">
@@ -4703,7 +6285,7 @@ export default function App() {
             {!hasAnomaly && unreadApprovals.length === 0 && !hasCooling && !hasStalled && (
               <div className="px-5 py-12 flex flex-col items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-stone-400" />
+                  <Bell className="w-5 h-5 text-stone-500" />
                 </div>
                 <p className="text-sm text-stone-500 text-center">You're all caught up —<br />no new notifications</p>
               </div>
@@ -4712,7 +6294,7 @@ export default function App() {
 
           {/* Footer */}
           <div className="px-5 py-3 border-t border-stone-100 bg-stone-50">
-            <p className="text-[10px] text-stone-400 text-center">Tap outside to dismiss · Notifications are end-to-end encrypted</p>
+            <p className="text-[10px] text-stone-500 text-center">Tap outside to dismiss · Notifications are end-to-end encrypted</p>
           </div>
         </div>
       </div>
@@ -4750,7 +6332,7 @@ export default function App() {
           <div className="px-5 pt-4 pb-5 border-b border-stone-100">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e] font-medium mb-1">{stats.category}</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[#CC0000] font-medium mb-1">{stats.category}</div>
                 <h2 className="font-display-tight text-2xl text-stone-900 truncate">{stats.name}</h2>
                 <div className="text-[11px] text-stone-500 mt-1">
                   {stats.count} {stats.count === 1 ? 'transaction' : 'transactions'} · last {stats.lastDate.slice(8, 10)}/{stats.lastDate.slice(5, 7)}/{stats.lastDate.slice(0, 4)}
@@ -4853,8 +6435,8 @@ export default function App() {
       {/* Editorial header */}
       <div className="px-5 pt-4 pb-7 anim-fade">
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-px w-8 bg-[#c8102e]" />
-          <div className="text-[10px] text-[#c8102e] uppercase tracking-[0.2em] font-medium">HMRC · Making Tax Digital</div>
+          <div className="h-px w-8 bg-[#EC0000]" />
+          <div className="text-[10px] text-[#CC0000] uppercase tracking-[0.2em] font-medium">HMRC · Making Tax Digital</div>
         </div>
         <h1 className="font-display-tight text-[44px] leading-[0.95] text-stone-900">
           Tax,<br />
@@ -4865,7 +6447,7 @@ export default function App() {
 
       {/* HMRC connection status */}
       <div className="px-5 mb-6 anim-fade stagger-1">
-        <div className="rounded-2xl bg-gradient-to-br from-[#c8102e]/[0.04] via-stone-50 to-[#c8102e]/[0.06] border border-stone-200/80 p-4 lift-1 relative overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-[#EC0000]/[0.04] via-stone-50 to-[#EC0000]/[0.06] border border-stone-200/80 p-4 lift-1 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
           <div className="relative flex items-center gap-3 pl-1">
             <div className="relative flex-shrink-0">
@@ -4875,7 +6457,7 @@ export default function App() {
               <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white anim-pulse-glow" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">Connected to HMRC · Live</div>
+              <div className="text-[10px] uppercase tracking-[0.15em] text-[#CC0000] font-medium">Connected to HMRC · Live</div>
               <div className="font-medium text-[14px] text-stone-900 mt-0.5">{mtdData.softwareName}</div>
               <div className="font-mono text-[10px] text-stone-500 mt-0.5 truncate">VRN {mtdData.vrn} · UTR {mtdData.utr}</div>
             </div>
@@ -4888,7 +6470,7 @@ export default function App() {
         <div className="px-5 mb-7 anim-fade stagger-2">
           <div className="flex items-end justify-between mb-3 gap-3">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[#c8102e] font-medium mb-0.5">Due in {daysUntilDeadline} days</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#CC0000] font-medium mb-0.5">Due in {daysUntilDeadline} days</div>
               <h2 className="font-display-tight text-2xl text-stone-900">Your VAT return</h2>
             </div>
             <span className="text-[10px] uppercase tracking-wider text-stone-500 mb-1 flex-shrink-0">{currentVATObligation.period}</span>
@@ -4928,7 +6510,7 @@ export default function App() {
               </div>
 
               {/* CTA — white pill on red background */}
-              <button onClick={() => { setWorkflow('mtd-submit'); setMtdQuarterStep(0); }} className="btn-primary w-full bg-white text-[#c8102e] py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:bg-stone-50">
+              <button onClick={() => { setWorkflow('mtd-submit'); setMtdQuarterStep(0); }} className="btn-primary w-full bg-white text-[#CC0000] py-3.5 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 hover:bg-stone-50">
                 Review & submit to HMRC <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -5018,7 +6600,7 @@ export default function App() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[9px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded font-medium bg-[#c8102e] text-white">{o.kind}</span>
+                  <span className="text-[9px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded font-medium bg-[#EC0000] text-white">{o.kind}</span>
                   <span className="font-medium text-[14px] text-stone-900 truncate">{o.period}</span>
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">Submitted {o.submittedAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
@@ -5045,7 +6627,7 @@ export default function App() {
 
       {/* HMRC compliance footer */}
       <div className="px-5 mb-3 anim-fade stagger-6">
-        <div className="rounded-2xl bg-gradient-to-br from-[#c8102e]/[0.03] to-stone-50 border border-stone-200/60 p-4 relative overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-[#EC0000]/[0.03] to-stone-50 border border-stone-200/60 p-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />
           <div className="relative">
             <div className="flex items-start gap-3 mb-3">
@@ -5053,7 +6635,7 @@ export default function App() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.15em] text-[#c8102e] font-medium">HMRC-recognised software</div>
+                <div className="text-[10px] uppercase tracking-[0.15em] text-[#CC0000] font-medium">HMRC-recognised software</div>
                 <div className="font-medium text-sm text-stone-900 mt-0.5">Fully MTD-compliant</div>
               </div>
             </div>
@@ -5098,7 +6680,7 @@ export default function App() {
     ];
 
     return (
-      <StepFrame
+      <StepFrame onClose={closeWorkflow}
         title={titles[mtdQuarterStep]}
         sub={subs[mtdQuarterStep]}
         total={4} current={mtdQuarterStep} onBack={back} onNext={next}
@@ -5183,19 +6765,19 @@ export default function App() {
                 { box: 'Box 8', label: 'EU goods supplied', value: 0 },
                 { box: 'Box 9', label: 'EU goods acquired', value: 0 },
               ].map(b => (
-                <div key={b.box} className={`p-3.5 flex items-center justify-between gap-3 relative ${b.hero ? 'bg-gradient-to-r from-[#c8102e]/[0.05] to-stone-50' : ''}`}>
+                <div key={b.box} className={`p-3.5 flex items-center justify-between gap-3 relative ${b.hero ? 'bg-gradient-to-r from-[#EC0000]/[0.05] to-stone-50' : ''}`}>
                   {b.hero && <div className="absolute top-0 left-0 w-1 h-full red-accent-bar" />}
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 ${b.hero ? 'bg-[#c8102e] text-white' : 'bg-stone-100 text-stone-500'}`}>{b.box}</span>
+                    <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 ${b.hero ? 'bg-[#EC0000] text-white' : 'bg-stone-100 text-stone-500'}`}>{b.box}</span>
                     <span className={`text-[13px] truncate ${b.hero ? 'font-medium text-stone-900' : 'text-stone-700'}`}>{b.label}</span>
                   </div>
-                  <span className={`font-mono num-tab flex-shrink-0 ${b.hero ? 'text-[15px] font-medium text-[#c8102e]' : 'text-[13px] text-stone-700'}`}>{fmt(b.value)}</span>
+                  <span className={`font-mono num-tab flex-shrink-0 ${b.hero ? 'text-[15px] font-medium text-[#CC0000]' : 'text-[13px] text-stone-700'}`}>{fmt(b.value)}</span>
                 </div>
               ))}
             </div>
 
             <div className="rounded-xl bg-stone-50 border border-stone-200/60 p-3 text-[11px] text-stone-600 leading-relaxed flex gap-2">
-              <Link2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#c8102e]" />
+              <Link2 className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#CC0000]" />
               <div>These figures are calculated automatically from your transactions via digital links. No copy-paste, no manual entry — meets HMRC's MTD requirements in full.</div>
             </div>
           </div>
@@ -5220,7 +6802,7 @@ export default function App() {
             </div>
 
             <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 bg-white cursor-pointer">
-              <input type="checkbox" checked={mtdConfirmDeclaration} onChange={e => setMtdConfirmDeclaration(e.target.checked)} className="mt-0.5 accent-[#c8102e] flex-shrink-0" />
+              <input type="checkbox" checked={mtdConfirmDeclaration} onChange={e => setMtdConfirmDeclaration(e.target.checked)} className="mt-0.5 accent-[#EC0000] flex-shrink-0" />
               <span className="text-xs text-stone-700 leading-relaxed">I confirm the information is true and complete to the best of my knowledge, and I'm authorised to submit this VAT return for {entity.name}.</span>
             </label>
 
@@ -5309,9 +6891,9 @@ export default function App() {
                 </button>
               );
             })}
-            <div className="pt-1 p-4 rounded-2xl bg-[#faf6ef] border border-stone-200">
+            <div className="pt-1 p-4 rounded-2xl bg-[#FBF1EA] border border-stone-200">
               <div className="flex gap-3 items-start">
-                <Heart className="w-4 h-4 text-[#c8102e] flex-shrink-0 mt-0.5" />
+                <Heart className="w-4 h-4 text-[#CC0000] flex-shrink-0 mt-0.5" />
                 <div className="text-[11px] text-stone-600 leading-relaxed">
                   <strong className="text-stone-900">More support available.</strong> Large print statements, braille, audio, BSL video relay, and Relay UK for text-to-speech calls. Ask in branch or call <span className="font-mono">0800 068 6899</span>.
                 </div>
@@ -5348,18 +6930,95 @@ export default function App() {
     a11yFocus        && 'a11y-focus',
   ].filter(Boolean).join(' ');
 
+  // Payment/HMRC countdown-to-execute overlay. Defined once, rendered in BOTH
+  // shells (was previously inline in the desktop shell only — the mobile shell
+  // had no renderer, so Sign & send / Submit set paymentPending but nothing
+  // appeared and the workflow looked frozen).
+  const PaymentPendingOverlay = () => {
+    const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
+    const pct = paymentPending.countdown / maxCountdown;
+    const r = 46;
+    const circ = 2 * Math.PI * r;
+    const isHmrc = paymentPending.kind === 'hmrc';
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm anim-fade">
+        <div className="bg-white rounded-3xl px-8 pt-8 pb-6 mx-5 max-w-xs w-full shadow-2xl text-center">
+
+          {/* Ring countdown — hero */}
+          <div className="relative w-28 h-28 mx-auto mb-6">
+            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 112 112">
+              <circle cx="56" cy="56" r={r} fill="none" stroke="#f5f5f4" strokeWidth="8" />
+              <circle cx="56" cy="56" r={r} fill="none" stroke={isHmrc ? '#EC0000' : '#1c1917'} strokeWidth="8"
+                strokeDasharray={circ}
+                strokeDashoffset={circ * (1 - pct)}
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-3xl font-bold text-stone-900 tabular-nums leading-none">{paymentPending.countdown}</span>
+              <span className="text-[10px] text-stone-500 uppercase tracking-wide mt-0.5">sec</span>
+            </div>
+          </div>
+
+          {/* Label */}
+          <div className="text-[11px] uppercase tracking-widest text-stone-500 mb-1.5">
+            {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
+          </div>
+          <div className="font-display text-xl text-stone-900 leading-snug mb-4">
+            {isHmrc ? 'Filing your VAT return' : 'Confirm payment'}
+          </div>
+
+          {/* Details pill */}
+          <div className="bg-stone-50 rounded-2xl px-4 py-3 mb-4 text-left">
+            <div className="text-[11px] text-stone-500 mb-0.5">{paymentPending.label}</div>
+            {paymentPending.total > 0 && (
+              <div className="font-mono text-lg font-semibold text-stone-900 num-tab">{fmt(paymentPending.total)}</div>
+            )}
+          </div>
+
+          {/* Warning */}
+          {isHmrc ? (
+            <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-5 text-xs text-amber-800 leading-relaxed text-left">
+              Filed returns cannot be corrected through this app — contact HMRC directly to amend.
+            </div>
+          ) : (
+            <div className="bg-stone-50 rounded-xl px-3 py-2.5 mb-5 text-xs text-stone-500 leading-relaxed text-left">
+              <strong className="text-stone-700">PSR cancel window</strong> — mandatory under APP fraud reimbursement rules (PS23/3, from 7 Oct 2024). Cancel if anything looks wrong: gross negligence bars your claim. Faster Payments and CHAPS covered up to £85,000, reimbursed within 5 business days.
+            </div>
+          )}
+
+          {/* Cancel — subdued secondary, not alarming */}
+          <button
+            onClick={() => {
+              setPaymentPending(null);
+              fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
+            }}
+            className="w-full bg-stone-100 text-stone-700 py-3.5 rounded-2xl font-medium text-sm active:scale-[0.98] transition-all hover:bg-stone-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
+          >
+            Cancel
+          </button>
+          <div className="mt-3 text-[11px] text-stone-500">
+            {isHmrc ? 'Filing automatically in' : 'Sending automatically in'} {paymentPending.countdown}s
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (viewMode === 'desktop') {
     return (
-      <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
+      <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Santander Text', 'Geist', system-ui, sans-serif" }}>
         <style>{css}</style>
 
         <header className="sticky top-0 z-30 bg-white border-b border-stone-200">
           <div className="red-bar h-1" />
           <div className="max-w-[1440px] mx-auto px-8 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#c8102e] flex items-center justify-center"><div className="w-3.5 h-3.5 rounded-full border-2 border-white" /></div>
+              <SantanderLogo className="h-6 w-auto" />
+              <div className="h-6 w-px bg-stone-200" />
               <div>
-                <div className="font-display text-lg leading-none">Santander Business</div>
+                <div className="text-[11px] uppercase tracking-[0.15em] text-stone-600 leading-none">Business</div>
                 <div className="text-[10px] uppercase tracking-[0.15em] text-stone-500 mt-0.5">{entity.name}</div>
               </div>
             </div>
@@ -5371,15 +7030,15 @@ export default function App() {
                 </span>
                 Synced
               </div>
-              <button onClick={() => setViewMode('mobile')} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
+              <button onClick={() => setViewMode('mobile')} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
                 Switch to mobile
               </button>
-              <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
+              <button onClick={() => setShowEntitySwitcher(true)} className="text-[10px] uppercase tracking-wider text-stone-600 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200">
                 {entity.label}
               </button>
               <button onClick={() => setShowNotifications(true)} className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400">
                 <Bell className="w-4 h-4" />
-                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
+                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#EC0000]" />
               </button>
               <button className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-stone-100">
                 <div className="w-8 h-8 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-medium">JW</div>
@@ -5405,7 +7064,7 @@ export default function App() {
                   <button key={t.id} onClick={() => setTab(t.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${active ? 'bg-stone-900 text-white' : 'hover:bg-stone-100 text-stone-700'}`}>
                     <I className="w-4 h-4" />
                     <span className="flex-1 text-left">{t.label}</span>
-                    {t.badge > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20' : 'bg-[#c8102e] text-white'}`}>{t.badge}</span>}
+                    {t.badge > 0 && <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20' : 'bg-[#EC0000] text-white'}`}>{t.badge}</span>}
                   </button>
                 );
               })}
@@ -5420,6 +7079,8 @@ export default function App() {
                 { id: 'idcheck', label: 'ID register', icon: UserCheck },
                 { id: 'closure', label: 'Close account', icon: Archive },
                 { id: 'dormancy', label: 'Dormant accounts', icon: Pause },
+                { id: 'recurring', label: 'Standing orders & DDs', icon: RefreshCw },
+                { id: 'complaint', label: 'Log complaint', icon: Scale },
               ].map(t => {
                 const I = t.icon;
                 return (
@@ -5445,11 +7106,11 @@ export default function App() {
           {/* Centre: main content — same screens as mobile */}
           <main className={tab === 'statements' || tab === 'mtd' ? "col-span-10" : "col-span-7"}>
             <div className="max-w-2xl mx-auto">
-              {tab === 'home' && <HomeScreen />}
-              {tab === 'approve' && <ApproveScreen />}
-              {tab === 'audit' && <AuditScreen />}
-              {tab === 'mtd' && <MTDScreen />}
-              {tab === 'statements' && <StatementsScreen />}
+              {tab === 'home' && HomeScreen()}
+              {tab === 'approve' && ApproveScreen()}
+              {tab === 'audit' && AuditScreen()}
+              {tab === 'mtd' && MTDScreen()}
+              {tab === 'statements' && StatementsScreen()}
             </div>
           </main>
 
@@ -5519,22 +7180,22 @@ export default function App() {
 
               {/* Accessibility */}
               <button onClick={() => setShowA11ySheet(true)} className="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 text-left flex items-center gap-2.5 hover:bg-stone-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900">
-                <Heart className="w-3.5 h-3.5 text-[#c8102e] flex-shrink-0" />
+                <Heart className="w-3.5 h-3.5 text-[#CC0000] flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-medium text-stone-900">Accessibility settings</div>
                   <div className="text-[9px] text-stone-500 mt-0.5">{a11yDyslexia || a11yReduceMotion || a11yHighContrast || a11yLargeText || a11yFocus || a11ySimplify ? 'Modes active' : 'Dyslexia · motion · contrast · more'}</div>
                 </div>
-                <ChevronRight className="w-3 h-3 text-stone-400 flex-shrink-0" />
+                <ChevronRight className="w-3 h-3 text-stone-500 flex-shrink-0" />
               </button>
 
               {/* Motto */}
               <div className="text-center pt-2">
-                <p className="text-[10px] text-stone-400 italic font-display">A digital bank with a personal touch</p>
+                <p className="text-[10px] text-stone-500 italic font-display">A digital bank with a personal touch</p>
               </div>
 
               {/* Attribution */}
               <div className="text-center pt-3 border-t border-stone-100 mt-3 space-y-0.5">
-                <p className="text-[9px] text-stone-400">
+                <p className="text-[9px] text-stone-500">
                   Concept &amp; prototype by <span className="font-medium text-stone-500">Alan Davidson</span>
                 </p>
                 <p className="text-[9px] text-stone-300">Alan.Davidson@santander.co.uk</p>
@@ -5556,87 +7217,33 @@ export default function App() {
         {workflow === 'ringfence' && renderRingfence()}
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
+        {workflow === 'complaint' && renderComplaint()}
+        {workflow === 'recurring' && renderRecurring()}
+        {workflow === 'dispute' && renderDispute()}
+        {workflow === 'beneficiary' && renderBeneficiary()}
+        {workflow === 'certificate' && renderCertificate()}
+        {workflow === 'trusted' && renderTrusted()}
 
-        {showOTP && <OTPSheet />}
-        {showCompliance && <ComplianceSheet />}
-        {showSavings && <SavingsSheet />}
-        {showRMSheet && <RMSheet />}
-        {showEntitySwitcher && <EntitySheet />}
-        {pendingCancelId && <CancelSheet />}
-        {showReceiptSheet && <ReceiptSheet />}
-        {showPinSheet && <PinSheet />}
-        {showOBSheet && <OBSheet />}
-        {showVoiceMemo && <VoiceMemoSheet />}
-        {showSequencer && <SequencerSheet />}
-        {showA11ySheet && <A11ySheet />}
-        {showVoiceSetup && <VoiceIdSheet />}
-        {showNotifications && <NotificationsSheet />}
+        {showOTP && OTPSheet()}
+        {showSignPin && SignPinSheet()}
+        {showCompliance && ComplianceSheet()}
+        {showSavings && SavingsSheet()}
+        {showRMSheet && RMSheet()}
+        {showEntitySwitcher && EntitySheet()}
+        {pendingCancelId && CancelSheet()}
+        {showReceiptSheet && ReceiptSheet()}
+        {showPinSheet && PinSheet()}
+        {showCardControls && CardControlsSheet()}
+        {showOBSheet && OBSheet()}
+        {showVoiceMemo && VoiceMemoSheet()}
+        {showSequencer && SequencerSheet()}
+        {showA11ySheet && A11ySheet()}
+        {showVoiceSetup && VoiceIdSheet()}
+        {showNotifications && NotificationsSheet()}
 
         {/* ── Payment / HMRC cool-off overlay ── */}
-        {paymentPending && (() => {
-          const maxCountdown = paymentPending.kind === 'hmrc' ? 5 : 10;
-          const pct = paymentPending.countdown / maxCountdown;
-          const r = 42;
-          const circ = 2 * Math.PI * r;
-          const isHmrc = paymentPending.kind === 'hmrc';
-          return (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/75 backdrop-blur-sm anim-fade">
-              <div className="bg-white rounded-3xl p-8 mx-5 max-w-xs w-full shadow-2xl text-center">
-                {/* Ring countdown */}
-                <div className="relative w-24 h-24 mx-auto mb-5">
-                  <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                    <circle cx="48" cy="48" r={r} fill="none" stroke="#e7e5e4" strokeWidth="7" />
-                    <circle cx="48" cy="48" r={r} fill="none" stroke="#c8102e" strokeWidth="7"
-                      strokeDasharray={circ}
-                      strokeDashoffset={circ * (1 - pct)}
-                      strokeLinecap="round"
-                      style={{ transition: 'stroke-dashoffset 0.9s linear' }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-stone-900 tabular-nums">{paymentPending.countdown}</span>
-                  </div>
-                </div>
-
-                {/* Title */}
-                <div className="text-xs uppercase tracking-widest text-stone-400 mb-1">
-                  {isHmrc ? 'Submitting to HMRC' : 'Sending payment'}
-                </div>
-                <div className="font-display text-2xl text-stone-900 leading-tight mb-1">
-                  {isHmrc ? 'One last chance to stop' : 'Check the details'}
-                </div>
-                <div className="text-sm text-stone-500 mb-1">{paymentPending.label}</div>
-                {paymentPending.total > 0 && (
-                  <div className="font-mono text-xl font-semibold text-stone-900 num-tab mb-5">
-                    {fmt(paymentPending.total)}
-                  </div>
-                )}
-
-                {/* Warning */}
-                <div className={`rounded-2xl p-3 mb-5 text-xs leading-relaxed ${isHmrc ? 'bg-amber-50 text-amber-800' : 'bg-stone-50 text-stone-600'}`}>
-                  {isHmrc
-                    ? 'Once submitted, this return is lodged with HMRC and cannot be amended through this app. Contact HMRC directly to correct a filed return.'
-                    : 'Money moves when the countdown ends. Cancel now if you have spotted a wrong account or amount.'}
-                </div>
-
-                {/* Cancel */}
-                <button
-                  onClick={() => {
-                    setPaymentPending(null);
-                    fireToast(isHmrc ? 'HMRC submission cancelled — nothing was sent.' : 'Payment cancelled — nothing was sent.');
-                  }}
-                  className="w-full bg-[#c8102e] text-white py-4 rounded-2xl font-medium text-sm active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"
-                >
-                  Cancel — go back
-                </button>
-                <div className="mt-3 text-[11px] text-stone-400">
-                  Sending automatically in {paymentPending.countdown}s
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-        {openCounterparty && <CounterpartySheet />}
+        {paymentPending && PaymentPendingOverlay()}
+        {openCounterparty && CounterpartySheet()}
 
         {toast && (
           <div className="fixed bottom-8 right-8 z-50 anim-fade max-w-md">
@@ -5652,18 +7259,16 @@ export default function App() {
 
   // Mobile shell (default)
   return (
-    <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Geist', system-ui, sans-serif" }}>
+    <div className={`min-h-screen page-bg font-body text-stone-900 ${a11yClass}`} style={{ fontFamily: a11yDyslexia ? "'OpenDyslexic', 'Comic Sans MS', cursive" : "'Santander Text', 'Geist', system-ui, sans-serif" }}>
       <style>{css}</style>
 
-      <header className="sticky top-0 z-30 bg-[#faf6ef]/85 backdrop-blur-xl border-b border-stone-200/60">
+      <header className="sticky top-0 z-30 bg-[#FBF1EA]/85 backdrop-blur-xl border-b border-stone-200/60">
         <div className="red-bar h-1" />
         <div className="px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#c8102e] flex items-center justify-center"><div className="w-3 h-3 rounded-full border-2 border-white" /></div>
-            <div>
-              <div className="font-display text-base leading-none">Santander</div>
-              <div className="text-[9px] uppercase tracking-[0.15em] text-stone-500">{entity.isTreasurer ? 'Treasurer · ' : 'Business · '}{entity.name}</div>
-            </div>
+          <div className="flex items-center gap-2.5">
+            <SantanderLogo className="h-5 w-auto" />
+            <div className="h-5 w-px bg-stone-200" />
+            <div className="text-[9px] uppercase tracking-[0.15em] text-stone-500 leading-tight">{entity.isTreasurer ? 'Treasurer · ' : 'Business · '}{entity.name}</div>
           </div>
           <div className="flex items-center gap-1">
             <div className="flex items-center gap-1 px-2 py-1">
@@ -5673,10 +7278,10 @@ export default function App() {
               </span>
               <span className="text-[9px] uppercase tracking-wider text-stone-500">Live</span>
             </div>
-            <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-500 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
-            <button className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
+            <button onClick={() => setViewMode('desktop')} className="text-[9px] uppercase tracking-wider text-stone-600 px-2 py-1 rounded-full bg-stone-100">Desktop</button>
+            <button aria-label="Notifications" className="w-9 h-9 rounded-full hover:bg-stone-100 flex items-center justify-center relative">
               <Bell className="w-4 h-4" />
-              <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#c8102e]" />
+              <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#EC0000]" />
             </button>
             <button className="w-9 h-9 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-medium">JW</button>
           </div>
@@ -5684,11 +7289,11 @@ export default function App() {
       </header>
 
       <main>
-        {tab === 'home' && <HomeScreen />}
-        {tab === 'approve' && <ApproveScreen />}
-        {tab === 'audit' && <AuditScreen />}
-        {tab === 'mtd' && <MTDScreen />}
-        {tab === 'statements' && <StatementsScreen />}
+        {tab === 'home' && HomeScreen()}
+        {tab === 'approve' && ApproveScreen()}
+        {tab === 'audit' && AuditScreen()}
+        {tab === 'mtd' && MTDScreen()}
+        {tab === 'statements' && StatementsScreen()}
       </main>
 
       <nav className="fixed bottom-0 inset-x-0 z-30 bg-white/85 backdrop-blur-2xl border-t border-stone-200/60">
@@ -5705,11 +7310,11 @@ export default function App() {
             return (
               <button key={t.id} onClick={() => setTab(t.id)} className="py-3 flex flex-col items-center gap-1 relative">
                 <div className="relative">
-                  <I className={`w-5 h-5 ${active ? 'text-[#c8102e]' : 'text-stone-500'}`} />
-                  {t.badge > 0 && <div className="absolute -top-1 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-[#c8102e] text-white text-[9px] flex items-center justify-center font-medium">{t.badge}</div>}
+                  <I className={`w-5 h-5 ${active ? 'text-[#CC0000]' : 'text-stone-500'}`} />
+                  {t.badge > 0 && <div className="absolute -top-1 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-[#EC0000] text-white text-[9px] flex items-center justify-center font-medium">{t.badge}</div>}
                 </div>
                 <div className={`text-[10px] uppercase tracking-wider ${active ? 'text-stone-900 font-medium' : 'text-stone-500'}`}>{t.label}</div>
-                {active && <div className="absolute top-0 inset-x-6 h-0.5 bg-[#c8102e] rounded-full" />}
+                {active && <div className="absolute top-0 inset-x-6 h-0.5 bg-[#EC0000] rounded-full" />}
               </button>
             );
           })}
@@ -5727,22 +7332,31 @@ export default function App() {
       {workflow === 'ringfence' && renderRingfence()}
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
+      {workflow === 'complaint' && renderComplaint()}
+      {workflow === 'recurring' && renderRecurring()}
+      {workflow === 'dispute' && renderDispute()}
+      {workflow === 'beneficiary' && renderBeneficiary()}
+      {workflow === 'certificate' && renderCertificate()}
+      {workflow === 'trusted' && renderTrusted()}
 
-      {showOTP && <OTPSheet />}
-      {showCompliance && <ComplianceSheet />}
-      {showSavings && <SavingsSheet />}
-      {showRMSheet && <RMSheet />}
-      {showEntitySwitcher && <EntitySheet />}
-      {pendingCancelId && <CancelSheet />}
-      {showReceiptSheet && <ReceiptSheet />}
-      {showPinSheet && <PinSheet />}
-      {showOBSheet && <OBSheet />}
-      {showVoiceMemo && <VoiceMemoSheet />}
-      {showA11ySheet && <A11ySheet />}
-      {showSequencer && <SequencerSheet />}
-      {showVoiceSetup && <VoiceIdSheet />}
-      {showNotifications && <NotificationsSheet />}
-      {openCounterparty && <CounterpartySheet />}
+      {showOTP && OTPSheet()}
+      {showSignPin && SignPinSheet()}
+      {showCompliance && ComplianceSheet()}
+      {showSavings && SavingsSheet()}
+      {showRMSheet && RMSheet()}
+      {showEntitySwitcher && EntitySheet()}
+      {pendingCancelId && CancelSheet()}
+      {showReceiptSheet && ReceiptSheet()}
+      {showPinSheet && PinSheet()}
+      {showCardControls && CardControlsSheet()}
+      {showOBSheet && OBSheet()}
+      {showVoiceMemo && VoiceMemoSheet()}
+      {showA11ySheet && A11ySheet()}
+      {showSequencer && SequencerSheet()}
+      {showVoiceSetup && VoiceIdSheet()}
+      {showNotifications && NotificationsSheet()}
+      {openCounterparty && CounterpartySheet()}
+      {paymentPending && PaymentPendingOverlay()}
 
       {toast && (
         <div className="fixed bottom-24 inset-x-5 z-50 anim-fade">

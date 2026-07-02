@@ -15,3 +15,6 @@ __pycache__/
 
 # Claude Code agent worktrees (temporary isolation sandboxes)
 .claude/worktrees/
+
+# Board-pack bundle — regenerable zip of already-tracked deliverables
+Santander_Board_Pack_*.zip

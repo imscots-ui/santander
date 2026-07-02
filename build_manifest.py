@@ -6,10 +6,10 @@ A comprehensive document-style deck capturing everything built, written, and del
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_AUTO_SIZE
 
 # ── Brand colours ─────────────────────────────────────────────────────────────
-RED      = RGBColor(0xC8, 0x10, 0x2E)
+RED      = RGBColor(0xDA, 0x29, 0x1C)
 DARK     = RGBColor(0x1C, 0x19, 0x17)
 WARM     = RGBColor(0xFA, 0xF6, 0xEF)
 WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
@@ -51,6 +51,7 @@ def T(slide, text, l, t, w, h, size=12, bold=False, color=DARK,
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     p = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
@@ -67,6 +68,7 @@ def ML(slide, lines, l, t, w, h, size=11, color=DARK, leading=5):
     txb.word_wrap = True
     tf = txb.text_frame
     tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.NONE
     first = True
     for line in lines:
         if first:
@@ -92,11 +94,19 @@ def section_header(s, title, subtitle=None):
 
 def advisor_stamp(s):
     R(s, 0, 7.22, 13.33, 0.28, fill=DARK)
-    T(s, "Alan Davidson · Business Banking Advisor · Self-initiated · Completed out of hours in own time · June 2026",
-      0.5, 7.24, 12.33, 0.22, size=8, color=STONE3, align=PP_ALIGN.CENTER)
+    T(s, "INTERNAL · CONFIDENTIAL", 0.5, 7.24, 3.0, 0.22, size=8, bold=True,
+      color=LIGHTRED, align=PP_ALIGN.LEFT)
+    T(s, "Alan Davidson · Business Banking Advisor · Self-initiated · Own time · June 2026",
+      3.5, 7.24, 9.33, 0.22, size=8, color=STONE3, align=PP_ALIGN.RIGHT)
 
 def slide_num(s, n):
     T(s, str(n), 12.9, 7.2, 0.35, 0.25, size=8, color=STONE5, align=PP_ALIGN.RIGHT)
+
+def classification_tag(s, x=10.95, y=0.30):
+    """Small classification chip for cover slides."""
+    R(s, x, y, 1.95, 0.34, fill=RED)
+    T(s, "INTERNAL · CONFIDENTIAL", x, y+0.04, 1.95, 0.26,
+      size=7.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 def tag(s, text, x, y, w=1.8, fill=STONE1, color=STONE7):
     R(s, x, y, w, 0.27, fill=fill, line=STONE3)
@@ -120,6 +130,9 @@ R(s, 0, 0, 13.33, 7.5, fill=DARK)
 R(s, 0, 0, 13.33, 0.08, fill=RED)
 R(s, 0, 7.42, 13.33, 0.08, fill=RED)
 
+# Classification tag (top-right)
+classification_tag(s)
+
 # Santander flamingo logo mark
 R(s, 0.6, 1.6, 0.55, 0.55, fill=RED)
 R(s, 0.6, 1.6, 0.55, 0.55, fill=RED)
@@ -138,7 +151,7 @@ ML(s, [
 ], 0.6, 4.85, 7, 1.0, size=11, color=STONE3, leading=6)
 
 # Stat boxes
-stats = [("21", "Features"), ("11", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
+stats = [("21", "Features"), ("13", "Workflows"), ("7", "Entity types"), ("8", "Frameworks")]
 for i, (num, lbl) in enumerate(stats):
     bx = 8.2 + i * 1.28
     R(s, bx, 4.6, 1.15, 1.1, fill=RGBColor(0x2C, 0x27, 0x24))
@@ -161,7 +174,7 @@ T(s, "WHAT WAS BUILT", 0.5, 1.15, 5.5, 0.28, size=9, bold=True, color=RED)
 ML(s, [
     "App.jsx — ~5,300 lines · ~300KB source · Single React component",
     "5 main screens accessible from the bottom nav / sidebar",
-    "11 step-based workflow wizards covering every key banking operation",
+    "13 step-based workflow wizards covering every key banking operation",
     "5 sheet overlays for quick-access tasks (notifications, receipts, PIN, open banking, voice)",
     "7 entity types — every compliance path forks by entity",
     "21 features across dashboard intelligence, paperless workflows, security, and compliance",
@@ -298,7 +311,7 @@ slide_num(s, 3)
 # ═══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
-section_header(s, "Eleven Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
+section_header(s, "Thirteen Workflow Wizards", "Step-based overlays — each is a full multi-step process rendered on top of the main app")
 
 workflows = [
     ("Account Closure",
@@ -333,21 +346,27 @@ workflows = [
      "£45,000 offer with live monthly repayment calculator (12/24/36 months) → CCA 1974 terms and 14-day cooling-off rights → biometric confirm and draw-down. lendingCompleted state persists."),
     ("International FX Payment",
      "3 steps",
-     "Amount + currency + IBAN + beneficiary → live rate + FCA fee disclosure (Consumer Rights Act 2015) → biometric confirm. 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref to audit trail."),
+     "Amount + currency + IBAN + beneficiary → live rate + FCA fee disclosure → biometric confirm. 5 currencies (EUR/USD/CHF/AUD/CAD). MLR 2017 screening flag ≥£50k. SWIFT ref to audit trail."),
+    ("Standing Orders & Direct Debits",
+     "up to 3 steps",
+     "Overview of active DDs (Guarantee-protected) and standing orders → set up a standing order (payee + CoP, amount, frequency, start date) or cancel a Direct Debit under the Direct Debit Guarantee."),
+    ("Complaint Handling",
+     "4 steps",
+     "Intake → escalation triage → denial → case outcome. FCA DISP-compliant. Eligible-complainant check (DISP 2.7), escalation flags, denial reason, optional goodwill. From the Log complaint tile."),
 ]
 
-pw = 3.9
+pw = 2.95
 ph = 1.38
 for i, (name, steps, desc) in enumerate(workflows):
-    col = i % 3
-    row = i // 3
-    x = 0.42 + col * (pw + 0.19)
+    col = i % 4
+    row = i // 4
+    x = 0.42 + col * (pw + 0.18)
     y = 1.12 + row * (ph + 0.16)
     R(s, x, y, pw, ph, fill=WHITE, line=STONE2)
     R(s, x, y, 0.055, ph, fill=RED)
-    T(s, name, x+0.18, y+0.1, pw-0.28, 0.28, size=9.5, bold=True, color=DARK)
-    T(s, steps, x+0.18, y+0.36, 1.2, 0.2, size=7.5, bold=True, color=RED)
-    ML(s, [desc], x+0.18, y+0.55, pw-0.3, 0.78, size=8, color=STONE5, leading=3)
+    T(s, name, x+0.16, y+0.1, pw-0.24, 0.4, size=9, bold=True, color=DARK)
+    T(s, steps, x+0.16, y+0.46, pw-0.24, 0.2, size=7, bold=True, color=RED)
+    ML(s, [desc], x+0.16, y+0.66, pw-0.28, 0.66, size=7, color=STONE5, leading=2)
 
 advisor_stamp(s)
 slide_num(s, 4)
@@ -623,58 +642,61 @@ slide_num(s, 9)
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=WARM)
 section_header(s, "Reference Library — 1701-uniform/REFERENCE.md",
-               "5,024 lines · 26 sections · 41 books synthesised into a single indexed technical reference")
+               "23,846 lines · 112 sections · 121 books & regulatory documents · §100–112 UX, Node.js, TypeScript, C++, financial crime & ML detection")
 
-sections = [
-    ("1",  "FastAPI & SQLAlchemy",          "FastAPI docs, SQLAlchemy docs",                                     "~180"),
-    ("2",  "React Fundamentals",             "React docs",                                                        "~150"),
-    ("3",  "Tailwind CSS",                   "Tailwind docs",                                                     "~120"),
-    ("4",  "Git & Version Control",          "Pro Git",                                                           "~200"),
-    ("5",  "Docker & Containers",            "Docker docs",                                                       "~150"),
-    ("6",  "Python Best Practices",          "Fluent Python",                                                     "~180"),
-    ("7",  "TypeScript",                     "TypeScript Handbook",                                               "~160"),
-    ("8",  "Testing",                        "Testing library docs",                                              "~140"),
-    ("9",  "AWS & Cloud",                    "AWS docs",                                                          "~200"),
-    ("10", "Security Fundamentals",          "OWASP",                                                             "~180"),
-    ("11", "React & JS Frontend Patterns",   "You Don't Know JS · JS Good Parts · Eloquent JS · JS Patterns",    "~350"),
-    ("12", "Python Data Science",            "Python for Data Analysis",                                          "~150"),
-    ("13", "JWT & Authentication",           "OAuth2 specs, JWT RFC",                                             "~220"),
-    ("14", "REST API Conventions",           "RESTful Web APIs",                                                  "~180"),
-    ("15", "GraphQL",                        "GraphQL docs",                                                      "~150"),
-    ("16", "PostgreSQL",                     "PostgreSQL docs",                                                   "~200"),
-    ("17", "Redis",                          "Redis docs",                                                        "~140"),
-    ("18", "Kubernetes",                     "Kubernetes docs",                                                   "~180"),
-    ("19", "CI/CD",                          "GitHub Actions docs",                                               "~160"),
-    ("20", "Monitoring & Observability",     "SRE Book",                                                          "~180"),
-    ("21", "HTTP Fundamentals",              "HTTP: The Definitive Guide (Gourley & Totty)",                      "~380"),
-    ("22", "SQL Performance & Indexing",     "SQL Performance Explained (Winand)",                                "~350"),
-    ("23", "Advanced Prompt Engineering",    "Prompt Engineering for LLMs (Al-Shamey, Venn, Vael)",              "~420"),
-    ("24", "AI Agent Architecture",          "Building AI Agents + Mastering AI Tools",                           "~380"),
-    ("25", "Claude Code Workflow",           "Claude Code Mastery + Claude Myths & Realities + AI Tools Guide",  "~360"),
-    ("26", "UI Design Principles",           "Refactoring UI (Wathan & Schoger)",                                 "~420"),
+# ── Stats banner ──────────────────────────────────────────────────────────────
+for i4, (val, lbl) in enumerate([
+    ("23,846", "lines"),
+    ("112",    "sections"),
+    ("121",    "books & docs"),
+    ("70+",    "quick answers"),
+]):
+    bx4 = 0.42 + i4 * 3.22
+    R(s, bx4, 1.12, 3.05, 0.58, fill=RED)
+    T(s, val, bx4, 1.14, 3.05, 0.36, size=22, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
+    T(s, lbl, bx4, 1.50, 3.05, 0.20, size=8, color=LIGHTRED, align=PP_ALIGN.CENTER)
+
+# ── Domain blocks — two columns of 5 ─────────────────────────────────────────
+domains = [
+    [  # Left column — x=0.42
+        (RED,     "Core Development",                   "§1–22, §91, §104–106, §110",
+         "Python · SQL · FastAPI · Docker · Git · React/JS · JWT · HTTP · Linux · pytest · System Design (King) · Node.js · TypeScript (Pocock) · A Tour of C++ (Stroustrup)"),
+        (RED,     "AI & Prompt Engineering",            "§20, §23–25, §58–65, §72–74",
+         "Claude · AI Agents · Copilot · ChatGPT · AI Content Creation · Surveillance AI · Dynamics 365 AI · 600+ prompts"),
+        (RED,     "Banking · Payments · Regulation",    "§35–41, §66–70, §84, §86–88",
+         "PSD2 · FPS/BACS/CHAPS/SWIFT · PSR · FCA Consumer Duty · AML · Ring-Fencing · SCA · BCOBS · FCA Compliance · UK Resolution · Post-Trade"),
+        (RED,     "Prudential · Conduct · Financial Crime", "§36–40, §87–88, §97, §107–108, §112",
+         "PRA/PRC · Resolution · MREL · Senior Managers Regime (Berman) · Financial Shenanigans (Schilit) · Fraud Act (Monaghan) · ML Fraud Detection (Ma & Wu)"),
+        (RED,     "Data Protection",                    "§75, §77",
+         "GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024) · GDPR for Startups (Martin, Edward Elgar 2023)"),
+    ],
+    [  # Right column — x=6.68
+        (DARK,    "UI · Frontend · Design",             "§11, §26, §42, §50–56, §78–81",
+         "React/JS patterns · Refactoring UI · Tailwind CSS v3 (×3 books) · CSS Animation · Vite/TS · React 19 · React Hooks (Larsen) · UX · Photoshop · KiCad"),
+        (DARK,    "Office, Docs & Publishing",          "§27–33, §64–65, §76, §92, §94–96, §98",
+         "Power Teams · Power BI · PowerPoint (×3) · SharePoint · Dynamics 365 BC AL · Azure AI-102 · LibreOffice · KDP · PDF→EPUB · Mastering Prezi (Anderson-Williams)"),
+        (DARK,    "UX · Accessibility · Equality",      "§34, §99–103, §111",
+         "Equality Act 2010 · WCAG 2.1 contrast (4.5:1) · WebAIM/CCA · UX Management (Binder) · Design Thinking (Park) · UX Research (Schmidt) · Pro UX & Accessibility Designer"),
+        (DARK,    "Electronics · Hardware · Engineering Design", "§43–49, §54, §57, §89, §93",
+         "MakerSpace · Electronics · Mechatronics · Digital Logic · Arduino/IoT · Embedded Linux · ISO GD&T (Green) · CAMSS Materials Selection (NMAB-467)"),
+        (EMERALD, "Digital Banking Transformation",      "§82, §83, §85",
+         "DBS World's Best Bank (Speculand) · The Autonomous Bank AI/ML (Dhillon) · TMRW Digital Bank Build (Khoo/UOB) · Quick Lookup Decision Index"),
+    ],
 ]
 
-# Two columns of 13 rows each
-col_defs = [(0.42, 6.05), (6.68, 6.05)]
-for ci3, col_range in enumerate(col_defs):
-    cx3, cw3 = col_range
-    start = ci3 * 13
-    end = start + 13
-    batch = sections[start:end]
-    # mini header
-    R(s, cx3, 1.12, cw3, 0.28, fill=DARK)
-    T(s, "§", cx3+0.08, 1.14, 0.3, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Section", cx3+0.38, 1.14, 2.2, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Source material", cx3+2.62, 1.14, 2.8, 0.22, size=8, bold=True, color=STONE3)
-    T(s, "Lines", cx3+cw3-0.5, 1.14, 0.5, 0.22, size=8, bold=True, color=STONE3, align=PP_ALIGN.RIGHT)
-    for ri3, (num, title, sources, lines) in enumerate(batch):
-        ry3 = 1.4 + ri3 * 0.37
-        bg3 = STONE1 if ri3 % 2 == 0 else WHITE
-        R(s, cx3, ry3, cw3, 0.37, fill=bg3, line=STONE2)
-        T(s, num, cx3+0.08, ry3+0.07, 0.28, 0.25, size=8, bold=True, color=RED)
-        T(s, title, cx3+0.38, ry3+0.07, 2.18, 0.25, size=8, bold=True, color=DARK)
-        T(s, sources, cx3+2.62, ry3+0.07, 2.75, 0.25, size=7.5, color=STONE5)
-        T(s, lines, cx3+cw3-0.5, ry3+0.07, 0.45, 0.25, size=8, color=STONE7, align=PP_ALIGN.RIGHT)
+col_xs = [0.42, 6.68]
+for ci5, col_domains in enumerate(domains):
+    cx5 = col_xs[ci5]
+    cw5 = 6.05
+    for di5, (hdr_col, domain, refs, desc) in enumerate(col_domains):
+        dy5 = 1.82 + di5 * 0.98
+        R(s, cx5, dy5, cw5, 0.26, fill=hdr_col)
+        T(s, domain, cx5+0.10, dy5+0.03, cw5-0.72, 0.22, size=8.5, bold=True, color=WHITE)
+        T(s, refs, cx5+cw5-0.60, dy5+0.04, 0.58, 0.20, size=7, bold=True,
+          color=LIGHTRED, align=PP_ALIGN.RIGHT)
+        bg5 = STONE1 if di5 % 2 == 0 else WHITE
+        R(s, cx5, dy5+0.26, cw5, 0.68, fill=bg5, line=STONE2)
+        T(s, desc, cx5+0.10, dy5+0.30, cw5-0.20, 0.60, size=7.5, color=STONE7)
 
 advisor_stamp(s)
 slide_num(s, 10)
@@ -726,9 +748,11 @@ cmds = [
     ("npm run dev",              "Dev server at localhost:5173 with hot reload"),
     ("npm run build",            "Production build to dist/ — 832KB HTML"),
     ("npm run preview",          "Serve dist/ locally for final testing"),
-    ("python3 build_deck.py",    "Regenerate pitch deck (16 slides)"),
-    ("python3 build_architecture.py", "Regenerate architecture deck (10 slides)"),
-    ("python3 build_manifest.py",     "Regenerate this project record (13 slides)"),
+    ("python3 build_deck.py",           "Regenerate pitch deck (16 slides)"),
+    ("python3 build_architecture.py",   "Regenerate architecture deck (10 slides)"),
+    ("python3 build_manifest.py",       "Regenerate this project record (14 slides)"),
+    ("python3 build_complaint_guide.py","Regenerate Santander_Complaint_Guide.docx"),
+    ("python3 complaint_letter_writer.py", "Interactive FCA DISP letter writer (Evelyn/Angus)"),
 ]
 for i2, (cmd, desc) in enumerate(cmds):
     ry2 = 4.84 + i2 * 0.30
@@ -800,21 +824,23 @@ decks = [
          ("Slide 10", "Design system tokens"),
      ]),
     ("Santander_Project_Record.pptx",
-     "Project Record · 12 slides (this deck)",
+     "Project Record · 14 slides (this deck)",
      STONE7,
      [
          ("Slide 1",  "Cover"),
          ("Slide 2",  "Project overview — stats, tech stack, deployment"),
          ("Slide 3",  "Five screens"),
-         ("Slide 4",  "Eleven workflows"),
+         ("Slide 4",  "Thirteen workflows"),
          ("Slide 5",  "Entity types & mandate rules"),
          ("Slide 6",  "Security & compliance — part 1"),
          ("Slide 7",  "Security & compliance — part 2"),
          ("Slide 8",  "Home screen intelligence"),
          ("Slide 9",  "Ships company agent architecture"),
-         ("Slide 10", "Reference library (26 sections)"),
+         ("Slide 10", "Reference library (112 sections · 121 books)"),
          ("Slide 11", "Deployment & build"),
-         ("Slide 12", "Business case summary"),
+         ("Slide 12", "Presentation deliverables"),
+         ("Slide 13", "Complaint handling tools (Evelyn/Angus)"),
+         ("Slide 14", "Business case summary"),
      ]),
 ]
 
@@ -841,7 +867,92 @@ slide_num(s, 12)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE 13 — BUSINESS CASE SUMMARY
+# SLIDE 13 — COMPLAINT HANDLING TOOLS
+# ═══════════════════════════════════════════════════════════════════════════════
+s = prs.slides.add_slide(BLANK)
+R(s, 0, 0, 13.33, 7.5, fill=WARM)
+section_header(s, "Complaint Handling Tools — Evelyn Workflow (Angus)",
+               "FCA DISP-compliant complaint record, letter writing, and Copilot agent — built alongside the in-app workflow")
+
+# ── Four tool panels ──────────────────────────────────────────────────────────
+tools = [
+    ("complaint_letter_writer.py",
+     "Interactive Letter Writer",
+     RED,
+     [
+         "Trigger-phrase driven — Evelyn's exact workflow",
+         "Stage 1 record: 5 verbatim questions",
+         "Escalation record: 4 verbatim questions",
+         "Uphold letter: Sorry → Cause → Impact → Fix → Payment",
+         "Declined letter: Sorry → Not our fault → Reason → Explanation",
+         "Escalation: resolution changed / no change",
+         "Dual mode: complaint record + letter in one doc",
+         "Output: [REF]_[SURNAME]_[TRIGGER]_[DATE].docx",
+     ]),
+    ("Santander_Complaint_Guide.docx",
+     "Complaint Reference Guide",
+     RGBColor(0x1D, 0x4E, 0xD8),
+     [
+         "7 complaint types × Stage 1 + escalation scenarios",
+         "ISA Transfer Delay — 3 scenarios (upheld/declined/escalation)",
+         "Incorrect Charge / Fee",
+         "Payment Error",
+         "APP Fraud — PSR PS23/3 reimbursement",
+         "Mandate Change Error",
+         "Poor Service / Communication",
+         "Account Closure Delay",
+         "Full letter templates, interest formula, DISP table",
+     ]),
+    ("Evelyn_Complaint_Agent_Angus.md",
+     "Microsoft Copilot Agent",
+     EMERALD,
+     [
+         "Complete system prompt for Copilot / Copilot Studio",
+         "All 9 trigger phrases with output definitions",
+         "Verbatim Stage 1 (5Q) and escalation (4Q) headings",
+         "Upheld and declined letter templates with exact language",
+         "FOS referral block — copy-exact text",
+         "Standard sign-off block",
+         "System behaviour rules (vault-ready, consistency)",
+         "Paste into Copilot custom instructions or Copilot Studio",
+     ]),
+    ("In-app: renderComplaint()",
+     "App.jsx Workflow",
+     STONE7,
+     [
+         "4-step workflow wizard built into the prototype",
+         "Step 1: Intake — category, date, eligible complainant check",
+         "Step 2: Escalation triage — flag selection",
+         "Step 3: Denial reason (if not upheld)",
+         "Step 4: Case outcome — goodwill gesture option",
+         "Triggered from Home screen 'Log complaint' action tile",
+         "FCA DISP-compliant flow throughout",
+         "State reset in closeWorkflow() — no ghost state",
+     ]),
+]
+
+pw5 = 3.08
+ph5 = 5.38
+for ci6, (filename, subtitle, acol6, pts6) in enumerate(tools):
+    x6 = 0.3 + ci6 * (pw5 + 0.19)
+    y6 = 1.12
+    R(s, x6, y6, pw5, ph5, fill=WHITE, line=STONE2)
+    R(s, x6, y6, pw5, 0.07, fill=acol6)
+    T(s, subtitle, x6+0.12, y6+0.10, pw5-0.2, 0.30, size=10, bold=True, color=acol6)
+    T(s, filename, x6+0.12, y6+0.42, pw5-0.2, 0.22, size=7.5, color=STONE5, italic=True)
+    R(s, x6+0.12, y6+0.66, pw5-0.22, 0.016, fill=STONE3)
+    ML(s, ["· " + p for p in pts6], x6+0.12, y6+0.72, pw5-0.22, ph5-0.86, size=8, color=STONE7, leading=4)
+
+# Bottom note
+T(s, "Trigger phrases: 'evidence to support complaint stage 1' · 'Uphold - stage 1 letter' · 'Declined - stage 1 letter' · 'Escalation - resolution changed' and 5 more",
+  0.3, 6.68, 12.7, 0.25, size=7.5, color=STONE5, italic=True)
+
+advisor_stamp(s)
+slide_num(s, 13)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SLIDE 14 — BUSINESS CASE SUMMARY
 # ═══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 R(s, 0, 0, 13.33, 7.5, fill=DARK)
@@ -857,7 +968,7 @@ metrics_top = [
     ("£137M", "Annualised opportunity\n(280,000 customers)"),
     ("£4.9M", "Cost saving per 10k\ncustomers · Year 1"),
     ("21",    "Features built\nacross 4 areas"),
-    ("11",    "Paper workflows\ndigitised"),
+    ("12",    "Paper workflows\ndigitised"),
     ("5",     "Paper forms\nretired"),
     ("8",     "Compliance\nframeworks"),
 ]
@@ -905,7 +1016,7 @@ T(s, "Alan Davidson · Business Banking Advisor · Santander · June 2026",
 T(s, "£137M", 10.1, 5.48, 2.8, 0.75, size=48, bold=True, color=RED, align=PP_ALIGN.RIGHT)
 T(s, "annualised opportunity", 10.1, 6.18, 2.8, 0.28, size=9, color=STONE5, align=PP_ALIGN.RIGHT)
 
-slide_num(s, 13)
+slide_num(s, 14)
 
 prs.save("Santander_Project_Record.pptx")
 print("Saved → /home/user/santander/Santander_Project_Record.pptx")

@@ -12,7 +12,7 @@
 ## 1. The Prototype — App.jsx
 
 **Location:** `/App.jsx`  
-**Size:** ~5,300 lines · ~300KB · Single React component  
+**Size:** ~7,400 lines · ~300KB · Single React component  
 **Purpose:** Fully functional Santander Business Banking prototype — no backend, no real data, browser-only
 
 ### Screens (5 main tabs)
@@ -20,12 +20,12 @@
 | Screen | Key Features |
 |--------|-------------|
 | Home Dashboard | Balance hero card, business health score gauge, session anomaly alert, supplier risk radar, director command centre, 13-week forecast, cards, pending approvals, cooling-off progress bars, MTD VAT alert, RM card (Priya Desai), accounts list with mandate badges, Voice ID security, demo controls |
-| Signature Queue | Dual-authorisation — sign with Face ID or reject pending mandates/closures/payments, status display per item |
+| Signature Queue | Dual-authorisation — sign with a personal PIN (or Face ID / Fingerprint) or reject pending mandates/closures/payments, status display per item |
 | Financial Statements | 6 months transactions, chronological + category views, counterparty search, detail sheets, PDF/CSV/Excel export, method filter |
 | Making Tax Digital | HMRC VAT obligations, quarterly submission wizard (4 steps), ITSA readiness, YTD tax estimate, insights panel |
 | Audit Trail | 7-year FCA SYSC 9 compliant log, every action timestamped and actor-attributed, immutable |
 
-### Workflows (11 step-based wizards · 5 sheet overlays)
+### Workflows (17 step-based wizards · 16 sheet overlays)
 
 | Workflow | Steps | Key Logic |
 |----------|-------|-----------|
@@ -40,6 +40,13 @@
 | Credit Ring-Fence | Risk overview + legal basis → Declaration | Formal instruction: personal account data excluded from business credit decisioning. GDPR Art.5(1)(c) purpose limitation. Persistent state — survives workflow close |
 | Pre-approved Business Lending | Offer/term selector → Terms & cooling-off rights → Confirm & draw down | CCA 1974 regulated. 3 term options 12/24/36 months with live monthly repayment calculator. lendingCompleted persists |
 | International FX Payment | Amount + currency + IBAN + beneficiary → Rate & FCA fee disclosure → Confirm & sign | 5 currencies: EUR/USD/CHF/AUD/CAD. MLR 2017 screening flag ≥£50k. SWIFT ref logged to audit trail |
+| Standing Orders & Direct Debits | Overview → set up standing order (payee + CoP, amount, frequency, start) **or** cancel a Direct Debit | Distinguishes customer-pushed standing orders from originator-pulled DDs. Direct Debit Guarantee notice on cancellation. Triggers from Home "Standing orders & DDs" tile |
+| Complaint Handling | Intake → Escalation triage → Denial → Case outcome | FCA DISP-compliant 4-step flow. Eligible complainant check (DISP 2.7), escalation flag selection, denial reason, optional goodwill gesture. Triggers from Home screen "Log complaint" tile |
+| Signatory ID Register | ID status per signatory → List 1 → List 2 → List 3 | KYC lists 1, 2 & 3 (GOV.UK One Login identity, address evidence, trading evidence) per signatory. MLR 2017 |
+| Payment Dispute | Which payment → What went wrong → Tell us more → Review & submit | Chargeback / fraud / DD Guarantee routes, provisional refund, audit-logged |
+| International Beneficiary | Who are you paying → Their account → Purpose & screening → Review & add | IBAN/SWIFT validation, sanctions screening, re-screen on edit |
+| Balance Certificate | What do you need → Accounts & date → Purpose & delivery → Your certificate | Sealed certificate with reference; replaces written branch request + postal wait |
+| Trusted Devices & Sessions | Where you're signed in → Recent sign-ins → Security preferences → Review & apply | SCA-protected; sign out other sessions, revoke devices, security preferences |
 
 ### Entity Types (7 — all compliance paths diverge)
 
@@ -152,40 +159,28 @@ Contents:
 ## 3. The Reference Library — REFERENCE.md
 
 **Location:** `1701-uniform/REFERENCE.md`  
-**Size:** 7,150 lines · 33 sections · 48 books synthesised
+**Size:** 23,846 lines · 112 sections · 121 books & regulatory documents · Quick Lookup decision index (Jun 2026)
 
-### Sections Written This Project
+### Domain Groups (112 sections)
 
-| Section | Title | Books Synthesised | Lines |
-|---------|-------|-------------------|-------|
-| 1 | FastAPI & SQLAlchemy | FastAPI docs, SQLAlchemy docs | ~180 |
-| 2 | React Fundamentals | React docs | ~150 |
-| 3 | Tailwind CSS | Tailwind docs | ~120 |
-| 4 | Git & Version Control | Pro Git | ~200 |
-| 5 | Docker & Containers | Docker docs | ~150 |
-| 6 | Python Best Practices | Fluent Python | ~180 |
-| 7 | TypeScript | TypeScript Handbook | ~160 |
-| 8 | Testing | Testing library docs | ~140 |
-| 9 | AWS & Cloud | AWS docs | ~200 |
-| 10 | Security Fundamentals | OWASP | ~180 |
-| 11 | React & JS Frontend Patterns | You Don't Know JS, JavaScript: The Good Parts, Eloquent JavaScript, JavaScript Patterns | ~350 |
-| 12 | Python Data Science | Python for Data Analysis | ~150 |
-| 13 | JWT & Authentication | OAuth2 specs, JWT RFC | ~220 |
-| 14 | REST API Conventions | RESTful Web APIs | ~180 |
-| 15 | GraphQL | GraphQL docs | ~150 |
-| 16 | PostgreSQL | PostgreSQL docs | ~200 |
-| 17 | Redis | Redis docs | ~140 |
-| 18 | Kubernetes | Kubernetes docs | ~180 |
-| 19 | CI/CD | GitHub Actions docs | ~160 |
-| 20 | Monitoring & Observability | SRE Book | ~180 |
-| 21 | HTTP Fundamentals | HTTP: The Definitive Guide (Gourley & Totty) | ~380 |
-| 22 | SQL Performance & Indexing | SQL Performance Explained (Winand) | ~350 |
-| 23 | Advanced Prompt Engineering | Prompt Engineering for LLMs (Al-Shamey, Venn, Vael) | ~420 |
-| 24 | AI Agent Architecture | Building AI Agents (from training) + Mastering AI Tools | ~380 |
-| 25 | Claude Code Workflow | Claude Code Mastery + Claude Myths & Realities + AI Tools User Guide | ~360 |
-| 26 | UI Design Principles | Refactoring UI (Wathan & Schoger — from training, 30MB+ original) | ~420 |
-
-**Additional books processed:** Kali Linux (security testing), Claude Fabi.sk, AI Tools UI (multiple epub sources)
+| Domain | Sections | Key sources |
+|--------|----------|-------------|
+| Core Development | §1–22, §91, §104–106, §110 | Python, SQL, FastAPI, Docker, Git, React/JS, JWT, HTTP, Linux, pytest, System Design (King), Node.js (Kumar; Murray), TypeScript (Pocock/Bell), A Tour of C++ (Stroustrup) |
+| AI & Prompt Engineering | §20, §23–25, §58–65, §72–74 | Claude, AI Agents, Copilot, ChatGPT, AI Content Creation, Surveillance AI, Dynamics 365 AI, 600+ prompts |
+| Banking · Payments · Regulation | §35–41, §66–70, §84, §86–88 | PSD2, MTD HMRC, FPS/BACS/CHAPS/SWIFT, KYC/AML, Companies House, FCA Consumer Duty, AML MLR, Ring-Fencing, BCOBS, SCA, FCA Compliance (Mills), UK Payment Rail Designation Orders, UK Post-Trade Task Force |
+| Prudential & Market Regulation | §87–88, §97 | PRA/PRC (Jenkins PRC questionnaire), PRA SS19/13 Resolution Planning, MREL, CNRF KYC, Deposit Aggregators, Post-Trade Task Force, Senior Managers Regime / Individual Accountability (Berman, Macfarlanes) |
+| Financial Crime & Forensic Accounting | §107–108, §112 | Financial Shenanigans 4th ed (Schilit) — manipulation gimmicks; Financial Crime & Corporate Misconduct (Monaghan) — Fraud Act 2006; Financial Fraud Detection Using ML (Ma & Wu) — AI/ML detection, fraud theories |
+| Data Protection | §75, §77 | GDPR/DPDI/Marketing AI (Scheuing, Kogan Page 2024), GDPR for Startups (Martin, Edward Elgar 2023) |
+| UI · Frontend · Design | §11, §26, §42, §50–56, §78–81 | React/JS patterns, Refactoring UI, Tailwind CSS v3 (×3), CSS Animation, Vite/TS, React 19, React Hooks in Action (Larsen), UX, Photoshop, KiCad |
+| UX · Research · Learning Design | §100–103, §111 | UX Management Methods (Binder), Design Thinking for UX (Park), UX Research Methods (Schmidt), Instructional Design (Mangtani), Professional UX & Accessibility Designer |
+| Digital Banking Transformation | §82, §83, §85 | World's Best Bank — DBS (Speculand 2021), The Autonomous Bank — AI/ML (Dhillon 2025), Driving Digital Transformation — TMRW/UOB (Khoo 2021) |
+| Microsoft Ecosystem | §27–33, §64–65, §76, §92 | Power Teams, Power BI (×2), PowerPoint (×3 — incl. PowerPoint 365 Pro / Lemmings), SharePoint, Dynamics 365 BC AL, Azure AI Engineer |
+| Document Production & Publishing | §92, §94–96, §98 | PowerPoint 365 Pro (Lemmings), LibreOffice Extensions (Weber/TDF), KDP Formatting (Heliose), PDF→EPUB with Calibre (Frobnitz), Mastering Prezi for Business (Anderson-Williams/Sylvia) |
+| Employment & Equality Law | §34 | Equality Act 2010, protected characteristics, WCAG legal duty, reasonable adjustments |
+| Accessibility & WCAG | §99, §111 | WCAG 2.1 colour contrast (4.5:1 / 3:1 / 7:1), large-text thresholds, WebAIM/CCA tooling, Morville's 7 UX factors incl. accessibility, mapped to Bosun's Law |
+| Electronics · Hardware · IoT | §43–49, §54, §57, §89 | MakerSpace, Electronics, Mechatronics, Digital Logic, Devices & Circuits, Arduino/IoT, Embedded Linux, ISO GD&T Geometrical Tolerancing (Green, Elsevier) |
+| Engineering Design & Decision Systems | §93, §109 | Computer-Aided Materials Selection (NMAB-467) — knowledge-base/expert-system design; Accelerated Aging of Infrastructure Materials (NRC) — life-prediction & accelerated-testing (validate models vs reality) |
+| Quick Lookup Decision Index | — | 70+ answers · 8 themed tables · maps common questions to exact values · spans all 112 sections |
 
 ---
 
@@ -229,6 +224,16 @@ Contents:
 
 ## 6. Presentation Deliverables
 
+### Executive Brief — `Santander_Executive_Brief.pdf`
+
+One page · board pre-read for the Friday 11:00 briefing · Built with `build_exec_brief.py`
+The ask (three decisions), the numbers (£137M / £4.9M / £0 / 17 / 36), what exists today, and the evidence base.
+
+### Reports — `Santander_Technical_Report` / `Santander_Position_Paper` (.docx + .pdf)
+
+v2.0 · July 2026 · senior-management register with document control, contents, citations and references
+(`report_content.py` → `build_reports_docx.py` / `build_reports_pdf.py`)
+
 ### Pitch Deck — `Santander_Digital_Banking_Future.pptx`
 
 16 slides · Santander brand colours throughout · Built with python-pptx
@@ -238,7 +243,7 @@ Contents:
 | 1 | Title + Business Banking Advisor stamp |
 | 2 | Executive summary + 8 headline statistics |
 | 3 | The problem — 4 pain points |
-| 4 | What we built — 21 features (4-col grid) |
+| 4 | What we built — 36 features (4-col grid) |
 | 5 | Privacy controls — app/call centre separation, credit ring-fence, PSD2 consent audit |
 | 6 | Advanced features — pre-approved lending, 13-week forecast, international FX, receipt scan |
 | 7 | Intelligence & security — business health score, supplier risk radar, director command centre, Voice ID, payment sequencer, voice memo, notification bell |
@@ -256,40 +261,43 @@ Contents:
 
 ### Architecture Deck — `Santander_Architecture.pptx`
 
-10 slides · Technical deep-dive · Built with python-pptx
+12 slides · Technical deep-dive · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Cover |
-| 2 | Component map — current prototype |
-| 3 | Data & state architecture |
-| 4 | Production system architecture (4 tiers) |
-| 5 | Security architecture (4 domains) |
-| 6 | Regulatory & compliance framework |
-| 7 | Privacy & account separation architecture — app/CLI gap, credit ring-fence, PSD2 consent, GDPR basis |
-| 8 | Entity & mandate logic (7 types × 3 rules) |
-| 9 | API integration contracts (4 APIs) |
-| 10 | Design system tokens |
+| 2 | Why one file — single-component architecture rationale |
+| 3 | Internal structure — the order of App.jsx top to bottom |
+| 4 | The one hard rule — no hooks after `closeWorkflow` |
+| 5 | Navigation model — tab / workflow / step state layers |
+| 6 | One switch reshapes everything — entity system |
+| 7 | Who must authorise — mandate rules (Any-1 / Any-2 / All) |
+| 8 | Time-based safeguards — cooling-off & stalled requests |
+| 9 | Workflow architecture — 17 step-based wizards (renderXxx closures) |
+| 10 | Bosun's Law — design system tokens & colour rules |
+| 11 | Build & deploy — Vite single-file pipeline |
+| 12 | Standing orders — non-negotiable project rules |
 
 ### Project Record — `Santander_Project_Record.pptx`
 
-13 slides · Full manifest as a presentation · Built with python-pptx
+14 slides · Full manifest as a presentation · Built with python-pptx
 
 | Slide | Content |
 |-------|---------|
 | 1 | Cover — title, author, prototype link, 4 headline stats |
 | 2 | Project overview — tech stack, deployment, live link |
 | 3 | Five screens — detailed feature breakdown per tab |
-| 4 | Eleven workflows — step counts, logic, regulatory basis |
+| 4 | Seventeen workflows — step counts, logic, regulatory basis |
 | 5 | Entity types — 7 types × mandate rules × compliance divergence |
 | 6 | Security & compliance part 1 — features 1–10 with regulation |
 | 7 | Security & compliance part 2 — features 11–19 + notification bell |
 | 8 | Home screen intelligence — all 8 proactive features |
 | 9 | Ships company agent architecture — 6 officers, settings, deny list |
-| 10 | Reference library — all 33 sections, 48 books, 7,150 lines |
+| 10 | Reference library — Applied Knowledge Base (112 sections, 121 books, 23,846 lines) |
 | 11 | Deployment & build — GitHub Pages, Vite config, npm commands, CLAUDE.md |
 | 12 | Presentation deliverables — all 3 decks with slide-by-slide index |
-| 13 | Business case summary — £137M, metrics, differentiators, phase status |
+| 13 | Complaint handling tools — Evelyn workflow (Angus) |
+| 14 | Business case summary — £137M, metrics, differentiators, phase status |
 
 ### Builder Scripts
 
@@ -301,7 +309,34 @@ Contents:
 
 ---
 
-## 7. Git History (this project)
+## 7. Complaint Handling Tools
+
+Three standalone tools for FCA DISP-compliant complaint handling, built alongside the in-app workflow.
+
+| File | Purpose |
+|------|---------|
+| `complaint_letter_writer.py` | Interactive letter writer — Evelyn workflow (Angus format). Trigger-phrase driven: Stage 1 record (5 questions), escalation record (4 questions), upheld/declined/escalation letters, dual mode. Saves `[REF]_[SURNAME]_[TRIGGER]_[DATE].docx` |
+| `Santander_Complaint_Guide.docx` | Comprehensive reference guide — 7 complaint types × Stage 1 upheld/declined/escalation scenarios. Full letter templates, interest formula, FCA DISP quick reference. For use on work laptop |
+| `build_complaint_guide.py` | Rebuilds `Santander_Complaint_Guide.docx` — run `python3 build_complaint_guide.py` |
+| `Evelyn_Complaint_Agent_Angus.md` | Microsoft Copilot instruction file — complete system prompt for the Angus agent. All trigger phrases, verbatim Stage 1/escalation headings, letter templates with exact language patterns, FOS block, sign-off. Paste into Copilot custom instructions or Copilot Studio |
+
+### Trigger Phrases (complaint_letter_writer.py / Angus Copilot agent)
+
+| Trigger | Output |
+|---------|--------|
+| `evidence to support complaint stage 1` | 5-question Stage 1 complaint record |
+| `evidence to support complaint escalation` | 4-question escalation record |
+| `Uphold - stage 1 letter` | Letter: Sorry → Cause → Impact → Fix → Payment |
+| `Declined - stage 1 letter` | Letter: Sorry → Not our fault → One-line reason → Full explanation |
+| `Escalation - resolution changed` | Escalation final response — decision changed |
+| `Escalation - no change in original resolution` | Escalation final response — decision maintained |
+| `Escalation - no change in escalated complaint` | Escalation final response — escalated decision maintained |
+| `evidence to support complaint stage 1 + Uphold - stage 1 letter` | Dual mode: complaint record + upheld letter |
+| `evidence to support complaint stage 1 + Declined - stage 1 letter` | Dual mode: complaint record + declined letter |
+
+---
+
+## 8. Git History (this project)
 
 | Commit | Description |
 |--------|-------------|
@@ -316,7 +351,7 @@ Contents:
 
 ---
 
-## 8. Business Case Summary
+## 9. Business Case Summary
 
 | Metric | Value |
 |--------|-------|

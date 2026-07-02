@@ -19,7 +19,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
 # ── Colour tokens ─────────────────────────────────────────────────────────────
-RED      = RGBColor(0xC8, 0x10, 0x2E)
+RED      = RGBColor(0xDA, 0x29, 0x1C)
 RED_DARK = RGBColor(0xA0, 0x0D, 0x24)
 DARK     = RGBColor(0x1C, 0x19, 0x17)
 WARM     = RGBColor(0xFA, 0xF6, 0xEF)
@@ -96,8 +96,18 @@ def red_bg(s):
 
 def stamp(s, on_dark=False):
     c = STONE3 if on_dark else STONE5
+    # Confidentiality classification (left) — standard for internal bank decks
+    T(s, "INTERNAL · CONFIDENTIAL",
+      0.45, 7.24, 4.0, 0.22, size=7.5, bold=True,
+      color=RED if not on_dark else LIGHTRED, align=PP_ALIGN.LEFT)
     T(s, "Alan Davidson  ·  Business Banking Advisor  ·  Self-initiated  ·  Own time  ·  June 2026",
-      0.45, 7.24, 12.43, 0.22, size=7.5, color=c, align=PP_ALIGN.CENTER, italic=True)
+      4.0, 7.24, 8.88, 0.22, size=7.5, color=c, align=PP_ALIGN.RIGHT, italic=True)
+
+def classification_tag(s, x=10.95, y=0.32):
+    """Small classification chip for cover / section slides."""
+    R(s, x, y, 1.95, 0.34, fill=RED)
+    T(s, "INTERNAL · CONFIDENTIAL", x, y+0.04, 1.95, 0.26,
+      size=7.5, bold=True, color=WHITE, align=PP_ALIGN.CENTER)
 
 def pg(s, n, on_dark=False):
     T(s, str(n), 12.82, 7.18, 0.38, 0.24, size=8.5,
@@ -162,6 +172,9 @@ def workflow_card(s, name, steps, reg, x, y, w=3.9, h=0.9):
 # ══════════════════════════════════════════════════════════════════════════════
 s = prs.slides.add_slide(BLANK)
 dark_bg(s)
+
+# Classification tag (top-right)
+classification_tag(s)
 
 # Red accent bar bottom
 R(s, 0, 6.95, 13.33, 0.55, fill=RED_DARK)
@@ -460,7 +473,7 @@ workflows = [
     ("Account Closure",          "4 steps", "FCA BCOBS 4A cooling-off"),
     ("Partner Unreachable",       "4 steps", "FCA PS22/9 · 4 regulatory branches"),
     ("Mandate Changes",           "6 steps", "MLR 2017 / GOV.UK One Login KYC"),
-    ("Bulk Payments / Wages",     "4 steps", "CoP · PSR 2017 payee verification"),
+    ("Bulk Payments / Wages",     "4 steps", "PSR PS20/1 Confirmation of Payee (CoP)"),
     ("Business Details Update",   "3 steps", "Companies House sync"),
     ("Dormant Reactivation",      "1 step",  "FSCS notice · 12-month threshold"),
     ("MTD VAT Submission",        "4 steps", "HMRC MTD API v1.0 direct"),
@@ -769,9 +782,9 @@ slide_title(s, "Design system — built for every customer.")
 # Colour swatches
 T(s, "COLOUR", 0.48, 1.12, 2, 0.24, size=8, bold=True, color=STONE5)
 swatches = [
-    (RED,                         "#C8102E", "brand-red",  "CTAs, active nav"),
+    (RED,                         "#EC0000", "brand-red",  "CTAs, active nav"),
     (DARK,                        "#1C1917", "stone-900",  "Primary text"),
-    (WARM,                        "#FAF6EF", "warm-bg",    "Page background"),
+    (WARM,                        "#FBF1EA", "warm-bg",    "Page background"),
     (STONE5,                      "#78716C", "stone-500",  "Secondary text"),
     (RGBColor(0xFE,0xCA,0xCA),    "#FECACA", "red-200",    "On red surfaces"),
 ]
