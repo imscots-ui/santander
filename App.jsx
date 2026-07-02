@@ -798,15 +798,23 @@ export default function App() {
     reject: { label: 'Not upheld', tone: 'text-stone-700', dot: 'bg-stone-400' },
     partial: { label: 'Partly upheld', tone: 'text-amber-700', dot: 'bg-amber-500' },
     uphold: { label: 'Upheld', tone: 'text-emerald-700', dot: 'bg-emerald-500' },
+    'esc-changed': { label: 'Resolution changed', tone: 'text-emerald-700', dot: 'bg-emerald-500' },
+    'esc-hold-original': { label: 'Reviewed · no change', tone: 'text-stone-700', dot: 'bg-stone-400' },
+    'esc-final': { label: 'Final response · no change', tone: 'text-stone-700', dot: 'bg-stone-400' },
   };
-  // Angus builds the decision letter from the three templates, merging the handler's fields.
+  // Angus builds the letter from the templates, merging the handler's fields.
+  // Stage 1 decisions (reject/partial/uphold) and the three escalation variants.
   const buildAngusLetter = (d) => {
     const f = (v, ph) => (v && v.trim()) ? v.trim() : ph;
     if (d.decision === 'reject') return `Thank you for your complaint regarding ${f(d.issue,'[issue]')}. I understand why this has been frustrating, and I've taken time to fully review what's happened.\n\nBased on the information available, your request was assessed in line with our policy, which requires ${f(d.rule,'[rule]')}. As this wasn't met, we were unable to proceed.\n\nI've reviewed the information provided and found no evidence of incorrect advice.\n\nWhile I appreciate this isn't the outcome you hoped for, I'm satisfied we've acted correctly and fairly.\n\nFor these reasons, I'm unable to uphold your complaint.`;
     if (d.decision === 'partial') return `Thank you for your complaint about ${f(d.issue,'[issue]')}. I understand the situation has been frustrating.\n\nIn line with our policy, ${f(d.decisionText,'[decision]')}. I'm satisfied the outcome was correct.\n\nHowever, I recognise aspects of your experience fell below standard, particularly ${f(d.failing,'[issue]')}.\n\nWhile I cannot uphold the complaint regarding the decision, I believe it's fair to recognise your experience. Therefore, ${f(d.goodwill,'[goodwill]')}.`;
     if (d.decision === 'uphold') return `Thank you for your complaint regarding ${f(d.issue,'[issue]')}. I'm sorry for the impact this has had.\n\nI agree we didn't meet expected standards, particularly ${f(d.failing,'[failing]')}.\n\nTo put this right, we will ${f(d.action,'[action]')}. In addition, ${f(d.compensation,'[compensation]')}.`;
+    if (d.decision === 'esc-changed') return `Thank you for coming back to us about ${f(d.issue,'[issue]')}. I've reviewed your complaint again in full.\n\nHaving looked at it further, I've changed our original decision. ${f(d.decisionText,'[what has changed]')}.\n\nTo put this right, we will ${f(d.action,'[action]')}.\n\nI'm sorry we didn't reach this outcome the first time.`;
+    if (d.decision === 'esc-hold-original') return `Thank you for coming back to us about ${f(d.issue,'[issue]')}. I've reviewed your complaint again in full.\n\nHaving done so, our original decision stands — ${f(d.decisionText,'[reason]')}.\n\nI appreciate this isn't the answer you were hoping for, but I'm satisfied the outcome remains correct and fair.`;
+    if (d.decision === 'esc-final') return `Thank you for asking us to look at ${f(d.issue,'[issue]')} again. I've carried out a further review of everything you've raised.\n\nI haven't found anything that changes our position, so the resolution remains as set out in our previous response — ${f(d.decisionText,'[reason]')}.\n\nThis is our final response on this complaint.`;
     return '';
   };
+  const isEscDecision = (id) => id && id.startsWith('esc-');
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -2438,7 +2446,8 @@ export default function App() {
       setComplaints(prev => [{
         id: Date.now(), ref, category: d.category, accountNo: d.accountNo,
         what: d.what.trim(), when: d.when.trim(), want: d.want.trim(), evidenceUp: d.evidenceUp,
-        createdAt: Date.now(), status: 'received', decision: '', letter: '', handler: {},
+        createdAt: Date.now(), status: 'received', stage: 'stage1', decision: '', letter: '',
+        prevDecision: '', prevLetter: '', handler: {},
       }, ...prev]);
       fireToast(`Complaint logged · ref ${ref} — we'll acknowledge within 3 working days`);
       closeWorkflow();
@@ -2544,6 +2553,7 @@ export default function App() {
     const d = resolveDraft;
     const set = (patch) => setResolveDraft(prev => ({ ...prev, ...patch }));
     const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const isEsc = c.stage === 'escalation';
     const canNext = [true, !!d.decision, true][step];
     const letter = buildAngusLetter(d);
     const send = () => {
@@ -2553,23 +2563,32 @@ export default function App() {
     };
     const next = () => step === 2 ? send() : setStep(step + 1);
     const input = 'w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm resize-none';
-    const stage1 = [
+    const structure = isEsc ? [
+      'Why has the customer come back to discuss this again?',
+      'What actions have you completed for the customer?',
+      'What changes have you made to the resolution, and why?',
+      'Payments / redress',
+    ] : [
       'What is the customer saying has happened?',
       'What have you done to investigate the issue?',
       'What actions have you taken as a result?',
       'Why did you take the action above?',
       'Payments / redress',
     ];
-    const decisions = [
+    const decisions = isEsc ? [
+      { id: 'esc-changed', label: 'Changed', desc: 'Further review — put something right' },
+      { id: 'esc-hold-original', label: 'No change', desc: 'Original resolution stands' },
+      { id: 'esc-final', label: 'Final', desc: 'Reviewed again — position unchanged' },
+    ] : [
       { id: 'uphold', label: 'Uphold', desc: 'A failing occurred — put it right' },
       { id: 'partial', label: 'Partial', desc: 'Decision stands, experience fell short' },
       { id: 'reject', label: 'Reject', desc: 'Process followed, no failing found' },
     ];
     return (
       <StepFrame
-        title={['The case', 'Decision & letter', 'Send response'][step]}
+        title={[isEsc ? 'The escalation' : 'The case', 'Decision & letter', 'Send response'][step]}
         sub={[
-          `${c.ref} · raised ${new Date(c.createdAt).toLocaleDateString('en-GB')}`,
+          `${c.ref} · ${isEsc ? 'escalated' : 'raised'} ${new Date(c.createdAt).toLocaleDateString('en-GB')}`,
           'Angus drafts the letter — you decide the outcome',
           'Review the final letter before it reaches the customer',
         ][step]}
@@ -2579,7 +2598,7 @@ export default function App() {
       >
         <div className="rounded-2xl bg-stone-900 text-white p-3 mb-4 flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0"><Scale className="w-3.5 h-3.5" /></div>
-          <div className="text-[11px] leading-tight"><span className="uppercase tracking-wider text-white/60">Case handler view</span><br /><span className="font-medium">Angus · complaint workflow assistant</span></div>
+          <div className="text-[11px] leading-tight"><span className="uppercase tracking-wider text-white/60">Case handler view{isEsc ? ' · escalation' : ''}</span><br /><span className="font-medium">Angus · complaint workflow assistant</span></div>
         </div>
         {step === 0 && (
           <div className="space-y-3">
@@ -2594,8 +2613,14 @@ export default function App() {
               <div className="text-sm text-stone-800 leading-relaxed whitespace-pre-wrap">{c.what}</div>
               {c.want && <div className="text-xs text-stone-500 mt-2.5 pt-2.5 border-t border-stone-200"><span className="font-medium text-stone-600">Wants: </span>{c.want}</div>}
             </div>
-            <Field label="Investigation notes" hint="Angus Stage 1 structure — what you did and why">
-              <textarea value={d.investigation} onChange={e => set({ investigation: e.target.value })} rows={4} placeholder={stage1.join('\n')} className={input} />
+            {isEsc && c.prevLetter && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/60">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 mb-1.5 flex items-center gap-1.5"><RefreshCw className="w-3 h-3" /> Original response · {decisionMeta[c.prevDecision]?.label}</div>
+                <div className="text-xs text-amber-900/90 leading-relaxed whitespace-pre-wrap">{c.prevLetter}</div>
+              </div>
+            )}
+            <Field label="Investigation notes" hint={isEsc ? 'Angus escalation structure — what changed and why' : 'Angus Stage 1 structure — what you did and why'}>
+              <textarea value={d.investigation} onChange={e => set({ investigation: e.target.value })} rows={4} placeholder={structure.join('\n')} className={input} />
             </Field>
           </div>
         )}
@@ -2629,6 +2654,13 @@ export default function App() {
                   <Field label="Action to put it right"><Input value={d.action} onChange={v => set({ action: v })} placeholder="e.g. refund the charge in full" /></Field>
                   <Field label="Compensation"><Input value={d.compensation} onChange={v => set({ compensation: v })} placeholder="e.g. add £50 for the inconvenience" /></Field>
                 </>)}
+                {d.decision === 'esc-changed' && (<>
+                  <Field label="What has changed" hint="How the original decision has moved"><Input value={d.decisionText} onChange={v => set({ decisionText: v })} placeholder="e.g. on review the charge should not have applied" /></Field>
+                  <Field label="Action to put it right"><Input value={d.action} onChange={v => set({ action: v })} placeholder="e.g. refund the charge and any interest" /></Field>
+                </>)}
+                {(d.decision === 'esc-hold-original' || d.decision === 'esc-final') && (
+                  <Field label="Reason the position stands" hint="Why the further review reached the same outcome"><Input value={d.decisionText} onChange={v => set({ decisionText: v })} placeholder="e.g. the charge was applied correctly under the terms" /></Field>
+                )}
               </div>
             )}
             {d.decision && (
@@ -3247,6 +3279,9 @@ export default function App() {
         <button onClick={() => stallRequest({ type: 'Mandate change', desc: 'Add Mark Patel · partner missed window' })} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
           Simulate timeout
         </button>
+        <button onClick={() => { const ref = `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`; setComplaints(prev => [{ id: Date.now(), ref, category: 'fees', accountNo: '', what: 'I was charged a £25 unarranged overdraft fee I was never warned about, despite a text alert service I thought I was signed up to.', when: 'week of 15 June', want: 'refund of the £25 fee and confirmation the alerts are on', evidenceUp: true, createdAt: Date.now(), status: 'received', stage: 'stage1', decision: '', letter: '', prevDecision: '', prevLetter: '', handler: {} }, ...prev]); fireToast(`Demo complaint added · ref ${ref}`); }} className="text-[10px] uppercase tracking-wider text-stone-500 px-3 py-1.5 rounded-full bg-stone-100">
+          Demo complaint
+        </button>
       </div>
 
       {/* Session anomaly alert */}
@@ -3413,6 +3448,7 @@ export default function App() {
                         {resolved
                           ? <span className={`text-[10px] uppercase tracking-wider font-medium ${dm.tone}`}>· {dm.label}</span>
                           : <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">· In progress</span>}
+                        {c.stage === 'escalation' && <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Escalated</span>}
                       </div>
                       <div className="font-medium text-[15px] text-stone-900 mt-0.5">{complaintCatLabel(c.category)}</div>
                       <div className="text-[11px] text-stone-600 mt-1.5 leading-relaxed">{c.what.length > 96 ? c.what.slice(0, 96) + '…' : c.what}</div>
@@ -3424,11 +3460,16 @@ export default function App() {
                     ))}
                   </div>
                   <div className="flex justify-between text-[9px] uppercase tracking-wider text-stone-400 mt-1.5"><span>Received</span><span>Reviewing</span><span>Resolved</span></div>
-                  <div className="mt-4">
-                    {resolved ? (
+                  <div className="mt-4 space-y-2">
+                    {resolved ? (<>
                       <button onClick={() => setShowLetterFor(c.id)} className="btn-primary w-full py-2.5 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center justify-center gap-2"><ScrollText className="w-3.5 h-3.5" /> Read our decision</button>
-                    ) : (
-                      <button onClick={() => { setResolveDraft({ ...emptyResolveDraft, issue: complaintCatLabel(c.category).toLowerCase() }); setResolveId(c.id); setWorkflow('complaint-resolve'); setStep(0); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><Scale className="w-3.5 h-3.5" /> Open case handler · Angus</button>
+                      {c.stage === 'stage1' ? (
+                        <button onClick={() => { setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, status: 'review', stage: 'escalation', prevDecision: x.decision, prevLetter: x.letter, decision: '', letter: '' } : x)); fireToast(`We'll take another look · ${c.ref} escalated`); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><RefreshCw className="w-3.5 h-3.5" /> Ask us to look again</button>
+                      ) : (
+                        <div className="text-[11px] text-stone-500 text-center leading-relaxed pt-0.5">This was our final response — you can still refer to the Financial Ombudsman Service.</div>
+                      )}
+                    </>) : (
+                      <button onClick={() => { setResolveDraft({ ...emptyResolveDraft, issue: complaintCatLabel(c.category).toLowerCase() }); setResolveId(c.id); setWorkflow('complaint-resolve'); setStep(0); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><Scale className="w-3.5 h-3.5" /> {c.stage === 'escalation' ? 'Review escalation · Angus' : 'Open case handler · Angus'}</button>
                     )}
                   </div>
                 </div>
@@ -3984,13 +4025,24 @@ export default function App() {
   };
 
   const AuditScreen = () => {
-    const events = [
+    const staticEvents = [
       { time: '14:22', date: 'Today', who: 'James Whitfield', what: 'Signed · Bulk Payment £183,450', kind: 'sign' },
       { time: '12:14', date: 'Today', who: 'Sarah Chen', what: 'Initiated · Bulk Payment Oct Wages', kind: 'create' },
       { time: '09:08', date: 'Yesterday', who: 'Sarah Chen', what: 'Initiated · Mandate change', kind: 'create' },
       { time: '17:42', date: '29 Apr', who: 'Anita Roy', what: 'Signed · Mandate change', kind: 'sign' },
       { time: '11:30', date: '28 Apr', who: 'James Whitfield', what: 'Initiated · Account closure', kind: 'create' },
     ];
+    // Complaints feed the same immutable trail (raise → escalate → resolve)
+    const fmtT = (ts) => new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const fmtD = (ts) => new Date(ts).toDateString() === new Date().toDateString() ? 'Today' : new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const complaintEvents = complaints.flatMap(c => {
+      const base = { time: fmtT(c.createdAt), date: fmtD(c.createdAt), who: 'James Whitfield' };
+      const ev = [{ ...base, ts: c.createdAt, what: `Raised · Complaint ${c.ref}`, kind: 'create' }];
+      if (c.stage === 'escalation') ev.push({ ...base, ts: c.createdAt + 1, what: `Escalated · ${c.ref}`, kind: 'create' });
+      if (c.status === 'resolved') ev.push({ ...base, ts: c.createdAt + 2, who: 'Angus · case handler', what: `${decisionMeta[c.decision]?.label || 'Resolved'} · ${c.ref}`, kind: 'sign' });
+      return ev;
+    }).sort((a, b) => b.ts - a.ts);
+    const events = [...complaintEvents, ...staticEvents];
     return (
       <div className="pb-24">
         <div className="px-5 pt-3 pb-5">
