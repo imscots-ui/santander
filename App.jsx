@@ -66,6 +66,15 @@ export default function App() {
   const [creditRingfenced, setCreditRingfenced] = useState(false);
   const [ringfenceConfirm, setRingfenceConfirm] = useState(false);
 
+  // Complaints (Angus) — customer raises & tracks; handler resolves and generates the letter
+  const emptyComplaintDraft = { category: '', accountNo: '', what: '', when: '', want: '', evidenceUp: false, confirm: false };
+  const emptyResolveDraft = { stage: 'stage1', decision: '', issue: '', rule: '', decisionText: '', failing: '', action: '', compensation: '', goodwill: '', investigation: '' };
+  const [complaints, setComplaints] = useState([]); // persists across workflows — NOT reset by closeWorkflow
+  const [complaintDraft, setComplaintDraft] = useState(emptyComplaintDraft);
+  const [resolveId, setResolveId] = useState(null);
+  const [resolveDraft, setResolveDraft] = useState(emptyResolveDraft);
+  const [showLetterFor, setShowLetterFor] = useState(null); // complaint id whose decision letter is shown
+
   // Card management / PIN state
   const [showPinSheet, setShowPinSheet] = useState(false);
   const [pinCardKey, setPinCardKey] = useState(0);
@@ -756,6 +765,7 @@ export default function App() {
     setClosureUnreachable(null); setClosureContactLog(''); setClosureEvidenceUp(false); setClosureVulnDecl(false);
     setUnlinkConfirm(false); setUnlinkAllChannels(false); setUnlinkPostal(false);
     setRingfenceConfirm(false);
+    setComplaintDraft(emptyComplaintDraft); setResolveId(null); setResolveDraft(emptyResolveDraft);
     setBizChanges({}); setBizName(''); setBizAddr(''); setBizPhone(''); setBizEmail(''); setBizProofUp(false);
     setMandateAction(null); setMandateSig(null);
     setNewPersonName(''); setNewPersonSurname(''); setNewPersonDob(''); setNewPersonEmail(''); setNewPersonAddr('');
@@ -773,6 +783,29 @@ export default function App() {
     setShowOTP(false); setOtpDigits(['','','','','','']); setOtpCallback(null);
     // lendingCompleted, scannedTxns, voiceIdEnrolled, voiceMemoAdded, voicePhrasesDone,
     // sessionAnomaly, frozenCards intentionally NOT reset — persistent settings
+  };
+
+  // === COMPLAINTS (ANGUS) HELPERS ===
+  const COMPLAINT_CATEGORIES = [
+    { id: 'payments', label: 'Payments & transfers', icon: Banknote },
+    { id: 'fees', label: 'Fees & charges', icon: Receipt },
+    { id: 'service', label: 'Service & communication', icon: Headphones },
+    { id: 'access', label: 'Account access', icon: Lock },
+    { id: 'other', label: 'Something else', icon: FileText },
+  ];
+  const complaintCatLabel = (id) => COMPLAINT_CATEGORIES.find(c => c.id === id)?.label || 'General complaint';
+  const decisionMeta = {
+    reject: { label: 'Not upheld', tone: 'text-stone-700', dot: 'bg-stone-400' },
+    partial: { label: 'Partly upheld', tone: 'text-amber-700', dot: 'bg-amber-500' },
+    uphold: { label: 'Upheld', tone: 'text-emerald-700', dot: 'bg-emerald-500' },
+  };
+  // Angus builds the decision letter from the three templates, merging the handler's fields.
+  const buildAngusLetter = (d) => {
+    const f = (v, ph) => (v && v.trim()) ? v.trim() : ph;
+    if (d.decision === 'reject') return `Thank you for your complaint regarding ${f(d.issue,'[issue]')}. I understand why this has been frustrating, and I've taken time to fully review what's happened.\n\nBased on the information available, your request was assessed in line with our policy, which requires ${f(d.rule,'[rule]')}. As this wasn't met, we were unable to proceed.\n\nI've reviewed the information provided and found no evidence of incorrect advice.\n\nWhile I appreciate this isn't the outcome you hoped for, I'm satisfied we've acted correctly and fairly.\n\nFor these reasons, I'm unable to uphold your complaint.`;
+    if (d.decision === 'partial') return `Thank you for your complaint about ${f(d.issue,'[issue]')}. I understand the situation has been frustrating.\n\nIn line with our policy, ${f(d.decisionText,'[decision]')}. I'm satisfied the outcome was correct.\n\nHowever, I recognise aspects of your experience fell below standard, particularly ${f(d.failing,'[issue]')}.\n\nWhile I cannot uphold the complaint regarding the decision, I believe it's fair to recognise your experience. Therefore, ${f(d.goodwill,'[goodwill]')}.`;
+    if (d.decision === 'uphold') return `Thank you for your complaint regarding ${f(d.issue,'[issue]')}. I'm sorry for the impact this has had.\n\nI agree we didn't meet expected standards, particularly ${f(d.failing,'[failing]')}.\n\nTo put this right, we will ${f(d.action,'[action]')}. In addition, ${f(d.compensation,'[compensation]')}.`;
+    return '';
   };
 
   const greeting = (() => {
@@ -2394,6 +2427,241 @@ export default function App() {
     );
   };
 
+  // Customer-facing — raise a complaint (FCA DISP lifecycle)
+  const renderComplaint = () => {
+    const d = complaintDraft;
+    const set = (patch) => setComplaintDraft(prev => ({ ...prev, ...patch }));
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const canNext = [!!d.category, d.what.trim().length > 5, true, d.confirm][step];
+    const submit = () => {
+      const ref = `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      setComplaints(prev => [{
+        id: Date.now(), ref, category: d.category, accountNo: d.accountNo,
+        what: d.what.trim(), when: d.when.trim(), want: d.want.trim(), evidenceUp: d.evidenceUp,
+        createdAt: Date.now(), status: 'received', decision: '', letter: '', handler: {},
+      }, ...prev]);
+      fireToast(`Complaint logged · ref ${ref} — we'll acknowledge within 3 working days`);
+      closeWorkflow();
+    };
+    const next = () => step === 3 ? submit() : setStep(step + 1);
+    const textarea = 'w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm resize-none';
+    return (
+      <StepFrame
+        title={["What's it about?", 'Tell us what happened', 'Add evidence', 'Check & submit'][step]}
+        sub={[
+          'Pick the area your complaint relates to',
+          'In your own words — the more detail, the faster we can resolve it',
+          'Optional — statements, screenshots or letters',
+          "We'll acknowledge within 3 working days and keep you updated",
+        ][step]}
+        total={4} current={step} onBack={back} onNext={next}
+        nextLabel={step === 3 ? 'Submit complaint' : 'Continue'}
+        nextDisabled={!canNext}
+        replaces={{ form: 'Letter to the Complaints Team, Bradford', savings: 'In-app · acknowledged in 3 working days · FCA DISP tracked' }}
+      >
+        {step === 0 && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              {COMPLAINT_CATEGORIES.map(c => {
+                const I = c.icon; const active = d.category === c.id;
+                return (
+                  <button key={c.id} onClick={() => set({ category: c.id })}
+                    className={`w-full flex items-center gap-3 p-4 rounded-2xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${active ? 'border-stone-900 bg-stone-50' : 'border-stone-200 hover:border-stone-300'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${active ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600'}`}><I className="w-4 h-4" /></div>
+                    <span className="text-sm font-medium text-stone-900 flex-1">{c.label}</span>
+                    {active && <Check className="w-4 h-4 text-stone-900" />}
+                  </button>
+                );
+              })}
+            </div>
+            <Field label="Which account? (optional)">
+              <select value={d.accountNo} onChange={e => set({ accountNo: e.target.value })}
+                className="w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm">
+                <option value="">Not about a specific account</option>
+                {accounts.map(a => <option key={a.no} value={a.no}>{a.name} · {a.no}</option>)}
+              </select>
+            </Field>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-1">
+            <Field label="What happened?" hint="What went wrong, and the impact it had on you">
+              <textarea value={d.what} onChange={e => set({ what: e.target.value })} rows={5} placeholder="Tell us what happened…" className={textarea} />
+            </Field>
+            <Field label="When did it happen? (optional)">
+              <Input value={d.when} onChange={v => set({ when: v })} placeholder="e.g. the week of 15 June" />
+            </Field>
+            <Field label="What would put it right? (optional)" hint="Helps us focus on the outcome you want">
+              <textarea value={d.want} onChange={e => set({ want: e.target.value })} rows={3} placeholder="e.g. a refund of the charge and an apology" className={textarea} />
+            </Field>
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-3">
+            <button onClick={() => set({ evidenceUp: !d.evidenceUp })}
+              className={`w-full p-6 rounded-2xl border-2 border-dashed flex flex-col items-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${d.evidenceUp ? 'border-emerald-300 bg-emerald-50/50' : 'border-stone-300 hover:border-stone-400'}`}>
+              {d.evidenceUp ? <CircleCheck className="w-7 h-7 text-emerald-600" /> : <Upload className="w-7 h-7 text-stone-400" />}
+              <span className="text-sm font-medium text-stone-700">{d.evidenceUp ? 'evidence-bundle.pdf attached' : 'Tap to attach evidence'}</span>
+              <span className="text-[11px] text-stone-500">PDF, JPG or PNG · optional</span>
+            </button>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed">Evidence helps our handler review faster. You can add more later — we'll ask if we need anything.</div>
+            </div>
+          </div>
+        )}
+        {step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-stone-50 rounded-2xl p-4 space-y-2.5 border border-stone-200">
+              <div className="flex justify-between text-sm"><span className="text-stone-500">About</span><span className="font-medium">{complaintCatLabel(d.category)}</span></div>
+              {d.accountNo && <div className="flex justify-between text-sm"><span className="text-stone-500">Account</span><span className="font-mono text-xs">{d.accountNo}</span></div>}
+              {d.when && <div className="flex justify-between text-sm"><span className="text-stone-500">When</span><span>{d.when}</span></div>}
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Evidence</span><span>{d.evidenceUp ? '1 file' : 'None'}</span></div>
+              <div className="flex justify-between text-sm pt-2 border-t border-stone-200"><span className="text-stone-500">Logged to</span><span className="font-medium">Audit trail · FCA DISP</span></div>
+            </div>
+            <div className="p-4 rounded-2xl bg-white border border-stone-200">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1.5">Your complaint</div>
+              <div className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">{d.what}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Scale className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed"><strong>Your rights.</strong> We'll acknowledge within 3 working days and aim to resolve quickly. If we can't resolve it within 8 weeks, or you're unhappy with our final response, you can refer it to the Financial Ombudsman Service free of charge.</div>
+            </div>
+            <label className="flex gap-3 p-4 rounded-2xl border border-stone-200 cursor-pointer">
+              <input type="checkbox" checked={d.confirm} onChange={e => set({ confirm: e.target.checked })} className="mt-0.5 accent-[#c8102e]" />
+              <span className="text-xs text-stone-700 leading-relaxed">The information I've given is accurate to the best of my knowledge, and I'd like Santander to formally investigate this complaint.</span>
+            </label>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
+  // Handler-facing — Angus case console: review, decide, generate the letter
+  const renderComplaintResolve = () => {
+    const c = complaints.find(x => x.id === resolveId);
+    if (!c) return null;
+    const d = resolveDraft;
+    const set = (patch) => setResolveDraft(prev => ({ ...prev, ...patch }));
+    const back = () => step === 0 ? closeWorkflow() : setStep(step - 1);
+    const canNext = [true, !!d.decision, true][step];
+    const letter = buildAngusLetter(d);
+    const send = () => {
+      setComplaints(prev => prev.map(x => x.id === c.id ? { ...x, status: 'resolved', decision: d.decision, letter, handler: { ...d } } : x));
+      fireToast(`Response sent to customer · ${c.ref} · ${decisionMeta[d.decision].label}`);
+      closeWorkflow();
+    };
+    const next = () => step === 2 ? send() : setStep(step + 1);
+    const input = 'w-full px-4 py-3 rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus-visible:border-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900/20 text-sm resize-none';
+    const stage1 = [
+      'What is the customer saying has happened?',
+      'What have you done to investigate the issue?',
+      'What actions have you taken as a result?',
+      'Why did you take the action above?',
+      'Payments / redress',
+    ];
+    const decisions = [
+      { id: 'uphold', label: 'Uphold', desc: 'A failing occurred — put it right' },
+      { id: 'partial', label: 'Partial', desc: 'Decision stands, experience fell short' },
+      { id: 'reject', label: 'Reject', desc: 'Process followed, no failing found' },
+    ];
+    return (
+      <StepFrame
+        title={['The case', 'Decision & letter', 'Send response'][step]}
+        sub={[
+          `${c.ref} · raised ${new Date(c.createdAt).toLocaleDateString('en-GB')}`,
+          'Angus drafts the letter — you decide the outcome',
+          'Review the final letter before it reaches the customer',
+        ][step]}
+        total={3} current={step} onBack={back} onNext={next}
+        nextLabel={step === 2 ? 'Send to customer' : 'Continue'}
+        nextDisabled={!canNext}
+      >
+        <div className="rounded-2xl bg-stone-900 text-white p-3 mb-4 flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0"><Scale className="w-3.5 h-3.5" /></div>
+          <div className="text-[11px] leading-tight"><span className="uppercase tracking-wider text-white/60">Case handler view</span><br /><span className="font-medium">Angus · complaint workflow assistant</span></div>
+        </div>
+        {step === 0 && (
+          <div className="space-y-3">
+            <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2.5">
+              <div className="flex justify-between text-sm"><span className="text-stone-500">About</span><span className="font-medium">{complaintCatLabel(c.category)}</span></div>
+              {c.accountNo && <div className="flex justify-between text-sm"><span className="text-stone-500">Account</span><span className="font-mono text-xs">{c.accountNo}</span></div>}
+              {c.when && <div className="flex justify-between text-sm"><span className="text-stone-500">When</span><span>{c.when}</span></div>}
+              <div className="flex justify-between text-sm"><span className="text-stone-500">Evidence</span><span>{c.evidenceUp ? '1 file attached' : 'None'}</span></div>
+            </div>
+            <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1.5">Customer's words</div>
+              <div className="text-sm text-stone-800 leading-relaxed whitespace-pre-wrap">{c.what}</div>
+              {c.want && <div className="text-xs text-stone-500 mt-2.5 pt-2.5 border-t border-stone-200"><span className="font-medium text-stone-600">Wants: </span>{c.want}</div>}
+            </div>
+            <Field label="Investigation notes" hint="Angus Stage 1 structure — what you did and why">
+              <textarea value={d.investigation} onChange={e => set({ investigation: e.target.value })} rows={4} placeholder={stage1.join('\n')} className={input} />
+            </Field>
+          </div>
+        )}
+        {step === 1 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              {decisions.map(dec => {
+                const active = d.decision === dec.id;
+                return (
+                  <button key={dec.id} onClick={() => set({ decision: dec.id })}
+                    className={`p-3 rounded-2xl border text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${active ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 hover:border-stone-300'}`}>
+                    <div className="text-sm font-semibold">{dec.label}</div>
+                    <div className={`text-[10px] mt-1 leading-tight ${active ? 'text-white/70' : 'text-stone-500'}`}>{dec.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
+            {d.decision && (
+              <div className="space-y-1">
+                <Field label="Issue (the complaint, in a few words)"><Input value={d.issue} onChange={v => set({ issue: v })} placeholder="e.g. a card payment charge" /></Field>
+                {d.decision === 'reject' && (
+                  <Field label="Rule applied" hint="The policy the request was assessed against"><Input value={d.rule} onChange={v => set({ rule: v })} placeholder="e.g. 3 working days' notice" /></Field>
+                )}
+                {d.decision === 'partial' && (<>
+                  <Field label="Decision"><Input value={d.decisionText} onChange={v => set({ decisionText: v })} placeholder="e.g. the charge was correctly applied" /></Field>
+                  <Field label="What fell below standard"><Input value={d.failing} onChange={v => set({ failing: v })} placeholder="e.g. the delay in replying" /></Field>
+                  <Field label="Goodwill offered"><Input value={d.goodwill} onChange={v => set({ goodwill: v })} placeholder="e.g. we'll credit £30 as a gesture" /></Field>
+                </>)}
+                {d.decision === 'uphold' && (<>
+                  <Field label="What went wrong"><Input value={d.failing} onChange={v => set({ failing: v })} placeholder="e.g. the transfer was delayed" /></Field>
+                  <Field label="Action to put it right"><Input value={d.action} onChange={v => set({ action: v })} placeholder="e.g. refund the charge in full" /></Field>
+                  <Field label="Compensation"><Input value={d.compensation} onChange={v => set({ compensation: v })} placeholder="e.g. add £50 for the inconvenience" /></Field>
+                </>)}
+              </div>
+            )}
+            {d.decision && (
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1.5"><Sparkles className="w-3 h-3" /> Angus draft · live preview</div>
+                <div className="text-sm text-stone-800 leading-relaxed whitespace-pre-wrap">{letter}</div>
+              </div>
+            )}
+          </div>
+        )}
+        {step === 2 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${decisionMeta[d.decision].dot}`} />
+              <span className={`text-sm font-semibold ${decisionMeta[d.decision].tone}`}>{decisionMeta[d.decision].label}</span>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden">
+              <div className="px-4 py-3 border-b border-stone-100 flex items-center gap-2 bg-stone-50/60">
+                <ScrollText className="w-4 h-4 text-stone-500" />
+                <span className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Final response · {c.ref}</span>
+              </div>
+              <div className="p-4 text-sm text-stone-800 leading-relaxed whitespace-pre-wrap font-body">{letter}</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex gap-3">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-900 leading-relaxed">As this is a final response, the letter reminds the customer of their right to refer to the Financial Ombudsman Service within six months. Sending marks the complaint resolved and logs it to the audit trail.</div>
+            </div>
+          </div>
+        )}
+      </StepFrame>
+    );
+  };
+
   const renderIdCheck = () => (
     <StepFrame title="Signatory ID register" sub="Lists 1, 2 & 3 — tracked per signatory"
       total={1} current={0} onBack={closeWorkflow} onNext={closeWorkflow} nextLabel="Done"
@@ -2701,6 +2969,39 @@ export default function App() {
           <div className="space-y-2">
             <button onClick={confirmCancel} className="w-full py-3.5 rounded-2xl bg-stone-900 text-white text-sm font-medium">Yes, cancel it</button>
             <button onClick={() => setPendingCancelId(null)} className="w-full py-3.5 rounded-2xl border border-stone-200 text-sm font-medium">No, keep it going</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Decision letter viewer — what the customer reads once Angus resolves the complaint
+  const ComplaintLetterSheet = () => {
+    const c = complaints.find(x => x.id === showLetterFor);
+    if (!c) return null;
+    const dm = decisionMeta[c.decision] || {};
+    return (
+      <div className="fixed inset-0 z-[60] bg-black/50 anim-fade flex items-end sm:items-center justify-center sm:p-5">
+        <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[88vh] flex flex-col anim-slide">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-stone-100">
+            <div className="flex items-center gap-2">
+              <ScrollText className="w-4 h-4 text-stone-500" />
+              <span className="text-[11px] uppercase tracking-wider text-stone-500 font-medium">Our response · {c.ref}</span>
+            </div>
+            <button onClick={() => setShowLetterFor(null)} className="w-8 h-8 -mr-1 rounded-full hover:bg-stone-100 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900"><X className="w-4 h-4" /></button>
+          </div>
+          <div className="px-5 py-5 overflow-y-auto">
+            <div className="flex items-center gap-2 mb-4">
+              <span className={`w-2 h-2 rounded-full ${dm.dot || 'bg-stone-400'}`} />
+              <span className={`text-sm font-semibold ${dm.tone || 'text-stone-700'}`}>{dm.label || 'Resolved'}</span>
+            </div>
+            <div className="text-sm text-stone-800 leading-relaxed whitespace-pre-wrap">{c.letter}</div>
+            <div className="mt-5 text-[11px] text-stone-500 leading-relaxed border-t border-stone-100 pt-4">
+              Not happy with this outcome? You can refer your complaint to the Financial Ombudsman Service within six months, free of charge — <span className="text-stone-700">financial-ombudsman.org.uk</span>.
+            </div>
+          </div>
+          <div className="px-5 py-4 border-t border-stone-100">
+            <button onClick={() => setShowLetterFor(null)} className="w-full py-3.5 rounded-2xl bg-stone-900 text-white text-sm font-medium">Close</button>
           </div>
         </div>
       </div>
@@ -3085,6 +3386,58 @@ export default function App() {
         </div>
       )}
 
+      {/* Complaints — raised & tracked (Angus) */}
+      {complaints.length > 0 && (
+        <div className="px-5 mb-7 anim-fade">
+          <div className="flex items-end justify-between mb-3">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-stone-500 font-medium mb-0.5">Complaints · FCA DISP</div>
+              <h2 className="font-display-tight text-2xl text-stone-900">We're on it</h2>
+            </div>
+            <span className="text-[10px] uppercase tracking-wider text-stone-500 mb-1">{complaints.filter(c => c.status !== 'resolved').length} open</span>
+          </div>
+          <div className="space-y-2.5">
+            {complaints.map(c => {
+              const resolved = c.status === 'resolved';
+              const dm = resolved ? (decisionMeta[c.decision] || {}) : null;
+              const stageIdx = ['received', 'review', 'resolved'].indexOf(c.status);
+              return (
+                <div key={c.id} className="bg-white rounded-2xl border border-stone-200/80 p-5 lift-1">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${resolved ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600'}`}>
+                      {resolved ? <CircleCheck className="w-5 h-5" /> : <Scale className="w-5 h-5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-[11px] text-stone-500">{c.ref}</span>
+                        {resolved
+                          ? <span className={`text-[10px] uppercase tracking-wider font-medium ${dm.tone}`}>· {dm.label}</span>
+                          : <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">· In progress</span>}
+                      </div>
+                      <div className="font-medium text-[15px] text-stone-900 mt-0.5">{complaintCatLabel(c.category)}</div>
+                      <div className="text-[11px] text-stone-600 mt-1.5 leading-relaxed">{c.what.length > 96 ? c.what.slice(0, 96) + '…' : c.what}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-4">
+                    {['received', 'review', 'resolved'].map((s, i) => (
+                      <div key={s} className={`h-1 flex-1 rounded-full ${i <= stageIdx ? (resolved ? 'bg-emerald-500' : 'bg-stone-800') : 'bg-stone-200'}`} />
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-[9px] uppercase tracking-wider text-stone-400 mt-1.5"><span>Received</span><span>Reviewing</span><span>Resolved</span></div>
+                  <div className="mt-4">
+                    {resolved ? (
+                      <button onClick={() => setShowLetterFor(c.id)} className="btn-primary w-full py-2.5 rounded-xl bg-stone-900 text-white text-sm font-medium flex items-center justify-center gap-2"><ScrollText className="w-3.5 h-3.5" /> Read our decision</button>
+                    ) : (
+                      <button onClick={() => { setResolveDraft({ ...emptyResolveDraft, issue: complaintCatLabel(c.category).toLowerCase() }); setResolveId(c.id); setWorkflow('complaint-resolve'); setStep(0); }} className="btn-primary w-full py-2.5 rounded-xl bg-white border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50 flex items-center justify-center gap-2"><Scale className="w-3.5 h-3.5" /> Open case handler · Angus</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* MTD teaser */}
       {currentVATObligation && (
         <div className="px-5 mb-6 anim-fade">
@@ -3174,6 +3527,7 @@ export default function App() {
           <ActionTile icon={Archive} title="Close account" desc="Form ANB9 0370" onClick={() => { setWorkflow('closure'); setStep(0); }} />
           <ActionTile icon={Mic} title="Voice memo" desc="Speak → expense auto-tagged" onClick={() => setShowVoiceMemo(true)} />
           <ActionTile icon={Wand2} title="Optimise payments" desc="30-day sequencer" onClick={() => setShowSequencer(true)} />
+          <ActionTile icon={Flag} title="Raise a complaint" desc="Logged · FCA DISP tracked" onClick={() => { setWorkflow('complaint'); setStep(0); }} />
         </div>
       </div>
 
@@ -5420,6 +5774,7 @@ export default function App() {
                 { id: 'idcheck', label: 'ID register', icon: UserCheck },
                 { id: 'closure', label: 'Close account', icon: Archive },
                 { id: 'dormancy', label: 'Dormant accounts', icon: Pause },
+                { id: 'complaint', label: 'Raise a complaint', icon: Flag },
               ].map(t => {
                 const I = t.icon;
                 return (
@@ -5556,6 +5911,8 @@ export default function App() {
         {workflow === 'ringfence' && renderRingfence()}
         {workflow === 'idcheck' && renderIdCheck()}
         {workflow === 'mtd-submit' && renderMtdSubmit()}
+        {workflow === 'complaint' && renderComplaint()}
+        {workflow === 'complaint-resolve' && renderComplaintResolve()}
 
         {showOTP && <OTPSheet />}
         {showCompliance && <ComplianceSheet />}
@@ -5563,6 +5920,7 @@ export default function App() {
         {showRMSheet && <RMSheet />}
         {showEntitySwitcher && <EntitySheet />}
         {pendingCancelId && <CancelSheet />}
+        {showLetterFor && <ComplaintLetterSheet />}
         {showReceiptSheet && <ReceiptSheet />}
         {showPinSheet && <PinSheet />}
         {showOBSheet && <OBSheet />}
@@ -5727,6 +6085,8 @@ export default function App() {
       {workflow === 'ringfence' && renderRingfence()}
       {workflow === 'idcheck' && renderIdCheck()}
       {workflow === 'mtd-submit' && renderMtdSubmit()}
+      {workflow === 'complaint' && renderComplaint()}
+      {workflow === 'complaint-resolve' && renderComplaintResolve()}
 
       {showOTP && <OTPSheet />}
       {showCompliance && <ComplianceSheet />}
@@ -5734,6 +6094,7 @@ export default function App() {
       {showRMSheet && <RMSheet />}
       {showEntitySwitcher && <EntitySheet />}
       {pendingCancelId && <CancelSheet />}
+      {showLetterFor && <ComplaintLetterSheet />}
       {showReceiptSheet && <ReceiptSheet />}
       {showPinSheet && <PinSheet />}
       {showOBSheet && <OBSheet />}
